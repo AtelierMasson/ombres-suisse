@@ -5,23 +5,45 @@ import { solEn } from "./grille.js";
 import { contoursBatiments } from "./contours.js";
 import { pansToits } from "./pans.js";
 
+/** Suite de nombres dans un tableau typé qui grandit par doublement, quand la taille n'est pas connue d'avance. */
+class Tampon {
+  constructor(Type = Float32Array, taille = 4096) { this.a = new Type(taille); this.n = 0; }
+  ajouter(...v) {
+    if (this.n + v.length > this.a.length) {
+      const b = new this.a.constructor(Math.max(2 * this.a.length, this.n + v.length));
+      b.set(this.a.subarray(0, this.n)); this.a = b;
+    }
+    for (let k = 0; k < v.length; k++) this.a[this.n++] = v[k];
+  }
+  /** Tableau ajusté à la taille utile. */
+  fin() { return this.a.slice(0, this.n); }
+}
+
+/** Après l'envoi à la carte graphique, la copie en mémoire vive ne sert plus (couches jamais relues ni exportées). */
+function jetable(g) {
+  g.computeBoundingSphere();
+  for (const a of [...Object.values(g.attributes), g.index]) a?.onUpload(function () { this.array = null; });
+  return g;
+}
+
 /** Terrain (un sommet tous les mètres) avec coordonnées de texture pour le fond de plan. */
 export function terrain(G, zRef) {
   const pas = 2, m = Math.floor(G.n / pas) + 1, pos = new Float32Array(m * m * 3), uv = new Float32Array(m * m * 2);
   for (let b = 0; b < m; b++) for (let a = 0; a < m; a++) {
     const x = G.x0 + a * pas * G.c, y = G.x0 + b * pas * G.c, k = b * m + a;
-    pos.set([x, solEn(G, x, y) - zRef, -y], 3 * k);
-    uv.set([(x - G.x0) / (2 * G.R), (y - G.x0) / (2 * G.R)], 2 * k);
+    pos[3 * k] = x; pos[3 * k + 1] = solEn(G, x, y) - zRef; pos[3 * k + 2] = -y;
+    uv[2 * k] = (x - G.x0) / (2 * G.R); uv[2 * k + 1] = (y - G.x0) / (2 * G.R);
   }
-  const idx = [];
+  const idx = new Uint32Array((m - 1) * (m - 1) * 6);
+  let q = 0;
   for (let b = 0; b < m - 1; b++) for (let a = 0; a < m - 1; a++) {
     const p = b * m + a;
-    idx.push(p, p + 1, p + m + 1, p, p + m + 1, p + m);
+    idx[q++] = p; idx[q++] = p + 1; idx[q++] = p + m + 1; idx[q++] = p; idx[q++] = p + m + 1; idx[q++] = p + m;
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
-  g.setIndex(idx);
+  g.setIndex(new THREE.BufferAttribute(idx, 1));
   g.computeVertexNormals();
   return g;
 }
@@ -40,28 +62,28 @@ export function hauteurTerrain(G, i, j) {
  */
 export function socle(G, zRef, zBas, bords = null, avecReleve = true) {
   // `bords` (facultatif) : hauteurs absolues des bâtiments de comparaison qui traversent chaque côté, par cellule
-  const { n, c, x0, bat } = G, R = n * c / 2, pos = [];
+  const { n, c, x0, bat } = G, R = n * c / 2, pos = new Float32Array(4 * n * 18);
   // terrain du bord : comme le maillage du terrain (sommets tous les 1 m, interpolés entre deux)
   const sol = (x, y) => {
     const t = (v) => Math.floor((v - x0) / (2 * c)) * 2 * c + x0;
     if (Math.abs(Math.abs(x) - R) < 1e-6) { const y0 = t(Math.min(y, R - 2 * c)), u = (y - y0) / (2 * c); return solEn(G, x, y0) * (1 - u) + solEn(G, x, y0 + 2 * c) * u; }
     const xa = t(Math.min(x, R - 2 * c)), u = (x - xa) / (2 * c); return solEn(G, xa, y) * (1 - u) + solEn(G, xa + 2 * c, y) * u;
   };
-  // les quatre côtés, cellule par cellule : [cellule (i, j), extrémités (x, y) du segment de bord]
-  const cotes = [];
-  for (let i = 0; i < n; i++) cotes.push([i, 0, x0 + i * c, -R, x0 + (i + 1) * c, -R, 0, i]);
-  for (let j = 0; j < n; j++) cotes.push([n - 1, j, R, x0 + j * c, R, x0 + (j + 1) * c, 1, j]);
-  for (let i = n - 1; i >= 0; i--) cotes.push([i, n - 1, x0 + (i + 1) * c, R, x0 + i * c, R, 2, i]);
-  for (let j = n - 1; j >= 0; j--) cotes.push([0, j, -R, x0 + (j + 1) * c, -R, x0 + j * c, 3, j]);
-  for (const [i, j, xa, ya, xb, yb, cote, k] of cotes) {
+  // les quatre côtés, cellule par cellule : cellule (i, j), extrémités (x, y) du segment de bord
+  let q = 0;
+  const face = (i, j, xa, ya, xb, yb, cote, k) => {
     const b = bords?.[cote][k];
     const h = Math.max(avecReleve && bat[j * n + i] || -Infinity, b > -Infinity ? b : -Infinity), za = sol(xa, ya), zb = sol(xb, yb);
-    const ha = h > -Infinity ? Math.max(za, h) : za, hb = h > -Infinity ? Math.max(zb, h) : zb;
-    const A = [xa, ha - zRef, -ya], B = [xb, hb - zRef, -yb], Ab = [xa, zBas, -ya], Bb = [xb, zBas, -yb];
-    pos.push(...A, ...Ab, ...Bb, ...A, ...Bb, ...B);
-  }
+    const ha = (h > -Infinity ? Math.max(za, h) : za) - zRef, hb = (h > -Infinity ? Math.max(zb, h) : zb) - zRef;
+    // A, A bas, B bas ; A, B bas, B
+    for (const [x, y, z] of [[xa, ha, -ya], [xa, zBas, -ya], [xb, zBas, -yb], [xa, ha, -ya], [xb, zBas, -yb], [xb, hb, -yb]]) { pos[q++] = x; pos[q++] = y; pos[q++] = z; }
+  };
+  for (let i = 0; i < n; i++) face(i, 0, x0 + i * c, -R, x0 + (i + 1) * c, -R, 0, i);
+  for (let j = 0; j < n; j++) face(n - 1, j, R, x0 + j * c, R, x0 + (j + 1) * c, 1, j);
+  for (let i = n - 1; i >= 0; i--) face(i, n - 1, x0 + (i + 1) * c, R, x0 + i * c, R, 2, i);
+  for (let j = n - 1; j >= 0; j--) face(0, j, -R, x0 + (j + 1) * c, -R, x0 + j * c, 3, j);
   const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   g.computeVertexNormals();
   return g;
 }
@@ -71,40 +93,72 @@ export function socle(G, zRef, zBas, bords = null, avecReleve = true) {
  * a sa propre nappe (pas de pente entre deux toits de hauteurs différentes) et les coins de bord sont redressés.
  * `sauf` (numéro de pan par cellule) écarte les cellules déjà couvertes par un pan de toit.
  */
-export function nappe(G, val, zRef, C, sauf) {
+export function nappe(G, val, zRef, C, sauf, normales = true) {
   const { n, c, x0 } = G, m = n + 1;
-  const rang = new Int32Array(m * m).fill(-1), vol = new Int32Array(m * m).fill(-1), pos = [], idx = [], vols = [];
+  const rang = new Int32Array(m * m).fill(-1), vol = new Int32Array(m * m).fill(-1);
   const coin = k => { // sans contours : moyenne des cellules renseignées autour du coin
     const i = k % m, j = (k - i) / m;
     let s = 0, q = 0;
-    for (const [a, b] of [[i - 1, j - 1], [i, j - 1], [i - 1, j], [i, j]]) {
-      if (a < 0 || b < 0 || a >= n || b >= n) continue;
-      const v = val[b * n + a];
-      if (!isNaN(v)) { s += v; q++; }
-    }
+    if (i > 0 && j > 0) { const v = val[(j - 1) * n + i - 1]; if (!isNaN(v)) { s += v; q++; } }
+    if (i < n && j > 0) { const v = val[(j - 1) * n + i]; if (!isNaN(v)) { s += v; q++; } }
+    if (i > 0 && j < n) { const v = val[j * n + i - 1]; if (!isNaN(v)) { s += v; q++; } }
+    if (i < n && j < n) { const v = val[j * n + i]; if (!isNaN(v)) { s += v; q++; } }
     return s / q;
   };
+  const volume = p => C ? ((sauf && sauf[p] >= 0) ? -1 : C.seg[p]) : isNaN(val[p]) ? -1 : 0;
+  // deux passes, pour des tableaux typés à la bonne taille : compter cellules et sommets, puis remplir
+  let pos = null, idx = null, vols = null, ns = 0, nc = 0;
   const sommet = (k, s) => {
     if (rang[k] < 0 || vol[k] !== s) {
-      rang[k] = pos.length / 3; vol[k] = s;
-      if (C) pos.push(C.px[k], C.hauteurCoin(k, s) - zRef, -C.py[k]);
-      else pos.push(x0 + (k % m) * c, coin(k) - zRef, -(x0 + Math.floor(k / m) * c));
+      rang[k] = ns; vol[k] = s;
+      if (pos) {
+        if (C) { pos[3 * ns] = C.px[k]; pos[3 * ns + 1] = C.hauteurCoin(k, s) - zRef; pos[3 * ns + 2] = -C.py[k]; }
+        else { pos[3 * ns] = x0 + (k % m) * c; pos[3 * ns + 1] = coin(k) - zRef; pos[3 * ns + 2] = -(x0 + Math.floor(k / m) * c); }
+      }
+      ns++;
     }
     return rang[k];
   };
-  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
-    const s = C ? C.seg[j * n + i] : isNaN(val[j * n + i]) ? -1 : 0;
-    if (s < 0 || (sauf && sauf[j * n + i] >= 0)) continue;
-    const A = sommet(j * m + i, s), B = sommet(j * m + i + 1, s), D = sommet((j + 1) * m + i + 1, s), E = sommet((j + 1) * m + i, s);
-    idx.push(A, B, D, A, D, E);
-    vols.push(s);
+  for (const remplir of [false, true]) {
+    if (remplir) {
+      pos = new Float32Array(3 * ns); idx = new Uint32Array(6 * nc); vols = new Int32Array(nc);
+      rang.fill(-1); vol.fill(-1); ns = nc = 0;
+    }
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+      const s = volume(j * n + i);
+      if (s < 0) continue;
+      const A = sommet(j * m + i, s), B = sommet(j * m + i + 1, s), D = sommet((j + 1) * m + i + 1, s), E = sommet((j + 1) * m + i, s);
+      if (remplir) {
+        const q = 6 * nc;
+        idx[q] = A; idx[q + 1] = B; idx[q + 2] = D; idx[q + 3] = A; idx[q + 4] = D; idx[q + 5] = E;
+        vols[nc] = s;
+      }
+      nc++;
+    }
   }
   const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  g.setIndex(idx);
-  g.computeVertexNormals();
-  g.userData.volumes = Int32Array.from(vols); // volume de chaque paire de triangles (désignation au clic, mode pro)
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  g.setIndex(new THREE.BufferAttribute(idx, 1));
+  if (normales) g.computeVertexNormals();
+  g.userData.volumes = vols; // volume de chaque paire de triangles (désignation au clic, mode pro)
   return g;
+}
+
+/**
+ * Canopée qui porte l'ombre des arbres en points : jamais affichée, elle est construite à 1 m (4 fois moins de
+ * triangles que la grille de 0,5 m ; l'ombre, adoucie, reste la même) et sans normales.
+ */
+export function canopee(G, zRef) {
+  const { n, c, x0, veg } = G, m = Math.ceil(n / 2), val = new Float32Array(m * m);
+  for (let j = 0; j < m; j++) for (let i = 0; i < m; i++) {
+    let s = 0, q = 0;
+    for (let b = 2 * j; b < Math.min(n, 2 * j + 2); b++) for (let a = 2 * i; a < Math.min(n, 2 * i + 2); a++) {
+      const v = veg[b * n + a];
+      if (!isNaN(v)) { s += v; q++; }
+    }
+    val[j * m + i] = q ? s / q : NaN;
+  }
+  return jetable(nappe({ n: m, c: 2 * c, x0 }, val, zRef, null, null, false));
 }
 
 /**
@@ -114,7 +168,7 @@ export function nappe(G, val, zRef, C, sauf) {
  * Retourne aussi les contours du style choisi : hauteur des murs (`hauts`) et, en pans, `pans` (hauteurs du toit).
  */
 export function batiments(G, zRef, pans = false, contours = contoursBatiments(G)) {
-  const C0 = contours.base || contours, P = pans ? (C0.pansCalcules ||= pansToits(G, C0)) : null, { n } = G, m = n + 1, pos = [], vols = [];
+  const C0 = contours.base || contours, P = pans ? (C0.pansCalcules ||= pansToits(G, C0)) : null, { n } = G, m = n + 1, pos = new Tampon(), vols = new Tampon(Int32Array, 1024);
   const entre = (a, b, t) => t === 0 ? a : t === 1 ? b : a + (b - a) * t; // les bouts exacts : murs du relevé inchangés
   const boucles = C0.boucles.map(B => {
     const q = B.coins.length, hauts = P ? new Float32Array(q) : B.hauts;
@@ -140,16 +194,16 @@ export function batiments(G, zRef, pans = false, contours = contoursBatiments(G)
       for (const [t1, z1, t2, z2] of profil) {
         const x1 = entre(xa, xb, t1), y1 = entre(ya, yb, t1), x2 = entre(xa, xb, t2), y2 = entre(ya, yb, t2);
         const b1 = entre(sa, sb, t1) - zRef, b2 = entre(sa, sb, t2) - zRef;
-        pos.push(x1, z1 - zRef, -y1, x1, b1, -y1, x2, b2, -y2, x1, z1 - zRef, -y1, x2, b2, -y2, x2, z2 - zRef, -y2);
-        vols.push(B.seg);
+        pos.ajouter(x1, z1 - zRef, -y1, x1, b1, -y1, x2, b2, -y2, x1, z1 - zRef, -y1, x2, b2, -y2, x2, z2 - zRef, -y2);
+        vols.ajouter(B.seg);
       }
     }
     return P ? { ...B, hauts } : B;
   });
   const murs = new THREE.BufferGeometry();
-  murs.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  murs.setAttribute("position", new THREE.BufferAttribute(pos.fin(), 3));
   murs.computeVertexNormals();
-  murs.userData.volumes = Int32Array.from(vols);
+  murs.userData.volumes = vols.fin();
   const C = P ? { ...C0, boucles, pans: P, base: C0 } : C0;
   return { toits: P ? toitsPans(G, zRef, C0, P) : nappe(G, G.bat, zRef, C0), murs, contours: C };
 }
@@ -277,43 +331,55 @@ function bruit(x, y) {
 }
 
 const CLASSES = { 2: "#c9b999", 3: "#5a8c3a", 4: "#5a8c3a", 5: "#5a8c3a", 6: "#d9725a", 9: "#4d8cd9", 17: "#9a9a9a", 26: "#8d6fc2" };
+const vegetation = cl => cl === 3 || cl === 4 || cl === 5;
 
 /**
- * Nuage de points. `mode` : "arbres" (végétation, teinte variée), "facades" (points mesurés sur les murs)
- * ou "tous" (couleur par classe). `part` = fraction gardée.
+ * Nuage de points. `mode` : "arbres" (végétation, teinte variée) ou "tous" (nuage brut, couleur par classe).
+ * `part` = fraction gardée. En mode "tous", la végétation est rangée à la fin (`userData.autres` = nombre de points
+ * des autres classes) : on peut ne pas la dessiner (drawRange) quand les arbres sont déjà affichés.
  */
 export function nuagePoints(nuage, G, zRef, mode, part, taille) {
-  const { n, c, R } = G, pos = [], rel = [], va = [], col = [], pas = Math.max(1, Math.round(1 / part)), teinte = new THREE.Color();
-  for (let k = 0; k < nuage.n; k++) {
-    const cl = nuage.C[k], x = nuage.X[k], y = nuage.Y[k], z = nuage.Z[k];
-    const i = Math.floor((x + R) / c), j = Math.floor((y + R) / c);
-    if (i < 0 || j < 0 || i >= n || j >= n) continue;
-    const p = j * n + i;
-    if (mode === "arbres") {
-      if ((cl !== 3 && cl !== 4 && cl !== 5) || k % pas) continue;
-      // hauteur dans la couronne : 0 au pied, 1 au sommet
-      const h = G.veg[p] - G.sol[p];
-      rel.push(h > 1 ? Math.min(1, Math.max(0, (z - G.sol[p]) / h)) : 0.5);
-      va.push(Math.min(0.999, 0.75 * bruit(x / 7, y / 7) + 0.25 * alea(k, 3)));
-    } else if (mode === "facades") {
-      // classe 26 (façades et murs des vols récents) ou point « bâtiment » nettement sous le toit de sa cellule
-      if (!(cl === 26 || (cl === 6 && z < G.bat[p] - 1.2)) || z < G.sol[p] + 0.3) continue;
-      rel.push(0.5); va.push(0.5 * alea(k, 5));
-    } else {
-      if (k % pas) continue;
-      rel.push(0); va.push(0);
-      teinte.set(CLASSES[cl] || "#8d8f99");
-      col.push(teinte.r, teinte.g, teinte.b);
-    }
-    pos.push(x, z - zRef, -y);
+  const { n, c, R } = G, { X, Y, Z, C } = nuage, pas = Math.max(1, Math.round(1 / part)), arbres = mode === "arbres";
+  const dedans = k => { const i = Math.floor((X[k] + R) / c), j = Math.floor((Y[k] + R) / c); return i < 0 || j < 0 || i >= n || j >= n ? -1 : j * n + i; };
+  // première passe : compter (tableaux typés à la bonne taille)
+  let nv = 0, na = 0;
+  for (let k = 0; k < nuage.n; k += arbres ? 1 : pas) {
+    if (arbres && (!vegetation(C[k]) || k % pas)) continue;
+    if (dedans(k) < 0) continue;
+    if (vegetation(C[k])) nv++; else na++;
   }
-  if (!pos.length) return null;
-  const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  g.setAttribute("aRel", new THREE.Float32BufferAttribute(rel, 1));
-  g.setAttribute("aVar", new THREE.Float32BufferAttribute(va, 1));
-  if (mode === "tous") g.setAttribute("aCouleur", new THREE.Float32BufferAttribute(col, 3));
-  const pts = new THREE.Points(g, materiauPoints(taille, mode === "tous"));
+  const nb = nv + na;
+  if (!nb) return null;
+  const pos = new Float32Array(3 * nb), g = new THREE.BufferGeometry();
+  if (arbres) {
+    const rel = new Float32Array(nb), va = new Float32Array(nb);
+    for (let k = 0, q = 0; k < nuage.n; k++) {
+      if (!vegetation(C[k]) || k % pas) continue;
+      const p = dedans(k);
+      if (p < 0) continue;
+      const x = X[k], y = Y[k], z = Z[k], h = G.veg[p] - G.sol[p];
+      // hauteur dans la couronne : 0 au pied, 1 au sommet
+      rel[q] = h > 1 ? Math.min(1, Math.max(0, (z - G.sol[p]) / h)) : 0.5;
+      va[q] = Math.min(0.999, 0.75 * bruit(x / 7, y / 7) + 0.25 * alea(k, 3));
+      pos[3 * q] = x; pos[3 * q + 1] = z - zRef; pos[3 * q + 2] = -y; q++;
+    }
+    g.setAttribute("aRel", new THREE.BufferAttribute(rel, 1));
+    g.setAttribute("aVar", new THREE.BufferAttribute(va, 1));
+  } else {
+    // couleur par classe, sur un octet par composante
+    const col = new Uint8Array(3 * nb), palette = new Uint8Array(3 * 256), teinte = new THREE.Color();
+    for (let cl = 0; cl < 256; cl++) { teinte.set(CLASSES[cl] || "#8d8f99"); palette.set([teinte.r * 255, teinte.g * 255, teinte.b * 255].map(Math.round), 3 * cl); }
+    for (let k = 0, qa = 0, qv = na; k < nuage.n; k += pas) {
+      if (dedans(k) < 0) continue;
+      const cl = C[k], q = vegetation(cl) ? qv++ : qa++;
+      pos[3 * q] = X[k]; pos[3 * q + 1] = Z[k] - zRef; pos[3 * q + 2] = -Y[k];
+      col[3 * q] = palette[3 * cl]; col[3 * q + 1] = palette[3 * cl + 1]; col[3 * q + 2] = palette[3 * cl + 2];
+    }
+    g.setAttribute("aCouleur", new THREE.BufferAttribute(col, 3, true));
+    g.userData.autres = na;
+  }
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  const pts = new THREE.Points(jetable(g), materiauPoints(taille, !arbres));
   pts.receiveShadow = true;
   const v = new THREE.Vector2();
   pts.onBeforeRender = (r, s, cam) => { pts.material.uniforms.echelle.value = r.getDrawingBufferSize(v).y / (2 * Math.tan(cam.fov * Math.PI / 360)); };
@@ -391,12 +457,16 @@ export function couronnes(G, zRef, couleurs) {
     }
   };
   passe(0, m, 1, 0, m, 1); passe(m - 1, -1, -1, m - 1, -1, -1);
-  const idx = new Int32Array(m * m).fill(-1), pos = [], col = [], tri = [];
+  // deux nappes (dessus bombé, dessous plus plat) : les sommets du dessous suivent ceux du dessus
+  const idx = new Int32Array(m * m).fill(-1);
+  let nv = 0;
+  for (let k = 0; k < m * m; k++) if (dist[k]) idx[k] = nv++;
+  if (!nv) return null;
+  const pos = new Float32Array(6 * nv), col = new Float32Array(6 * nv), tri = new Tampon(Uint32Array);
   const C = couleurs.map(x => new THREE.Color(x)), coul = new THREE.Color();
   const solM = (i, j) => sol[Math.min(n - 1, j * pas + 1) * n + Math.min(n - 1, i * pas + 1)];
-  const dessus = [], dessous = [];
   for (let j = 0; j < m; j++) for (let i = 0; i < m; i++) {
-    const k = j * m + i;
+    const k = j * m + i, a = 3 * idx[k], b = a + 3 * nv;
     if (!dist[k]) continue;
     // dôme : profil en quart de cercle, dont le rayon suit la hauteur de la couronne
     const H = Hp[k] / Math.max(1e-3, P[k]), z0 = solM(i, j) - zRef;
@@ -404,28 +474,26 @@ export function couronnes(G, zRef, couleurs) {
     const e = Math.sqrt(Math.max(0, 1 - (1 - Math.min(1, d / rayon)) ** 2));
     const base = z0 + H * 0.45, sommet = z0 + H;
     const x = x0 + (i + 0.5) * pas * c, y = x0 + (j + 0.5) * pas * c;
-    dessus[k] = [x, base + (sommet - base) * e, -y];
-    dessous[k] = [x, base - (sommet - base) * 0.12 * e, -y];
+    pos[a] = pos[b] = x; pos[a + 2] = pos[b + 2] = -y;
+    pos[a + 1] = base + (sommet - base) * e;
+    pos[b + 1] = base - (sommet - base) * 0.12 * e;
     const v = 0.7 * bruit(x / 6, y / 6) + 0.3 * alea(i, j);
     coul.copy(C[0]).lerp(C[1], 0.3 + 0.55 * e).lerp(C[2], Math.max(0, v - 0.55) * 1.2).multiplyScalar(0.9 + 0.2 * v);
-    dessus[k].c = [coul.r, coul.g, coul.b];
-    dessous[k].c = [coul.r * 0.7, coul.g * 0.7, coul.b * 0.7];
+    col[a] = coul.r; col[a + 1] = coul.g; col[a + 2] = coul.b;
+    col[b] = coul.r * 0.7; col[b + 1] = coul.g * 0.7; col[b + 2] = coul.b * 0.7;
   }
-  for (const [nappeV, inverse] of [[dessus, false], [dessous, true]]) {
-    idx.fill(-1);
-    for (let k = 0; k < m * m; k++) if (nappeV[k]) { idx[k] = pos.length / 3; pos.push(...nappeV[k]); col.push(...nappeV[k].c); }
+  for (const [o, inverse] of [[0, false], [nv, true]]) {
+    const ajoute = (t0, t1, t2) => { if (t0 >= 0 && t1 >= 0 && t2 >= 0) tri.ajouter(t0 + o, (inverse ? t2 : t1) + o, (inverse ? t1 : t2) + o); };
     for (let j = 0; j < m - 1; j++) for (let i = 0; i < m - 1; i++) {
       const a = idx[j * m + i], b = idx[j * m + i + 1], d = idx[(j + 1) * m + i + 1], e = idx[(j + 1) * m + i];
-      const t1 = [a, b, d], t2 = [a, d, e], t3 = [a, b, e], t4 = [b, d, e];
-      const ajoute = t => { if (t.every(v => v >= 0)) tri.push(...(inverse ? [t[0], t[2], t[1]] : t)); };
-      if (a >= 0 && d >= 0) { ajoute(t1); ajoute(t2); } else { ajoute(t3); ajoute(t4); }
+      if (a >= 0 && d >= 0) { ajoute(a, b, d); ajoute(a, d, e); } else { ajoute(a, b, e); ajoute(b, d, e); }
     }
   }
-  if (!tri.length) return null;
+  if (!tri.n) return null;
   const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
-  g.setIndex(tri);
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  g.setAttribute("color", new THREE.BufferAttribute(col, 3));
+  g.setIndex(new THREE.BufferAttribute(tri.fin(), 1));
   g.computeVertexNormals();
   return g;
 }
@@ -435,18 +503,21 @@ export function couronnes(G, zRef, couleurs) {
  * répartis dans la moitié haute de la couronne, au format d'un nuage (classe 3).
  */
 export function pointsVegetation(G) {
-  const { n, c, x0, sol, veg } = G, X = [], Y = [], Z = [];
+  const { n, c, x0, sol, veg } = G;
+  let nb = 0;
+  for (let p = 0; p < n * n; p++) if (veg[p] - sol[p] > 1) nb += 3;
+  const X = new Float32Array(nb), Y = new Float32Array(nb), Z = new Float32Array(nb);
+  let q = 0;
   for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
     const p = j * n + i, h = veg[p] - sol[p];
     if (!(h > 1)) continue;
     for (let k = 0; k < 3; k++) {
       const a = alea(p, k), b = alea(k, p), t = alea(p + 7, k + 3);
-      X.push(x0 + (i + a) * c); Y.push(x0 + (j + b) * c);
-      Z.push(veg[p] - h * 0.45 * t * t); // plus dense près du sommet
+      X[q] = x0 + (i + a) * c; Y[q] = x0 + (j + b) * c;
+      Z[q++] = veg[p] - h * 0.45 * t * t; // plus dense près du sommet
     }
   }
-  const nb = X.length;
-  return { X: Float32Array.from(X), Y: Float32Array.from(Y), Z: Float32Array.from(Z), C: new Uint8Array(nb).fill(3), n: nb };
+  return { X, Y, Z, C: new Uint8Array(nb).fill(3), n: nb };
 }
 
 /**
@@ -489,7 +560,7 @@ export function hauteursBords(G, zRef, objets) {
 
 /** Limites des parcelles voisines (traits fins posés sur le terrain) et leurs numéros (étiquettes au centre). */
 export function limitesVoisines(voisines, G, zRef, couleur) {
-  const grp = new THREE.Group(), pos = [], R = G.R;
+  const grp = new THREE.Group(), pos = new Tampon(), R = G.R;
   const dedans = (x, y) => Math.abs(x) < R - 0.5 && Math.abs(y) < R - 0.5;
   for (const v of voisines) {
     for (const a of v.anneauxRel) for (let k = 0; k < a.length - 1; k++) {
@@ -497,7 +568,7 @@ export function limitesVoisines(voisines, G, zRef, couleur) {
       for (let t = 0; t < m; t++) {
         const xa = x1 + (x2 - x1) * t / m, ya = y1 + (y2 - y1) * t / m, xb = x1 + (x2 - x1) * (t + 1) / m, yb = y1 + (y2 - y1) * (t + 1) / m;
         if (!dedans(xa, ya) || !dedans(xb, yb)) continue;
-        pos.push(xa, solEn(G, xa, ya) - zRef + 0.15, -ya, xb, solEn(G, xb, yb) - zRef + 0.15, -yb);
+        pos.ajouter(xa, solEn(G, xa, ya) - zRef + 0.15, -ya, xb, solEn(G, xb, yb) - zRef + 0.15, -yb);
       }
     }
     // numéro au centre de la boîte de la parcelle, s'il est dans la maquette
@@ -506,7 +577,7 @@ export function limitesVoisines(voisines, G, zRef, couleur) {
     if (dedans(cx, cy) && v.numero) grp.add(etiquetteNumero(v.numero, couleur, cx, solEn(G, cx, cy) - zRef + 1.2, -cy));
   }
   const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("position", new THREE.BufferAttribute(pos.fin(), 3));
   grp.add(new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: couleur, transparent: true, opacity: 0.75 })));
   return grp;
 }

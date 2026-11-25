@@ -10,7 +10,7 @@ import { Swiss3D } from "./swiss3d.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { solEn, majSurface } from "./grille.js";
 import { indexVolumes } from "./volumes.js";
-import { terrain, socle, nappe, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, limitesVoisines } from "./maillages.js";
+import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, limitesVoisines } from "./maillages.js";
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
 
@@ -178,7 +178,7 @@ export class Scene3D {
     const rendu = ao.render.bind(ao);
     ao.render = (...a) => {
       // les points n'entrent jamais dans l'occlusion (sinon chaque point a son halo sombre)
-      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, c.heures, c.limite, c.voisines, c.arbres, c.facades, c.tous, c.selection,
+      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, c.heures, c.limite, c.voisines, c.arbres, c.tous, c.selection,
         c.canopee?.material.colorWrite === false ? c.canopee : null].filter(o => o && o.visible);
       for (const o of caches) o.visible = false;
       rendu(...a);
@@ -285,7 +285,6 @@ export class Scene3D {
   couleursPoints() {
     const c = this.couches, T = this.T;
     if (c.arbres) ["c1", "c2", "c3"].forEach((u, k) => c.arbres.material.uniforms[u].value.set(T.arbres[k]));
-    if (c.facades) for (const u of ["c1", "c2", "c3"]) c.facades.material.uniforms[u].value.set(T.facades);
   }
 
   /* ------------------------------------------------------------------ construction */
@@ -306,7 +305,7 @@ export class Scene3D {
     this.couches = {};
     this.poignees = [];
     this.coupe = this.contours = this.urls = null;
-    this.contoursTous = this.volumes = this.batOrigine = null;
+    this.contoursTous = this.volumes = this.batOrigine = this.nuage = null;
     this.idScene++;
   }
 
@@ -314,6 +313,8 @@ export class Scene3D {
   construire(G, nuage, parcelle, urls) {
     this.vider();
     this.G = G;
+    // le nuage est gardé (tableaux typés X, Y, Z, C) : nuage brut construit à la demande, points proches de la coupe
+    this.nuage = nuage;
     this.urls = urls;
     this.zRef = solEn(G, 0, 0);
     const s = this.soleil.shadow.camera, R = G.R * 1.45;
@@ -331,16 +332,12 @@ export class Scene3D {
     bati.add(maille(B.toits, m.toit, true, true), maille(B.murs, m.mur, true, true));
     this.contours = this.contoursTous = B.contours;
     // la canopée (grille) porte l'ombre des points ; sans points, styleArbres() construit des couronnes lissées
-    const canopee = maille(nappe(G, G.veg, this.zRef), m.canopee, true, false);
+    const canopee = maille(nappeCanopee(G, this.zRef), m.canopee, true, false);
     // arbres toujours en points : sans relevé classé (repli raster), points tirés de la grille de végétation
     const arbres = nuage ? nuagePoints(nuage, G, this.zRef, "arbres", 0.5, 0.9) : nuagePoints(pointsVegetation(G), G, this.zRef, "arbres", 1, 0.9);
-    const facades = nuage ? nuagePoints(nuage, G, this.zRef, "facades", 1, 0.42) : null;
-    const tous = nuage ? nuagePoints(nuage, G, this.zRef, "tous", 0.35, 0.45) : null;
     const limite = contourParcelle(parcelle, G, this.zRef, m.parcelle);
-    this.couches = { terrain: sol, socle: base, bati, canopee, arbres, facades, tous, limite };
+    this.couches = { terrain: sol, socle: base, bati, canopee, arbres, limite };
     for (const o of Object.values(this.couches)) if (o) this.groupe.add(o);
-    if (tous) tous.visible = false;
-    if (facades) facades.visible = false;
     // la canopée qui porte l'ombre des points est un peu abaissée : le haut des couronnes reste au soleil,
     // l'intérieur et le bas s'assombrissent
     canopee.position.y = -0.8;
@@ -352,6 +349,27 @@ export class Scene3D {
     this.vueDepart();
     if (this.modeVue) { const m = this.modeVue; this.modeVue = null; this.avant3D = null; this.vueOrtho(m); }
     this.ombres();
+  }
+
+  /**
+   * Nuage de points brut (couleur par classe) : construit à la première demande seulement, à partir du nuage gardé.
+   * Quand les arbres sont affichés, sa végétation (rangée à la fin) n'est pas dessinée : elle ferait double emploi.
+   */
+  voirPoints(actif) {
+    const c = this.couches;
+    if (actif && !c.tous && this.nuage && this.G) {
+      c.tous = nuagePoints(this.nuage, this.G, this.zRef, "tous", 0.35, 0.45);
+      if (c.tous) {
+        this.groupe.add(c.tous);
+        this.appliquerCoupe();
+        if (this.etatSoleil) this.placerSoleil(...this.etatSoleil); // luminosité des points selon le soleil
+      }
+    }
+    if (!c.tous) return;
+    c.tous.visible = !!actif;
+    const g = c.tous.geometry;
+    g.setDrawRange(0, this.arbresVisibles !== false && c.arbres ? g.userData.autres : Infinity);
+    this.demander();
   }
 
   /**
@@ -378,6 +396,7 @@ export class Scene3D {
     }
     m.canopee.colorWrite = m.canopee.depthWrite = false;
     m.canopee.needsUpdate = true;
+    if (c.tous) this.voirPoints(c.tous.visible);
     this.ombres();
   }
 
@@ -745,7 +764,7 @@ export class Scene3D {
     // les points ne sont pas éclairés par three.js : leur luminosité suit la lumière présente (ciel + soleil), rapportée
     // à celle d'un jour clair, comme pour les surfaces ; à l'ombre, ils ne gardent que la part du ciel
     const k = 0.55, jourClair = 1.1 + 2.6 * k, total = this.ciel.intensity + this.soleil.intensity * k;
-    for (const c of ["arbres", "facades", "tous"]) {
+    for (const c of ["arbres", "tous"]) {
       const u = this.couches[c]?.material.uniforms;
       const f = Math.min(1, total / jourClair);
       if (u) { u.lum.value = Math.max(0.04, f ** 1.5); u.gris.value = 0.7 * (1 - f) ** 2; u.ombre.value = visible ? this.ciel.intensity / total : 1; }
@@ -760,18 +779,6 @@ export class Scene3D {
     this.couches.heures = grp;
     if (grp) { if (vieux) grp.visible = vieux.visible; this.groupe.add(grp); }
     this.appliquerCoupe();
-    this.demander();
-  }
-
-  /**
-   * Points mesurés sur les façades. Ils sont sous les avant-toits, donc derrière les murs reconstruits à l'aplomb
-   * du bord du toit : les murs deviennent translucides pour les laisser voir.
-   */
-  voirFacades(actif) {
-    const c = this.couches.facades, m = this.mat.mur;
-    actif = !!(actif && c);
-    if (c) c.visible = actif;
-    if (m.transparent !== actif) { m.transparent = actif; m.opacity = actif ? 0.28 : 1; m.depthWrite = !actif; m.needsUpdate = true; }
     this.demander();
   }
 
@@ -828,7 +835,7 @@ export class Scene3D {
       for (const x of [m.toit, m.mur, c.roofer?.material, this.swiss?.materiau]) if (x) { x.clippingPlanes = [...dedans, ...(plans || [])]; x.needsUpdate = true; }
     }
     const cibles = [m.terrain, m.socle, m.canopee, m.couronne, m.parcelle];
-    for (const k of ["arbres", "facades", "tous"]) if (c[k]) cibles.push(c[k].material);
+    for (const k of ["arbres", "tous"]) if (c[k]) cibles.push(c[k].material);
     c.heures?.traverse(o => o.material && cibles.push(o.material));
     if (c.selection) cibles.push(c.selection.material);
     for (const x of cibles) if (!!x.clippingPlanes !== !!plans) { x.clippingPlanes = plans; x.needsUpdate = true; }

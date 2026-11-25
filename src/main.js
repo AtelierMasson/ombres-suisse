@@ -96,7 +96,6 @@ function accueil() {
   const D = hameau();
   scene.construire(D.G, D.nuage, D.parcelle, null);
   pro.reinitialiser();
-  scene.voirFacades(false);
   scene.camera.position.set(-78, 52, 96);
   scene.controls.autoRotate = true; scene.controls.autoRotateSpeed = 0.5;
   scene.decalage = 0.17; scene.taille();
@@ -223,9 +222,6 @@ async function depuisAdresse() {
     comparerRoofer();
     appliquerAffichage();
     $("#vArbres").disabled = !nuage && !G.veg.some(v => !isNaN(v)); $("#vPoints").disabled = !nuage;
-    const nf = scene.couches.facades?.geometry.attributes.position.count || 0;
-    $("#vFacades").disabled = !nf; if (!nf) $("#vFacades").checked = false;
-    $("#nbFacades").textContent = nf ? `(${nf.toLocaleString("fr-CH")})` : nuage ? "(aucun ici)" : "(relevé non disponible)";
 
     donnerAltitude(scene.zRef + 1.7);
     if (horizonFini < 1) etat(0.9 + 0.1 * horizonFini, "Relief lointain (montagnes)…");
@@ -298,13 +294,13 @@ function appliquerAffichage() {
   const c = scene.couches || {};
   if (c.bati) c.bati.visible = choixBatiments() === "releve";
   scene.styleArbres($("#vArbres").checked);
-  scene.voirFacades($("#vFacades").checked);
-  if (c.tous) c.tous.visible = $("#vPoints").checked;
+  scene.voirPoints($("#vPoints").checked && !$("#vPoints").disabled);
   if (c.heures) c.heures.visible = $("#vHeures").checked;
   scene.ombres();
 }
-["#vArbres", "#vFacades", "#vPoints", "#vHeures"].forEach(s => $(s).addEventListener("change", appliquerAffichage));
-// cube d'orientation : il suit la caméra ; une face donne le plan ou une élévation, « 3D » revient à la perspective
+["#vArbres", "#vPoints", "#vHeures"].forEach(s => $(s).addEventListener("change", appliquerAffichage));
+// cube d'orientation (à la manière d'AutoCAD) : il suit la caméra ; chaque face est découpée en 3 × 3 zones
+// (centre = face, bords = arêtes, angles = coins) qui donnent une vue ; glisser le cube fait tourner la vue
 {
   const cube = $("#orientation .cube");
   const suivre = () => {
