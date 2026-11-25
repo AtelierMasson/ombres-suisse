@@ -39,7 +39,7 @@ export async function depuisRasters({ terrain, surface: surf }, [E0, N0], R, c =
   const lire = async (liste, cible, nom) => {
     for (const [k, t] of liste.entries()) {
       onProgres(k / liste.length, `${nom} (${t.annee})…`);
-      const img = await (await fromUrl(t.url)).getImage();
+      const img = await (await fromUrl(t.url, { maxRanges: 1 })).getImage();
       const [bx0, , , by1] = img.getBoundingBox(), [rx] = img.getResolution();
       const w = img.getWidth(), h = img.getHeight();
       // fenêtre de l'image (lignes depuis le nord) qui recouvre la boîte
@@ -47,7 +47,7 @@ export async function depuisRasters({ terrain, surface: surf }, [E0, N0], R, c =
       const c0 = Math.max(0, Math.floor((e0 - bx0) / rx)), c1 = Math.min(w, Math.ceil((e0 + 2 * R - bx0) / rx));
       const l0 = Math.max(0, Math.floor((by1 - n1) / rx)), l1 = Math.min(h, Math.ceil((by1 - (n1 - 2 * R)) / rx));
       if (c1 <= c0 || l1 <= l0) continue;
-      const [ras] = await img.readRasters({ window: [c0, l0, c1, l1], samples: [0] });
+      const ras = await lireFenetre(t.url, [c0, l0, c1, l1]);
       for (let l = l0; l < l1; l++) for (let col = c0; col < c1; col++) {
         const E = bx0 + (col + 0.5) * rx, N = by1 - (l + 0.5) * rx;
         const i = Math.floor((E - E0 + R) / c), j = Math.floor((N - N0 + R) / c);
@@ -69,6 +69,23 @@ export async function depuisRasters({ terrain, surface: surf }, [E0, N0], R, c =
 }
 
 /** Surface (obstacles : sol, bâtiments, arbres) ; la base (sol ou toit) sert de point de départ et d'appui à la carte. */
+/**
+ * Lecture d'une fenêtre d'un COG, avec reprise : le cache HTTP du navigateur renvoie parfois un bloc tronqué
+ * (« Offset is outside the bounds of the DataView ») ; on relit alors à une adresse distincte, hors cache.
+ */
+async function lireFenetre(url, fenetre, essais = 3) {
+  for (let k = 1; ; k++) {
+    try {
+      const u = k === 1 ? url : `${url}?essai=${Date.now()}`;
+      const img = await (await fromUrl(u, { maxRanges: 1 })).getImage();
+      return (await img.readRasters({ window: fenetre, samples: [0] }))[0];
+    } catch (e) {
+      if (k >= essais || !(e instanceof RangeError)) throw e;
+      await new Promise(r => setTimeout(r, 300 * k));
+    }
+  }
+}
+
 function surface(G) {
   const { sol, bat, veg } = G, s = new Float32Array(sol.length);
   G.base = new Float32Array(sol.length);
