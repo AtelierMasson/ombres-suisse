@@ -36,10 +36,13 @@ void main() {
  * fin et de larges nuances. `force` = amplitude relative (0,07 = ±3,5 %).
  */
 // ombre de contact : grilles du lieu (altitude du sol, distance au bâti) partagées par les matériaux
-const CONTACT = { tSol: { value: null }, tDist: { value: null }, grille: { value: new THREE.Vector3(0, 1, 0) }, contactActif: { value: 0 } };
+const CONTACT = { tSol: { value: null }, tDist: { value: null }, grille: { value: new THREE.Vector3(0, 1, 0) }, contactActif: { value: 0 },
+  // sélection : R = parcelle choisie, G = bâtiment(s) de l'adresse ou de la parcelle ; teinte = couleur de parcelle du thème
+  tSel: { value: null }, teinteSel: { value: new THREE.Color("#e0262b") } };
 
 /**
- * `contact` : "mur" (bas des murs assombri sur ~1,5 m) ou "sol" (sol assombri au pied des bâtiments, ~2 m), sinon rien.
+ * `contact` : "mur" (bas des murs assombri sur ~1,5 m), "sol" (sol assombri au pied des bâtiments, ~2 m) ou "toit" ;
+ * les trois reçoivent aussi la teinte légère de la sélection (parcelle, bâtiment).
  * L'occlusion ambiante, large et douce, ne marque pas assez la jonction mur–sol : les bâtiments semblaient flotter.
  */
 function grainPlatre(mat, force, contact = "") {
@@ -53,7 +56,8 @@ function grainPlatre(mat, force, contact = "") {
       .replace("#include <common>", `#include <common>
 varying vec3 vMonde;
 uniform float grainForce;
-uniform sampler2D tSol, tDist;
+uniform sampler2D tSol, tDist, tSel;
+uniform vec3 teinteSel;
 uniform vec3 grille; // x0, côté (m), zRef inutilisé
 uniform float contactActif;
 float hachage(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
@@ -71,7 +75,9 @@ ${contact && `if (contactActif > 0.5) {
   vec2 uvG = (vec2(vMonde.x, -vMonde.z) - grille.x) / grille.y;
   ${contact === "mur"
     ? "float hc = vMonde.y - texture2D(tSol, uvG).r; diffuseColor.rgb *= mix(0.84, 1.0, smoothstep(0.0, 1.2, hc));"
-    : "float dc = texture2D(tDist, uvG).r; diffuseColor.rgb *= mix(0.86, 1.0, smoothstep(0.0, 1.6, dc));"}
+    : contact === "sol" ? "float dc = texture2D(tDist, uvG).r; diffuseColor.rgb *= mix(0.86, 1.0, smoothstep(0.0, 1.6, dc));" : ""}
+  vec2 sel = texture2D(tSel, uvG).rg;
+  diffuseColor.rgb = mix(diffuseColor.rgb, teinteSel * 1.15, ${contact === "sol" ? "0.13 * sel.r" : "0.22 * sel.g"});
 }`}`);
   };
   mat.customProgramCacheKey = () => "platre" + force + contact;
@@ -137,7 +143,7 @@ export class Scene3D {
       poignee: new THREE.MeshBasicMaterial({ depthTest: false, fog: false }),
     };
     // même grain léger partout (sol, socle, toits, murs, couronnes) : aspect de maquette en plâtre
-    for (const [k, force, contact] of [["terrain", 0.07, "sol"], ["socle", 0.07], ["toit", 0.07], ["mur", 0.07, "mur"], ["couronne", 0.05]]) grainPlatre(this.mat[k], force, contact);
+    for (const [k, force, contact] of [["terrain", 0.07, "sol"], ["socle", 0.07], ["toit", 0.07, "toit"], ["mur", 0.07, "mur"], ["couronne", 0.05]]) grainPlatre(this.mat[k], force, contact);
     this.partages = new Set(Object.values(this.mat));
     this.plan = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
     this.couches = {};
@@ -244,8 +250,10 @@ export class Scene3D {
     const m = this.mat, sombre = this.G && !this.G.classifie ? 0.93 : 1; // sans classes : bâtiments un peu plus sombres (moins fiables)
     // bâtiments de la couleur du sol : une maquette d'un seul matériau, le relief vient des ombres
     m.toit.color.set(T.sol).multiplyScalar(sombre); m.mur.color.set(T.sol).multiplyScalar(sombre);
+    this.swiss?.materiau.color.set(T.sol);
     m.socle.color.set(T.socle); m.canopee.color.set(T.arbres[1]); m.parcelle.color.set(T.parcelle);
     m.trait.color.set(T.coupe.trait); m.poignee.color.set(T.parcelle);
+    CONTACT.teinteSel.value.set(T.parcelle);
     m.terrain.color.set(m.terrain.map ? "#ffffff" : T.sol);
     // lumière du ciel quasi uniforme : un mur dos au soleil a le même ton qu'une ombre portée au sol. Le « rebond » du sol
     // (éclairage indirect) teinte légèrement les faces tournées vers le bas ou de côté, à luminosité égale.
@@ -378,7 +386,12 @@ export class Scene3D {
    * Ils portent et reçoivent les ombres comme les nôtres ; décocher « Bâtiments » pour ne voir qu'eux.
    */
   comparerSwiss(actif, lieu) {
-    if (!this.swiss) this.swiss = new Swiss3D(this, new THREE.MeshStandardMaterial({ color: "#b9cce0", roughness: 0.9, side: THREE.DoubleSide }));
+    if (!this.swiss) {
+      // même matière que nos bâtiments (couleur du terrain) ; coupés au bord du modèle et par la coupe A–B
+      this.swiss = new Swiss3D(this, new THREE.MeshStandardMaterial({ color: this.T.sol, roughness: 0.92, side: THREE.DoubleSide }));
+      grainPlatre(this.swiss.materiau, 0.07);
+      this.appliquerCoupe();
+    }
     if (lieu) this.swiss.lieu = lieu;
     this.swiss.montrer(!!actif && !!this.G);
     this.demander(5);
@@ -398,6 +411,65 @@ export class Scene3D {
     const o = this.couches.couronnes;
     if (o) { this.groupe.remove(o); o.geometry.dispose(); this.couches.couronnes = null; }
     this.styleArbres();
+  }
+
+  /**
+   * Sélection mise en évidence par une teinte légère : la parcelle (anneaux relatifs) au sol, et les bâtiments
+   * de l'adresse (bâtiment sous le point, ou le plus proche à 6 m) ou, pour une parcelle, ceux qui sont dessus.
+   */
+  surligner(parcelle, point) {
+    const G = this.G, { n, c, x0, bat } = G, sel = new Float32Array(n * n * 2);
+    const dans = (x, y, anneaux) => {
+      let ok = false;
+      for (const a of anneaux) for (let i = 0, j = a.length - 1; i < a.length; j = i++) {
+        const [xi, yi] = a[i], [xj, yj] = a[j];
+        if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) ok = !ok;
+      }
+      return ok;
+    };
+    const anneaux = parcelle?.anneauxRel || [];
+    // bâtiments : composante connexe sous le point de l'adresse, sinon cellules « bâtiment » dans la parcelle
+    const graines = [];
+    if (point) {
+      let meilleur = -1, dmin = 6 / c;
+      const i0 = Math.floor((point[0] - x0) / c), j0 = Math.floor((point[1] - x0) / c), r = Math.ceil(dmin);
+      for (let j = j0 - r; j <= j0 + r; j++) for (let i = i0 - r; i <= i0 + r; i++) {
+        if (i < 0 || j < 0 || i >= n || j >= n || isNaN(bat[j * n + i])) continue;
+        const d = Math.hypot(i - i0, j - j0);
+        if (d < dmin) { dmin = d; meilleur = j * n + i; }
+      }
+      if (meilleur >= 0) graines.push(meilleur);
+    }
+    const vu = new Uint8Array(n * n);
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+      const p = j * n + i, x = x0 + (i + 0.5) * c, y = x0 + (j + 0.5) * c;
+      if (anneaux.length && dans(x, y, anneaux)) {
+        sel[2 * p] = 1;
+        if (!point && !isNaN(bat[p])) graines.push(p);
+      }
+    }
+    const pile = [...graines];
+    for (const p of pile) vu[p] = 1;
+    while (pile.length) {
+      const p = pile.pop(), i = p % n;
+      sel[2 * p + 1] = 1;
+      for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n])
+        if (q >= 0 && q < n * n && !vu[q] && !isNaN(bat[q])) { vu[q] = 1; pile.push(q); }
+    }
+    // un peu élargi : les murs, posés au bord des cellules, doivent lire la sélection
+    const bord = sel.slice();
+    for (let j = 1; j < n - 1; j++) for (let i = 1; i < n - 1; i++) {
+      const p = j * n + i;
+      if (bord[2 * p + 1]) continue;
+      if (bord[2 * (p - 1) + 1] || bord[2 * (p + 1) + 1] || bord[2 * (p - n) + 1] || bord[2 * (p + n) + 1]) sel[2 * p + 1] = 1;
+    }
+    const h = new Uint16Array(sel.length);
+    for (let k = 0; k < sel.length; k++) h[k] = THREE.DataUtils.toHalfFloat(sel[k]);
+    const t = new THREE.DataTexture(h, n, n, THREE.RGFormat, THREE.HalfFloatType);
+    t.magFilter = t.minFilter = THREE.LinearFilter; t.needsUpdate = true;
+    CONTACT.tSel.value?.dispose();
+    CONTACT.tSel.value = t;
+    this.demander();
   }
 
   /** Textures de l'ombre de contact : altitude du sol (relative) et distance au bâtiment le plus proche (m, plafonnée). */
@@ -577,7 +649,14 @@ export class Scene3D {
 
   appliquerCoupe() {
     const plans = this.coupe ? [this.plan] : null, c = this.couches, m = this.mat;
-    const cibles = [m.terrain, m.socle, m.toit, m.mur, m.canopee, m.couronne, m.parcelle, this.ao.normalMaterial];
+    // bâtiments swisstopo : chargés par tuiles bien au-delà du modèle, on les coupe aux bords du terrain
+    // (et l'occlusion ambiante ne doit pas voir la partie coupée)
+    if (this.G) {
+      const R = this.G.R, boite = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), R));
+      const avecBoite = [...boite, ...(plans || [])];
+      for (const x of [this.swiss?.materiau, this.ao.normalMaterial]) if (x) { x.clippingPlanes = avecBoite; x.needsUpdate = true; }
+    }
+    const cibles = [m.terrain, m.socle, m.toit, m.mur, m.canopee, m.couronne, m.parcelle];
     for (const k of ["arbres", "facades", "tous"]) if (c[k]) cibles.push(c[k].material);
     c.heures?.traverse(o => o.material && cibles.push(o.material));
     for (const x of cibles) if (!!x.clippingPlanes !== !!plans) { x.clippingPlanes = plans; x.needsUpdate = true; }

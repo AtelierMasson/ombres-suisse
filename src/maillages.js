@@ -317,7 +317,7 @@ export function contourParcelle(parcelle, G, zRef, materiau) {
     }
     if (pts.length < 2) continue;
     pts.push(pts[0].clone());
-    grp.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, "catmullrom", 0), pts.length * 2, 0.3, 6), materiau));
+    grp.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, "catmullrom", 0), pts.length * 2, 0.12, 6), materiau));
   }
   return grp;
 }

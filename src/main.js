@@ -175,6 +175,8 @@ async function depuisAdresse() {
     scene.controls.autoRotate = false;
     scene.typeFond = $("input[name=fond]:checked").value;
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite) });
+    // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
+    scene.surligner(rel, h.get("t") === "Adresse" ? [E - E0, N - N0] : null);
     scene.comparerSwiss($("#vSwiss").checked, { lon: S.lon, lat: S.lat });
     S.roofer = essaiRoofer(E0, N0);
     $("#ligneRoofer").hidden = !S.roofer;

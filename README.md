@@ -50,7 +50,7 @@ le site utilise les modèles en grille 0,5 m swissALTI3D (terrain) et swissSURFA
 relevé. Bâtiments et arbres sont alors séparés par la forme (toit lisse, couronne rugueuse) : moins fiable, murs
 moins nets, pas de points de façade.
 
-**Comparaison** : la case « Comparer : bâtiments 3D swisstopo » affiche, en bleuté, les bâtiments tout faits de
+**Comparaison** : la case « Comparer : bâtiments 3D swisstopo » affiche les bâtiments tout faits de
 swissBUILDINGS3D (tuiles 3D de geo.admin.ch, décodeur Draco servi depuis `public/draco/`). Ils portent leurs ombres ;
 décocher « Bâtiments » pour ne voir qu'eux. Leur hauteur est calée sur nos toits (médiane des écarts, de l’ordre de 0,1 m).
 Le diagramme solaire est cliquable : un clic ou un glissé sur la course place le soleil à l'heure correspondante.

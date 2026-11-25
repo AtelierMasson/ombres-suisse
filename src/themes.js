@@ -44,7 +44,7 @@ export const THEMES = {
     lumiere: { ciel: "#fff6ee", sol: "#b08f7c", soleil: "#ffeed6", exposition: 1.0, brume: 0.0006 },
     mur: "#f1e0d3", toit: "#e2c8b7", sol: "#e1cdbd", socle: "#c4a995",
     plan: { sol: "#e1cdbd", route: "#d8c2b1", bati: "#d3bba9", foret: "#d3caae", eau: "#c9cfd0", trait: "#8c6c5c", force: 0.75 },
-    parcelle: "#0b7285", arbres: ["#4a5a2c", "#8a9a4a", "#c9b458"], facades: "#a68572",
+    parcelle: "#8c2f1c", arbres: ["#4a5a2c", "#8a9a4a", "#c9b458"], facades: "#a68572",
     heures: ["#1d6f8a", "#7fb7b0", "#f3e9c9", "#e39a5d", "#c8442b"],
     coupe: { trait: "#3a2420", bati: "#7c3a2b", terrain: "#b89a85" },
   },
