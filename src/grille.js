@@ -11,22 +11,27 @@ export function grilleVide(R, c = 0.5) {
 /** Points -> grilles (min du sol, max des bâtiments et de la végétation). */
 export function depuisPoints(nuage, R, c = 0.5) {
   const G = grilleVide(R, c), { n, sol, bat, veg } = G;
-  const { X, Y, Z, C } = nuage;
+  const { X, Y, Z, C } = nuage, eauZ = new Float32Array(n * n).fill(NaN);
   for (let k = 0; k < nuage.n; k++) {
     const i = Math.floor((X[k] + R) / c), j = Math.floor((Y[k] + R) / c);
     if (i < 0 || j < 0 || i >= n || j >= n) continue;
     const p = j * n + i, z = Z[k], cl = C[k];
     if (cl === 2 || cl === 9) { if (!(sol[p] <= z)) sol[p] = z; }
+    if (cl === 9 && !(eauZ[p] <= z)) eauZ[p] = z;
     else if (cl === 6 || cl === 17) { if (!(bat[p] >= z)) bat[p] = z; }
     else if (cl === 3 || cl === 4 || cl === 5) { if (!(veg[p] >= z)) veg[p] = z; }
   }
+  G.eau = plansEau(eauZ, n, c);
   remplir(sol, n);
+  // sous l'eau : fond plat un peu sous le niveau (le plan d'eau est dessiné à part)
+  for (let p = 0; p < n * n; p++) if (!isNaN(G.eau[p])) sol[p] = Math.min(sol[p], G.eau[p] - 0.3);
   fermer(bat, n, 2); fermer(veg, n, 1);
   for (let p = 0; p < n * n; p++) {
     if (bat[p] < sol[p] + 1.5) bat[p] = NaN;
     if (veg[p] < sol[p] + 1.0) veg[p] = NaN;
   }
   retirerIsoles(bat, n, 3);
+  boucherTrous(bat, n, c);
   retirerMats(bat, sol, n, c);
   G.surface = surface(G);
   return G;
@@ -64,6 +69,7 @@ export async function depuisRasters({ terrain, surface: surf }, [E0, N0], R, c =
   // sans classes : tout ce qui dépasse le sol de plus de 2 m est un obstacle, puis on sépare toits (lisses) et arbres (rugueux)
   for (let p = 0; p < G.n * G.n; p++) if (dsm[p] > G.sol[p] + 2) G.bat[p] = dsm[p];
   retirerIsoles(G.bat, G.n, 3);
+  boucherTrous(G.bat, G.n, c);
   retirerMats(G.bat, G.sol, G.n, c);
   separerArbres(G);
   G.surface = surface(G);
@@ -165,6 +171,95 @@ function fermer(a, n, passes) {
     }
     for (let q = 0; q < ajout.length; q += 2) a[ajout[q]] = ajout[q + 1];
   }
+}
+
+/**
+ * Bouche les trous et les puits d'un toit : zones sans point « bâtiment » ou nettement plus basses que le toit qui
+ * les entoure (verrières et sheds traversés par le laser, toits sombres ou mouillés, points classés autrement) ;
+ * sinon le toit descend jusqu'au sol ou à l'étage. Un creux n'est bouché que s'il est entouré de toit de tous côtés
+ * et fait moins de `aireMax` m² : les cours intérieures et les toits plus bas en bordure restent. Le creux prend
+ * la hauteur du toit « tendu » par-dessus (fermeture morphologique), à défaut celle de ses bords.
+ */
+function boucherTrous(a, n, c, aireMax = 30, largeur = 2.5) {
+  // fermeture (max puis min sur une fenêtre de ±largeur) : hauteur du toit « tendu » par-dessus les creux étroits
+  const r = Math.round(largeur / c), N = n * n;
+  const filtre = (src, max, horiz) => {
+    const out = new Float32Array(N);
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+      let m = max ? -Infinity : Infinity;
+      for (let k = -r; k <= r; k++) {
+        const ii = horiz ? i + k : i, jj = horiz ? j : j + k;
+        if (ii < 0 || jj < 0 || ii >= n || jj >= n) continue;
+        const v = src[jj * n + ii];
+        if (v !== v) { if (!max) { m = -Infinity; break; } continue; } // NaN : ignoré pour le max, « bas » pour le min
+        if (max ? v > m : v < m) m = v;
+      }
+      out[j * n + i] = m === -Infinity ? NaN : m;
+    }
+    return out;
+  };
+  const tendu = filtre(filtre(filtre(filtre(a, true, true), true, false), false, true), false, false);
+  const creux = new Uint8Array(N);
+  for (let p = 0; p < N; p++) creux[p] = isNaN(a[p]) || tendu[p] - a[p] > 2 ? 1 : 0;
+  const vu = new Uint8Array(N), maxCel = aireMax / (c * c);
+  for (let p0 = 0; p0 < N; p0++) {
+    if (vu[p0] || !creux[p0]) continue;
+    const pile = [p0], m = [];
+    vu[p0] = 1;
+    let ouvert = false;
+    while (pile.length) {
+      const p = pile.pop(), i = p % n, j = (p / n) | 0;
+      m.push(p);
+      if (i === 0 || j === 0 || i === n - 1 || j === n - 1) ouvert = true;
+      for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, j > 0 ? p - n : -1, j < n - 1 ? p + n : -1])
+        if (q >= 0 && !vu[q] && creux[q]) { vu[q] = 1; pile.push(q); }
+    }
+    if (ouvert || m.length > maxCel) continue;
+    // toit « tendu » par-dessus le creux ; là où il manque, de proche en proche depuis le bord
+    for (const p of m) a[p] = tendu[p];
+    // de proche en proche : chaque passe remplit les cellules qui touchent déjà du toit
+    let reste = m.filter(p => isNaN(a[p]));
+    while (reste.length) {
+      const ajout = [], suite = [];
+      for (const p of reste) {
+        let s = 0, k = 0;
+        for (const q of [p - 1, p + 1, p - n, p + n, p - n - 1, p - n + 1, p + n - 1, p + n + 1]) if (!isNaN(a[q])) { s += a[q]; k++; }
+        if (k) ajout.push(p, s / k); else suite.push(p);
+      }
+      if (!ajout.length) break;
+      for (let q = 0; q < ajout.length; q += 2) a[ajout[q]] = ajout[q + 1];
+      reste = suite;
+    }
+  }
+}
+
+/**
+ * Lacs, étangs, rivières : cellules touchées par des points de classe « eau », trous refermés, regroupées en plans
+ * d'eau d'au moins `aireMin` m². Chaque plan reçoit un seul niveau (médiane de ses points, robuste aux vagues et au
+ * bruit du laser sur l'eau). Retourne le niveau par cellule (NaN hors de l'eau).
+ */
+function plansEau(eauZ, n, c, aireMin = 20) {
+  const N = n * n, masque = new Float32Array(N).fill(NaN), niveau = new Float32Array(N).fill(NaN);
+  for (let p = 0; p < N; p++) if (!isNaN(eauZ[p])) masque[p] = 1;
+  fermer(masque, n, 4); // le laser rend peu de points sur l'eau : on referme les trous entre eux
+  const vu = new Uint8Array(N);
+  for (let p0 = 0; p0 < N; p0++) {
+    if (vu[p0] || isNaN(masque[p0])) continue;
+    const pile = [p0], m = [], z = [];
+    vu[p0] = 1;
+    while (pile.length) {
+      const p = pile.pop(), i = p % n;
+      m.push(p);
+      if (!isNaN(eauZ[p])) z.push(eauZ[p]);
+      for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n])
+        if (q >= 0 && q < N && !vu[q] && !isNaN(masque[q])) { vu[q] = 1; pile.push(q); }
+    }
+    if (m.length * c * c < aireMin || z.length < 10) continue;
+    z.sort((a, b) => a - b);
+    const h = z[Math.floor(z.length / 2)];
+    for (const p of m) niveau[p] = h;
+  }
+  return niveau;
 }
 
 /** Supprime les cellules isolées (bruit : antennes, câbles…). */

@@ -10,7 +10,7 @@ import { Swiss3D } from "./swiss3d.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { solEn, majSurface } from "./grille.js";
 import { indexVolumes } from "./volumes.js";
-import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines } from "./maillages.js";
+import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau } from "./maillages.js";
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
 
@@ -49,7 +49,7 @@ const CONTACT = { tSol: { value: null }, tDist: { value: null }, grille: { value
 function grainPlatre(mat, force, contact = "") {
   mat.onBeforeCompile = sh => {
     sh.uniforms.grainForce = { value: force };
-    Object.assign(sh.uniforms, CONTACT);
+    Object.assign(sh.uniforms, CONTACT, DEGRADE);
     sh.vertexShader = sh.vertexShader
       .replace("#include <common>", "#include <common>\nvarying vec3 vMonde;")
       .replace("#include <begin_vertex>", "#include <begin_vertex>\nvMonde = (modelMatrix * vec4(transformed, 1.0)).xyz;");
@@ -61,6 +61,7 @@ uniform sampler2D tSol, tDist, tSel;
 uniform vec3 teinteSel;
 uniform vec3 grille; // x0, côté (m), zRef inutilisé
 uniform float contactActif;
+${RAMPE_GLSL}
 float hachage(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
 float bruit3(vec3 x) {
   vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
@@ -68,6 +69,7 @@ float bruit3(vec3 x) {
              mix(mix(hachage(i + vec3(0, 0, 1)), hachage(i + vec3(1, 0, 1)), f.x), mix(hachage(i + vec3(0, 1, 1)), hachage(i + vec3(1, 1, 1)), f.x), f.y), f.z);
 }`)
       .replace("#include <map_fragment>", `#include <map_fragment>
+if (degrade > 0.5) diffuseColor.rgb = rampeHaut(vMonde.y); // dégradé selon la hauteur (le grain reste)
 float g = 0.55 * bruit3(vMonde * 2.7) + 0.3 * bruit3(vMonde * 9.0) + 0.15 * bruit3(vMonde * 0.35);
 // trame de cases de 0,5 m (celle du relevé) : un ton légèrement différent par case, sur toutes les faces
 float pixel = hachage(floor(vMonde * 2.0 + 0.001) + 0.37);
@@ -82,10 +84,14 @@ ${contact && `if (contactActif > 0.5) {
 }`}`);
   };
   mat.customProgramCacheKey = () => "platre" + force + contact;
+  mat.userData.platre = true;
 }
 
 // Couleur de la lumière directe du soleil selon sa hauteur (degrés), après la traversée de l'atmosphère
-const TEINTES_SOLEIL = [[0, "#ff6a30"], [1.5, "#ff8740"], [4, "#ffa45e"], [8, "#ffc285"], [15, "#ffd9ac"], [25, "#ffead0"], [45, "#fff4e6"]]
+/** Calque vu du seul soleil : objets qui portent leur ombre sans être dessinés. */
+const CALQUE_OMBRE = 2;
+
+const TEINTES_SOLEIL = [[0, "#ff3d2e"], [1, "#ff4f35"], [3, "#ff6c40"], [6, "#ff8b4e"], [10, "#ffad6c"], [16, "#ffc993"], [25, "#ffe2bf"], [45, "#fff4e6"]]
   .map(([h, c]) => [h, new THREE.Color(c)]);
 function couleurSoleil(h) {
   const T = TEINTES_SOLEIL, c = new THREE.Color();
@@ -117,13 +123,15 @@ export class Scene3D {
     this.controls.dampingFactor = 0.12;
     this.controls.zoomToCursor = true;
     // rendu à la demande : tout mouvement de la caméra (molette comprise, avec son amorti) redessine
-    this.controls.addEventListener("change", () => this.demander(3));
+    this.controls.addEventListener("change", () => { if (this.modeVue) this.plansCamera(); this.demander(3); });
     r.domElement.addEventListener("wheel", () => this.demander(40), { passive: true });
 
     // lumières : ciel (hémisphère) et soleil (ombres portées)
     this.ciel = new THREE.HemisphereLight("#ffffff", "#8a8f7a", 1.1);
     const s = this.soleil = new THREE.DirectionalLight("#fff6e0", 2.6);
     s.castShadow = true;
+    s.shadow.camera.layers.enable(CALQUE_OMBRE);
+    this.calques = { jeu: "releve", batVoir: true, batOmbre: true, arbVoir: true, arbOmbre: true };
     s.shadow.mapSize.set(4096, 4096);
     s.shadow.bias = -0.0004;
     s.shadow.normalBias = 0.25;
@@ -152,9 +160,10 @@ export class Scene3D {
       couronne: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }),
       parcelle: new THREE.MeshBasicMaterial(), trait: new LineMaterial({ linewidth: 4, fog: false }),
       poignee: new THREE.MeshBasicMaterial({ depthTest: false, fog: false }),
+      eau: new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0.05, polygonOffset: true, polygonOffsetFactor: -1 }),
     };
     // même grain léger partout (sol, socle, toits, murs, couronnes) : aspect de maquette en plâtre
-    for (const [k, force, contact] of [["terrain", 0.07, "sol"], ["socle", 0.07], ["toit", 0.07, "toit"], ["mur", 0.07, "mur"], ["couronne", 0.05]]) grainPlatre(this.mat[k], force, contact);
+    for (const [k, force, contact] of [["terrain", 0.07, "sol"], ["socle", 0.07], ["toit", 0.07, "toit"], ["mur", 0.07, "mur"], ["couronne", 0.05], ["eau", 0.025]]) grainPlatre(this.mat[k], force, contact);
     this.partages = new Set(Object.values(this.mat));
     this.plan = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
     this.couches = {};
@@ -265,6 +274,7 @@ export class Scene3D {
     this.swiss?.materiau.color.set(T.sol);
     // socle de la même matière que le terrain et les bâtiments
     m.socle.color.set(T.sol); m.canopee.color.set(T.arbres[1]); m.parcelle.color.set(T.parcelle);
+    m.eau.color.set(T.eau || (T.sombre ? "#36536e" : "#a7c6d6"));
     m.trait.color.set(T.coupe.trait); m.poignee.color.set(T.parcelle);
     CONTACT.teinteSel.value.set(T.parcelle);
     this.couches?.selection?.material.color.set(T.parcelle);
@@ -325,6 +335,15 @@ export class Scene3D {
     for (let p = 0; p < G.sol.length; p++) if (G.sol[p] < zmin) zmin = G.sol[p];
     this.zBas = zmin - this.zRef - Math.max(6, G.R * 0.05);
     this.grillesContact(G);
+    // dégradé selon la hauteur : du point le plus bas du terrain au haut des bâtiments et des arbres (sans les
+    // quelques points les plus hauts : grues, antennes)
+    {
+      const hs = [];
+      for (let p = 0; p < G.sol.length; p += 7) { const h = Math.max(G.sol[p], G.bat[p] || -1e9, G.veg[p] || -1e9); if (h > -1e8) hs.push(h); }
+      hs.sort((a, b) => a - b);
+      DEGRADE.zBas.value = zmin - this.zRef;
+      DEGRADE.zHaut.value = (hs[Math.floor(hs.length * 0.998)] ?? zmin + 30) - this.zRef;
+    }
 
     const m = this.mat, maille = (g, mat, porte, recoit) => { const o = new THREE.Mesh(g, mat); o.castShadow = porte; o.receiveShadow = recoit; return o; };
     const sol = maille(terrain(G, this.zRef), m.terrain, false, true);
@@ -337,7 +356,9 @@ export class Scene3D {
     // arbres toujours en points : sans relevé classé (repli raster), points tirés de la grille de végétation
     const arbres = nuage ? nuagePoints(nuage, G, this.zRef, "arbres", 0.5, 0.9) : nuagePoints(pointsVegetation(G), G, this.zRef, "arbres", 1, 0.9);
     const limite = contourParcelle(parcelle, G, this.zRef, m.parcelle);
-    this.couches = { terrain: sol, socle: base, bati, canopee, arbres, limite };
+    // lacs et étangs : un vrai plan, au niveau de l'eau
+    const ge = plansEau(G, this.zRef), eau = ge ? maille(ge, m.eau, false, true) : null;
+    this.couches = { terrain: sol, socle: base, bati, canopee, arbres, limite, eau };
     for (const o of Object.values(this.couches)) if (o) this.groupe.add(o);
     // la canopée qui porte l'ombre des points est un peu abaissée : le haut des couronnes reste au soleil,
     // l'intérieur et le bas s'assombrissent
@@ -378,7 +399,7 @@ export class Scene3D {
    * porte leur ombre. Sans points (repli raster), des couronnes lissées.
    */
   styleArbres(visibles = this.arbresVisibles ?? true) {
-    this.arbresVisibles = visibles;
+    this.arbresVisibles = this.calques.arbVoir = visibles;
     const c = this.couches, m = this.mat;
     if (!this.G) return;
     if (c.arbres) {
@@ -398,7 +419,42 @@ export class Scene3D {
     m.canopee.colorWrite = m.canopee.depthWrite = false;
     m.canopee.needsUpdate = true;
     if (c.tous) this.voirPoints(c.tous.visible);
+    if (this.coupe && this.tranche?.userData.arbres) this.tranche.userData.arbres.visible = visibles;
+    this.appliquerCalques();
     this.ombres();
+  }
+
+  /** Dégradé de couleur selon la hauteur, sur tout le modèle. */
+  degradeHauteur(actif) {
+    DEGRADE.degrade.value = actif ? 1 : 0;
+    this.demander(3);
+  }
+
+  /** Réglages d'affichage : { jeu (releve, swiss, roofer, aucun), batVoir, batOmbre, arbOmbre } (arbres : styleArbres). */
+  reglerCalques(reglages) {
+    Object.assign(this.calques, reglages);
+    this.appliquerCalques();
+    this.majBords();
+    this.ombres();
+  }
+
+  /**
+   * Bâtiments et arbres visibles ou non, portant leur ombre ou non. « Ombre seule » : l'objet passe sur un calque que
+   * seul le soleil voit (il porte son ombre sans être dessiné, ni pris par l'occlusion, ni cliquable).
+   */
+  appliquerCalques() {
+    const k = this.calques, c = this.couches || {};
+    const regler = (o, voir, ombre) => {
+      if (!o) return;
+      o.visible = voir || ombre;
+      o.traverse(m => { m.layers.set(voir ? 0 : CALQUE_OMBRE); if (m.isMesh) m.castShadow = ombre; });
+    };
+    const jeux = { releve: c.bati, swiss: this.swiss?.socle, roofer: c.roofer };
+    for (const [j, o] of Object.entries(jeux)) regler(o, j === k.jeu && k.batVoir, j === k.jeu && k.batOmbre);
+    // arbres : les points se montrent ; la canopée (invisible) ou, en repli, les couronnes portent l'ombre
+    if (c.arbres) regler(c.canopee, k.arbVoir && k.arbOmbre, k.arbOmbre);
+    regler(c.couronnes, k.arbVoir, k.arbOmbre);
+    this.demander();
   }
 
   /**
@@ -414,6 +470,7 @@ export class Scene3D {
     }
     if (lieu) this.swiss.lieu = lieu;
     this.swiss.montrer(!!actif && !!this.G);
+    this.appliquerCalques();
     this.majBords();
     this.demander(5);
   }
@@ -423,7 +480,11 @@ export class Scene3D {
     const vieux = this.couches.roofer;
     if (vieux) { this.groupe.remove(vieux); vieux.geometry.dispose(); }
     this.couches.roofer = m;
-    if (m) { this.groupe.add(m); this.appliquerCoupe(); }
+    if (m) {
+      if (!m.material.userData.platre) { grainPlatre(m.material, 0.07); m.material.needsUpdate = true; }
+      this.groupe.add(m); this.appliquerCoupe();
+    }
+    this.appliquerCalques();
     this.majBords();
     this.ombres();
   }
@@ -437,9 +498,10 @@ export class Scene3D {
     this.minuteBords = setTimeout(() => {
       const base = this.couches.socle;
       if (!base || !this.G) return;
-      const objets = [this.swiss?.socle.visible ? this.swiss.socle : null, this.couches.roofer?.visible ? this.couches.roofer : null].filter(Boolean);
-      // nos bâtiments masqués (autre jeu affiché) : le bord ne suit que celui qui est visible
-      const releve = this.couches.bati?.visible !== false;
+      // le bord ne suit que le jeu de bâtiments affiché (pas celui dont on ne montre que l'ombre)
+      const k = this.calques, voir = k.batVoir;
+      const objets = voir ? [k.jeu === "swiss" ? this.swiss?.socle : null, k.jeu === "roofer" ? this.couches.roofer : null].filter(Boolean) : [];
+      const releve = voir && k.jeu === "releve";
       base.geometry.dispose();
       base.geometry = socle(this.G, this.zRef, this.zBas, objets.length ? hauteursBords(this.G, this.zRef, objets) : null, releve);
       this.grilleComp = null; // la coupe relira les bâtiments affichés
@@ -482,7 +544,7 @@ export class Scene3D {
     const vieux = this.couches.voisines;
     if (vieux) { this.groupe.remove(vieux); this.liberer(vieux); }
     this.couches.voisines = voisines?.length && this.G ? limitesVoisines(voisines, this.G, this.zRef, this.T.sombre ? "#c9d3e3" : "#4b4f57") : null;
-    if (this.couches.voisines) { this.couches.voisines.visible = visibles; this.groupe.add(this.couches.voisines); }
+    if (this.couches.voisines) { this.couches.voisines.visible = visibles; this.groupe.add(this.couches.voisines); this.appliquerCoupe(); }
     this.demander();
   }
 
@@ -663,6 +725,16 @@ export class Scene3D {
    * Quasiment sans perspective : caméra très éloignée à focale très longue (les passes de rendu restent les mêmes).
    * Rotation bloquée ; déplacement et zoom libres.
    */
+  /** Vues plan et élévation : la caméra est loin, les plans proche et lointain encadrent juste la maquette. */
+  plansCamera() {
+    const cam = this.camera, d = cam.position.distanceTo(this.controls.target), marge = 2 * (this.G?.R || 150) + 200;
+    const near = Math.max(0.5, d - marge), far = d + marge;
+    if (Math.abs(cam.near - near) > 0.01 * near || Math.abs(cam.far - far) > 1) { cam.near = near; cam.far = far; cam.updateProjectionMatrix(); }
+    // le ciel suit la caméra et tient dans le champ (la caméra est loin, la voûte de 9 km serait coupée)
+    this.voute.position.copy(cam.position);
+    this.voute.scale.setScalar(far * 0.9 / 9000);
+  }
+
   vueOrtho(mode) {
     const cam = this.camera, ctl = this.controls;
     if ((mode || null) === (this.modeVue || null)) return;
@@ -670,8 +742,9 @@ export class Scene3D {
     this.modeVue = mode || null;
     if (mode) {
       const R = this.G?.R || 150, fov = 3, h = R * 1.25 / Math.tan(fov * Math.PI / 360);
-      cam.fov = fov; cam.far = h * 3; cam.near = h * 0.2;
-      ctl.enableRotate = false; ctl.screenSpacePanning = true; ctl.minDistance = h * 0.05; ctl.maxDistance = h * 2;
+      cam.fov = fov;
+      // zoom jusqu'à ~8 m de large à l'écran ; les plans proche et lointain suivent la distance (plansCamera)
+      ctl.enableRotate = false; ctl.screenSpacePanning = true; ctl.minDistance = 150; ctl.maxDistance = h * 2;
       if (mode === "plan") {
         ctl.target.set(ctl.target.x, 0, ctl.target.z);
         cam.position.set(ctl.target.x, h, ctl.target.z + 0.001);
@@ -687,6 +760,7 @@ export class Scene3D {
     } else {
       const a = this.avant3D;
       cam.fov = a?.fov || 45; cam.near = 0.5; cam.far = 20000;
+      this.voute.position.set(0, 0, 0); this.voute.scale.setScalar(1);
       ctl.enableRotate = true; ctl.minPolarAngle = 0; ctl.maxPolarAngle = Math.PI * 0.495;
       ctl.minDistance = 0; ctl.maxDistance = Infinity;
       this.scene.fog.density = this.T.lumiere.brume;
@@ -694,8 +768,35 @@ export class Scene3D {
     }
     cam.updateProjectionMatrix();
     ctl.update();
+    if (mode) this.plansCamera();
     this.surVue?.(this.modeVue);
     this.demander(5);
+  }
+
+  /**
+   * Vue selon une direction [est, haut, sud] (composantes -1, 0 ou 1), comme le cube d'AutoCAD : le dessus donne le
+   * plan, une face latérale l'élévation (vues orthogonales) ; une arête ou un coin, une vue 3D de biais.
+   */
+  vueDirection([dx, dy, dz]) {
+    if (!dx && !dz) return this.vueOrtho("plan");
+    if (!dy && (!dx || !dz)) return this.vueOrtho(dz > 0 ? "S" : dz < 0 ? "N" : dx > 0 ? "E" : "O");
+    this.vueOrtho(null);
+    const ctl = this.controls, cam = this.camera, dist = Math.max(80, cam.position.distanceTo(ctl.target));
+    const d = new THREE.Vector3(dx, Math.max(dy, 0) + (dy > 0 ? 0 : 0.45), dz).normalize(); // vues « de dessous » : légèrement au-dessus
+    cam.position.copy(ctl.target).addScaledVector(d, dist);
+    ctl.update();
+    this.demander(5);
+  }
+
+  /** Rotation de la vue 3D (glisser sur le cube) : angles en radians. */
+  tourner(dAzimut, dPolaire) {
+    if (this.modeVue) this.vueOrtho(null);
+    const ctl = this.controls, off = this.camera.position.clone().sub(ctl.target), sph = new THREE.Spherical().setFromVector3(off);
+    sph.theta -= dAzimut;
+    sph.phi = Math.max(0.05, Math.min(ctl.maxPolarAngle, sph.phi - dPolaire));
+    this.camera.position.copy(ctl.target).add(new THREE.Vector3().setFromSpherical(sph));
+    ctl.update();
+    this.demander(3);
   }
 
   vueDepart() {
@@ -759,19 +860,21 @@ export class Scene3D {
     this.soleil.target.position.set(0, 0, 0);
     // couleur réelle du soleil selon sa hauteur : plus il est bas, plus sa lumière traverse d'atmosphère (le bleu est
     // diffusé, il reste le jaune puis l'orangé) et plus elle faiblit ; en hiver le soleil reste bas toute la journée
-    const h = Math.asin(Math.max(-1, Math.min(1, dir[1]))) * 180 / Math.PI, bas = visible ? 1 - Math.min(1, Math.max(0, h / 15)) : 0;
+    const h = Math.asin(Math.max(-1, Math.min(1, dir[1]))) * 180 / Math.PI, bas = visible ? (1 - Math.min(1, Math.max(0, h / 18))) ** 1.3 : 0;
     this.soleil.color.copy(couleurSoleil(h)).lerp(new THREE.Color(T.lumiere.soleil), Math.min(1, Math.max(0, (h - 25) / 20)));
     this.soleil.intensity = visible ? 2.6 * (0.35 + 0.65 * (1 - Math.exp(-Math.max(0, h) / 6))) : 0;
-    this.ciel.intensity = visible ? 1.1 : Math.max(0.35, 0.9 * Math.min(1, (dir[1] + 0.1) * 4));
-    // soleil bas : les ombres prennent un peu le bleu du ciel
-    this.ciel.color.set(T.lumiere.ciel).lerp(new THREE.Color("#c6d6f2"), 0.3 * bas);
+    // soleil bas : le ciel éclaire moins, la lumière directe (rouge orangé) domine et les ombres virent au violet
+    this.ciel.intensity = visible ? 1.1 - 0.3 * bas : Math.max(0.35, 0.9 * Math.min(1, (dir[1] + 0.1) * 4));
+    this.ciel.color.set(T.lumiere.ciel).lerp(new THREE.Color("#a99ce6"), 0.5 * bas);
     this.disque.material.color.copy(couleurSoleil(h + 2)).multiplyScalar(1.1);
     this.disque.position.copy(d.clone().multiplyScalar(1200));
     this.disque.visible = dir[1] > -0.02 && !!this.G;
     // ciel : jour, soleil caché par le relief (plus terne), nuit
     const jour = visible ? 1 : dir[1] > 0 ? 0.72 : Math.max(0, Math.min(0.5, 0.5 + dir[1] * 4));
-    u.zenith.value.set(T.ciel.nuitZenith).lerp(new THREE.Color(T.ciel.zenith), jour);
-    u.horizon.value.set(T.ciel.nuitHorizon).lerp(new THREE.Color(T.ciel.horizon), jour).lerp(couleurSoleil(h).lerp(new THREE.Color("#f3c9a2"), 0.4), 0.55 * bas);
+    // lueur de l'aube et du crépuscule : ciel rose orangé à l'horizon, violacé plus haut, jusqu'à 6° sous l'horizon
+    const lueur = h < -6 ? 0 : h < 0 ? (h + 6) / 6 : (1 - Math.min(1, h / 18)) ** 1.3;
+    u.zenith.value.set(T.ciel.nuitZenith).lerp(new THREE.Color(T.ciel.zenith), jour).lerp(new THREE.Color("#8c84c4"), 0.35 * lueur);
+    u.horizon.value.set(T.ciel.nuitHorizon).lerp(new THREE.Color(T.ciel.horizon), jour).lerp(couleurSoleil(Math.max(0, h)).lerp(new THREE.Color("#f59ab4"), 0.45), 0.75 * lueur); // horizon rose orangé
     u.soleil.value.copy(d).normalize();
     u.force.value = visible ? 1 : 0;
     this.scene.fog.color.copy(u.horizon.value);
@@ -834,8 +937,9 @@ export class Scene3D {
       // le bout des faces coupées (terrain sous un bâtiment, murs enterrés) dépasse devant le poché en traits fins
       this.tranche.position.copy(this.plan.normal).multiplyScalar(0.004);
     }
-    // poignées de taille constante à l'écran
-    for (const g of this.poignees) g.scale.setScalar(Math.max(0.6, c.distanceTo(g.position) * 0.011));
+    // poignées de taille constante à l'écran, focale comprise (les vues plan et élévation utilisent une focale très longue)
+    const f = 0.011 * Math.tan(this.camera.fov * Math.PI / 360) / Math.tan(Math.PI / 8);
+    for (const g of this.poignees) g.scale.setScalar(Math.max(0.6, c.distanceTo(g.position) * f));
   }
 
   appliquerCoupe() {
@@ -850,10 +954,14 @@ export class Scene3D {
       // du socle et leur partie enterrée apparaît en stries à travers elle
       const dedans = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), R - 0.03));
       for (const x of [m.toit, m.mur, c.roofer?.material, this.swiss?.materiau]) if (x) { x.clippingPlanes = [...dedans, ...(plans || [])]; x.needsUpdate = true; }
+      // swisstopo et roofer débordent du modèle : la partie coupée ne doit pas non plus porter d'ombre (stries sur la
+      // face du socle, ombres de bâtiments invisibles au bord du terrain)
+      for (const x of [c.roofer?.material, this.swiss?.materiau]) if (x) x.clipShadows = true;
     }
-    const cibles = [m.terrain, m.socle, m.canopee, m.couronne, m.parcelle];
+    const cibles = [m.terrain, m.socle, m.canopee, m.couronne, m.parcelle, m.eau];
     for (const k of ["arbres", "tous"]) if (c[k]) cibles.push(c[k].material);
     c.heures?.traverse(o => o.material && cibles.push(o.material));
+    c.voisines?.traverse(o => o.material && cibles.push(o.material)); // limites et numéros des parcelles voisines
     if (c.selection) cibles.push(c.selection.material);
     for (const x of cibles) if (!!x.clippingPlanes !== !!plans) { x.clippingPlanes = plans; x.needsUpdate = true; }
   }

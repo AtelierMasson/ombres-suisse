@@ -136,7 +136,23 @@ body[data-theme=nuit] #message { background: #3a2f12; color: #ffe2a8; border-col
   #bas { flex-direction: column; align-items: flex-end; }
   #coupe { flex: none; width: min(100%, 560px); }
 }
+/* carte « Affichage » : ce qui est montré ou non, à droite de la vue, à côté du cube d'orientation */
+#calques { position: absolute; top: calc(var(--haut) + 12px); right: 112px; width: 262px; z-index: 5; padding: 0; overflow: hidden; }
+#calques .entete { all: unset; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 9px 12px; cursor: pointer; }
+#calques .entete:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+#calques .chevron { width: 8px; height: 8px; border-right: 2px solid var(--doux); border-bottom: 2px solid var(--doux); transform: rotate(45deg) translateY(-2px); transition: transform .15s; }
+#calques.replie .chevron { transform: rotate(-45deg); }
+#calques.replie #calquesCorps { display: none; }
+#calquesCorps { padding: 0 12px 10px; border-top: 1px solid var(--bord); padding-top: 9px; }
+.table-calques { width: 100%; font-size: 12.5px; border-collapse: collapse; }
+.table-calques thead th { font-size: 10.5px; font-weight: 600; color: var(--doux); text-align: center; padding-bottom: 2px; }
+.table-calques tbody th { font-weight: 400; padding: 3px 0; }
+.table-calques tbody th label { cursor: pointer; }
+.table-calques td { width: 44px; text-align: center; }
+.table-calques .form-check-input { margin: 0; cursor: pointer; }
+.table-calques tbody tr + tr th, .table-calques tbody tr + tr td { border-top: 1px solid var(--bord); }
 @media (max-width: 800px) {
+  #calques { right: 12px; top: auto; bottom: 34px; width: min(262px, calc(100% - 24px)); z-index: 7; }
   #haut .marque { font-size: 0; gap: 0; }
   #panneau, body[data-theme=nuit] #panneau { width: auto; left: 12px; right: 12px; max-height: 45%; }
   #bas, body[data-theme=nuit] #bas { left: 12px; right: 12px; bottom: 34px; }
@@ -147,31 +163,36 @@ body[data-theme=nuit] #message { background: #3a2f12; color: #ffe2a8; border-col
 
 /* téléchargements en cours : bandeau bien visible au-dessus de la vue */
 #telechargement { position: absolute; top: calc(var(--haut) + 14px); left: 50%; transform: translateX(-50%); z-index: 8;
-  display: flex; align-items: center; gap: 10px; padding: 8px 14px 10px; border-radius: 999px; background: var(--carte);
-  border: 1px solid var(--accent); color: var(--texte); font-size: 13px; font-weight: 600; max-width: min(560px, 92vw); }
-#telechargement .spinner-border { color: var(--accent); flex: none; }
-#telechargement .progress { position: absolute; left: 16px; right: 16px; bottom: 4px; height: 3px; }
-#telechargement .progress-bar { transition: width .2s; }
-#svgCoupe .limite-voisine { stroke: var(--doux); stroke-width: 1; stroke-dasharray: 3 3; }
-#svgCoupe .numero { fill: var(--doux); font-size: 10px; }
-#svgCoupe .numero.choisie { fill: var(--parcelle); font-weight: 700; }
-#svgCoupe .cote { fill: var(--texte); font-size: 9.5px; font-variant-numeric: tabular-nums; }
-#svgCoupe .cote-trait { stroke: var(--texte); stroke-width: 1; }
+  width: min(440px, calc(100vw - 32px)); padding: 9px 14px 11px; border-radius: 12px; background: var(--carte);
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent); color: var(--texte); }
+#telechargement .ligne { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 7px; }
+#telechargementTexte { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#telechargementPct { flex: none; color: var(--accent); font-variant-numeric: tabular-nums; }
+#telechargementGrille { display: grid; grid-template-columns: repeat(48, 1fr); gap: 2px; }
+#telechargementGrille i { aspect-ratio: 1; border-radius: 1.5px; background: color-mix(in srgb, var(--texte) 10%, transparent); transition: background .25s, transform .25s; }
+#telechargementGrille i.plein { background: var(--accent); }
+#telechargementGrille i.vif { background: color-mix(in srgb, var(--accent) 70%, transparent); transform: scale(.85); }
+#svgCoupe .limite-voisine { stroke: var(--coupe-fin); stroke-width: .5; stroke-dasharray: 3 3; }
+#svgCoupe .numero { fill: var(--coupe-fin); font-size: 8px; }
+#svgCoupe .numero.choisie { fill: var(--coupe-trait); font-weight: 700; }
+#svgCoupe .cote { fill: var(--texte); font-size: 7.5px; font-variant-numeric: tabular-nums; }
+/* liseré de la couleur du fond : les étiquettes restent lisibles sur le trait de coupe et sur les points */
+#svgCoupe .cote, #svgCoupe .numero { paint-order: stroke; stroke: var(--carte); stroke-width: 2.2px; stroke-linejoin: round; }
+#svgCoupe .cote-trait { stroke: var(--coupe-trait); stroke-width: .5; }
 
-/* cube d'orientation (en haut à droite de la vue) : plan et élévations */
-#orientation { position: absolute; top: calc(var(--haut) + 14px); right: 18px; z-index: 6; width: 76px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+/* boussole d'orientation (en haut à droite de la vue) : trois axes en 3D qui suivent la caméra */
+#orientation { position: absolute; top: calc(var(--haut) + 8px); right: 12px; z-index: 6; width: 92px; display: flex; flex-direction: column; align-items: center; gap: 4px; user-select: none; }
 body.accueil #orientation { display: none; }
-#orientation .cube { --c: 52px; width: var(--c); height: var(--c); position: relative; transform-style: preserve-3d; margin-top: 8px; }
-#orientation .face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0;
-  border: 1px solid var(--bord-fort); background: color-mix(in srgb, var(--carte) 92%, transparent); color: var(--texte);
-  font-size: 12px; font-weight: 700; backface-visibility: hidden; cursor: pointer; }
-#orientation .face:hover { background: var(--accent-clair); color: var(--accent-fonce); }
-#orientation .face.actif { background: var(--accent); color: var(--sur-accent); }
-#orientation .dessus { transform: rotateX(90deg) translateZ(calc(var(--c) / 2)); font-size: 11px; }
-#orientation .dessous { transform: rotateX(-90deg) translateZ(calc(var(--c) / 2)); }
-#orientation .sud { transform: translateZ(calc(var(--c) / 2)); }
-#orientation .nord { transform: rotateY(180deg) translateZ(calc(var(--c) / 2)); }
-#orientation .est { transform: rotateY(90deg) translateZ(calc(var(--c) / 2)); }
-#orientation .ouest { transform: rotateY(-90deg) translateZ(calc(var(--c) / 2)); }
-#orientation #vue3D { padding: 1px 10px; font-size: 12px; background: var(--carte); }
+#boussole { width: 92px; height: 92px; cursor: grab; touch-action: none; overflow: visible; }
+#boussole.tire { cursor: grabbing; }
+#boussole .fond { fill: color-mix(in srgb, var(--carte) 40%, transparent); stroke: none; }
+#boussole .anneau { fill: none; stroke: color-mix(in srgb, var(--texte) 22%, transparent); stroke-width: 1; }
+#boussole .axe { stroke-width: 2.2; stroke-linecap: round; }
+#boussole .axe.neg { stroke-width: 1.2; stroke-dasharray: 2 2.5; opacity: .7; }
+#boussole .bout { cursor: pointer; }
+#boussole .bout circle { stroke-width: 1.6; }
+#boussole .bout text { font: 700 9.5px system-ui, sans-serif; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+#boussole .bout:hover circle { stroke-width: 2.6; }
+#boussole .bout.actif circle { stroke: var(--texte); stroke-width: 2.4; }
+#orientation #vue3D { padding: 1px 10px; font-size: 12px; background: color-mix(in srgb, var(--carte) 70%, transparent); }
 #orientation #vue3D.actif { background: var(--accent); color: var(--sur-accent); border-color: var(--accent); }

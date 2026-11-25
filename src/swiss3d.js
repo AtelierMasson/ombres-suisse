@@ -53,10 +53,15 @@ export class Swiss3D {
       scene.traverse(o => {
         if (!o.isMesh) return;
         o.material = this.materiau;
-        o.castShadow = o.receiveShadow = true;
+        // la tuile n'est pas encore rattachée au groupe : calque et ombre selon l'affichage (voir appliquerCalques)
+        const k = s.calques;
+        o.layers.set(k.batVoir ? 0 : 2);
+        o.castShadow = k.batOmbre;
+        o.receiveShadow = true;
         this.relever(o, G);
       });
       this.caler(G);
+      s.appliquerCalques(); // tuiles nouvelles : calque et ombre selon l'affichage
       s.majBords();
       s.ombres();
     });

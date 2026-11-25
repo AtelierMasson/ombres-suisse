@@ -256,6 +256,23 @@ function toitsPans(G, zRef, C, P) {
 }
 
 /* ------------------------------------------------------------------ points */
+/**
+ * Dégradé de couleur selon la hauteur (terrain, bâtiments, arbres) : uniformes partagés par tous les matériaux,
+ * réglés par la scène (bas et haut du lieu, en m relatifs à zRef).
+ */
+export const DEGRADE = {
+  degrade: { value: 0 }, zBas: { value: 0 }, zHaut: { value: 50 },
+  rampe: { value: ["#3b4cc0", "#4fa3c7", "#79c49a", "#e8d36b", "#f09a52", "#d6504f"].map(c => new THREE.Color(c)) },
+};
+export const RAMPE_GLSL = /* glsl */`
+uniform float degrade, zBas, zHaut;
+uniform vec3 rampe[6];
+vec3 rampeHaut(float y) {
+  float t = clamp((y - zBas) / max(1.0, zHaut - zBas), 0.0, 1.0) * 5.0;
+  int i = int(min(floor(t), 4.0));
+  return mix(rampe[i], rampe[i + 1], smoothstep(0.0, 1.0, t - float(i)));
+}`;
+
 const SOMMETS = /* glsl */`
 uniform float taille, echelle;
 uniform vec3 c1, c2, c3;
@@ -264,6 +281,7 @@ attribute float aRel, aVar;
 attribute vec3 aCouleur;
 #endif
 varying vec3 vCouleur;
+varying float vHaut;
 #include <common>
 #include <fog_pars_vertex>
 #include <shadowmap_pars_vertex>
@@ -277,6 +295,7 @@ void main() {
     vCouleur = c * (0.84 + 0.32 * fract(aVar * 7.31));
   #endif
   vec3 transformed = position;
+  vHaut = (modelMatrix * vec4(transformed, 1.0)).y;
   vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
   gl_Position = projectionMatrix * mvPosition;
   #include <worldpos_vertex>
@@ -289,7 +308,9 @@ void main() {
 const FRAGMENTS = /* glsl */`
 uniform float lum, relief, ombre, gris;
 varying vec3 vCouleur;
+varying float vHaut;
 #include <common>
+${RAMPE_GLSL}
 #include <packing>
 #include <lights_pars_begin>
 #include <shadowmap_pars_fragment>
@@ -304,7 +325,10 @@ void main() {
   // dans l'ombre portée (bâtiments, autres arbres, sa propre couronne) : même assombrissement que le sol
   float soleil = mix(ombre, 1.0, getShadowMask());
   // crépuscule et nuit : couleurs désaturées (vision de nuit), en plus de l'assombrissement
-  vec3 c = mix(vCouleur, vec3(dot(vCouleur, vec3(0.2126, 0.7152, 0.0722))), gris);
+  vec3 base = vCouleur;
+  // dégradé selon la hauteur : la teinte de la rampe, nuancée par la clarté propre à chaque point
+  if (degrade > 0.5) base = rampeHaut(vHaut) * (0.8 + 0.9 * (dot(vCouleur, vec3(0.2126, 0.7152, 0.0722)) - 0.25));
+  vec3 c = mix(base, vec3(dot(base, vec3(0.2126, 0.7152, 0.0722))), gris);
   gl_FragColor = vec4(c * (1.0 - relief * (0.3 * r2 + 0.12 * p.y)) * lum * soleil, 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -313,7 +337,7 @@ void main() {
 
 /** Matériau des points : ronds, taille en mètres, teinte variée (c1 bas, c2 haut, c3 accent) ou couleur par classe. */
 export function materiauPoints(taille, parClasse = false) {
-  return new THREE.ShaderMaterial({
+  const mat = new THREE.ShaderMaterial({
     uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, THREE.UniformsLib.lights, {
       taille: { value: taille }, echelle: { value: 800 }, lum: { value: 1 }, relief: { value: 1 }, ombre: { value: 0.5 }, gris: { value: 0 },
       c1: { value: new THREE.Color("#2f5d2a") }, c2: { value: new THREE.Color("#7fae4b") }, c3: { value: new THREE.Color("#b9c45a") },
@@ -321,6 +345,8 @@ export function materiauPoints(taille, parClasse = false) {
     defines: parClasse ? { PAR_CLASSE: 1 } : {},
     vertexShader: SOMMETS, fragmentShader: FRAGMENTS, fog: true, clipping: true, lights: true,
   });
+  Object.assign(mat.uniforms, DEGRADE); // partagés (merge les aurait copiés)
+  return mat;
 }
 
 // bruit de valeur lisse (0..1) : donne une teinte propre à chaque arbre
@@ -623,4 +649,33 @@ function etiquetteNumero(texte, couleur, x, y, z) {
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthWrite: false, transparent: true }));
   sp.position.set(x, y, z); sp.scale.set(6, 2.25, 1);
   return sp;
+}
+
+/**
+ * Plans d'eau (lacs, étangs, rivières) : une surface parfaitement plane au niveau de chaque plan d'eau, faite de
+ * bandes (cellules consécutives d'une même ligne au même niveau) pour rester légère.
+ */
+export function plansEau(G, zRef) {
+  const { n, c, x0, eau } = G;
+  if (!eau) return null;
+  const pos = [], idx = [];
+  for (let j = 0; j < n; j++) {
+    let i = 0;
+    while (i < n) {
+      const h = eau[j * n + i];
+      if (isNaN(h)) { i++; continue; }
+      let k = i + 1;
+      while (k < n && eau[j * n + k] === h) k++;
+      const xa = x0 + i * c, xb = x0 + k * c, ya = x0 + j * c, yb = ya + c, y = h - zRef, b = pos.length / 3;
+      pos.push(xa, y, -ya, xb, y, -ya, xb, y, -yb, xa, y, -yb);
+      idx.push(b, b + 1, b + 2, b, b + 2, b + 3);
+      i = k;
+    }
+  }
+  if (!idx.length) return null;
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx.length > 65535 * 3 ? new THREE.Uint32BufferAttribute(idx, 1) : idx);
+  g.computeVertexNormals();
+  return g;
 }

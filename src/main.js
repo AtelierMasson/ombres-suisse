@@ -90,7 +90,7 @@ function accueil() {
   chargement?.abort();
   annulerCalcul();
   document.body.classList.add("accueil");
-  $("#panneau").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
+  $("#panneau").hidden = $("#calques").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
   message("");
   Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, heuresDemandees: false });
   const D = hameau();
@@ -118,9 +118,6 @@ function quitterAccueil() {
 /* ------------------------------------------------------------------ chargement d'un lieu */
 let tache = 0, chargement = null; // `chargement` : arrêt des fils qui décodent le nuage quand on change de lieu
 function etat(f, texte) {
-  $("#etat").hidden = f >= 1;
-  $("#etatTexte").textContent = texte;
-  $("#etatBarre").style.width = `${Math.round(f * 100)}%`;
   telechargement("lieu", f < 1 ? texte : null, f);
 }
 
@@ -129,15 +126,35 @@ function etat(f, texte) {
  * peuvent être actives ; on affiche la dernière arrivée. `texte` null = terminé pour cette source.
  */
 const enCours = new Map();
+// une seule barre, en haut au milieu : une grille de petits carrés qui s'allument dans un ordre aléatoire
+const CARRES = 48 * 4, carres = [];
+let ordre = [], allumes = 0, sourceBarre = null, scintille = null;
+{
+  const g = $("#telechargementGrille");
+  for (let k = 0; k < CARRES; k++) carres.push(g.appendChild(document.createElement("i")));
+}
+function melanger() {
+  ordre = [...carres.keys()];
+  for (let k = ordre.length - 1; k > 0; k--) { const r = Math.floor(Math.random() * (k + 1)); [ordre[k], ordre[r]] = [ordre[r], ordre[k]]; }
+  carres.forEach(c => c.className = ""); allumes = 0;
+}
 function telechargement(source, texte, f = null) {
-  if (texte) enCours.set(source, { texte, f }); else enCours.delete(source);
-  const dernier = [...enCours.values()].pop();
-  $("#telechargement").hidden = !dernier;
-  if (!dernier) return;
+  if (texte) enCours.set(source, { source, texte, f }); else enCours.delete(source);
+  const dernier = [...enCours.values()].pop(), boite = $("#telechargement");
+  boite.hidden = !dernier;
+  if (!dernier) { clearInterval(scintille); scintille = null; sourceBarre = null; return; }
   $("#telechargementTexte").textContent = dernier.texte;
-  $("#telechargementBarre").style.width = dernier.f == null ? "100%" : `${Math.round(dernier.f * 100)}%`;
-  $("#telechargementBarre").classList.toggle("progress-bar-striped", dernier.f == null);
-  $("#telechargementBarre").classList.toggle("progress-bar-animated", dernier.f == null);
+  const k = dernier.f == null ? null : Math.round(Math.max(0, Math.min(1, dernier.f)) * CARRES);
+  if (dernier.source !== sourceBarre || (k != null && k < allumes)) { melanger(); sourceBarre = dernier.source; }
+  $("#telechargementPct").textContent = k == null ? "" : `${Math.round(dernier.f * 100)} %`;
+  if (k != null) boite.setAttribute("aria-valuenow", Math.round(dernier.f * 100)); else boite.removeAttribute("aria-valuenow");
+  if (k == null) {
+    // durée inconnue : des carrés scintillent au hasard
+    if (!scintille) scintille = setInterval(() => carres.forEach(c => c.className = Math.random() < 0.18 ? "vif" : ""), 140);
+    return;
+  }
+  clearInterval(scintille); scintille = null;
+  for (; allumes < k; allumes++) carres[ordre[allumes]].className = "plein";
 }
 
 async function depuisAdresse() {
@@ -171,14 +188,14 @@ async function depuisAdresse() {
     const boite = [E0 - R, N0 - R, E0 + R, N0 + R];
     const rel = parcelle ? { ...parcelle, anneauxRel: parcelle.anneaux.map(a => a.map(([e, n]) => [e - E0, n - N0])) } : { anneauxRel: [] };
 
-    etat(0.05, "Recherche du relevé laser…");
-    let G, nuage = null, source;
     // relief lointain : ses tuiles se téléchargent pendant le chargement du relevé ; l'altitude de l'observateur
     // (connue une fois le terrain reconstruit) lui est donnée plus bas
     let donnerAltitude, horizonFini = 0;
     const horizon = profilHorizon(E0, N0, new Promise(r => donnerAltitude = r), { rayonProche: R, onProgres: f => horizonFini = f });
     horizon.catch(() => {}); // l'erreur éventuelle est traitée à l'attente, plus bas
 
+    etat(0.05, "Recherche du relevé laser…");
+    let G, nuage = null, source;
     const copc = await tuilesNuage(boite);
     if (id !== tache) return;
     if (copc) {
@@ -228,13 +245,13 @@ async function depuisAdresse() {
     S.horizon = await horizon;
     if (id !== tache) return;
     etat(1, "");
-    $("#commandes").hidden = false; $("#diagramme").hidden = false;
+    $("#commandes").hidden = false; $("#calques").hidden = false; $("#diagramme").hidden = false;
     majSoleil();
   } catch (e) {
     if (id !== tache) return; // lieu changé entre-temps : le chargement abandonné n'affiche rien
     console.error(e);
-    etat(0, "Erreur : " + e.message);
-    $("#etat").hidden = false;
+    telechargement("lieu", null);
+    message("Erreur : " + e.message);
   }
 }
 const pause = () => new Promise(r => setTimeout(r, 30));
@@ -292,30 +309,75 @@ $("#btnLecture").onclick = () => {
 /* ------------------------------------------------------------------ affichage */
 function appliquerAffichage() {
   const c = scene.couches || {};
-  if (c.bati) c.bati.visible = choixBatiments() === "releve";
+  const jeu = choixBatiments();
+  $("#vBatVoir").disabled = $("#vBatOmbre").disabled = jeu === "aucun";
+  scene.reglerCalques({ jeu, batVoir: $("#vBatVoir").checked, batOmbre: $("#vBatOmbre").checked, arbOmbre: $("#vArbresOmbre").checked });
   scene.styleArbres($("#vArbres").checked);
   scene.voirPoints($("#vPoints").checked && !$("#vPoints").disabled);
   if (c.heures) c.heures.visible = $("#vHeures").checked;
   scene.ombres();
 }
-["#vArbres", "#vPoints", "#vHeures"].forEach(s => $(s).addEventListener("change", appliquerAffichage));
-// cube d'orientation (à la manière d'AutoCAD) : il suit la caméra ; chaque face est découpée en 3 × 3 zones
-// (centre = face, bords = arêtes, angles = coins) qui donnent une vue ; glisser le cube fait tourner la vue
+["#vArbres", "#vArbresOmbre", "#vBatVoir", "#vBatOmbre", "#vPoints", "#vHeures"].forEach(s => $(s).addEventListener("change", appliquerAffichage));
+// boussole d'orientation : trois axes (est, nord, haut) qui suivent la caméra, comme un trièdre de logiciel 3D ;
+// un clic sur un bout d'axe donne le plan (haut) ou l'élévation de ce côté, glisser fait tourner la vue
 {
-  const cube = $("#orientation .cube");
-  const suivre = () => {
-    const c = scene.controls, theta = c.getAzimuthalAngle() * 180 / Math.PI, phi = c.getPolarAngle() * 180 / Math.PI;
-    cube.style.transform = `rotateX(${phi - 90}deg) rotateY(${-theta}deg)`;
+  const svg = $("#boussole"), NS = "http://www.w3.org/2000/svg";
+  // axes en coordonnées de scène (x = est, y = haut, z = sud) ; dir = [est, haut, sud] pour scene.vueDirection
+  const AXES = [
+    { nom: "E", v: [1, 0, 0], couleur: "#c8553d", vue: "E" }, { nom: "O", v: [-1, 0, 0], couleur: "#c8553d", neg: true, vue: "O" },
+    { nom: "N", v: [0, 0, -1], couleur: "#5b8c3a", vue: "N" }, { nom: "S", v: [0, 0, 1], couleur: "#5b8c3a", neg: true, vue: "S" },
+    { nom: "Z", v: [0, 1, 0], couleur: "#3d6fb6", vue: "plan", titre: "Plan (vue de dessus)" }, { nom: "", v: [0, -1, 0], couleur: "#3d6fb6", neg: true },
+  ];
+  const TITRES = { E: "Élévation depuis l'est", O: "Élévation depuis l'ouest", N: "Élévation depuis le nord", S: "Élévation depuis le sud" };
+  const el = (nom, attrs, parent = svg) => { const e = document.createElementNS(NS, nom); for (const k in attrs) e.setAttribute(k, attrs[k]); return parent.appendChild(e); };
+  const q = new scene.camera.quaternion.constructor(), v = new scene.camera.position.constructor();
+  const L = 34;
+  let actif = null;
+  const dessiner = () => {
+    q.copy(scene.camera.quaternion).invert();
+    const proj = p => { v.set(...p).applyQuaternion(q); return [v.x * L, -v.y * L, v.z]; };
+    svg.replaceChildren();
+    el("circle", { class: "fond", r: 46 });
+    // anneau de l'horizon (plan horizontal), comme le cadran d'une boussole
+    const pts = [];
+    for (let k = 0; k <= 48; k++) { const t = k / 48 * 2 * Math.PI, [x, y] = proj([Math.cos(t) * 0.82, 0, Math.sin(t) * 0.82]); pts.push(`${x.toFixed(1)},${y.toFixed(1)}`); }
+    el("polyline", { class: "anneau", points: pts.join(" ") });
+    // du plus lointain au plus proche, pour que les bouts devant recouvrent ceux de derrière
+    const liste = AXES.map(a => ({ ...a, p: proj(a.v) })).sort((a, b) => a.p[2] - b.p[2]);
+    for (const a of liste) el("line", { class: "axe" + (a.neg ? " neg" : ""), x1: 0, y1: 0, x2: a.p[0], y2: a.p[1], stroke: a.couleur });
+    for (const a of liste) {
+      if (!a.vue) continue;
+      const g = el("g", { class: "bout" + (a.vue === actif ? " actif" : ""), transform: `translate(${a.p[0].toFixed(1)} ${a.p[1].toFixed(1)})`, "data-vue": a.vue, role: "button", "aria-label": a.titre || TITRES[a.vue] });
+      el("title", {}, g).textContent = a.titre || TITRES[a.vue];
+      const r = a.neg ? 6.5 : 8;
+      el("circle", { r, fill: a.neg ? "var(--carte)" : a.couleur, stroke: a.couleur, opacity: 0.75 + 0.25 * Math.max(0, a.p[2]) }, g);
+      el("text", { fill: a.neg ? a.couleur : "#fff" }, g).textContent = a.nom;
+    }
   };
-  scene.controls.addEventListener("change", suivre);
-  suivre();
-  $$("#orientation [data-vue]").forEach(b => b.addEventListener("click", () => scene.vueOrtho(b.dataset.vue)));
+  scene.controls.addEventListener("change", dessiner);
+  dessiner();
+  // glisser = tourner ; un clic sans glisser = choisir le bout d'axe visé
+  let prise = null;
+  svg.addEventListener("pointerdown", e => { prise = { x: e.clientX, y: e.clientY, bouge: false }; svg.setPointerCapture(e.pointerId); });
+  svg.addEventListener("pointermove", e => {
+    if (!prise) return;
+    const dx = e.clientX - prise.x, dy = e.clientY - prise.y;
+    if (!prise.bouge && Math.hypot(dx, dy) < 4) return;
+    prise.bouge = true; svg.classList.add("tire");
+    scene.tourner(dx * 0.012, dy * 0.012);
+    prise.x = e.clientX; prise.y = e.clientY;
+  });
+  svg.addEventListener("pointerup", e => {
+    const p = prise;
+    prise = null; svg.classList.remove("tire");
+    if (!p || p.bouge) return;
+    const b = document.elementFromPoint(e.clientX, e.clientY)?.closest("#boussole .bout"); // pointeur capturé : e.target = svg
+    if (!b) return;
+    const DIRS = { plan: [0, 1, 0], N: [0, 0, -1], S: [0, 0, 1], E: [1, 0, 0], O: [-1, 0, 0] };
+    scene.vueDirection(DIRS[b.dataset.vue]);
+  });
   $("#vue3D").addEventListener("click", () => scene.vueOrtho(null));
-  scene.surVue = mode => {
-    $$("#orientation [data-vue]").forEach(b => b.classList.toggle("actif", b.dataset.vue === mode));
-    $("#vue3D").classList.toggle("actif", !mode);
-    suivre();
-  };
+  scene.surVue = mode => { actif = mode || null; $("#vue3D").classList.toggle("actif", !mode); dessiner(); };
   scene.surVue(null);
 }
 $("#vParcelles").addEventListener("change", e => { if (scene.couches.voisines) { scene.couches.voisines.visible = e.target.checked; scene.demander(); } });
@@ -334,6 +396,19 @@ async function comparerRoofer() {
 }
 scene.surTuilesSwiss = n => telechargement("swiss", n > 0 ? `Téléchargement des bâtiments swisstopo… ${n} tuile${n > 1 ? "s" : ""} en cours` : null);
 // bâtiments affichés : un seul jeu à la fois (relevé, swisstopo, roofer là où il a été calculé, ou aucun)
+// carte « Affichage » repliable ; l'état est retenu par ce navigateur (replié d'office sur petit écran)
+{
+  const carte = $("#calques"), bouton = $("#calquesBouton");
+  const plier = replie => { carte.classList.toggle("replie", replie); bouton.setAttribute("aria-expanded", String(!replie)); };
+  let memo = null;
+  try { memo = localStorage.getItem("calquesReplie"); } catch { /* stockage indisponible */ }
+  plier(memo != null ? memo === "1" : matchMedia("(max-width: 800px)").matches);
+  bouton.addEventListener("click", () => {
+    const replie = !carte.classList.contains("replie");
+    plier(replie);
+    try { localStorage.setItem("calquesReplie", replie ? "1" : "0"); } catch { /* idem */ }
+  });
+}
 function choixBatiments() { return $("input[name=batiments]:checked")?.value || "releve"; }
 const NOTES = {
   releve: "", aucun: "",
@@ -357,6 +432,7 @@ $$("input[name=batiments]").forEach(b => b.addEventListener("change", () => {
 $("#vCadastre").addEventListener("change", e => scene.fond(e.target.checked ? "cadastre" : "uni"));
 scene.surFondAbsent = () => message("Plan cadastral indisponible ici : terrain uni.");
 $("#vEffets").addEventListener("change", e => scene.reglerEffets(e.target.checked));
+$("#vDegrade").addEventListener("change", e => scene.degradeHauteur(e.target.checked));
 scene.surQualite = q => {
   if (q < 2) return;
   $("#vEffets").checked = false;
@@ -414,7 +490,7 @@ function annulerCalcul() {
   if (!calcul) return;
   calcul.ouvriers.forEach(w => w.terminate());
   calcul = null;
-  $("#etat").hidden = true;
+  telechargement("lieu", null);
 }
 // la date ou la période a changé : on relance (après une courte attente) si la carte a déjà été demandée
 function relancerHeures() {
