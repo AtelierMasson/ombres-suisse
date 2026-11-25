@@ -200,15 +200,50 @@ function simplifier(coins, m, tol, px, py, c, x0, fixe) {
       if (i >= cotes.length) i = cotes.length - 1;
     } else i++;
   }
-  const T = cotes.length;
+  let T = cotes.length;
   // redressement : un côté proche de l'orientation dominante (à 90° près) la prend, s'il reste collé à ses coins
-  let c4 = 0, s4 = 0;
-  for (const D of cotes) { c4 += D.L * Math.cos(4 * D.ang); s4 += D.L * Math.sin(4 * D.ang); }
-  const dominante = Math.atan2(s4, c4) / 4;
+  // orientation dominante : celle où les coins du contour se rangent le mieux sur des droites (projections les plus
+  // « piquées » sur les deux axes) ; plus robuste qu'une moyenne des côtés, qu'un petit ressaut suffit à fausser
+  const piquee = th => {
+    const ux = Math.cos(th), uy = Math.sin(th), hu = new Map(), hv = new Map();
+    for (let k = 0; k < N; k++) {
+      const u = Math.round(X[k] * ux + Y[k] * uy), v = Math.round(-X[k] * uy + Y[k] * ux);
+      hu.set(u, (hu.get(u) || 0) + 1); hv.set(v, (hv.get(v) || 0) + 1);
+    }
+    let s = 0;
+    for (const h of [hu, hv]) for (const q of h.values()) s += q * q;
+    return s;
+  };
+  let dominante = 0, meilleur = -1;
+  for (let a = 0; a < 90; a += 0.5) { const sc = piquee(a * Math.PI / 180); if (sc > meilleur) { meilleur = sc; dominante = a * Math.PI / 180; } }
+  for (let a = -0.5; a <= 0.5; a += 0.05) { const th = dominante + a * Math.PI / 180, sc = piquee(th); if (sc > meilleur) { meilleur = sc; dominante = th; } }
   for (const D of cotes) {
     const q = Math.round((D.ang - dominante) / (Math.PI / 2)), cible = dominante + q * Math.PI / 2;
-    if (Math.abs(D.ang - cible) <= 0.35 && ecart({ ...D, ang: cible }, D.a, D.b) <= 0.9) D.ang = cible;
+    if (Math.abs(D.ang - cible) <= 0.35 && ecart({ ...D, ang: cible }, D.a, D.b) <= 2.2) {
+      // la droite prend l'orientation dominante, à la position médiane de ses coins (le ressaut ne la tire pas)
+      const ux = Math.cos(cible), uy = Math.sin(cible), offs = [];
+      for (let k = D.a; k <= D.b; k++) offs.push(-X[k % N] * uy + Y[k % N] * ux);
+      offs.sort((p, r) => p - r);
+      const o = offs[offs.length >> 1], t = D.cx * ux + D.cy * uy;
+      Object.assign(D, { ang: cible, cx: t * ux - o * uy, cy: t * uy + o * ux });
+    }
   }
+  // micro-décalages : deux façades parallèles séparées par un petit ressaut (côté de moins de 1,5 m, décalage de moins
+  // de 1 m) ne font qu'une, à la position moyenne pondérée par leurs longueurs (bruit de la grille, pas un vrai ressaut)
+  const ecartAng = (a, b) => { const d = Math.abs(a - b) % (2 * Math.PI); return d > Math.PI ? 2 * Math.PI - d : d; };
+  for (let i = 0, tours = 0; cotes.length > 4 && i < cotes.length && tours < 4 * S; tours++) {
+    const nb = cotes.length, P = cotes[i], D = cotes[(i + 1) % nb], Q = cotes[(i + 2) % nb];
+    const ux = Math.cos(P.ang), uy = Math.sin(P.ang), off = C => -C.cx * uy + C.cy * ux;
+    if (D.L <= 3 && ecartAng(P.ang, Q.ang) < 0.15 && Math.abs(off(Q) - off(P)) <= 2) {
+      const o = (P.L * off(P) + Q.L * off(Q)) / (P.L + Q.L), dO = o - off(P);
+      const U = { a: P.a, b: Q.b >= P.a ? Q.b : Q.b + N, cx: P.cx - dO * uy, cy: P.cy + dO * ux, ang: P.L >= Q.L ? P.ang : Q.ang, L: P.L + D.L + Q.L };
+      const iD = (i + 1) % nb, iQ = (i + 2) % nb;
+      cotes[i] = U;
+      for (const j of [iD, iQ].sort((x, y) => y - x)) { cotes.splice(j, 1); if (j < i) i--; }
+      if (i < 0) i = 0;
+    } else i++;
+  }
+  T = cotes.length;
   // sommets : intersection de deux côtés consécutifs (sinon le coin d'origine)
   const VX = new Float32Array(T + 1), VY = new Float32Array(T + 1);
   for (let i = 0; i < T; i++) {
