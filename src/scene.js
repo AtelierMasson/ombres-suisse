@@ -129,8 +129,12 @@ export class Scene3D {
     this.composeur = new EffectComposer(r, new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType }));
     this.composeur.addPass(new RenderPass(this.scene, this.camera));
     const ao = this.ao = new GTAOPass(this.scene, this.camera, 4, 4);
-    ao.updateGtaoMaterial({ radius: 6, distanceExponent: 1, thickness: 6, scale: 1.5, samples: 12, distanceFallOff: 1, screenSpaceRadius: false }); // rayon en mètres
-    ao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, radiusExponent: 1, rings: 2, samples: 12 });
+    // occlusion large et douce : rayon 12 m, décroissance progressive, débruitage plus étendu
+    ao.updateGtaoMaterial({ radius: 12, distanceExponent: 2, thickness: 10, scale: 1.15, samples: 16, distanceFallOff: 1, screenSpaceRadius: false }); // rayon en mètres
+    ao.updatePdMaterial({ lumaPhi: 8, depthPhi: 1.5, normalPhi: 2, radius: 10, radiusExponent: 1.5, rings: 3, samples: 16 });
+    // calculée en demi-résolution : ~4 fois moins coûteuse, et l'agrandissement bilinéaire la lisse encore
+    const tailleAo = ao.setSize.bind(ao);
+    ao.setSize = (w, h) => tailleAo(Math.max(1, Math.ceil(w / 2)), Math.max(1, Math.ceil(h / 2)));
     ao.normalMaterial.side = THREE.DoubleSide; // murs et tranche de coupe se voient des deux côtés
     // l'occlusion ne doit voir ni le ciel, ni la canopée invisible, ni les poignées et calques posés par-dessus
     const rendu = ao.render.bind(ao);
@@ -218,8 +222,11 @@ export class Scene3D {
     m.socle.color.set(T.socle); m.canopee.color.set(T.arbres[1]); m.parcelle.color.set(T.parcelle);
     m.trait.color.set(T.coupe.trait); m.poignee.color.set(T.parcelle);
     m.terrain.color.set(m.terrain.map ? "#ffffff" : T.sol);
-    // lumière du ciel quasi uniforme : un mur dos au soleil a le même ton qu'une ombre portée au sol
-    this.ciel.color.set(T.lumiere.ciel); this.ciel.groundColor.set(T.lumiere.ciel).lerp(new THREE.Color(T.lumiere.sol), 0.15);
+    // lumière du ciel quasi uniforme : un mur dos au soleil a le même ton qu'une ombre portée au sol. Le « rebond » du sol
+    // (éclairage indirect) teinte légèrement les faces tournées vers le bas ou de côté, à luminosité égale.
+    this.ciel.color.set(T.lumiere.ciel);
+    const rebond = new THREE.Color(T.lumiere.ciel).lerp(new THREE.Color(T.lumiere.sol), 0.35), lum = c => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
+    this.ciel.groundColor.copy(rebond.multiplyScalar(lum(this.ciel.color) / Math.max(1e-3, lum(rebond))));
     this.renderer.toneMappingExposure = T.lumiere.exposition;
     this.scene.fog.density = T.lumiere.brume;
     this.couleursPoints();
