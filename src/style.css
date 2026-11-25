@@ -132,3 +132,11 @@ body[data-theme=nuit] #message { background: #3a2f12; color: #ffe2a8; border-col
   .atouts { grid-template-columns: 1fr; }
   .carte-accueil { padding: 22px 20px; }
 }
+
+/* téléchargements en cours : bandeau bien visible au-dessus de la vue */
+#telechargement { position: absolute; top: calc(var(--haut) + 14px); left: 50%; transform: translateX(-50%); z-index: 8;
+  display: flex; align-items: center; gap: 10px; padding: 8px 14px 10px; border-radius: 999px; background: var(--carte);
+  border: 1px solid var(--accent); color: var(--texte); font-size: 13px; font-weight: 600; max-width: min(560px, 92vw); }
+#telechargement .spinner-border { color: var(--accent); flex: none; }
+#telechargement .progress { position: absolute; left: 16px; right: 16px; bottom: 4px; height: 3px; }
+#telechargement .progress-bar { transition: width .2s; }

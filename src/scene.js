@@ -9,7 +9,7 @@ import { RebondPass } from "./rebond.js";
 import { Swiss3D } from "./swiss3d.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { solEn } from "./grille.js";
-import { terrain, socle, nappe, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation } from "./maillages.js";
+import { terrain, socle, nappe, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords } from "./maillages.js";
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
 
@@ -379,6 +379,7 @@ export class Scene3D {
     }
     if (lieu) this.swiss.lieu = lieu;
     this.swiss.montrer(!!actif && !!this.G);
+    this.majBords();
     this.demander(5);
   }
 
@@ -388,7 +389,26 @@ export class Scene3D {
     if (vieux) { this.groupe.remove(vieux); vieux.geometry.dispose(); }
     this.couches.roofer = m;
     if (m) { this.groupe.add(m); this.appliquerCoupe(); }
+    this.majBords();
     this.ombres();
+  }
+
+  /**
+   * Bord du socle : la face monte aussi jusqu'au toit des bâtiments de comparaison affichés (swisstopo, roofer)
+   * qui traversent le bord, sinon on voit leur tranche creuse. Appelé (avec un délai) quand ils changent.
+   */
+  majBords() {
+    clearTimeout(this.minuteBords);
+    this.minuteBords = setTimeout(() => {
+      const base = this.couches.socle;
+      if (!base || !this.G) return;
+      const objets = [this.swiss?.socle.visible ? this.swiss.socle : null, this.couches.roofer?.visible ? this.couches.roofer : null].filter(Boolean);
+      // nos bâtiments masqués (autre jeu affiché) : le bord ne suit que celui qui est visible
+      const releve = this.couches.bati?.visible !== false;
+      base.geometry.dispose();
+      base.geometry = socle(this.G, this.zRef, this.zBas, objets.length ? hauteursBords(this.G, this.zRef, objets) : null, releve);
+      this.ombres();
+    }, 400);
   }
 
   /** Couronnes à refaire (couleurs du thème changées). */
@@ -650,11 +670,11 @@ export class Scene3D {
     if (this.G) {
       const R = this.G.R, boite = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), R));
       const avecBoite = [...boite, ...(plans || [])];
-      for (const x of [this.swiss?.materiau, this.ao.normalMaterial]) if (x) { x.clippingPlanes = avecBoite; x.needsUpdate = true; }
+      if (this.ao.normalMaterial) { this.ao.normalMaterial.clippingPlanes = avecBoite; this.ao.normalMaterial.needsUpdate = true; }
       // nos bâtiments (et roofer) : coupés 3 cm en retrait du bord, sinon les murs du bord sont dans le plan de la face
       // du socle et leur partie enterrée apparaît en stries à travers elle
       const dedans = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), R - 0.03));
-      for (const x of [m.toit, m.mur, c.roofer?.material]) if (x) { x.clippingPlanes = [...dedans, ...(plans || [])]; x.needsUpdate = true; }
+      for (const x of [m.toit, m.mur, c.roofer?.material, this.swiss?.materiau]) if (x) { x.clippingPlanes = [...dedans, ...(plans || [])]; x.needsUpdate = true; }
     }
     const cibles = [m.terrain, m.socle, m.canopee, m.couronne, m.parcelle];
     for (const k of ["arbres", "facades", "tous"]) if (c[k]) cibles.push(c[k].material);

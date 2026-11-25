@@ -13,8 +13,17 @@ export function essaiRoofer(E, N) {
 }
 
 /** Charge l'essai et construit le maillage dans le repère de la scène (origine E0, N0 ; altitudes relatives à zRef). */
-export async function maillageRoofer(essai, [E0, N0], zRef, materiau) {
-  const d = await (await fetch(essai.url)).json();
+export async function maillageRoofer(essai, [E0, N0], zRef, materiau, onProgres = () => {}) {
+  // lecture par morceaux pour suivre le téléchargement (fichiers de quelques centaines de Ko à quelques Mo)
+  const rep = await fetch(essai.url), total = +rep.headers.get("content-length") || 0, morceaux = [];
+  let recu = 0;
+  for (const lecteur = rep.body.getReader(); ;) {
+    const { done, value } = await lecteur.read();
+    if (done) break;
+    morceaux.push(value); recu += value.length;
+    onProgres(total ? recu / total : null, `${(recu / 1e6).toFixed(1)}${total ? ` / ${(total / 1e6).toFixed(1)}` : ""} Mo`);
+  }
+  const d = JSON.parse(new TextDecoder().decode(await new Blob(morceaux).arrayBuffer()));
   const [oE, oN] = d.origine, pos = [];
   const v3 = ([x, y, z]) => new THREE.Vector3(x + oE - E0, z - zRef, -(y + oN - N0));
   for (const { r } of d.polygones) {

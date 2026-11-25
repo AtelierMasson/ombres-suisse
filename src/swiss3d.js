@@ -57,6 +57,7 @@ export class Swiss3D {
         this.relever(o, G);
       });
       this.caler(G);
+      s.majBords();
       s.ombres();
     });
     t.addEventListener("tiles-load-end", () => s.demander(3));
@@ -115,17 +116,20 @@ export class Swiss3D {
     this.tuiles.setResolutionFromRenderer(this.s.camera, this.s.renderer);
     this.tuiles.update();
     // rendu à la demande : tant que des tuiles arrivent, on redemande des images pour poursuivre le chargement
-    const st = this.tuiles.stats;
-    if (st.downloading + st.parsing + st.queued > 0) this.s.demander(2);
+    const st = this.tuiles.stats, n = st.downloading + st.parsing + st.queued;
+    if (n > 0) this.s.demander(2);
+    if (n !== this.enCours) { this.enCours = n; this.s.surTuilesSwiss?.(n); }
   }
 
   montrer(visible) {
     this.socle.visible = visible;
+    if (!visible && this.enCours) { this.enCours = 0; this.s.surTuilesSwiss?.(0); }
     if (visible && !this.tuiles && this.lieu) this.charger(this.lieu);
     this.s.ombres();
   }
 
   vider() {
+    if (this.enCours) { this.enCours = 0; this.s.surTuilesSwiss?.(0); }
     if (!this.tuiles) return;
     this.socle.remove(this.tuiles.group);
     this.tuiles.dispose();

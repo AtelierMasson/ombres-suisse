@@ -38,7 +38,8 @@ export function hauteurTerrain(G, i, j) {
  * Socle : bords verticaux jusqu'à une base plane, comme une maquette posée. Là où un bâtiment touche le bord, la face
  * monte jusqu'à son toit : la tranche du bâtiment coupé fait partie du socle (une seule masse).
  */
-export function socle(G, zRef, zBas) {
+export function socle(G, zRef, zBas, bords = null, avecReleve = true) {
+  // `bords` (facultatif) : hauteurs absolues des bâtiments de comparaison qui traversent chaque côté, par cellule
   const { n, c, x0, bat } = G, R = n * c / 2, pos = [];
   // terrain du bord : comme le maillage du terrain (sommets tous les 1 m, interpolés entre deux)
   const sol = (x, y) => {
@@ -48,13 +49,14 @@ export function socle(G, zRef, zBas) {
   };
   // les quatre côtés, cellule par cellule : [cellule (i, j), extrémités (x, y) du segment de bord]
   const cotes = [];
-  for (let i = 0; i < n; i++) cotes.push([i, 0, x0 + i * c, -R, x0 + (i + 1) * c, -R]);
-  for (let j = 0; j < n; j++) cotes.push([n - 1, j, R, x0 + j * c, R, x0 + (j + 1) * c]);
-  for (let i = n - 1; i >= 0; i--) cotes.push([i, n - 1, x0 + (i + 1) * c, R, x0 + i * c, R]);
-  for (let j = n - 1; j >= 0; j--) cotes.push([0, j, -R, x0 + (j + 1) * c, -R, x0 + j * c]);
-  for (const [i, j, xa, ya, xb, yb] of cotes) {
-    const h = bat[j * n + i], za = sol(xa, ya), zb = sol(xb, yb);
-    const ha = isNaN(h) ? za : Math.max(za, h), hb = isNaN(h) ? zb : Math.max(zb, h);
+  for (let i = 0; i < n; i++) cotes.push([i, 0, x0 + i * c, -R, x0 + (i + 1) * c, -R, 0, i]);
+  for (let j = 0; j < n; j++) cotes.push([n - 1, j, R, x0 + j * c, R, x0 + (j + 1) * c, 1, j]);
+  for (let i = n - 1; i >= 0; i--) cotes.push([i, n - 1, x0 + (i + 1) * c, R, x0 + i * c, R, 2, i]);
+  for (let j = n - 1; j >= 0; j--) cotes.push([0, j, -R, x0 + (j + 1) * c, -R, x0 + j * c, 3, j]);
+  for (const [i, j, xa, ya, xb, yb, cote, k] of cotes) {
+    const b = bords?.[cote][k];
+    const h = Math.max(avecReleve && bat[j * n + i] || -Infinity, b > -Infinity ? b : -Infinity), za = sol(xa, ya), zb = sol(xb, yb);
+    const ha = h > -Infinity ? Math.max(za, h) : za, hb = h > -Infinity ? Math.max(zb, h) : zb;
     const A = [xa, ha - zRef, -ya], B = [xb, hb - zRef, -yb], Ab = [xa, zBas, -ya], Bb = [xb, zBas, -yb];
     pos.push(...A, ...Ab, ...Bb, ...A, ...Bb, ...B);
   }
@@ -441,4 +443,42 @@ export function pointsVegetation(G) {
   }
   const nb = X.length;
   return { X: Float32Array.from(X), Y: Float32Array.from(Y), Z: Float32Array.from(Z), C: new Uint8Array(nb).fill(3), n: nb };
+}
+
+/**
+ * Hauteur (absolue) des maillages qui traversent les quatre bords du modèle, par cellule de bord : pour chaque
+ * triangle qui coupe un plan de bord, on suit le segment d'intersection. Sert à faire monter la face du socle
+ * jusqu'au toit des bâtiments de comparaison coupés au bord (swisstopo, roofer).
+ */
+export function hauteursBords(G, zRef, objets) {
+  const { n, c, x0 } = G, R = n * c / 2, bords = [0, 1, 2, 3].map(() => new Float32Array(n).fill(-Infinity));
+  const a = new THREE.Vector3(), b = new THREE.Vector3(), d = new THREE.Vector3(), P = [a, b, d];
+  // côtés : 0 sud (y = -R), 1 est (x = R), 2 nord (y = R), 3 ouest (x = -R) ; scène : x = est, z = -nord
+  const plans = [[p => -p.z + R, p => p.x], [p => p.x - R, p => -p.z], [p => -p.z - R, p => p.x], [p => p.x + R, p => -p.z]];
+  const noter = (cote, u, y) => {
+    const k = Math.floor((u - x0) / c);
+    if (k >= 0 && k < n && y + zRef > bords[cote][k]) bords[cote][k] = y + zRef;
+  };
+  for (const o of objets) o?.traverse(m => {
+    if (!m.isMesh || !m.visible) return;
+    m.updateWorldMatrix(true, false);
+    const pos = m.geometry.attributes.position, idx = m.geometry.index, nt = idx ? idx.count / 3 : pos.count / 3;
+    for (let t = 0; t < nt; t++) {
+      for (let s = 0; s < 3; s++) P[s].fromBufferAttribute(pos, idx ? idx.getX(3 * t + s) : 3 * t + s).applyMatrix4(m.matrixWorld);
+      for (let cote = 0; cote < 4; cote++) {
+        const [dist, long] = plans[cote], dd = P.map(dist);
+        if ((dd[0] > 0 && dd[1] > 0 && dd[2] > 0) || (dd[0] < 0 && dd[1] < 0 && dd[2] < 0)) continue;
+        // extrémités du segment d'intersection avec le plan du bord
+        const pts = [];
+        for (let s = 0; s < 3; s++) {
+          const s2 = (s + 1) % 3;
+          if ((dd[s] <= 0) !== (dd[s2] <= 0)) { const f = dd[s] / (dd[s] - dd[s2]); pts.push([long(P[s]) + (long(P[s2]) - long(P[s])) * f, P[s].y + (P[s2].y - P[s].y) * f]); }
+        }
+        if (pts.length < 2) continue;
+        const [[u1, y1], [u2, y2]] = pts, nb = Math.max(1, Math.ceil(Math.abs(u2 - u1) / (c / 2)));
+        for (let q = 0; q <= nb; q++) noter(cote, u1 + (u2 - u1) * q / nb, y1 + (y2 - y1) * q / nb);
+      }
+    }
+  });
+  return bords;
 }

@@ -117,6 +117,23 @@ function etat(f, texte) {
   $("#etat").hidden = f >= 1;
   $("#etatTexte").textContent = texte;
   $("#etatBarre").style.width = `${Math.round(f * 100)}%`;
+  telechargement("lieu", f < 1 ? texte : null, f);
+}
+
+/**
+ * Bandeau des téléchargements en cours, au-dessus de la vue (lieu, roofer, tuiles swisstopo) : plusieurs sources
+ * peuvent être actives ; on affiche la dernière arrivée. `texte` null = terminé pour cette source.
+ */
+const enCours = new Map();
+function telechargement(source, texte, f = null) {
+  if (texte) enCours.set(source, { texte, f }); else enCours.delete(source);
+  const dernier = [...enCours.values()].pop();
+  $("#telechargement").hidden = !dernier;
+  if (!dernier) return;
+  $("#telechargementTexte").textContent = dernier.texte;
+  $("#telechargementBarre").style.width = dernier.f == null ? "100%" : `${Math.round(dernier.f * 100)}%`;
+  $("#telechargementBarre").classList.toggle("progress-bar-striped", dernier.f == null);
+  $("#telechargementBarre").classList.toggle("progress-bar-animated", dernier.f == null);
 }
 
 async function depuisAdresse() {
@@ -177,10 +194,9 @@ async function depuisAdresse() {
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite) });
     // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
     scene.surligner(rel, h.get("t") === "Adresse" ? [E - E0, N - N0] : null);
-    scene.comparerSwiss($("#vSwiss").checked, { E: S.E0, N: S.N0 });
     S.roofer = essaiRoofer(E0, N0);
-    $("#ligneRoofer").hidden = !S.roofer;
-    if (S.roofer) $("#nomRoofer").textContent = S.roofer.nom;
+    choixRoofer();
+    scene.comparerSwiss(choixBatiments() === "swiss", { E: S.E0, N: S.N0 });
     comparerRoofer();
     appliquerAffichage();
     $("#vArbres").disabled = !nuage && !G.veg.some(v => !isNaN(v)); $("#vPoints").disabled = !nuage;
@@ -255,23 +271,47 @@ $("#btnLecture").onclick = () => {
 /* ------------------------------------------------------------------ affichage */
 function appliquerAffichage() {
   const c = scene.couches || {};
-  if (c.bati) c.bati.visible = $("#vBati").checked;
+  if (c.bati) c.bati.visible = choixBatiments() === "releve";
   scene.styleArbres($("#vArbres").checked);
   scene.voirFacades($("#vFacades").checked);
   if (c.tous) c.tous.visible = $("#vPoints").checked;
   if (c.heures) c.heures.visible = $("#vHeures").checked;
   scene.ombres();
 }
-["#vBati", "#vArbres", "#vFacades", "#vPoints", "#vHeures"].forEach(s => $(s).addEventListener("change", appliquerAffichage));
+["#vArbres", "#vFacades", "#vPoints", "#vHeures"].forEach(s => $(s).addEventListener("change", appliquerAffichage));
 // comparaison roofer : seulement là où un essai a été calculé hors ligne (Lutry)
 const matRoofer = new THREE.MeshStandardMaterial({ color: "#d8b4e2", roughness: 0.9, side: THREE.DoubleSide, flatShading: true });
 async function comparerRoofer() {
-  if (!S.roofer || !$("#vRoofer").checked) { scene.afficherRoofer(null); return; }
-  const lieu = S.E0, m = await maillageRoofer(S.roofer, [S.E0, S.N0], scene.zRef, matRoofer);
-  if (lieu === S.E0 && $("#vRoofer").checked) scene.afficherRoofer(m);
+  if (!S.roofer || choixBatiments() !== "roofer") { scene.afficherRoofer(null); return; }
+  const lieu = S.E0;
+  telechargement("roofer", "Téléchargement des bâtiments roofer…", 0);
+  try {
+    const m = await maillageRoofer(S.roofer, [S.E0, S.N0], scene.zRef, matRoofer,
+      (f, mo) => telechargement("roofer", `Téléchargement des bâtiments roofer… ${mo}`, f));
+    if (lieu === S.E0 && choixBatiments() === "roofer") scene.afficherRoofer(m);
+  } finally { telechargement("roofer", null); }
 }
-$("#vRoofer").addEventListener("change", comparerRoofer);
-$("#vSwiss").addEventListener("change", e => scene.comparerSwiss(e.target.checked, S.E0 != null ? { E: S.E0, N: S.N0 } : null));
+scene.surTuilesSwiss = n => telechargement("swiss", n > 0 ? `Téléchargement des bâtiments swisstopo… ${n} tuile${n > 1 ? "s" : ""} en cours` : null);
+// bâtiments affichés : un seul jeu à la fois (relevé, swisstopo, roofer là où il a été calculé, ou aucun)
+function choixBatiments() { return $("input[name=batiments]:checked")?.value || "releve"; }
+const NOTES = {
+  releve: "", aucun: "",
+  swiss: "Modèles swisstopo : ils portent les ombres affichées ; les heures de soleil restent calculées avec le relevé.",
+  roofer: "roofer : ils portent les ombres affichées ; les heures de soleil restent calculées avec le relevé.",
+};
+function choixRoofer() {
+  $("#bRoofer").disabled = !S.roofer;
+  $("#etiquetteRoofer").hidden = $("#bRoofer").hidden = !S.roofer;
+  if (S.roofer) $("#etiquetteRoofer").title = `roofer (TU Delft), LoD2.2, calculé hors ligne — essai ${S.roofer.nom}`;
+  if (!S.roofer && choixBatiments() === "roofer") $("#bReleve").checked = true;
+}
+$$("input[name=batiments]").forEach(b => b.addEventListener("change", () => {
+  const choix = choixBatiments();
+  $("#noteBatiments").textContent = NOTES[choix];
+  scene.comparerSwiss(choix === "swiss", S.E0 != null ? { E: S.E0, N: S.N0 } : null);
+  comparerRoofer();
+  appliquerAffichage();
+}));
 $$("input[name=fond]").forEach(b => b.addEventListener("change", () => scene.fond(b.value)));
 scene.surFondAbsent = type => message(type === "ortho" ? "Photo aérienne indisponible pour le moment." : "Plan cadastral indisponible ici : terrain uni.");
 $("#vEffets").addEventListener("change", e => scene.reglerEffets(e.target.checked));
