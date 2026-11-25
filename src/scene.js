@@ -9,7 +9,7 @@ import { RebondPass } from "./rebond.js";
 import { Swiss3D } from "./swiss3d.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { solEn } from "./grille.js";
-import { terrain, socle, nappe, batiments, nuagePoints, contourParcelle, couronnes } from "./maillages.js";
+import { terrain, socle, nappe, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation } from "./maillages.js";
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
 
@@ -318,7 +318,8 @@ export class Scene3D {
     this.contours = B.contours;
     // la canopée (grille) porte l'ombre des points ; sans points, styleArbres() construit des couronnes lissées
     const canopee = maille(nappe(G, G.veg, this.zRef), m.canopee, true, false);
-    const arbres = nuage ? nuagePoints(nuage, G, this.zRef, "arbres", 0.5, 0.9) : null;
+    // arbres toujours en points : sans relevé classé (repli raster), points tirés de la grille de végétation
+    const arbres = nuage ? nuagePoints(nuage, G, this.zRef, "arbres", 0.5, 0.9) : nuagePoints(pointsVegetation(G), G, this.zRef, "arbres", 1, 0.9);
     const facades = nuage ? nuagePoints(nuage, G, this.zRef, "facades", 1, 0.42) : null;
     const tous = nuage ? nuagePoints(nuage, G, this.zRef, "tous", 0.35, 0.45) : null;
     const limite = contourParcelle(parcelle, G, this.zRef, m.parcelle);
@@ -334,7 +335,7 @@ export class Scene3D {
     this.appliquerTheme(this.T);
     if (this.typeFond !== "cadastre") this.fond(this.typeFond);
     this.controls.target.set(0, 0, 0);
-    this.camera.position.set(-110, 120, 150);
+    this.vueDepart();
     this.ombres();
   }
 
@@ -448,13 +449,17 @@ export class Scene3D {
         if (!point && !isNaN(bat[p])) graines.push(p);
       }
     }
+    // point de l'adresse hors de la parcelle (entrée côté rue) : on part des bâtiments de la parcelle
+    if (point && anneaux.length && graines.length && !sel[2 * graines[0]])
+      for (let p = 0; p < n * n; p++) if (sel[2 * p] && !isNaN(bat[p])) graines.push(p);
     const pile = [...graines];
     for (const p of pile) vu[p] = 1;
     while (pile.length) {
       const p = pile.pop(), i = p % n;
       sel[2 * p + 1] = 1;
       for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n])
-        if (q >= 0 && q < n * n && !vu[q] && !isNaN(bat[q])) { vu[q] = 1; pile.push(q); }
+        // maisons mitoyennes : le bloc bâti peut couvrir plusieurs parcelles, on s'arrête à la parcelle choisie
+        if (q >= 0 && q < n * n && !vu[q] && !isNaN(bat[q]) && (!anneaux.length || sel[2 * q])) { vu[q] = 1; pile.push(q); }
     }
     // un peu élargi : les murs, posés au bord des cellules, doivent lire la sélection
     const bord = sel.slice();
@@ -503,6 +508,26 @@ export class Scene3D {
     CONTACT.tSol.value = tex(alt); CONTACT.tDist.value = tex(dist);
     CONTACT.grille.value.set(G.x0, n * c, 0);
     CONTACT.contactActif.value = 1;
+  }
+
+  /**
+   * Caméra de départ, en oblique vers le centre ; relevée si le relief, les arbres ou les bâtiments autour d'elle
+   * ou sur sa ligne de visée la dépassent (pente, grand arbre) : on ne doit jamais arriver dans la canopée.
+   */
+  vueDepart() {
+    const p = new THREE.Vector3(-110, 120, 150), G = this.G;
+    if (G) {
+      let haut = -Infinity;
+      for (let t = 0.15; t <= 1; t += 0.05) { // le long de la visée, du centre vers la caméra
+        const x = p.x * t, y = -p.z * t, i = Math.floor((x - G.x0) / G.c), j = Math.floor((y - G.x0) / G.c);
+        for (let dj = -8; dj <= 8; dj += 4) for (let di = -8; di <= 8; di += 4) {
+          const a = i + di, b = j + dj;
+          if (a >= 0 && b >= 0 && a < G.n && b < G.n) haut = Math.max(haut, (G.surface[b * G.n + a] - this.zRef) - p.y * t);
+        }
+      }
+      if (haut > -20) p.y += haut + 20; // au moins 20 m de dégagement au-dessus de la visée
+    }
+    this.camera.position.copy(p);
   }
 
   /** Les ombres portées sont à recalculer (soleil déplacé, couche affichée ou masquée). */
@@ -603,7 +628,7 @@ export class Scene3D {
     } else {
       this.controls.maxPolarAngle = Math.PI * 0.495;
       this.controls.target.set(0, 0, 0);
-      this.camera.position.set(-110, 120, 150);
+      this.vueDepart();
     }
     this.demander();
   }

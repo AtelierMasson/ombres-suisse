@@ -412,3 +412,22 @@ export function couronnes(G, zRef, couleurs) {
   g.computeVertexNormals();
   return g;
 }
+
+/**
+ * Points d'arbres simulés depuis la grille de végétation (repli sans relevé classé) : 3 points par cellule de 0,5 m,
+ * répartis dans la moitié haute de la couronne, au format d'un nuage (classe 3).
+ */
+export function pointsVegetation(G) {
+  const { n, c, x0, sol, veg } = G, X = [], Y = [], Z = [];
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    const p = j * n + i, h = veg[p] - sol[p];
+    if (!(h > 1)) continue;
+    for (let k = 0; k < 3; k++) {
+      const a = alea(p, k), b = alea(k, p), t = alea(p + 7, k + 3);
+      X.push(x0 + (i + a) * c); Y.push(x0 + (j + b) * c);
+      Z.push(veg[p] - h * 0.45 * t * t); // plus dense près du sommet
+    }
+  }
+  const nb = X.length;
+  return { X: Float32Array.from(X), Y: Float32Array.from(Y), Z: Float32Array.from(Z), C: new Uint8Array(nb).fill(3), n: nb };
+}
