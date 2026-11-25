@@ -5,6 +5,7 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { RebondPass } from "./rebond.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { solEn } from "./grille.js";
 import { terrain, socle, nappe, batiments, nuagePoints, contourParcelle, couronnes } from "./maillages.js";
@@ -147,6 +148,8 @@ export class Scene3D {
       for (const o of caches) o.visible = true;
     };
     this.composeur.addPass(ao);
+    // un rebond de lumière (éclairage indirect) à l'écran, après l'occlusion dont il reprend profondeur et normales
+    this.composeur.addPass(this.rebond = new RebondPass(this.camera, ao));
     this.composeur.addPass(new OutputPass());
     this.effets = true;
     this.qualite = 0; // 0 = complète, 1 = résolution réduite, 2 = effets coupés

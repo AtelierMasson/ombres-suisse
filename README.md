@@ -19,7 +19,7 @@ gratuitement (GitHub Pages, Cloudflare Pages…).
 5. **Bâtiments aux murs droits** : chaque bâtiment est découpé en volumes de hauteur continue (corps principal,
    annexe, lucarne), le contour de chaque volume est simplifié en côtés droits et redressé selon l'orientation
    dominante ; les murs sont des plans verticaux, sans l'effet d'escalier de la grille.
-6. **Ombres** à la date et à l'heure choisies (animation de la journée), avec occlusion ambiante, ciel en dégradé,
+6. **Ombres** à la date et à l'heure choisies (animation de la journée), avec occlusion ambiante (large, en demi-résolution), un rebond de lumière calculé à l'écran (`src/rebond.js`), ciel en dégradé,
    brume légère et ombres adoucies. Un interrupteur « Effets de lumière » les coupe ; ils se réduisent tout seuls
    si l'affichage devient lent.
 7. **Fond du terrain** : plan cadastral (mensuration officielle) reteinté dans la gamme du thème — sol et bâtiments
@@ -66,6 +66,7 @@ npm run build      # site statique dans dist/, à publier tel quel
 | `src/contours.js` | Volumes et contours des bâtiments : côtés droits, angles redressés |
 | `src/maillages.js` | Géométries : terrain et socle, toits et murs, canopée, nuages de points, limite de parcelle |
 | `src/scene.js` | Scène three.js : lumières, ciel, ombres, occlusion ambiante, fond de plan, plan de coupe |
+| `src/rebond.js` | Un rebond de lumière (éclairage indirect) à l'écran, après l'occlusion ambiante |
 | `src/fond.js` | Fonds de plan WMS geo.admin.ch : plan cadastral reteinté, orthophoto |
 | `src/themes.js` | Thèmes : palettes de la scène, choix mémorisé (les couleurs de l'interface sont dans `style.css`) |
 | `src/soleil.js` | Position du soleil (algorithme NOAA) |
