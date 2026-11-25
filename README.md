@@ -25,8 +25,9 @@ gratuitement (GitHub Pages, Cloudflare Pages…).
    si l'affichage devient lent.
 7. **Fond du terrain** : plan cadastral (mensuration officielle) reteinté dans la gamme du thème — sol et bâtiments
    ton sur ton, comme une maquette —, ou terrain uni (interrupteur « Plan cadastral au sol »).
-8. **Arbres** en points du relevé (disques plats de teintes variées) qui s'assombrissent dans l'ombre portée ; **points mesurés sur les façades** affichables (classe 26 des vols
-   récents et points « bâtiment » sous le toit) : les murs deviennent alors translucides.
+8. **Arbres** en points du relevé (disques plats de teintes variées) qui s'assombrissent dans l'ombre portée (une canopée invisible, à 1 m, porte leur ombre) ; **nuage de points brut**
+   affichable, coloré par classe, construit seulement quand on le demande ; sa végétation n'est pas dessinée tant que
+   les arbres sont affichés.
 9. **Montagnes lointaines** : profil d'horizon sur 50 km tout autour (y compris France et Italie) ; quand le soleil
    passe derrière, la parcelle est à l'ombre. Le diagramme montre l'horizon et la course du soleil (jour choisi,
    21 juin, 21 décembre) et les heures où le soleil dépasse les montagnes.
@@ -35,9 +36,10 @@ gratuitement (GitHub Pages, Cloudflare Pages…).
     ou la moyenne de l'année, en heures par jour ; la carte se recalcule quand la date change. Statistiques
     (moyenne, min., max.) sur la parcelle seule.
 11. **Coupe** verticale à travers le terrain et les bâtiments : deux poignées A et B à déplacer (ou deux clics), la
-    partie devant le plan est masquée, les surfaces tranchées sont pochées avec un trait épais ; le profil 2D
-    indique altitudes, limites de parcelle, arbres et rayon du soleil à l'heure choisie. Terrain et bâtiments coupés forment
-    une seule masse (même couleur, un seul trait de coupe).
+    partie devant le plan est masquée, les surfaces tranchées sont pochées avec un trait net. Elle suit le jeu de
+    bâtiments affiché (relevé, Swiss3D, Advanced ou aucun). Le profil 2D, dessiné au trait (masse coupée en gris
+    clair, arbres hachurés : couronne et tronc), indique altitudes, cotes des bâtiments, limites et numéros de
+    parcelle et rayon du soleil à l'heure choisie. Terrain et bâtiments coupés forment une seule masse.
 13. **Thèmes** à comparer en direct (boutons en haut à droite, choix mémorisé, ou `?theme=` dans l'adresse) :
     un bouton bascule entre le mode jour (`maquette`, blanc cassé) et le mode nuit (`nuit`, bleu sombre).
     Chaque thème règle l'interface et la scène : ciel, bâtiments, terrain, parcelle, arbres, carte des heures, coupe.
@@ -55,7 +57,7 @@ l'interface reste celle décrite ci-dessus.
   bord du socle, heures de soleil (sol, toits, façades : la carte se recalcule si elle est affichée) et coupe.
   « Tout réafficher » les remet, « Annuler » revient d'un pas en arrière (autant de fois que nécessaire).
 - **Taille de la maquette** : rayon chargé autour du lieu (automatique, 100, 150, 250 ou 400 m). Le lieu est rechargé ;
-  à 400 m, compter une quinzaine de millions de points et environ 1,5 Go de mémoire.
+  à 400 m, compter une quinzaine de millions de points et de l'ordre de 1 Go de mémoire.
 - **Exporter la maquette** : boutons directs OBJ et DXF (« maquette complète »), ou « Au choix… » :
   - format DXF, OBJ, glTF binaire (.glb) ou STL ;
   - contenu : terrain (maille de 0,5, 1 ou 2 m), socle (côtés et fond : fermé avec le terrain), bâtiments du jeu
@@ -71,8 +73,12 @@ l'interface reste celle décrite ci-dessus.
   commentaires de l'OBJ, `asset.extras` du glTF, en-tête du STL) et dans le LISEZ-MOI. DXF en version R12 : calques
   TERRAIN, SOCLE, BATIMENTS, ARBRES, PARCELLE, COURBES et INFO ; surfaces en 3DFACE, lignes en polylignes 3D.
   Le DWG n'est pas écrit directement : AutoCAD ouvre le DXF et l'enregistre en DWG.
+- **Points du nuage proches de la coupe** (quand la coupe est active) : points du relevé à moins de 0,25, 0,5, 1, 2
+  ou 5 m du plan de coupe, projetés dans le profil et colorés par catégorie (sol, végétation, bâtiment, autre).
+  La silhouette des arbres suit alors l'enveloppe de leurs points. Ils sont exportés avec la coupe (calque NUAGE).
+  Le nuage (X, Y, Z, classe : 13 octets par point, environ 190 Mo à 400 m) est gardé en mémoire pour cela.
 - **Exporter la coupe** (quand la coupe est active) : DXF ou SVG, dans le plan de la coupe — X = distance depuis A,
-  Y = altitude réelle, en mètres. Calques TERRAIN_COUPE, BATIMENTS_COUPES, ARBRES, LIMITES_PARCELLE, COTES (bas,
+  Y = altitude réelle, en mètres. Calques TERRAIN_COUPE, BATIMENTS_COUPES, ARBRES, NUAGE, LIMITES_PARCELLE, COTES (bas,
   corniches, faîte, à 10 cm) et CADRE (échelle graphique, A et B en MN95, soleil). SVG à l'échelle 1:200.
 
 Ordres de grandeur à Lutry (300 × 300 m, maquette complète, terrain à 1 m, 450 000 triangles) : OBJ 14 Mo, glTF 11 Mo,
@@ -81,7 +87,7 @@ STL 22 Mo, DXF 59 Mo (40 Mo avec le terrain à 2 m) ; 4 à 9 Mo une fois zippés
 **Repli** : là où le relevé laser récent n'est pas encore publié en COPC (vols plus anciens livrés en gros fichiers),
 le site utilise les modèles en grille 0,5 m swissALTI3D (terrain) et swissSURFACE3D Raster (surface), issus du même
 relevé. Bâtiments et arbres sont alors séparés par la forme (toit lisse, couronne rugueuse) : moins fiable, murs
-moins nets, pas de points de façade.
+moins nets, pas de nuage de points brut ni de points proches de la coupe.
 
 **Comparaison** : la case « Comparer : bâtiments 3D swisstopo » affiche les bâtiments tout faits de
 swissBUILDINGS3D (tuiles 3D de geo.admin.ch, décodeur Draco servi depuis `public/draco/`). Ils portent leurs ombres ;
@@ -103,7 +109,8 @@ npm run build      # site statique dans dist/, à publier tel quel
 |---|---|
 | `src/main.js` | Interface : recherche, accueil, chargement d'un lieu, date et heure, affichage, coupe, heures de soleil |
 | `src/geo.js` | Recherche, parcelle, conversion MN95 → WGS84, catalogue STAC swisstopo |
-| `src/nuage.js` | Lecture partielle du nuage COPC (copc.js + laz-perf en WebAssembly) |
+| `src/nuage.js` | Lecture partielle du nuage COPC : choix des blocs, répartition entre les fils de calcul |
+| `src/nuage.worker.js` | Téléchargement et décodage LAZ d'un bloc (copc.js + laz-perf en WebAssembly), hors du fil principal |
 | `src/grille.js` | Grilles 0,5 m : sol, bâtiments, arbres, surface ; repli raster (geotiff.js) |
 | `src/contours.js` | Volumes et contours des bâtiments : côtés droits, angles redressés |
 | `src/pans.js` | Essai (sans option visible) : pans de toit plans par volume, arêtes dans l'axe des façades |
@@ -138,8 +145,7 @@ npm run build      # site statique dans dist/, à publier tel quel
 - Au-delà du rayon chargé (≥ 150 m), seuls le relief (tuiles ~30–100 m) et non les bâtiments portent ombre.
 - L'heure est celle du navigateur (fuseau supposé : Suisse).
 - Mode pro : un bâtiment est un ensemble de volumes qui se touchent ; des maisons mitoyennes forment un seul bâtiment
-  (utiliser « Par volume » pour n'en enlever qu'une partie). Les points mesurés sur les façades d'un bâtiment masqué
-  restent affichés si leur couche est active.
+  (utiliser « Par volume » pour n'en enlever qu'une partie).
 - Exports : les bâtiments du relevé sont des enveloppes ouvertes en bas (toit et murs, sans plancher), dont les murs
   descendent 2,5 m sous le terrain ; seuls le terrain et le socle forment un volume fermé. Le DXF est lourd (un
   3DFACE par triangle). Les bâtiments swisstopo exportés sont ceux des tuiles chargées à l'écran.

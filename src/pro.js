@@ -91,7 +91,7 @@ export function brancherPro(o) {
   $("#vParVolume").addEventListener("change", () => { P.selection.clear(); maj(); });
 
   /* ---------------------------------------------------------------- taille de la maquette */
-  const NOTES_RAYON = { 250: "Environ 3 fois plus de points : chargement plus long.", 400: "Environ 7 fois plus de points (jusqu'à une quinzaine de millions) : chargement d'une demi-minute à quelques minutes, environ 1,5 Go de mémoire, affichage et exports plus lourds. À éviter sur un petit ordinateur." };
+  const NOTES_RAYON = { 250: "Environ 3 fois plus de points : chargement plus long.", 400: "Environ 7 fois plus de points (jusqu'à une quinzaine de millions) : chargement d'une demi-minute à quelques minutes, de l'ordre de 1 Go de mémoire, affichage et exports plus lourds. À éviter sur un petit ordinateur." };
   $("#rayonPro").value = [...$("#rayonPro").options].some(x => x.value === memoire("ombres.rayon")) ? memoire("ombres.rayon") : "";
   const noteRayon = () => $("#noteRayon").textContent = NOTES_RAYON[$("#rayonPro").value] || "";
   $("#rayonPro").addEventListener("change", () => {

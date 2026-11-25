@@ -32,7 +32,7 @@ export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, on
     }
   }
   const total = taches.reduce((s, t) => s + t.n.pointCount, 0);
-  const X = new Float32Array(total), Y = new Float32Array(total), Z = new Float32Array(total), C = new Uint8Array(total);
+  let X = new Float32Array(total), Y = new Float32Array(total), Z = new Float32Array(total), C = new Uint8Array(total);
   let n = 0, faits = 0;
   // les plus gros blocs d'abord : les fils finissent à peu près ensemble
   taches.sort((a, b) => b.n.pointCount - a.n.pointCount);
@@ -64,5 +64,8 @@ export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, on
       }
     });
   } finally { arreter(); }
-  return { X: X.subarray(0, n), Y: Y.subarray(0, n), Z: Z.subarray(0, n), C: C.subarray(0, n), n };
+  // le nuage est gardé (nuage brut à la demande, points proches de la coupe) : tableaux ramenés à la taille utile
+  // (un tableau à la fois : l'ancien est rendu avant de copier le suivant)
+  X = X.slice(0, n); Y = Y.slice(0, n); Z = Z.slice(0, n); C = C.slice(0, n);
+  return { X, Y, Z, C, n };
 }
