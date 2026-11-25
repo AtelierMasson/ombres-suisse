@@ -166,9 +166,10 @@ export function brancherPro(o) {
 
   /* ---------------------------------------------------------------- interrupteur */
   $("#vPro").checked = memoire("ombres.pro") === "1";
-  const basculer = () => { $("#outilsPro").hidden = !actif(); memoire("ombres.pro", actif() ? "1" : "0"); maj(); };
+  const basculer = () => { $("#outilsPro").hidden = !actif(); document.body.classList.toggle("pro", actif()); memoire("ombres.pro", actif() ? "1" : "0"); maj(); };
   $("#vPro").addEventListener("change", basculer);
   $("#outilsPro").hidden = !actif();
+  document.body.classList.toggle("pro", actif()); // les réglages « pro » placés ailleurs dans le panneau (.pro-seul)
 
   return {
     /** Rayon choisi en mode pro (m), ou null : rayon automatique. */

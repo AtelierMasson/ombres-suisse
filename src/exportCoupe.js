@@ -1,10 +1,13 @@
 // Export de la coupe A–B (mode pro) : DXF (qu'AutoCAD ouvre et enregistre en DWG) et SVG (Illustrator, mise en page).
 // Dans le plan de la coupe : X = distance depuis A le long de A→B, Y = altitude réelle, en mètres.
-// Calques : TERRAIN_COUPE, BATIMENTS_COUPES, ARBRES, LIMITES_PARCELLE, COTES, CADRE.
+// Calques : TERRAIN_COUPE, BATIMENTS_COUPES, ARBRES, NUAGE (points proches de la coupe), LIMITES_PARCELLE, COTES, CADRE.
 
 const alt = z => (Math.round(z * 10) / 10).toFixed(1).replace(".", ",");
 const ascii = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\x20-\x7e]/g, "-");
-const COULEURS = { TERRAIN_COUPE: [7, "#1f2933"], BATIMENTS_COUPES: [8, "#3b4754"], ARBRES: [3, "#5f9a3f"], LIMITES_PARCELLE: [1, "#e0262b"], COTES: [5, "#1d4f91"], CADRE: [9, "#66727f"] };
+const COULEURS = { TERRAIN_COUPE: [7, "#1f2933"], BATIMENTS_COUPES: [8, "#3b4754"], ARBRES: [3, "#5f9a3f"], NUAGE: [8, "#7a7f8c"], LIMITES_PARCELLE: [1, "#e0262b"], COTES: [5, "#1d4f91"], CADRE: [9, "#66727f"] };
+
+// points du nuage par catégorie (sol, végétation, bâtiment, autre) : couleur DXF (indice) et SVG
+const POINTS = [[30, "#8a6d3b"], [3, "#3f8f3a"], [1, "#d9523a"], [8, "#7a7f8c"]];
 
 function suites(a, k0, k1) {
   const r = [];
@@ -32,7 +35,13 @@ export function dessinCoupe(P, o) {
   const profil = (a, b, v) => { const pts = []; for (let k = a; k <= b; k++) pts.push(P.s[k], v(k)); return pts; };
   const retour = (a, b, v) => { const pts = []; for (let k = b; k >= a; k--) pts.push(P.s[k], v(k)); return pts; };
   // arbres (silhouettes fermées), terrain coupé, bâtiments coupés (contours fermés)
-  for (const [a, b] of suites(P.veg, k0, k1)) if (b > a) ligne("ARBRES", [...profil(a, b, k => P.veg[k]), ...retour(a, b, k => P.sol[k])], true);
+  // arbres : couronne (contour fermé, du dessous au dessus) et tronc, comme dans le profil affiché
+  for (const T of P.arbres || []) {
+    const a = Math.max(T.a, k0), b = Math.min(T.b, k1);
+    if (b <= a) continue;
+    ligne("ARBRES", [...profil(a, b, k => T.haut[k - T.a]), ...retour(a, b, k => T.bas[k - T.a])], true);
+    for (const k of T.troncs) if (k >= a && k <= b) ligne("ARBRES", [P.s[k], P.sol[k], P.s[k], T.bas[k - T.a]]);
+  }
   ligne("TERRAIN_COUPE", profil(k0, k1, k => P.sol[k]));
   for (const [a, b] of suites(P.bat, k0, k1)) {
     if (b <= a) continue;
@@ -84,7 +93,14 @@ export function dessinCoupe(P, o) {
     ligne("CADRE", [x0, z0, x0 + ds / n * t, z0 + dz / n * t]);
     texte("CADRE", 0, ye - 2.9, `Soleil le ${o.jour} à ${S.heure} : azimut ${S.azimut.toFixed(0)}°, hauteur ${S.hauteur.toFixed(1)}° (${(Math.atan2(dz, Math.abs(ds)) * 180 / Math.PI).toFixed(0)}° dans le plan de coupe)`, "start", 0.4);
   }
-  return { lignes, textes, L, bas: ye - 3.6, haut: haut + 0.5 };
+  // points du nuage proches de la coupe (s'ils sont affichés) : [x, y, catégorie, …]
+  const points = [];
+  if (P.points?.n) {
+    const N = P.points;
+    for (let k = 0; k < N.n; k++) if (N.s[k] >= P.s[k0] && N.s[k] <= P.s[k1]) points.push(N.s[k], N.z[k], N.c[k]);
+    texte("CADRE", 0, ye - 3.7, `Points du nuage à moins de ${String(N.distance).replace(".", ",")} m de la coupe (calque NUAGE) : sol, végétation, bâtiment, autre`, "start", 0.4);
+  }
+  return { lignes, textes, points, L, bas: ye - (points.length ? 4.4 : 3.6), haut: haut + 0.5 };
 }
 
 const reel = v => { const r = Math.round(v * 1000) / 1000; return Number.isInteger(r) ? r + ".0" : String(r); };
@@ -103,6 +119,8 @@ export function coupeDxf(D, infos) {
     for (let k = 0; k < l.pts.length; k += 2) t += `0\nVERTEX\n8\n${l.calque}\n10\n${reel(l.pts[k])}\n20\n${reel(l.pts[k + 1])}\n30\n0.0\n`;
     t += `0\nSEQEND\n8\n${l.calque}\n`;
   }
+  for (let k = 0; k < (D.points?.length || 0); k += 3)
+    t += `0\nPOINT\n8\nNUAGE\n62\n${POINTS[D.points[k + 2]][0]}\n10\n${reel(D.points[k])}\n20\n${reel(D.points[k + 1])}\n30\n0.0\n`;
   for (const x of D.textes) {
     const j = x.ancre === "middle" ? 1 : x.ancre === "end" ? 2 : 0, p = k => `${10 + k}\n${reel(x.x)}\n${20 + k}\n${reel(x.y)}\n${30 + k}\n0.0\n`;
     // texte centré ou calé à droite : le point d'alignement (11) fait foi
@@ -126,6 +144,8 @@ export function coupeSvg(D, infos, echelle = 200) {
       for (let k = 0; k < l.pts.length; k += 2) d += `${k ? "L" : "M"}${f(l.pts[k])},${f(-l.pts[k + 1])}`;
       t += `<path d="${d}${l.ferme ? "Z" : ""}"${l.plein ? ` fill="${couleur}" fill-opacity="0.25"` : calque === "ARBRES" ? ` fill="${couleur}" fill-opacity="0.3" stroke="none"` : ""}/>\n`;
     }
+    if (calque === "NUAGE") for (let k = 0; k < (D.points?.length || 0); k += 3)
+      t += `<circle cx="${f(D.points[k])}" cy="${f(-D.points[k + 1])}" r="0.04" fill="${POINTS[D.points[k + 2]][1]}" stroke="none"/>\n`;
     for (const x of D.textes) if (x.calque === calque)
       t += `<text x="${f(x.x)}" y="${f(-x.y)}" font-size="${f(x.h * 1.25)}" text-anchor="${x.ancre}" fill="${couleur}" stroke="none">${xml(x.texte)}</text>\n`;
     t += `</g>\n`;

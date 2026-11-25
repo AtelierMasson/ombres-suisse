@@ -10,7 +10,7 @@ import { Swiss3D } from "./swiss3d.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { solEn, majSurface } from "./grille.js";
 import { indexVolumes } from "./volumes.js";
-import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, limitesVoisines } from "./maillages.js";
+import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines } from "./maillages.js";
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
 
@@ -179,6 +179,7 @@ export class Scene3D {
     ao.render = (...a) => {
       // les points n'entrent jamais dans l'occlusion (sinon chaque point a son halo sombre)
       const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, c.heures, c.limite, c.voisines, c.arbres, c.tous, c.selection,
+        this.coupe ? this.tranche?.userData.arbres : null, ...(this.coupe && this.tranche?.userData.traits || []),
         c.canopee?.material.colorWrite === false ? c.canopee : null].filter(o => o && o.visible);
       for (const o of caches) o.visible = false;
       rendu(...a);
@@ -305,7 +306,7 @@ export class Scene3D {
     this.couches = {};
     this.poignees = [];
     this.coupe = this.contours = this.urls = null;
-    this.contoursTous = this.volumes = this.batOrigine = this.nuage = null;
+    this.contoursTous = this.volumes = this.batOrigine = this.nuage = this.grilleComp = null;
     this.idScene++;
   }
 
@@ -441,11 +442,24 @@ export class Scene3D {
       const releve = this.couches.bati?.visible !== false;
       base.geometry.dispose();
       base.geometry = socle(this.G, this.zRef, this.zBas, objets.length ? hauteursBords(this.G, this.zRef, objets) : null, releve);
+      this.grilleComp = null; // la coupe relira les bâtiments affichés
+      this.surBatiments?.();
       this.ombres();
     }, 400);
   }
 
-  /** Limites et numéros des parcelles voisines (anneaux relatifs au centre), ou null pour les enlever. */
+  /**
+   * Hauteurs (absolues, grille alignée sur G) des bâtiments de comparaison affichés, vus de dessus : `jeu` = "swiss"
+   * (tuiles chargées, à leur position calée) ou "roofer". Gardée jusqu'au prochain changement (majBords).
+   */
+  grilleComparaison(jeu) {
+    if (this.grilleComp?.jeu !== jeu) {
+      const o = jeu === "swiss" ? this.swiss?.socle : this.couches.roofer;
+      this.grilleComp = { jeu, h: o && this.G ? hauteursDessus(this.G, this.zRef, [o]) : null };
+    }
+    return this.grilleComp.h;
+  }
+
   /** Change la parcelle choisie sans recharger la maquette : nouvelle limite et nouvelle teinte de sélection. */
   changerParcelle(parcelle) {
     const vieux = this.couches.limite;
@@ -790,7 +804,8 @@ export class Scene3D {
     this.coupe = P;
     this.poignees = [];
     if (P) {
-      this.tranche = trancheCoupe(P, this.zRef, this.zBas, this.T.coupe, this.mat.trait);
+      this.tranche = trancheCoupe(P, this.zRef, this.zBas, { ...this.T.coupe, arbres: this.T.arbres[1] }, this.mat.trait);
+      if (this.tranche.userData.arbres) this.tranche.userData.arbres.visible = this.arbresVisibles !== false;
       this.outils.add(this.tranche);
       this.poignees = [P.A, P.B].map(([x, y], k) => {
         const g = new THREE.Group(), boule = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 12), this.mat.poignee);
@@ -815,7 +830,9 @@ export class Scene3D {
       this.cote = cote;
       this.plan.normal.set(P.uy * cote, 0, P.ux * cote);
       this.plan.constant = -(P.A[0] * P.uy - P.A[1] * P.ux) * cote;
-      this.tranche.position.copy(this.plan.normal).multiplyScalar(0.03); // la tranche reste juste du côté visible
+      // la tranche reste juste du côté visible (l'occlusion ambiante la coupe sinon), à 4 mm seulement : plus loin,
+      // le bout des faces coupées (terrain sous un bâtiment, murs enterrés) dépasse devant le poché en traits fins
+      this.tranche.position.copy(this.plan.normal).multiplyScalar(0.004);
     }
     // poignées de taille constante à l'écran
     for (const g of this.poignees) g.scale.setScalar(Math.max(0.6, c.distanceTo(g.position) * 0.011));

@@ -109,6 +109,13 @@
         <div id="outilsCoupe" hidden>
           <button class="btn btn-sm btn-outline-secondary w-100 mt-1" id="btnTracer">Tracer la coupe (2 clics)</button>
           <div class="small text-secondary mt-1" id="aideCoupe">Déplacez les poignées A et B sur le modèle, ou tracez une nouvelle ligne.</div>
+          <div class="pro-seul d-flex gap-2 align-items-center mt-2">
+            <label class="small flex-fill" for="distPoints">Points du nuage proches de la coupe</label>
+            <select class="form-select form-select-sm w-auto" id="distPoints" aria-label="Points du nuage à moins de cette distance de la coupe">
+              <option value="0" selected>Aucun</option><option value="0.25">à moins de 0,25 m</option><option value="0.5">à moins de 0,5 m</option>
+              <option value="1">à moins de 1 m</option><option value="2">à moins de 2 m</option><option value="5">à moins de 5 m</option>
+            </select>
+          </div>
         </div>
       </section>
 
@@ -202,6 +209,7 @@
       <div class="small fw-semibold px-1">Coupe A–B <span class="text-secondary fw-normal" id="coupeTexte"></span></div>
       <svg id="svgCoupe"></svg>
       <div class="legende small text-secondary px-1"><span class="l-terrain"></span>Terrain et bâtiments coupés <span class="l-arbres"></span>Arbres <span class="l-limite"></span>Limite de parcelle <span class="l-course"></span>Soleil</div>
+      <div class="legende small text-secondary px-1" id="legendePoints" hidden>Points du nuage : <span class="l-pt pt0"></span>sol <span class="l-pt pt1"></span>végétation <span class="l-pt pt2"></span>bâtiment <span class="l-pt pt3"></span>autre</div>
     </div>
   </div>
   <div id="diagramme" class="card" hidden>

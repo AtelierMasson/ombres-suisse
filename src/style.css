@@ -5,7 +5,8 @@ body {
   --accent: #e8890c; --accent-fonce: #c26d00; --accent-clair: #fdf1df; --sur-accent: #ffffff;
   --rayon: 10px; --ombre: 0 6px 24px rgba(31, 41, 51, .12); --haut: 56px; --large: 320px;
   --relief: #8d9aa6; --relief-trait: #5f6b76; --course: #f08c00; --grille: #e3e6ea; --astre: #ffcc33;
-  --coupe-bati: #3b4754; --coupe-terrain: #cfc6b4; --coupe-trait: #1f2933; --coupe-arbres: #9cc27a; --parcelle: #e0262b;
+  --coupe-bati: #3b4754; --coupe-terrain: #edecea; --coupe-trait: #15181c; --coupe-arbres: #9aa0a6; --coupe-fin: #6b7178;
+  --pt-sol: #8a6d3b; --pt-veg: #3f8f3a; --pt-bati: #d9523a; --pt-autre: #7a7f8c; --parcelle: #e0262b;
   --bs-body-color: var(--texte); --bs-secondary-color: var(--doux); --bs-border-color: var(--bord); --bs-body-bg: var(--carte);
   color: var(--texte); background: #dfe9f1;
 }
@@ -69,24 +70,32 @@ body.accueil #haut .recherche { visibility: hidden; }
 #svgSoleil .course { fill: none; stroke: var(--course); stroke-width: 2; }
 #svgSoleil .saison { fill: none; stroke: var(--course); stroke-width: 1; stroke-dasharray: 3 3; opacity: .6; }
 .astre { fill: var(--astre); stroke: var(--course); stroke-width: 1.5; }
-#svgCoupe .axe { stroke: var(--doux); stroke-width: 1; }
-#svgCoupe .arbres { fill: var(--coupe-arbres); fill-opacity: .55; stroke: none; }
+#svgCoupe { font-size: 8.5px; }
+#svgCoupe .grille { stroke-width: .5; }
+#svgCoupe .axe { stroke: var(--coupe-fin); stroke-width: .6; }
+#svgCoupe .arbres { fill: url(#hachureArbres); stroke: var(--coupe-arbres); stroke-width: .6; stroke-linejoin: round; }
+#svgCoupe .hachure { stroke: var(--coupe-arbres); stroke-width: .5; opacity: .6; }
 #svgCoupe .terrain { fill: var(--coupe-terrain); stroke: none; }
+#svgCoupe .tronc { stroke: var(--coupe-arbres); stroke-width: .9; stroke-linecap: round; }
+#svgCoupe .points { fill: none; stroke-width: 1.5; stroke-linecap: round; }
+#svgCoupe .pt0 { stroke: var(--pt-sol); } #svgCoupe .pt1 { stroke: var(--pt-veg); } #svgCoupe .pt2 { stroke: var(--pt-bati); } #svgCoupe .pt3 { stroke: var(--pt-autre); }
+.legende .l-pt { width: 7px; height: 7px; border-radius: 50%; margin-right: 3px; }
+.legende .pt0 { background: var(--pt-sol); } .legende .pt1 { background: var(--pt-veg); } .legende .pt2 { background: var(--pt-bati); } .legende .pt3 { background: var(--pt-autre); }
+body:not(.pro) .pro-seul { display: none !important; }
 #svgCoupe .bati { fill: var(--coupe-bati); stroke: var(--coupe-trait); stroke-width: 1.5; stroke-linejoin: round; }
-#svgCoupe .sol { fill: none; stroke: var(--coupe-trait); stroke-width: 2.5; stroke-linejoin: round; }
-#svgCoupe line.limite { stroke: var(--parcelle); stroke-width: 1.5; stroke-dasharray: 5 3; }
-#svgCoupe text.limite { fill: var(--parcelle); font-weight: 600; }
-#svgCoupe .rayon { stroke: var(--course); stroke-width: 2; stroke-dasharray: 7 4; }
+#svgCoupe .sol { fill: none; stroke: var(--coupe-trait); stroke-width: 1.2; stroke-linejoin: round; }
+#svgCoupe line.limite { stroke: var(--coupe-trait); stroke-width: .7; stroke-dasharray: 5 2 1 2; }
+#svgCoupe .rayon { stroke: var(--course); stroke-width: 1; stroke-dasharray: 6 4; }
 #svgCoupe .pied { fill: var(--course); }
-#svgCoupe .repere { fill: var(--texte); font-weight: 700; font-size: 13px; }
+#svgCoupe .repere { fill: var(--texte); font-weight: 600; font-size: 11px; }
 .legende span { display: inline-block; width: 14px; height: 8px; margin: 0 4px 0 8px; vertical-align: 0; }
 .legende .l-relief { background: var(--relief); }
 .legende .l-course { border-top: 2px solid var(--course); height: 0; }
 .legende .l-saison { border-top: 1px dashed var(--course); height: 0; }
 .legende .l-bati { background: var(--coupe-bati); }
-.legende .l-terrain { background: var(--coupe-terrain); border-top: 2px solid var(--coupe-trait); }
-.legende .l-arbres { background: var(--coupe-arbres); }
-.legende .l-limite { border-top: 2px dashed var(--parcelle); height: 0; }
+.legende .l-terrain { background: var(--coupe-terrain); border-top: 1px solid var(--coupe-trait); }
+.legende .l-arbres { background: repeating-linear-gradient(45deg, transparent 0 2px, var(--coupe-arbres) 2px 2.6px); outline: .6px solid var(--coupe-arbres); }
+.legende .l-limite { border-top: 1px dashed var(--coupe-trait); height: 0; }
 #message { position: absolute; top: calc(var(--haut) + 12px); left: 50%; transform: translateX(-50%); z-index: 6; box-shadow: var(--ombre); }
 #pied { position: absolute; left: 12px; bottom: 8px; z-index: 5; max-width: calc(100% - 24px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--doux); background: color-mix(in srgb, var(--carte) 82%, transparent); padding: 2px 8px; border-radius: 6px; }
 .degrade { height: 10px; border-radius: 5px; background: var(--degrade-heures, linear-gradient(90deg, #264dbf, #f2e533, #f2331a)); }
@@ -112,7 +121,8 @@ body[data-theme=nuit] {
   --barre: rgba(13, 22, 38, .88); --carte: #14213a; --texte: #e6ecf5; --doux: #9aa9c0; --bord: #263756; --bord-fort: #3a4d70;
   --accent: #ffb84d; --accent-fonce: #f09a1a; --accent-clair: #2a3654; --sur-accent: #1a1206; --rayon: 8px; --ombre: 0 10px 34px rgba(0, 0, 0, .45); --large: 292px;
   --relief: #4d6187; --relief-trait: #8ea3c9; --course: #ffb84d; --grille: #263756; --astre: #ffd98a;
-  --coupe-bati: #c9d3e3; --coupe-terrain: #55627c; --coupe-trait: #ffb84d; --coupe-arbres: #4fa39a; --parcelle: #ffb84d;
+  --coupe-bati: #c9d3e3; --coupe-terrain: #22304d; --coupe-trait: #eef2f8; --coupe-arbres: #7f8da6; --coupe-fin: #9aa9c0;
+  --pt-sol: #e0bf7e; --pt-veg: #86dc8a; --pt-bati: #ff8f78; --pt-autre: #b4bccb; --parcelle: #ffb84d;
   background: #0f1a2e; font-size: 13px;
 }
 body[data-theme=nuit] #haut { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }

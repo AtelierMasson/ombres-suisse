@@ -221,7 +221,7 @@ async function depuisAdresse() {
     scene.comparerSwiss(choixBatiments() === "swiss", { E: S.E0, N: S.N0 });
     comparerRoofer();
     appliquerAffichage();
-    $("#vArbres").disabled = !nuage && !G.veg.some(v => !isNaN(v)); $("#vPoints").disabled = !nuage;
+    $("#vArbres").disabled = !nuage && !G.veg.some(v => !isNaN(v)); $("#vPoints").disabled = $("#distPoints").disabled = !nuage;
 
     donnerAltitude(scene.zRef + 1.7);
     if (horizonFini < 1) etat(0.9 + 0.1 * horizonFini, "Relief lointain (montagnes)…");
@@ -352,6 +352,7 @@ $$("input[name=batiments]").forEach(b => b.addEventListener("change", () => {
   scene.comparerSwiss(choix === "swiss", S.E0 != null ? { E: S.E0, N: S.N0 } : null);
   comparerRoofer();
   appliquerAffichage();
+  refaireCoupe();
 }));
 $("#vCadastre").addEventListener("change", e => scene.fond(e.target.checked ? "cadastre" : "uni"));
 scene.surFondAbsent = () => message("Plan cadastral indisponible ici : terrain uni.");
@@ -365,7 +366,12 @@ $("#btnPartager").onclick = async () => { await navigator.clipboard.writeText(lo
 
 /* ------------------------------------------------------------------ coupe */
 function majCoupe(A, B) {
-  S.coupe = { A, B, P: profilCoupe(S.G, scene.contours, A, B, S.parcelle, 0.25, S.voisines || []) };
+  // la coupe suit le jeu de bâtiments affiché (relevé, swisstopo, roofer ou aucun) ; en mode pro, points du nuage proches
+  const jeu = choixBatiments(), grille = jeu === "swiss" || jeu === "roofer" ? scene.grilleComparaison(jeu) : null;
+  const distance = $("#vPro").checked && scene.nuage ? +$("#distPoints").value : 0;
+  S.coupe = { A, B, P: profilCoupe(S.G, scene.contours, A, B, S.parcelle, 0.25, S.voisines || [],
+    { batiments: jeu === "releve" ? null : grille || "aucun", nuage: scene.nuage, distance }) };
+  $("#legendePoints").hidden = !S.coupe.P.points;
   scene.definirCoupe(S.coupe.P);
   dessinCoupe();
 }
@@ -394,6 +400,10 @@ $("#btnTracer").onclick = () => {
 };
 scene.surDepart = () => $("#aideCoupe").textContent = "…puis le point B.";
 scene.surCoupe = (A, B) => majCoupe(A, B);
+const refaireCoupe = () => { if (S.coupe) majCoupe(S.coupe.A, S.coupe.B); };
+scene.surBatiments = refaireCoupe; // bâtiments de comparaison arrivés ou changés (tuiles swisstopo, roofer)
+$("#distPoints").addEventListener("change", refaireCoupe);
+$("#vPro").addEventListener("change", refaireCoupe);
 
 /* ------------------------------------------------------------------ heures d'ensoleillement */
 let calcul = null, attente = null;

@@ -558,6 +558,36 @@ export function hauteursBords(G, zRef, objets) {
   return bords;
 }
 
+/**
+ * Grille des hauteurs (absolues) de maillages vus de dessus, alignée sur G : pour chaque cellule de 0,5 m, le plus
+ * haut des triangles qui couvrent son centre (NaN ailleurs). Sert à la coupe quand les bâtiments affichés sont ceux
+ * de swisstopo ou de roofer.
+ */
+export function hauteursDessus(G, zRef, objets) {
+  const { n, c, x0 } = G, h = new Float32Array(n * n).fill(NaN), P = new Float32Array(9), v = new THREE.Vector3();
+  for (const o of objets) o?.traverse(m => {
+    if (!m.isMesh || !m.visible) return;
+    m.updateWorldMatrix(true, false);
+    const pos = m.geometry.attributes.position, idx = m.geometry.index, nt = (idx ? idx.count : pos.count) / 3;
+    for (let t = 0; t < nt; t++) {
+      for (let s = 0; s < 3; s++) { v.fromBufferAttribute(pos, idx ? idx.getX(3 * t + s) : 3 * t + s).applyMatrix4(m.matrixWorld); P[3 * s] = (v.x - x0) / c; P[3 * s + 1] = (-v.z - x0) / c; P[3 * s + 2] = v.y + zRef; }
+      // en cellules : (x1, y1), (x2, y2), (x3, y3) ; les faces verticales (aire nulle vue de dessus) sont ignorées
+      const x1 = P[0], y1 = P[1], x2 = P[3], y2 = P[4], x3 = P[6], y3 = P[7], aire = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1);
+      if (Math.abs(aire) < 1e-6) continue;
+      const i0 = Math.max(0, Math.floor(Math.min(x1, x2, x3) - 0.5)), i1 = Math.min(n - 1, Math.ceil(Math.max(x1, x2, x3) - 0.5));
+      const j0 = Math.max(0, Math.floor(Math.min(y1, y2, y3) - 0.5)), j1 = Math.min(n - 1, Math.ceil(Math.max(y1, y2, y3) - 0.5));
+      for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
+        const x = i + 0.5, y = j + 0.5;
+        const a = ((x2 - x) * (y3 - y) - (x3 - x) * (y2 - y)) / aire, b = ((x3 - x) * (y1 - y) - (x1 - x) * (y3 - y)) / aire, d = 1 - a - b;
+        if (a < -1e-4 || b < -1e-4 || d < -1e-4) continue;
+        const z = a * P[2] + b * P[5] + d * P[8], p = j * n + i;
+        if (!(h[p] >= z)) h[p] = z;
+      }
+    }
+  });
+  return h;
+}
+
 /** Limites des parcelles voisines (traits fins posés sur le terrain) et leurs numéros (étiquettes au centre). */
 export function limitesVoisines(voisines, G, zRef, couleur) {
   const grp = new THREE.Group(), pos = new Tampon(), R = G.R;
