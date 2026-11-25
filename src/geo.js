@@ -1,4 +1,4 @@
-// Services fédéraux geo.admin.ch : recherche, parcelle, catalogue STAC des données swisstopo.
+// Services fédéraux geo.admin.ch : recherche, parcelle, catalogue STAC des données swisstopo (fonds de plan : fond.js).
 // Toutes les coordonnées internes sont en MN95 (EPSG:2056) : E (est), N (nord), en mètres.
 
 const API = "https://api3.geo.admin.ch/rest/services";
@@ -84,10 +84,4 @@ function cles([e0, n0, e1, n1]) {
   for (let e = Math.floor(e0 / 1000); e <= Math.floor((e1 - 0.01) / 1000); e++)
     for (let n = Math.floor(n0 / 1000); n <= Math.floor((n1 - 0.01) / 1000); n++) r.push(`${e}-${n}`);
   return r;
-}
-
-/** Orthophoto SWISSIMAGE de la boîte, pour habiller le terrain. */
-export function urlOrthophoto([e0, n0, e1, n1], px = 2048) {
-  return `https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=ch.swisstopo.swissimage&STYLES=` +
-    `&CRS=EPSG:2056&BBOX=${e0},${n0},${e1},${n1}&WIDTH=${px}&HEIGHT=${px}&FORMAT=image/jpeg`;
 }

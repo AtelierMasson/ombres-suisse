@@ -1,25 +1,183 @@
+/* Mise en page commune, puis une section par thème (attribut data-theme sur <body>, voir themes.js). */
 html, body { height: 100%; margin: 0; overflow: hidden; font-size: 14px; }
-#haut { position: absolute; top: 0; left: 0; right: 0; height: 56px; z-index: 10; }
-#vue { position: absolute; top: 56px; left: 0; right: 0; bottom: 0; }
+body {
+  --barre: #ffffff; --carte: #ffffff; --texte: #1f2933; --doux: #66727f; --bord: #e2e5e9; --bord-fort: #c5cbd3;
+  --accent: #e8890c; --accent-fonce: #c26d00; --accent-clair: #fdf1df; --sur-accent: #ffffff;
+  --rayon: 10px; --ombre: 0 6px 24px rgba(31, 41, 51, .12); --haut: 56px; --large: 320px;
+  --relief: #8d9aa6; --relief-trait: #5f6b76; --course: #f08c00; --grille: #e3e6ea; --astre: #ffcc33;
+  --coupe-bati: #3b4754; --coupe-terrain: #cfc6b4; --coupe-trait: #1f2933; --coupe-arbres: #9cc27a; --parcelle: #e0262b;
+  --bs-body-color: var(--texte); --bs-secondary-color: var(--doux); --bs-border-color: var(--bord); --bs-body-bg: var(--carte);
+  color: var(--texte); background: #dfe9f1;
+}
+
+/* Bootstrap aux couleurs du thème */
+.card { --bs-card-bg: var(--carte); --bs-card-border-color: var(--bord); --bs-card-border-radius: var(--rayon); --bs-card-inner-border-radius: var(--rayon); --bs-card-color: var(--texte); box-shadow: var(--ombre); }
+.text-secondary { color: var(--doux) !important; }
+.btn { --bs-btn-border-radius: calc(var(--rayon) * .6); }
+.btn-sm { --bs-btn-border-radius: calc(var(--rayon) * .5); }
+.btn-primary { --bs-btn-color: var(--sur-accent); --bs-btn-bg: var(--accent); --bs-btn-border-color: var(--accent); --bs-btn-hover-color: var(--sur-accent); --bs-btn-hover-bg: var(--accent-fonce); --bs-btn-hover-border-color: var(--accent-fonce); --bs-btn-active-color: var(--sur-accent); --bs-btn-active-bg: var(--accent-fonce); --bs-btn-active-border-color: var(--accent-fonce); }
+.btn-outline-primary { --bs-btn-color: var(--accent-fonce); --bs-btn-border-color: var(--accent); --bs-btn-hover-color: var(--sur-accent); --bs-btn-hover-bg: var(--accent); --bs-btn-hover-border-color: var(--accent); --bs-btn-active-color: var(--sur-accent); --bs-btn-active-bg: var(--accent-fonce); --bs-btn-active-border-color: var(--accent-fonce); --bs-btn-disabled-color: var(--doux); --bs-btn-disabled-border-color: var(--bord-fort); }
+.btn-outline-secondary { --bs-btn-color: var(--texte); --bs-btn-border-color: var(--bord-fort); --bs-btn-hover-color: var(--texte); --bs-btn-hover-bg: var(--accent-clair); --bs-btn-hover-border-color: var(--accent); --bs-btn-active-color: var(--sur-accent); --bs-btn-active-bg: var(--accent); --bs-btn-active-border-color: var(--accent); }
+.form-control { background-color: var(--carte); color: var(--texte); border-color: var(--bord-fort); border-radius: calc(var(--rayon) * .6); }
+.form-control::placeholder { color: var(--doux); }
+.form-control:focus { background-color: var(--carte); color: var(--texte); border-color: var(--accent); box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--accent) 25%, transparent); }
+.form-check-input:checked { background-color: var(--accent); border-color: var(--accent); }
+.form-check-input:focus { border-color: var(--accent); box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--accent) 25%, transparent); }
+.form-range::-webkit-slider-thumb { background: var(--accent); }
+.form-range::-moz-range-thumb { background: var(--accent); }
+.form-range::-webkit-slider-runnable-track { background: var(--bord-fort); }
+.form-range::-moz-range-track { background: var(--bord-fort); }
+.progress { --bs-progress-bg: var(--bord); }
+.progress-bar { background-color: var(--accent); }
+.list-group { --bs-list-group-bg: var(--carte); --bs-list-group-color: var(--texte); --bs-list-group-border-color: var(--bord); --bs-list-group-action-hover-bg: var(--accent-clair); --bs-list-group-action-hover-color: var(--texte); --bs-list-group-action-color: var(--texte); }
+
+/* barre du haut */
+#haut { position: absolute; top: 0; left: 0; right: 0; height: var(--haut); z-index: 10; display: flex; align-items: center; gap: 14px; padding: 0 14px;
+  background: var(--barre); border-bottom: 1px solid var(--bord); }
+#haut .marque { display: flex; align-items: center; gap: 8px; font-size: 1.25rem; font-weight: 600; color: var(--texte); text-decoration: none; }
+#haut .marque .toit { fill: var(--texte); }
+#haut .recherche { max-width: 520px; }
+body.accueil #haut .recherche { visibility: hidden; }
+.suggestions { top: calc(100% + 4px); z-index: 20; max-height: 360px; overflow: auto; text-align: left; }
+.suggestions .list-group-item { cursor: pointer; }
+#themes { display: flex; gap: 5px; margin-left: auto; }
+#themes button { display: flex; align-items: center; gap: 6px; padding: 3px 10px 3px 4px; border: 1px solid var(--bord-fort); border-radius: 999px; background: transparent; color: var(--texte); font-size: 12.5px; line-height: 1; white-space: nowrap; }
+#themes button i { width: 18px; height: 18px; border-radius: 50%; border: 2px solid; flex: none; }
+#themes button:hover { border-color: var(--accent); }
+#themes button.actif { border-color: var(--accent); background: var(--accent-clair); font-weight: 600; }
+
+/* vue 3D, panneau, cartes du bas */
+#vue { position: absolute; top: var(--haut); left: 0; right: 0; bottom: 0; }
 #vue canvas { display: block; }
-#suggestions { top: 40px; z-index: 20; max-height: 360px; overflow: auto; }
-#suggestions .list-group-item { cursor: pointer; }
-#panneau { position: absolute; top: 68px; left: 12px; width: 320px; max-height: calc(100% - 112px); overflow: auto; z-index: 5; }
-#diagramme { position: absolute; right: 12px; bottom: 36px; width: 440px; z-index: 5; }
-#svgSoleil { width: 100%; height: auto; display: block; font: 10px system-ui, sans-serif; fill: #6c757d; }
-#svgSoleil .grille { stroke: #e3e6ea; stroke-width: 1; }
-#svgSoleil .relief { fill: #8d9aa6; fill-opacity: .75; stroke: #5f6b76; stroke-width: 1; }
-#svgSoleil .course { fill: none; stroke: #f08c00; stroke-width: 2; }
-#svgSoleil .saison { fill: none; stroke: #f08c00; stroke-width: 1; stroke-dasharray: 3 3; opacity: .6; }
-#svgSoleil .astre { fill: #ffcc33; stroke: #c77700; stroke-width: 1.5; }
+#panneau { position: absolute; top: calc(var(--haut) + 12px); left: 12px; width: var(--large); max-height: calc(100% - var(--haut) - 56px); overflow: auto; z-index: 5; }
+#commandes section { border-top: 1px solid var(--bord); margin-top: 12px; padding-top: 10px; }
+.titre { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--doux); margin-bottom: 6px; }
+.bloc-date .btn-group { margin-top: 6px; }
+.bloc-heure { margin-top: 10px; }
+#heureTexte { min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
+#bas { position: absolute; left: calc(var(--large) + 24px); right: 12px; bottom: 36px; z-index: 5; display: flex; gap: 12px; justify-content: flex-end; align-items: flex-end; pointer-events: none; }
+#bas > * { pointer-events: auto; }
+#diagramme { width: 440px; flex: none; }
+#coupe { flex: 1 1 0; min-width: 0; max-width: 780px; }
+#svgSoleil, #svgCoupe { width: 100%; height: auto; display: block; font: 10px system-ui, sans-serif; fill: var(--doux); }
+#svgCoupe { max-height: 240px; }
+#svgSoleil .grille, #svgCoupe .grille { stroke: var(--grille); stroke-width: 1; }
+#svgSoleil .relief { fill: var(--relief); fill-opacity: .75; stroke: var(--relief-trait); stroke-width: 1; }
+#svgSoleil .course { fill: none; stroke: var(--course); stroke-width: 2; }
+#svgSoleil .saison { fill: none; stroke: var(--course); stroke-width: 1; stroke-dasharray: 3 3; opacity: .6; }
+.astre { fill: var(--astre); stroke: var(--course); stroke-width: 1.5; }
+#svgCoupe .axe { stroke: var(--doux); stroke-width: 1; }
+#svgCoupe .arbres { fill: var(--coupe-arbres); fill-opacity: .55; stroke: none; }
+#svgCoupe .terrain { fill: var(--coupe-terrain); stroke: none; }
+#svgCoupe .bati { fill: var(--coupe-bati); stroke: var(--coupe-trait); stroke-width: 1.5; stroke-linejoin: round; }
+#svgCoupe .sol { fill: none; stroke: var(--coupe-trait); stroke-width: 2.5; stroke-linejoin: round; }
+#svgCoupe line.limite { stroke: var(--parcelle); stroke-width: 1.5; stroke-dasharray: 5 3; }
+#svgCoupe text.limite { fill: var(--parcelle); font-weight: 600; }
+#svgCoupe .rayon { stroke: var(--course); stroke-width: 2; stroke-dasharray: 7 4; }
+#svgCoupe .pied { fill: var(--course); }
+#svgCoupe .repere { fill: var(--texte); font-weight: 700; font-size: 13px; }
 .legende span { display: inline-block; width: 14px; height: 8px; margin: 0 4px 0 8px; vertical-align: 0; }
-.legende .l-relief { background: #8d9aa6; }
-.legende .l-course { border-top: 2px solid #f08c00; height: 0; }
-.legende .l-saison { border-top: 1px dashed #f08c00; height: 0; }
-#message { position: absolute; top: 68px; left: 50%; transform: translateX(-50%); z-index: 6; }
-#pied { position: absolute; left: 12px; bottom: 8px; z-index: 5; background: rgba(255, 255, 255, .8); padding: 2px 6px; border-radius: 4px; }
-.degrade { height: 10px; border-radius: 3px; background: linear-gradient(90deg, #264dbf, #f2e533, #f2331a); }
+.legende .l-relief { background: var(--relief); }
+.legende .l-course { border-top: 2px solid var(--course); height: 0; }
+.legende .l-saison { border-top: 1px dashed var(--course); height: 0; }
+.legende .l-bati { background: var(--coupe-bati); }
+.legende .l-terrain { background: var(--coupe-terrain); border-top: 2px solid var(--coupe-trait); }
+.legende .l-arbres { background: var(--coupe-arbres); }
+.legende .l-limite { border-top: 2px dashed var(--parcelle); height: 0; }
+#message { position: absolute; top: calc(var(--haut) + 12px); left: 50%; transform: translateX(-50%); z-index: 6; box-shadow: var(--ombre); }
+#pied { position: absolute; left: 12px; bottom: 8px; z-index: 5; max-width: calc(100% - 24px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--doux); background: color-mix(in srgb, var(--carte) 82%, transparent); padding: 2px 8px; border-radius: 6px; }
+.degrade { height: 10px; border-radius: 5px; background: var(--degrade-heures, linear-gradient(90deg, #264dbf, #f2e533, #f2331a)); }
+
+/* écran d'accueil */
+#accueil { position: absolute; inset: var(--haut) 0 0 0; z-index: 4; display: flex; align-items: center; padding: 0 clamp(16px, 5vw, 80px) 30px; pointer-events: none; }
+body:not(.accueil) #accueil { display: none; }
+.carte-accueil { pointer-events: auto; width: min(540px, 100%); padding: 30px 32px 26px; border-radius: calc(var(--rayon) * 1.6); border: 1px solid var(--bord);
+  background: color-mix(in srgb, var(--carte) 90%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 18px 60px rgba(31, 41, 51, .18); }
+.carte-accueil .surtitre { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-fonce); }
+.carte-accueil h1 { font-size: clamp(1.7rem, 2.7vw, 2.35rem); font-weight: 700; letter-spacing: -.015em; line-height: 1.12; margin: 8px 0 12px; }
+.carte-accueil .chapeau { color: var(--doux); font-size: 1.02rem; line-height: 1.5; margin-bottom: 18px; }
+.exemples { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; font-size: 13px; color: var(--doux); }
+.exemples a { padding: 4px 11px; border-radius: 999px; background: var(--accent-clair); color: var(--texte); text-decoration: none; border: 1px solid transparent; }
+.exemples a:hover { border-color: var(--accent); }
+.atouts { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding: 18px 0 0; margin: 20px 0 0; border-top: 1px solid var(--bord); font-size: 12.5px; color: var(--doux); }
+.atouts li { display: flex; flex-direction: column; gap: 6px; }
+.atouts svg { width: 26px; height: 26px; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.atouts b { display: block; color: var(--texte); font-size: 13px; }
+
+/* ---------- Thème « Alpage » : sable et vert sapin, tout flotte au-dessus de la vue ---------- */
+body[data-theme=alpage] {
+  --barre: rgba(252, 249, 240, .82); --carte: #fcf9f0; --texte: #22332b; --doux: #647268; --bord: #e3dcc8; --bord-fort: #c9c0a6;
+  --accent: #2f6b4f; --accent-fonce: #1f4d3a; --accent-clair: #e3efe2; --rayon: 18px; --ombre: 0 10px 34px rgba(34, 51, 43, .16);
+  --relief: #9aa58d; --relief-trait: #66725e; --course: #d9480f; --grille: #e6e0cf; --astre: #ffd24a; --haut: 58px;
+  --coupe-bati: #2f5d49; --coupe-terrain: #cdbf9c; --coupe-trait: #1f3b2f; --coupe-arbres: #8fbf78; --parcelle: #d9480f;
+  background: #e2ece2;
+}
+body[data-theme=alpage] #vue { top: 0; }
+body[data-theme=alpage] #haut { top: 10px; left: 12px; right: 12px; height: 48px; background: none; border: 0; padding: 0; pointer-events: none; }
+body[data-theme=alpage] #haut > * { pointer-events: auto; }
+body[data-theme=alpage] #haut .marque, body[data-theme=alpage] #themes { height: 44px; padding: 0 16px; border-radius: 999px; background: var(--barre); border: 1px solid var(--bord); box-shadow: var(--ombre); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+body[data-theme=alpage] #themes { align-items: center; padding: 0 8px; }
+body[data-theme=alpage] #haut .recherche .form-control { height: 44px; border-radius: 999px; padding-left: 18px; box-shadow: var(--ombre); border-color: var(--bord); }
+body[data-theme=alpage] #panneau, body[data-theme=alpage] #bas .card { background: color-mix(in srgb, var(--carte) 84%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+body[data-theme=alpage] .btn-group > .btn { --bs-btn-border-radius: 999px; }
+
+/* ---------- Thème « Nuit bleue » : sombre, panneau compact à droite ---------- */
+body[data-theme=nuit] {
+  --barre: rgba(13, 22, 38, .88); --carte: #14213a; --texte: #e6ecf5; --doux: #9aa9c0; --bord: #263756; --bord-fort: #3a4d70;
+  --accent: #ffb84d; --accent-fonce: #f09a1a; --accent-clair: #2a3654; --sur-accent: #1a1206; --rayon: 8px; --ombre: 0 10px 34px rgba(0, 0, 0, .45); --large: 292px;
+  --relief: #4d6187; --relief-trait: #8ea3c9; --course: #ffb84d; --grille: #263756; --astre: #ffd98a;
+  --coupe-bati: #c9d3e3; --coupe-terrain: #55627c; --coupe-trait: #ffb84d; --coupe-arbres: #4fa39a; --parcelle: #ffb84d;
+  background: #0f1a2e; font-size: 13px;
+}
+body[data-theme=nuit] #vue { top: 0; }
+body[data-theme=nuit] #haut { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+body[data-theme=nuit] #panneau { left: auto; right: 12px; }
+body[data-theme=nuit] #panneau .card-body { padding: 12px; }
+body[data-theme=nuit] #commandes section { margin-top: 9px; padding-top: 8px; }
+body[data-theme=nuit] #bas { left: 12px; right: calc(var(--large) + 24px); flex-direction: row-reverse; }
+body[data-theme=nuit] .badge.text-bg-light { background: #263756 !important; color: var(--texte) !important; }
+body[data-theme=nuit] .carte-accueil { box-shadow: 0 18px 60px rgba(0, 0, 0, .5); }
+body[data-theme=nuit] #message { background: #3a2f12; color: #ffe2a8; border-color: #6b5417; }
+
+/* ---------- Thème « Terre cuite » : panneau fixe pleine hauteur, barre du temps au-dessus de la vue ---------- */
+body[data-theme=atelier] {
+  --barre: #fbf5ee; --carte: #fffaf4; --texte: #3a2a25; --doux: #7d675e; --bord: #ead9cb; --bord-fort: #d3bba9;
+  --accent: #b5533c; --accent-fonce: #8f3b28; --accent-clair: #f6e3d8; --rayon: 6px; --ombre: 0 6px 22px rgba(58, 42, 37, .14); --large: 336px;
+  --relief: #b39a8c; --relief-trait: #7d675e; --course: #b5533c; --grille: #eddccf; --astre: #f3c14b;
+  --coupe-bati: #7c3a2b; --coupe-terrain: #d6bfae; --coupe-trait: #3a2420; --coupe-arbres: #a3ad6a; --parcelle: #0b7285;
+  background: #f1e3d6;
+}
+@media (min-width: 801px) {
+  body[data-theme=atelier]:not(.accueil) #vue { left: var(--large); }
+  body[data-theme=atelier] #panneau { top: var(--haut); left: 0; bottom: 0; max-height: none; border-radius: 0; border-width: 0 1px 0 0; box-shadow: none; }
+  body[data-theme=atelier]:not(.accueil) #pied { left: calc(var(--large) + 12px); max-width: calc(100% - var(--large) - 24px); }
+  body[data-theme=atelier] #bas { left: calc(var(--large) + 12px); }
+  body[data-theme=atelier] #temps { position: fixed; top: calc(var(--haut) + 12px); left: calc(var(--large) + (100vw - var(--large)) / 2); transform: translateX(-50%); z-index: 6;
+    width: min(760px, calc(100vw - var(--large) - 40px)); display: flex; align-items: center; gap: 16px; margin: 0; padding: 8px 14px;
+    background: var(--carte); border: 1px solid var(--bord); border-radius: 999px; box-shadow: var(--ombre); }
+  body[data-theme=atelier] #temps .titre { display: none; }
+  body[data-theme=atelier] #temps .bloc-date { display: flex; align-items: center; gap: 8px; flex: none; }
+  body[data-theme=atelier] #temps .bloc-date .btn-group { margin: 0; width: auto !important; }
+  body[data-theme=atelier] #temps .bloc-date input { width: 132px; }
+  body[data-theme=atelier] #temps .bloc-heure { flex: 1; min-width: 0; margin: 0; display: flex; flex-direction: column; }
+  body[data-theme=atelier] #temps #soleilTexte { font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  body[data-theme=atelier] #commandes section:nth-of-type(2) { border-top: 0; margin-top: 4px; }
+  body[data-theme=atelier] #message { top: calc(var(--haut) + 92px); left: calc(var(--large) + (100vw - var(--large)) / 2); }
+}
+
+@media (max-width: 1150px) {
+  #themes button:not(.actif) span { display: none; }
+  #themes button:not(.actif) { padding: 3px 4px; }
+  #bas { flex-direction: column; align-items: flex-end; }
+  body[data-theme=nuit] #bas { flex-direction: column; align-items: flex-start; }
+  #coupe { flex: none; width: min(100%, 560px); }
+  body[data-theme=atelier] #temps .bloc-date .btn-group { display: none; }
+}
 @media (max-width: 800px) {
-  #panneau { width: auto; right: 12px; max-height: 45%; }
-  #diagramme { left: 12px; right: 12px; width: auto; bottom: 34px; }
+  #haut .marque { font-size: 0; gap: 0; }
+  #panneau, body[data-theme=nuit] #panneau { width: auto; left: 12px; right: 12px; max-height: 45%; }
+  #bas, body[data-theme=nuit] #bas { left: 12px; right: 12px; bottom: 34px; }
+  #diagramme, #coupe { width: 100%; }
+  .atouts { grid-template-columns: 1fr; }
+  .carte-accueil { padding: 22px 20px; }
 }

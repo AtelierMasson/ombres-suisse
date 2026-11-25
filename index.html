@@ -7,30 +7,52 @@
 <meta name="description" content="Ombres et ensoleillement d'une parcelle en Suisse, calculés dans le navigateur à partir du nuage de points laser de swisstopo.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='12' cy='12' r='7' fill='%23f5b301'/%3E%3Cpath d='M6 28 L18 16 L28 28Z' fill='%23334'/%3E%3C/svg%3E">
 </head>
-<body>
-<nav class="navbar bg-white border-bottom px-3 gap-3" id="haut">
-  <span class="navbar-brand fw-semibold d-flex align-items-center gap-2 m-0">
-    <svg width="26" height="26" viewBox="0 0 32 32"><circle cx="12" cy="12" r="7" fill="#f5b301"/><path d="M6 28 L18 16 L28 28Z" fill="#334"/></svg>Ombres
-  </span>
-  <div class="position-relative flex-grow-1" style="max-width:520px">
-    <input id="q" class="form-control" type="search" placeholder="Adresse ou parcelle en Suisse (ex. « Lutry 3947 »)" autocomplete="off">
-    <div id="suggestions" class="list-group position-absolute w-100 shadow-sm" hidden></div>
-  </div>
-  <span class="text-secondary small ms-auto d-none d-lg-inline">Données swisstopo · calcul dans votre navigateur</span>
-</nav>
-
+<body class="accueil" data-theme="maquette">
 <main id="vue"></main>
 
-<aside id="panneau" class="card shadow-sm">
-  <div class="card-body">
-    <div id="accueil">
-      <h5 class="card-title">Ombres d'une parcelle</h5>
-      <p class="small text-secondary mb-2">Tapez une adresse ou un numéro de parcelle. Le site lit le relevé laser de swisstopo autour de la parcelle,
-        reconstruit le terrain, les bâtiments et les arbres, puis calcule les ombres, y compris celles des montagnes lointaines.</p>
-      <p class="small text-secondary mb-0">Rien n'est installé ni envoyé : tout se calcule dans votre navigateur.</p>
+<nav id="haut">
+  <a class="marque" href="#" title="Retour à l'accueil">
+    <svg width="26" height="26" viewBox="0 0 32 32"><circle cx="12" cy="12" r="7" fill="#f5b301"/><path d="M6 28 L18 16 L28 28Z" class="toit"/></svg>Ombres
+  </a>
+  <div class="recherche position-relative flex-grow-1">
+    <input id="q" class="form-control" type="search" placeholder="Adresse ou parcelle en Suisse (ex. « Lutry 3947 »)" autocomplete="off">
+    <div class="suggestions list-group position-absolute w-100 shadow" hidden></div>
+  </div>
+  <div id="themes" role="group" aria-label="Thème d'affichage"></div>
+</nav>
+
+<section id="accueil">
+  <div class="carte-accueil">
+    <div class="surtitre">Toute la Suisse · données swisstopo</div>
+    <h1>Où tombe l'ombre, heure par heure ?</h1>
+    <p class="chapeau">Tapez une adresse ou un numéro de parcelle. Le site lit le relevé laser de swisstopo, reconstruit le terrain,
+      les bâtiments et les arbres, puis calcule les ombres, y compris celles des montagnes lointaines.</p>
+    <div class="recherche position-relative">
+      <input id="q2" class="form-control form-control-lg" type="search" placeholder="Adresse ou parcelle (ex. « Lutry 3947 »)" autocomplete="off">
+      <div class="suggestions list-group position-absolute w-100 shadow" hidden></div>
     </div>
-    <div id="infos" hidden>
-      <div class="d-flex justify-content-between align-items-start">
+    <div class="exemples">
+      <span>Essayer :</span>
+      <a href="#e=2542768&n=1152290&l=Lutry%203947&t=Parcelle">Lutry, vignoble</a>
+      <a href="#e=2600221&n=1199469&l=Bundesgasse%203%203011%20Bern&t=Adresse">Berne, centre-ville</a>
+      <a href="#e=2623924&n=1096922&l=Bahnhofplatz%201%203920%20Zermatt&t=Adresse">Zermatt, entre les sommets</a>
+      <a href="#e=2572535&n=1159157&l=Rue%20du%20Bourg%201%201663%20Gruy%C3%A8res&t=Adresse">Gruyères, le bourg</a>
+    </div>
+    <ul class="atouts">
+      <li><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>
+        <div><b>Ombres à toute heure</b>Choisissez la date, faites défiler la journée.</div></li>
+      <li><svg viewBox="0 0 24 24"><path d="M2 19 9 8l4 6 3-4 6 9Z"/></svg>
+        <div><b>Montagnes comprises</b>L'horizon est calculé sur 50 km à la ronde.</div></li>
+      <li><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        <div><b>Rien n'est envoyé</b>Tout se calcule dans votre navigateur.</div></li>
+    </ul>
+  </div>
+</section>
+
+<aside id="panneau" class="card" hidden>
+  <div class="card-body">
+    <div id="infos">
+      <div class="d-flex justify-content-between align-items-start gap-2">
         <div><div class="small text-secondary" id="lieuType"></div><h5 class="mb-0" id="lieu"></h5></div>
         <button class="btn btn-sm btn-outline-secondary" id="btnPartager" title="Copier le lien">Lien</button>
       </div>
@@ -43,56 +65,90 @@
     </div>
 
     <div id="commandes" hidden>
-      <hr>
-      <label class="form-label small fw-semibold mb-1" for="jour">Date</label>
-      <input type="date" id="jour" class="form-control form-control-sm">
-      <div class="btn-group btn-group-sm w-100 mt-2" role="group">
-        <button type="button" class="btn btn-outline-secondary" data-jour="12-21">21 déc.</button>
-        <button type="button" class="btn btn-outline-secondary" data-jour="03-20">20 mars</button>
-        <button type="button" class="btn btn-outline-secondary" data-jour="06-21">21 juin</button>
-        <button type="button" class="btn btn-outline-secondary" data-jour="auj">Auj.</button>
-      </div>
-      <div class="d-flex justify-content-between align-items-center mt-3">
-        <label class="form-label small fw-semibold mb-0" for="heure">Heure</label>
-        <span class="fw-semibold" id="heureTexte"></span>
-      </div>
-      <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-sm btn-primary" id="btnLecture" title="Animer la journée">▶</button>
-        <input type="range" id="heure" class="form-range" min="0" max="1439" step="5">
-      </div>
-      <div class="small mt-1" id="soleilTexte"></div>
+      <section id="temps">
+        <div class="titre">Date et heure</div>
+        <div class="bloc-date">
+          <input type="date" id="jour" class="form-control form-control-sm" aria-label="Date">
+          <div class="btn-group btn-group-sm w-100" role="group">
+            <button type="button" class="btn btn-outline-secondary" data-jour="12-21">21 déc.</button>
+            <button type="button" class="btn btn-outline-secondary" data-jour="03-20">20 mars</button>
+            <button type="button" class="btn btn-outline-secondary" data-jour="06-21">21 juin</button>
+            <button type="button" class="btn btn-outline-secondary" data-jour="auj">Auj.</button>
+          </div>
+        </div>
+        <div class="bloc-heure">
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-sm btn-primary" id="btnLecture" title="Animer la journée">▶</button>
+            <input type="range" id="heure" class="form-range" min="0" max="1439" step="5" aria-label="Heure">
+            <span class="fw-semibold" id="heureTexte"></span>
+          </div>
+          <div class="small" id="soleilTexte"></div>
+        </div>
+      </section>
 
-      <hr>
-      <div class="small fw-semibold mb-1">Affichage</div>
-      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vOrtho" checked><label class="form-check-label small" for="vOrtho">Orthophoto</label></div>
-      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vBati" checked><label class="form-check-label small" for="vBati">Bâtiments</label></div>
-      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vArbres" checked><label class="form-check-label small" for="vArbres">Arbres</label></div>
-      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPoints"><label class="form-check-label small" for="vPoints">Nuage de points brut</label></div>
-      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPieton"><label class="form-check-label small" for="vPieton">Vue depuis la parcelle (1,70 m)</label></div>
+      <section>
+        <div class="titre">Affichage</div>
+        <div class="btn-group btn-group-sm w-100 mb-2" role="group" aria-label="Fond du terrain">
+          <input type="radio" class="btn-check" name="fond" id="fCadastre" value="cadastre" checked><label class="btn btn-outline-secondary" for="fCadastre">Plan cadastral</label>
+          <input type="radio" class="btn-check" name="fond" id="fOrtho" value="ortho"><label class="btn btn-outline-secondary" for="fOrtho">Photo aérienne</label>
+          <input type="radio" class="btn-check" name="fond" id="fUni" value="uni"><label class="btn btn-outline-secondary" for="fUni">Uni</label>
+        </div>
+        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vBati" checked><label class="form-check-label small" for="vBati">Bâtiments</label></div>
+        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vArbres" checked><label class="form-check-label small" for="vArbres">Arbres</label></div>
+        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vFacades"><label class="form-check-label small" for="vFacades">Points mesurés sur les façades <span class="text-secondary" id="nbFacades"></span></label></div>
+        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPoints"><label class="form-check-label small" for="vPoints">Nuage de points brut</label></div>
+        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPieton"><label class="form-check-label small" for="vPieton">Vue depuis la parcelle (1,70 m)</label></div>
+        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vEffets" checked><label class="form-check-label small" for="vEffets">Effets de lumière <span class="text-secondary">(à couper si l'affichage est lent)</span></label></div>
+      </section>
 
-      <hr>
-      <button class="btn btn-sm btn-outline-primary w-100" id="btnHeures">Heures de soleil sur la parcelle ce jour-là</button>
-      <div id="heures" class="small mt-2" hidden>
-        <div class="degrade"></div>
-        <div class="d-flex justify-content-between text-secondary"><span>0 h</span><span id="heuresMax"></span></div>
-        <div id="heuresStats" class="mt-1"></div>
-        <div class="form-check form-switch mt-1"><input class="form-check-input" type="checkbox" id="vHeures" checked><label class="form-check-label small" for="vHeures">Afficher la carte</label></div>
-      </div>
+      <section>
+        <div class="titre">Coupe</div>
+        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vCoupe"><label class="form-check-label small" for="vCoupe">Couper le terrain et les bâtiments</label></div>
+        <div id="outilsCoupe" hidden>
+          <button class="btn btn-sm btn-outline-secondary w-100 mt-1" id="btnTracer">Tracer la coupe (2 clics)</button>
+          <div class="small text-secondary mt-1" id="aideCoupe">Déplacez les poignées A et B sur le modèle, ou tracez une nouvelle ligne.</div>
+        </div>
+      </section>
+
+      <section>
+        <div class="titre">Heures de soleil</div>
+        <div class="btn-group btn-group-sm w-100 mb-2" role="group" aria-label="Période">
+          <input type="radio" class="btn-check" name="periode" id="pJour" value="jour" checked><label class="btn btn-outline-secondary" for="pJour">Jour</label>
+          <input type="radio" class="btn-check" name="periode" id="pMois" value="mois"><label class="btn btn-outline-secondary" for="pMois">Mois</label>
+          <input type="radio" class="btn-check" name="periode" id="pAnnee" value="annee"><label class="btn btn-outline-secondary" for="pAnnee">Année</label>
+        </div>
+        <button class="btn btn-sm btn-outline-primary w-100" id="btnHeures">Calculer les heures de soleil</button>
+        <div id="heures" class="small mt-2" hidden>
+          <div class="degrade"></div>
+          <div class="d-flex justify-content-between text-secondary"><span>0 h</span><span id="heuresMax"></span></div>
+          <div id="heuresStats" class="mt-1"></div>
+          <div class="form-check form-switch mt-1"><input class="form-check-input" type="checkbox" id="vHeures" checked><label class="form-check-label small" for="vHeures">Afficher la carte</label></div>
+        </div>
+      </section>
     </div>
   </div>
 </aside>
 
-<div id="diagramme" class="card shadow-sm" hidden>
-  <div class="card-body p-2">
-    <div class="small fw-semibold px-1">Course du soleil et horizon <span class="text-secondary fw-normal" id="horizonTexte"></span></div>
-    <svg id="svgSoleil"></svg>
-    <div class="legende small text-secondary px-1"><span class="l-relief"></span>Relief jusqu'à 50 km <span class="l-course"></span>Ce jour <span class="l-saison"></span>21 juin / 21 déc.</div>
+<div id="bas">
+  <div id="coupe" class="card" hidden>
+    <div class="card-body p-2">
+      <div class="small fw-semibold px-1">Coupe A–B <span class="text-secondary fw-normal" id="coupeTexte"></span></div>
+      <svg id="svgCoupe"></svg>
+      <div class="legende small text-secondary px-1"><span class="l-bati"></span>Bâtiment coupé <span class="l-terrain"></span>Terrain <span class="l-arbres"></span>Arbres <span class="l-limite"></span>Limite de parcelle <span class="l-course"></span>Soleil</div>
+    </div>
+  </div>
+  <div id="diagramme" class="card" hidden>
+    <div class="card-body p-2">
+      <div class="small fw-semibold px-1">Course du soleil et horizon <span class="text-secondary fw-normal" id="horizonTexte"></span></div>
+      <svg id="svgSoleil"></svg>
+      <div class="legende small text-secondary px-1"><span class="l-relief"></span>Relief jusqu'à 50 km <span class="l-course"></span>Ce jour <span class="l-saison"></span>21 juin / 21 déc.</div>
+    </div>
   </div>
 </div>
 
 <div id="message" class="alert alert-warning py-1 px-2 small" hidden></div>
 
-<footer id="pied" class="small text-secondary">Sources : © swisstopo (swissSURFACE3D, swissALTI3D, SWISSIMAGE, cadastre geo.admin.ch) · relief lointain : Terrain Tiles (AWS Open Data, Mapzen). Résultats indicatifs.</footer>
+<footer id="pied" class="small">Sources : © swisstopo (swissSURFACE3D, swissALTI3D, SWISSIMAGE, cadastre geo.admin.ch) · relief lointain : Terrain Tiles (AWS Open Data, Mapzen). Résultats indicatifs.</footer>
 <script type="module" src="/src/main.js"></script>
 </body>
 </html>
