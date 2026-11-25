@@ -178,12 +178,12 @@ body[data-theme=nuit] #message { background: #3a2f12; color: #ffe2a8; border-col
 #telechargementGrille i.plein { background: var(--accent); }
 #telechargementGrille i.vif { background: color-mix(in srgb, var(--accent) 70%, transparent); transform: scale(.85); }
 #svgCoupe .limite-voisine { stroke: var(--coupe-fin); stroke-width: .5; stroke-dasharray: 3 3; }
-#svgCoupe .numero { fill: var(--coupe-fin); font-size: 8px; }
+#svgCoupe .numero { fill: var(--coupe-fin); font-size: 9.5px; }
 #svgCoupe .numero.choisie { fill: var(--coupe-trait); font-weight: 700; }
-#svgCoupe .cote { fill: var(--texte); font-size: 7.5px; font-variant-numeric: tabular-nums; }
+#svgCoupe .cote { fill: var(--texte); font-size: 10px; font-variant-numeric: tabular-nums; }
 /* liseré de la couleur du fond : les étiquettes restent lisibles sur le trait de coupe et sur les points */
 #svgCoupe .cote, #svgCoupe .numero { paint-order: stroke; stroke: var(--carte); stroke-width: 2.2px; stroke-linejoin: round; }
-#svgCoupe .cote-trait { stroke: var(--coupe-trait); stroke-width: .5; }
+#svgCoupe .cote-trait { stroke: var(--coupe-trait); stroke-width: .9; }
 
 /* boussole d'orientation (en haut à droite de la vue) : trois axes en 3D qui suivent la caméra */
 #orientation { position: absolute; top: calc(var(--haut) + 8px); right: 12px; z-index: 6; width: 92px; display: flex; flex-direction: column; align-items: center; gap: 4px; user-select: none; }

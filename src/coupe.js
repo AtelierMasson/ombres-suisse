@@ -390,7 +390,7 @@ export function dessinerCoupe(svg, P, soleil) {
   for (const p of P.parcelles || []) {
     const a = Math.max(p.s0, P.s[k0]), b = Math.min(p.s1, P.s[k1]);
     if (b - a < 3) continue;
-    poser(X((a + b) / 2), rangee, String(p.numero), "middle", p.choisie ? "numero choisie" : "numero", 8);
+    poser(X((a + b) / 2), rangee, String(p.numero), "middle", p.choisie ? "numero choisie" : "numero", 9.5);
   }
   // cotes des bâtiments coupés (arrondies à 10 cm) : point bas du terrain, corniches aux deux façades, faîte ;
   // un repère fin au niveau coté, le texte à côté (décalé avec un renvoi si la place est prise)
@@ -398,18 +398,28 @@ export function dessinerCoupe(svg, P, soleil) {
     if (P.s[b] - P.s[a] < 3) continue;
     let zb = Infinity, kf = a, kb = a;
     for (let k = a; k <= b; k++) { if (P.sol[k] < zb) { zb = P.sol[k]; kb = k; } if (P.bat[k] > P.bat[kf]) kf = k; }
-    const cote = (x, z, texte, ancre, dy) => {
-      const y = Y(z), dx = ancre === "end" ? -7 : ancre === "start" ? 7 : 0;
-      const pose = poser(x + dx, y + dy, texte, ancre, "cote", 7.5, [0, -9, 9, -18, 18, -27]);
-      if (pose == null) return;
-      t += `<line x1="${f(x - 4)}" x2="${f(x + 4)}" y1="${f(y)}" y2="${f(y)}" class="cote-trait"/>`;
-      if (pose) t += `<line x1="${f(x + dx * 0.6)}" x2="${f(x + dx)}" y1="${f(y)}" y2="${f(y + dy + pose - 2.5)}" class="cote-trait"/>`;
+    // repère : un petit trait horizontal au niveau coté, juste à côté du point ; le texte sur la même ligne, à droite
+    // ou à gauche du trait (côté préféré d'abord). Seulement si les deux côtés sont pris : texte décalé en hauteur,
+    // relié au trait par un fin renvoi.
+    const cote = (x, z, texte, prefere) => {
+      const y = Y(z), base = y + 3.5, cotes = prefere === "g" ? ["g", "d"] : ["d", "g"];
+      const essai = (sens, dy) => {
+        const x1 = sens === "g" ? x - 11 : x + 3, x2 = x1 + 8, xt = sens === "g" ? x1 - 2 : x2 + 2;
+        const dyPose = poser(xt, base + dy, texte, sens === "g" ? "end" : "start", "cote", 10, [0]);
+        if (dyPose == null) return false;
+        t += `<line x1="${f(x1)}" x2="${f(x2)}" y1="${f(y)}" y2="${f(y)}" class="cote-trait"/>`;
+        if (dy) t += `<line x1="${f(sens === "g" ? x1 : x2)}" x2="${f(xt)}" y1="${f(y)}" y2="${f(y + dy)}" class="cote-trait"/>`;
+        return true;
+      };
+      for (const sens of cotes) if (essai(sens, 0)) return;
+      for (const dy of [-12, 12, -24, 24]) for (const sens of cotes) if (essai(sens, dy)) return;
     };
     const xa = X(isNaN(P.debut[a]) ? P.s[a] : P.debut[a]), xb = X(isNaN(P.fin[b]) ? P.s[b] : P.fin[b]), za = P.bat[a], zbord = P.bat[b];
-    if (P.bat[kf] > Math.max(za, zbord) + 0.3) cote(X(P.s[kf]), P.bat[kf], `faîte ${alt(P.bat[kf])}`, "middle", -5);
-    cote(xa, za, `corniche ${alt(za)}`, "end", 2.5);
-    if (Math.abs(zbord - za) >= 0.2) cote(xb, zbord, `corniche ${alt(zbord)}`, "start", 2.5);
-    cote(X(P.s[kb]), zb, `bas ${alt(zb)}`, X(P.s[kb]) - xa < xb - X(P.s[kb]) ? "end" : "start", 2.5);
+    const xf = X(P.s[kf]), xbas = X(P.s[kb]);
+    if (P.bat[kf] > Math.max(za, zbord) + 0.3) cote(xf, P.bat[kf], `faîte ${alt(P.bat[kf])}`, xf - xa < xb - xf ? "d" : "g");
+    cote(xa, za, `corniche ${alt(za)}`, "g");
+    if (Math.abs(zbord - za) >= 0.2) cote(xb, zbord, `corniche ${alt(zbord)}`, "d");
+    cote(xbas, zb, `bas ${alt(zb)}`, xbas - xa < xb - xbas ? "g" : "d");
   }
   // rayon du soleil vu dans le plan de coupe (hauteur apparente), posé au milieu de la coupe
   let note = "";
