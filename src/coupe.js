@@ -38,7 +38,9 @@ export function profilCoupe(G, contours, A, B, parcelle, pas = 0.25) {
   for (let k = 0; k < nb; k++) {
     const d = s0 + k * pas, x = A[0] + ux * d, y = A[1] + uy * d;
     s[k] = d; sol[k] = solEn(G, x, y);
-    const b = contours && dansBatiment(contours, x, y) ? valeurEn(G, G.bat, x, y) : NaN;
+    // toit tel qu'affiché : le plan du pan s'il y en a un, sinon la grille
+    const pan = contours?.pans ? contours.pans.hauteurEn(x, y) : NaN;
+    const b = contours && dansBatiment(contours, x, y) ? (isNaN(pan) ? valeurEn(G, G.bat, x, y) : pan) : NaN;
     bat[k] = b > sol[k] + 0.5 ? b : NaN;
     const v = isNaN(bat[k]) ? valeurEn(G, G.veg, x, y) : NaN;
     veg[k] = v > sol[k] + 1 ? v : NaN;

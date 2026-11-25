@@ -18,7 +18,9 @@ gratuitement (GitHub Pages, Cloudflare Pages…).
    forme des toits mesurés), arbres (canopée).
 5. **Bâtiments aux murs droits** : chaque bâtiment est découpé en volumes de hauteur continue (corps principal,
    annexe, lucarne), le contour de chaque volume est simplifié en côtés droits et redressé selon l'orientation
-   dominante ; les murs sont des plans verticaux, sans l'effet d'escalier de la grille.
+   dominante ; les murs sont des plans verticaux, sans l'effet d'escalier de la grille. Les toits gardent par défaut
+   les hauteurs du relevé (« Toits : relevé ») ; l'option « Toits : pans » les remplace par des pans plans dont les
+   arêtes (faîtage, arêtier, noue) suivent la direction des façades, et les murs montent jusqu'à ces pans.
 6. **Ombres** à la date et à l'heure choisies (animation de la journée), avec occlusion ambiante (large, en demi-résolution), un rebond de lumière calculé à l'écran (`src/rebond.js`), ciel en dégradé,
    brume légère et ombres adoucies. Un interrupteur « Effets de lumière » les coupe ; ils se réduisent tout seuls
    si l'affichage devient lent.
@@ -64,6 +66,7 @@ npm run build      # site statique dans dist/, à publier tel quel
 | `src/nuage.js` | Lecture partielle du nuage COPC (copc.js + laz-perf en WebAssembly) |
 | `src/grille.js` | Grilles 0,5 m : sol, bâtiments, arbres, surface ; repli raster (geotiff.js) |
 | `src/contours.js` | Volumes et contours des bâtiments : côtés droits, angles redressés |
+| `src/pans.js` | Option « Toits : pans » : pans de toit plans par volume, arêtes dans l'axe des façades |
 | `src/maillages.js` | Géométries : terrain et socle, toits et murs, canopée, nuages de points, limite de parcelle |
 | `src/scene.js` | Scène three.js : lumières, ciel, ombres, occlusion ambiante, fond de plan, plan de coupe |
 | `src/rebond.js` | Un rebond de lumière (éclairage indirect) à l'écran, après l'occlusion ambiante |
@@ -81,6 +84,9 @@ npm run build      # site statique dans dist/, à publier tel quel
 
 - Les bâtiments sont reconstruits en 2,5D (hauteur par cellule de 0,5 m) : pas d'avant-toits ni de passages couverts.
   Les murs sont à l'aplomb du bord du toit : les façades réelles sont souvent en retrait de l'avant-toit.
+- « Toits : pans » : un plan par pan, ajusté sur la grille ; cheminées, petites lucarnes et toits courbes ne sont pas
+  rendus, et un volume trop irrégulier (résidu moyen > 0,4 m : grands îlots, repli raster) garde la grille. Les
+  ombres et les heures de soleil restent calculées dans la grille, quel que soit le style choisi.
 - Le relevé est aérien : environ 1 point par m² sur les façades (contre ~17 sur les toits), très inégalement
   répartis. C'est trop peu pour reconstruire les murs à partir des points ; ils sont seulement affichés.
 - Les heures de soleil sont calculées dans la grille de 0,5 m (et non sur les murs redressés) : écart possible

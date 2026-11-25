@@ -3,6 +3,7 @@
 import * as THREE from "three";
 import { solEn } from "./grille.js";
 import { contoursBatiments } from "./contours.js";
+import { pansToits } from "./pans.js";
 
 /** Terrain (un sommet tous les mètres) avec coordonnées de texture pour le fond de plan. */
 export function terrain(G, zRef) {
@@ -55,8 +56,9 @@ export function socle(G, zRef, zBas) {
 /**
  * Nappe d'une grille de hauteurs (NaN = vide), lissée aux coins. Avec `C` (contours des bâtiments), chaque volume
  * a sa propre nappe (pas de pente entre deux toits de hauteurs différentes) et les coins de bord sont redressés.
+ * `sauf` (numéro de pan par cellule) écarte les cellules déjà couvertes par un pan de toit.
  */
-export function nappe(G, val, zRef, C) {
+export function nappe(G, val, zRef, C, sauf) {
   const { n, c, x0 } = G, m = n + 1;
   const rang = new Int32Array(m * m).fill(-1), vol = new Int32Array(m * m).fill(-1), pos = [], idx = [];
   const coin = k => { // sans contours : moyenne des cellules renseignées autour du coin
@@ -79,7 +81,7 @@ export function nappe(G, val, zRef, C) {
   };
   for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
     const s = C ? C.seg[j * n + i] : isNaN(val[j * n + i]) ? -1 : 0;
-    if (s < 0) continue;
+    if (s < 0 || (sauf && sauf[j * n + i] >= 0)) continue;
     const A = sommet(j * m + i, s), B = sommet(j * m + i + 1, s), D = sommet((j + 1) * m + i + 1, s), E = sommet((j + 1) * m + i, s);
     idx.push(A, B, D, A, D, E);
   }
@@ -90,24 +92,94 @@ export function nappe(G, val, zRef, C) {
   return g;
 }
 
-/** Bâtiments : toits de la grille, bords redressés, et murs plans du toit jusqu'au sol. */
-export function batiments(G, zRef) {
-  const C = contoursBatiments(G), pos = [];
-  for (const B of C.boucles) {
-    const q = B.coins.length;
+/**
+ * Bâtiments : toits et murs plans, du toit jusqu'au sol. `pans` = faux (par défaut) : toits du relevé (grille de
+ * hauteurs) ; vrai : toits en pans plans dont les arêtes suivent les façades (pans.js), la grille ne restant que pour
+ * les volumes qui ne s'y prêtent pas. `contours` permet de réutiliser les contours déjà calculés (changement de style).
+ * Retourne aussi les contours du style choisi : hauteur des murs (`hauts`) et, en pans, `pans` (hauteurs du toit).
+ */
+export function batiments(G, zRef, pans = false, contours = contoursBatiments(G)) {
+  const C0 = contours.base || contours, P = pans ? (C0.pansCalcules ||= pansToits(G, C0)) : null, { n } = G, m = n + 1, pos = [];
+  const entre = (a, b, t) => t === 0 ? a : t === 1 ? b : a + (b - a) * t; // les bouts exacts : murs du relevé inchangés
+  const boucles = C0.boucles.map(B => {
+    const q = B.coins.length, hauts = P ? new Float32Array(q) : B.hauts;
     for (let k = 0; k < q; k++) {
       const a = B.coins[k], b = B.coins[(k + 1) % q];
-      const xa = C.px[a], ya = C.py[a], xb = C.px[b], yb = C.py[b];
+      const xa = C0.px[a], ya = C0.py[a], xb = C0.px[b], yb = C0.py[b];
+      let profil = [[0, B.hauts[k], 1, B.hauts[(k + 1) % q]]];
+      if (P) {
+        // cellule du volume à gauche de l'arête : le mur reprend le profil de son toit le long de ce côté (un faîtage
+        // qui arrive au bord y ajoute un sommet) ; vers l'ouest ou le sud, le profil se lit à l'envers
+        const d = b - a, i = a % m, j = (a - i) / m, p = (d === 1 || d === m ? j : j - 1) * n + (d === 1 || d === -m ? i : i - 1);
+        if (P.pan[p] >= 0) {
+          profil = P.profil(p, d === 1 ? 0 : d === m ? 1 : d === -1 ? 2 : 3);
+          if (d < 0) profil = profil.map(([t1, z1, t2, z2]) => [1 - t2, z2, 1 - t1, z1]);
+        }
+        hauts[k] = profil.reduce((h, S) => S[0] === 0 ? Math.max(h, S[1]) : h, -Infinity);
+        if (hauts[k] === -Infinity) hauts[k] = B.hauts[k];
+      }
       if (Math.abs(xa - xb) + Math.abs(ya - yb) < 1e-4) continue;
-      const Ta = [xa, B.hauts[k] - zRef, -ya], Tb = [xb, B.hauts[(k + 1) % q] - zRef, -yb];
-      const Ba = [xa, solEn(G, xa, ya) - 0.3 - zRef, -ya], Bb = [xb, solEn(G, xb, yb) - 0.3 - zRef, -yb];
-      pos.push(...Ta, ...Ba, ...Bb, ...Ta, ...Bb, ...Tb);
+      const sa = solEn(G, xa, ya) - 0.3, sb = solEn(G, xb, yb) - 0.3;
+      for (const [t1, z1, t2, z2] of profil) {
+        const x1 = entre(xa, xb, t1), y1 = entre(ya, yb, t1), x2 = entre(xa, xb, t2), y2 = entre(ya, yb, t2);
+        const b1 = entre(sa, sb, t1) - zRef, b2 = entre(sa, sb, t2) - zRef;
+        pos.push(x1, z1 - zRef, -y1, x1, b1, -y1, x2, b2, -y2, x1, z1 - zRef, -y1, x2, b2, -y2, x2, z2 - zRef, -y2);
+      }
     }
-  }
+    return P ? { ...B, hauts } : B;
+  });
   const murs = new THREE.BufferGeometry();
   murs.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
   murs.computeVertexNormals();
-  return { toits: nappe(G, G.bat, zRef, C), murs, contours: C };
+  const C = P ? { ...C0, boucles, pans: P, base: C0 } : C0;
+  return { toits: P ? toitsPans(G, zRef, C0, P) : nappe(G, G.bat, zRef, C0), murs, contours: C };
+}
+
+/** Toits en pans : triangles plans par cellule (coupés le long des arêtes de toit), grille pour les volumes restants. */
+function toitsPans(G, zRef, C, P) {
+  const { n } = G, m = n + 1, pos = [];
+  // hauteurs d'un profil aux deux bouts de l'intervalle [ta, tb]
+  const lire = (profil, ta, tb) => {
+    const tm = (ta + tb) / 2;
+    for (const [t1, z1, t2, z2] of profil) if (t1 <= tm && tm <= t2) return [z1 + (z2 - z1) * (ta - t1) / (t2 - t1), z1 + (z2 - z1) * (tb - t1) / (t2 - t1)];
+    return null;
+  };
+  for (let p = 0; p < n * n; p++) {
+    if (P.pan[p] < 0) continue;
+    if (!P.mixte[p]) { // cellule d'un seul pan : deux triangles dans son plan
+      const [a, b, d] = P.plans[P.pan[p]], k = Math.floor(p / n) * m + p % n;
+      for (const t of [k, k + 1, k + m + 1, k, k + m + 1, k + m]) pos.push(C.px[t], a * C.px[t] + b * C.py[t] + d - zRef, -C.py[t]);
+      continue;
+    }
+    for (const v of P.triangles(p)) pos.push(v[0], v[2] - zRef, -v[1]);
+    // raccord avec les cellules voisines du même volume : là où les deux toits ne se rejoignent pas (ressaut entre
+    // deux pans sans arête commune, petite lucarne), un pan vertical ferme le décrochement
+    const i = p % n, j = (p - i) / n, k = j * m + i;
+    for (const [q, cote, a, b] of [[i < n - 1 ? p + 1 : -1, 1, k + 1, k + m + 1], [j < n - 1 ? p + n : -1, 2, k + m, k + m + 1], [i > 0 ? p - 1 : -1, 3, k, k + m], [j > 0 ? p - n : -1, 0, k, k + 1]]) {
+      if (q < 0 || P.pan[q] < 0 || C.seg[q] !== C.seg[p] || (P.mixte[q] && cote % 3 === 0)) continue; // deux cellules mixtes : une seule fois
+      const U = P.profil(p, cote), V = P.profil(q, (cote + 2) % 4), bornes = [...new Set([...U, ...V].flatMap(S => [S[0], S[2]]))].sort((u, v) => u - v);
+      const xa = C.px[a], ya = C.py[a], xb = C.px[b], yb = C.py[b];
+      for (let t = 0; t < bornes.length - 1; t++) {
+        const ta = bornes[t], tb = bornes[t + 1], u = lire(U, ta, tb), v = lire(V, ta, tb);
+        if (tb - ta < 1e-9 || !u || !v || (Math.abs(u[0] - v[0]) < 0.005 && Math.abs(u[1] - v[1]) < 0.005)) continue;
+        const x1 = xa + (xb - xa) * ta, w1 = -(ya + (yb - ya) * ta), x2 = xa + (xb - xa) * tb, w2 = -(ya + (yb - ya) * tb);
+        pos.push(x1, u[0] - zRef, w1, x1, v[0] - zRef, w1, x2, v[1] - zRef, w2, x1, u[0] - zRef, w1, x2, v[1] - zRef, w2, x2, u[1] - zRef, w2);
+      }
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals(); // sans index : une normale par triangle, donc des pans francs
+  const reste = nappe(G, G.bat, zRef, C, P.pan);
+  if (!reste.index.count) return g;
+  const r = reste.toNonIndexed(), fusion = new THREE.BufferGeometry();
+  for (const nom of ["position", "normal"]) {
+    const a = g.getAttribute(nom).array, b = r.getAttribute(nom).array, t = new Float32Array(a.length + b.length);
+    t.set(a); t.set(b, a.length);
+    fusion.setAttribute(nom, new THREE.BufferAttribute(t, 3));
+  }
+  g.dispose(); r.dispose(); reste.dispose();
+  return fusion;
 }
 
 /* ------------------------------------------------------------------ points */

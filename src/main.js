@@ -248,6 +248,17 @@ $$("input[name=arbres]").forEach(b => b.addEventListener("change", () => {
   try { localStorage.setItem("ombres.arbres", b.value); } catch { /* idem */ }
   appliquerAffichage();
 }));
+// style des toits, mémorisé : grille du relevé (par défaut) ou pans plans, pour comparer
+try { const s = localStorage.getItem("ombres.toits"); if (s) $(`input[name=toits][value=${s}]`).checked = true; } catch { /* idem */ }
+scene.toits = $("input[name=toits]:checked")?.value || "releve";
+$$("input[name=toits]").forEach(b => b.addEventListener("change", () => {
+  try { localStorage.setItem("ombres.toits", b.value); } catch { /* idem */ }
+  if (!scene.styleToits(b.value) || !S.G) return;
+  // murs et toits ont changé de hauteur : la coupe et la carte des heures se recalent
+  S.facades = null;
+  if (S.coupe) majCoupe(S.coupe.A, S.coupe.B);
+  if (S.heuresDemandees) calculerHeures(); else scene.afficherHeures(null);
+}));
 $$("input[name=fond]").forEach(b => b.addEventListener("change", () => scene.fond(b.value)));
 scene.surFondAbsent = type => message(type === "ortho" ? "Photo aérienne indisponible pour le moment." : "Plan cadastral indisponible ici : terrain uni.");
 $("#vPieton").addEventListener("change", e => scene.vuePieton(e.target.checked));

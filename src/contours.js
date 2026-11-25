@@ -11,7 +11,8 @@
  *   seg     : numéro de volume de chaque cellule (−1 = vide) ; val : hauteurs affichées (petits accidents lissés).
  *   hauteurCoin(k, s) : hauteur du toit du volume s au coin k (moyenne de ses cellules voisines).
  *   boucles : { coins: Int32Array (indices de coins, dans l'ordre, volume à gauche), sommets: number[] (positions
- *             dans `coins` des sommets du polygone simplifié), hauts: Float32Array (hauteur du toit à chaque coin), seg }.
+ *             dans `coins` des sommets du polygone simplifié), hauts: Float32Array (hauteur du toit à chaque coin), seg,
+ *             dominante: orientation dominante des côtés (radians ; absente pour un contour minuscule) }.
  */
 export function contoursBatiments(G, source = G.bat, tolerance = 0.6, saut = 1.2) {
   const { n, c, x0 } = G, m = n + 1, tol = tolerance / c, val = Float32Array.from(source);
@@ -230,6 +231,7 @@ function simplifier(coins, m, tol, px, py, c, x0, fixe) {
     }
   }
   sortie.sommets = cotes.map(D => D.a);
+  sortie.dominante = dominante; // orientation des façades : les pans de toit la reprennent (pans.js)
   for (const k of ordre) fixe[k] = 1;
   return sortie;
 }

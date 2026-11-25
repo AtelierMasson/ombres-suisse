@@ -172,7 +172,7 @@ export function carreauxFacades(G, C, zone) {
 
 /**
  * Maillages colorés de la carte : carreaux du sol et des toits posés à la hauteur de leur propre cellule
- * (aucun carreau vertical), et carreaux des façades. Les couleurs sont lissées entre voisins de même nature.
+ * (aucun carreau vertical ; sur les toits en pans, ils épousent les pans), et carreaux des façades. Les couleurs sont lissées entre voisins de même nature.
  */
 export function maillagesHeures(G, C, zone, facades, { heures, heuresF }, max, etapes, zRef) {
   const { n, c, x0 } = G, m = n + 1, { i0, j0, w, h, alpha } = zone, palette = etapes.map(e => new THREE.Color(e)), teinte = new THREE.Color();
@@ -197,6 +197,14 @@ export function maillagesHeures(G, C, zone, facades, { heures, heuresF }, max, e
         ? [C.px[k], C.hauteurCoin(k, toit) - zRef + 0.12, -C.py[k], teinte.r, teinte.g, teinte.b, a / 4]
         : [x0 + (gi + di) * c, hauteurTerrain(G, gi + di, gj + dj) - zRef + 0.12, -(x0 + (gj + dj) * c), teinte.r, teinte.g, teinte.b, a / 4];
     });
+    if (toit >= 0 && C.pans && C.pans.pan[gj * n + gi] >= 0) {
+      // toit en pans : la carte reprend les triangles du toit (coupés aux faîtages), couleur interpolée entre les coins
+      for (const v of C.pans.triangles(gj * n + gi)) {
+        pos.push(v[0], v[2] - zRef + 0.12, -v[1]);
+        for (let t = 3; t < 7; t++) col.push(v[3] * S[0][t] + v[4] * S[1][t] + v[5] * S[2][t] + v[6] * S[3][t]);
+      }
+      continue;
+    }
     for (const k of [0, 1, 2, 0, 2, 3]) { pos.push(S[k][0], S[k][1], S[k][2]); col.push(S[k][3], S[k][4], S[k][5], S[k][6]); }
   }
   // façades : la couleur est lissée de bas en haut dans chaque colonne

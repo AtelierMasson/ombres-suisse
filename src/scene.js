@@ -281,7 +281,7 @@ export class Scene3D {
     const m = this.mat, maille = (g, mat, porte, recoit) => { const o = new THREE.Mesh(g, mat); o.castShadow = porte; o.receiveShadow = recoit; return o; };
     const sol = maille(terrain(G, this.zRef), m.terrain, false, true);
     const base = maille(socle(G, this.zRef, this.zBas), m.socle, false, false);
-    const B = batiments(G, this.zRef), bati = new THREE.Group();
+    const B = batiments(G, this.zRef, this.toits === "pans"), bati = new THREE.Group();
     bati.add(maille(B.toits, m.toit, true, true), maille(B.murs, m.mur, true, true));
     this.contours = B.contours;
     // la canopée (grille) porte l'ombre en mode « points » ; les couronnes lissées sont construites par styleArbres()
@@ -301,6 +301,22 @@ export class Scene3D {
     this.controls.target.set(0, 0, 0);
     this.camera.position.set(-110, 120, 150);
     this.ombres();
+  }
+
+  /**
+   * Toits : "releve" (grille de hauteurs du relevé, par défaut) ou "pans" (pans plans dont les arêtes suivent les façades).
+   * Toits et murs sont refaits ; retourne vrai si la scène a changé (les contours ne sont plus les mêmes).
+   */
+  styleToits(style) {
+    if (style === (this.toits || "releve")) return false;
+    this.toits = style;
+    const bati = this.couches.bati;
+    if (!this.G || !bati) return false;
+    const B = batiments(this.G, this.zRef, style === "pans", this.contours);
+    for (const [o, g] of [[bati.children[0], B.toits], [bati.children[1], B.murs]]) { o.geometry.dispose(); o.geometry = g; }
+    this.contours = B.contours;
+    this.ombres();
+    return true;
   }
 
   /**
