@@ -7,7 +7,7 @@ import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { solEn } from "./grille.js";
 
 const TUILES = "https://3d.geo.admin.ch/ch.swisstopo.swissbuildings3d.3d/v1/tileset.json";
-const GEOIDE = 50;
+const GEOIDE = 0; // les tuiles sont ensuite calées sur nos toits (voir caler)
 // les tuiles swisstopo sont compressées en Draco : décodeur copié dans public/draco (servi avec le site)
 let draco;
 const decodeur = () => draco ||= new DRACOLoader().setDecoderPath(`${import.meta.env.BASE_URL}draco/`); // écart approximatif ellipsoïde – altitude suisse (m) ; corrigé ensuite sur le terrain
@@ -52,22 +52,29 @@ export class Swiss3D {
   }
 
   /**
-   * Correction de hauteur : le pied des bâtiments doit toucher notre terrain. Pour chaque sommet, écart terrain – sommet :
-   * les pieds de murs donnent les plus grands écarts (les toits, des écarts bien plus petits). On garde la médiane du
-   * tiers supérieur, ce qui absorbe l'approximation du géoïde sans être faussé par la pente.
+   * Correction de hauteur : les toits swisstopo doivent coïncider avec les toits de notre relevé. Pour chaque sommet
+   * posé au-dessus d'une cellule « bâtiment » de la grille et nettement au-dessus du sol, écart toit relevé – sommet ;
+   * la médiane absorbe l'écart entre systèmes d'altitude sans être faussée par la pente (les pieds de murs, eux,
+   * sont souvent enterrés côté amont).
    */
   caler(mesh, G) {
     // au chargement, la tuile n'est pas encore rattachée au groupe : on compose sa position avec celle du groupe
     mesh.updateWorldMatrix(true, false);
     const M = new THREE.Matrix4().multiplyMatrices(this.tuiles.group.matrix, mesh.matrixWorld);
     const pos = mesh.geometry.attributes.position, v = new THREE.Vector3(), zRef = this.s.zRef;
-    for (let i = 0; i < pos.count; i += 3) {
+    for (let i = 0; i < pos.count; i += 2) {
       v.fromBufferAttribute(pos, i).applyMatrix4(M);
-      if (Math.abs(v.x) < G.R && Math.abs(v.z) < G.R) this.ecarts.push(solEn(G, v.x, -v.z) - zRef - v.y);
+      const x = v.x, y = -v.z, ci = Math.floor((x - G.x0) / G.c), cj = Math.floor((y - G.x0) / G.c);
+      if (ci < 0 || cj < 0 || ci >= G.n || cj >= G.n) continue;
+      const p = cj * G.n + ci, toit = G.bat[p];
+      if (isNaN(toit) || toit < G.sol[p] + 2.5) continue;
+      const d = toit - zRef - v.y;
+      if (Math.abs(d - this.socle.position.y) < 40 || this.ecarts.length < 50) this.ecarts.push(d);
     }
-    if (this.ecarts.length < 30) return;
-    const e = Float32Array.from(this.ecarts).sort(), haut = e.subarray(Math.floor(e.length * 2 / 3));
-    this.socle.position.y = haut[haut.length >> 1];
+    if (this.ecarts.length < 50) return;
+    // médiane, puis médiane affinée autour d'elle (écarte les sommets de murs sous les bords de toit)
+    const e = Float32Array.from(this.ecarts).sort(), m0 = e[e.length >> 1], proches = e.filter(d => Math.abs(d - m0) < 2);
+    this.socle.position.y = proches.length ? proches[proches.length >> 1] : m0;
   }
 
   /** Appelé à chaque image : charge ou décharge les tuiles selon la caméra. */
