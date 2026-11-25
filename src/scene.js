@@ -919,14 +919,28 @@ export class Scene3D {
     this.ombres();
   }
 
-  /** Arbres beige-gris transparents tant que la carte des heures de soleil est affichée (sinon ils la cachent). */
+  /** Arbres de la zone en gris tant que la carte des heures de soleil est affichée (sinon ils la cachent). */
   arbresSurHeures() {
     const m = this.couches.arbres?.material;
     if (!m) return;
-    const actif = !!this.couches.heures?.visible;
-    if (m.uniforms.neutre.value === (actif ? 1 : 0)) return;
-    m.uniforms.neutre.value = actif ? 1 : 0;
-    m.transparent = actif; m.depthWrite = !actif; m.needsUpdate = true;
+    m.uniforms.neutre.value = this.couches.heures?.visible ? 1 : 0;
+    this.demander();
+  }
+
+  /** Zone de la carte des heures de soleil (heures.js) : les arbres qui s'y trouvent passent en gris. */
+  zoneArbres(zone) {
+    const m = this.couches.arbres?.material, G = this.G;
+    if (!m || !G) return;
+    const { n, c, x0 } = G, a = new Uint8Array(n * n);
+    if (zone) for (let j = 0; j < zone.h; j++) for (let i = 0; i < zone.w; i++) {
+      const I = zone.i0 + i, J = zone.j0 + j;
+      if (I >= 0 && J >= 0 && I < n && J < n) a[J * n + I] = Math.round(255 * zone.alpha[j * zone.w + i]);
+    }
+    const t = new THREE.DataTexture(a, n, n, THREE.RedFormat, THREE.UnsignedByteType);
+    t.magFilter = t.minFilter = THREE.LinearFilter; t.needsUpdate = true;
+    m.uniforms.tZone.value?.dispose();
+    m.uniforms.tZone.value = t;
+    m.uniforms.grilleZone.value.set(x0, n * c, zone ? 1 : 0);
     this.demander();
   }
 

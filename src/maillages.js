@@ -282,6 +282,9 @@ attribute vec3 aCouleur;
 #endif
 varying vec3 vCouleur;
 varying float vHaut;
+varying float vZone;
+uniform sampler2D tZone;
+uniform vec3 grilleZone; // x0, côté (m), zone active (0/1)
 #include <common>
 #include <fog_pars_vertex>
 #include <shadowmap_pars_vertex>
@@ -295,7 +298,9 @@ void main() {
     vCouleur = c * (0.84 + 0.32 * fract(aVar * 7.31));
   #endif
   vec3 transformed = position;
-  vHaut = (modelMatrix * vec4(transformed, 1.0)).y;
+  vec4 monde = modelMatrix * vec4(transformed, 1.0);
+  vHaut = monde.y;
+  vZone = grilleZone.z > 0.5 ? texture2D(tZone, (vec2(monde.x, -monde.z) - grilleZone.x) / grilleZone.y).r : 0.0;
   vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
   gl_Position = projectionMatrix * mvPosition;
   #include <worldpos_vertex>
@@ -310,6 +315,7 @@ uniform float lum, relief, ombre, gris, neutre;
 uniform vec3 teinteNeutre;
 varying vec3 vCouleur;
 varying float vHaut;
+varying float vZone;
 #include <common>
 ${RAMPE_GLSL}
 #include <packing>
@@ -329,10 +335,10 @@ void main() {
   vec3 base = vCouleur;
   // dégradé selon la hauteur : la teinte de la rampe, nuancée par la clarté propre à chaque point
   if (degrade > 0.5) base = rampeHaut(vHaut) * (0.8 + 0.9 * (dot(vCouleur, vec3(0.2126, 0.7152, 0.0722)) - 0.25));
-  // carte des heures de soleil affichée : arbres beige-gris et transparents, pour la laisser lisible
-  if (neutre > 0.5) base = teinteNeutre * (0.85 + 0.6 * (dot(vCouleur, vec3(0.2126, 0.7152, 0.0722)) - 0.25));
+  // carte des heures de soleil affichée : arbres de la zone calculée en gris (le reste garde sa couleur)
+  if (neutre > 0.5 && vZone > 0.3) base = teinteNeutre * (0.85 + 0.6 * (dot(vCouleur, vec3(0.2126, 0.7152, 0.0722)) - 0.25));
   vec3 c = mix(base, vec3(dot(base, vec3(0.2126, 0.7152, 0.0722))), gris);
-  gl_FragColor = vec4(c * (1.0 - relief * (0.3 * r2 + 0.12 * p.y)) * lum * soleil, neutre > 0.5 ? 0.3 : 1.0);
+  gl_FragColor = vec4(c * (1.0 - relief * (0.3 * r2 + 0.12 * p.y)) * lum * soleil, 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
   #include <fog_fragment>
@@ -343,7 +349,8 @@ export function materiauPoints(taille, parClasse = false) {
   const mat = new THREE.ShaderMaterial({
     uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, THREE.UniformsLib.lights, {
       taille: { value: taille }, echelle: { value: 800 }, lum: { value: 1 }, relief: { value: 1 }, ombre: { value: 0.5 }, gris: { value: 0 },
-      neutre: { value: 0 }, teinteNeutre: { value: new THREE.Color("#cdc5b6") },
+      neutre: { value: 0 }, teinteNeutre: { value: new THREE.Color("#b9b6b0") },
+      tZone: { value: null }, grilleZone: { value: new THREE.Vector3(0, 1, 0) },
       c1: { value: new THREE.Color("#2f5d2a") }, c2: { value: new THREE.Color("#7fae4b") }, c3: { value: new THREE.Color("#b9c45a") },
     }]),
     defines: parClasse ? { PAR_CLASSE: 1 } : {},

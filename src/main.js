@@ -561,6 +561,7 @@ function calculerHeures() {
 
 function afficherResultat() {
   const { heures, heuresF, P, ms } = S.resultat, zone = S.zone, max = Math.max(0.5, P.max), parJour = P.nbJours > 1 ? " / jour" : "";
+  scene.zoneArbres(zone);
   scene.afficherHeures(maillagesHeures(S.G, scene.contours, zone, S.facades, { heures, heuresF }, max, T.heures, scene.zRef));
   // statistiques sur les cellules de la parcelle (à défaut : le cœur de la zone)
   const sans = !S.parcelle.anneauxRel.length;
