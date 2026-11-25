@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reconstruction : comparaison</title>
+<style>
+  html, body { margin: 0; height: 100%; font: 13px system-ui, sans-serif; background: #e9ecef; }
+  #barre { position: absolute; top: 8px; left: 8px; z-index: 2; background: #fff; padding: 6px 8px; border-radius: 6px; box-shadow: 0 1px 4px #0003; }
+  #barre button { margin: 2px; padding: 4px 8px; border: 1px solid #adb5bd; background: #f8f9fa; border-radius: 4px; cursor: pointer; }
+  #barre button.actif { background: #0d6efd; color: #fff; border-color: #0d6efd; }
+  #info { margin-top: 4px; color: #495057; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<div id="barre">
+  <div><b>Lieu</b> <button data-lieu="floreal">Floréal 18</button><button data-lieu="lutry">Lutry</button></div>
+  <div><b>Jeu</b> <button data-jeu="maison">Maison (pans)</button><button data-jeu="roofer">roofer</button><button data-jeu="deux">Les deux côte à côte</button></div>
+  <div><b>Vue</b> <button data-vue="oblique">Oblique</button><button data-vue="dessus">Dessus</button><button data-vue="proche">Proche</button><button data-vue="plan">Plan proche</button></div>
+  <div id="info"></div>
+</div>
+<script type="module">
+// Visionneuse d'essai (outils/, pas dans le site) : jeux de bâtiments au format roofer_*.json, côte à côte.
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+
+const LIEUX = { floreal: [2537679, 1151560], lutry: [2542766, 1152300] };
+const etat = Object.assign({ lieu: "floreal", jeu: "maison", vue: "oblique" }, Object.fromEntries(new URLSearchParams(location.search)));
+const rendu = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+rendu.setPixelRatio(devicePixelRatio); rendu.setSize(innerWidth, innerHeight);
+document.body.appendChild(rendu.domElement);
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0xe9ecef);
+const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, 1, 5000);
+const ctl = new OrbitControls(camera, rendu.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x667788, 0.9));
+const soleil = new THREE.DirectionalLight(0xffffff, 2.2); soleil.position.set(-150, 120, -60); scene.add(soleil);
+const sol = new THREE.Mesh(new THREE.PlaneGeometry(320, 320), new THREE.MeshLambertMaterial({ color: 0xdee2e6 }));
+sol.rotation.x = -Math.PI / 2; scene.add(sol);
+const mToit = new THREE.MeshLambertMaterial({ color: 0xc8553d, side: THREE.DoubleSide, flatShading: true });
+const mMur = new THREE.MeshLambertMaterial({ color: 0xf1ece4, side: THREE.DoubleSide, flatShading: true });
+const groupe = new THREE.Group(); scene.add(groupe);
+let zRef = 0;
+
+/** Polygones -> deux maillages (toits, murs) dans le repère de la scène (x est, y haut, z sud). */
+function maillage(d, [E0, N0], dx, rayon = 160) {
+  const pos = { toit: [], mur: [] }, [oE, oN] = d.origine;
+  const v3 = ([x, y, z]) => new THREE.Vector3(x + oE - E0 + dx, z - zRef, -(y + oN - N0));
+  for (const { t, r } of d.polygones) {
+    const A = r.map(a => a.map(v3));
+    if (A[0].length < 3 || Math.abs(A[0][0].x - dx) > rayon || Math.abs(A[0][0].z) > rayon) continue;
+    const n = new THREE.Vector3();
+    for (let i = 0; i < A[0].length; i++) { const a = A[0][i], b = A[0][(i + 1) % A[0].length]; n.x += (a.y - b.y) * (a.z + b.z); n.y += (a.z - b.z) * (a.x + b.x); n.z += (a.x - b.x) * (a.y + b.y); }
+    const ax = Math.abs(n.x) > Math.abs(n.y) ? (Math.abs(n.x) > Math.abs(n.z) ? "x" : "z") : (Math.abs(n.y) > Math.abs(n.z) ? "y" : "z");
+    const pl = p => ax === "x" ? new THREE.Vector2(p.y, p.z) : ax === "y" ? new THREE.Vector2(p.x, p.z) : new THREE.Vector2(p.x, p.y);
+    const tous = A.flat(), cible = pos[t === "toit" ? "toit" : "mur"];
+    for (const [a, b, c] of THREE.ShapeUtils.triangulateShape(A[0].map(pl), A.slice(1).map(h => h.map(pl))))
+      cible.push(...tous[a].toArray(), ...tous[b].toArray(), ...tous[c].toArray());
+  }
+  const g = new THREE.Group();
+  for (const [k, m] of [["toit", mToit], ["mur", mMur]]) {
+    const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.Float32BufferAttribute(pos[k], 3)); geo.computeVertexNormals();
+    g.add(new THREE.Mesh(geo, m));
+  }
+  return g;
+}
+
+async function charger() {
+  groupe.clear();
+  const centre = LIEUX[etat.lieu], jeux = etat.jeu === "deux" ? ["maison", "roofer"] : [etat.jeu];
+  const lire = async j => (await fetch(`../public/essais/${j === "maison" ? "reconstruction" : "roofer"}_${etat.lieu}.json`)).json();
+  const D = await Promise.all(jeux.map(lire));
+  // altitude de référence : sol le plus bas des murs du premier jeu
+  let zmin = Infinity; for (const p of D[0].polygones) if (p.t === "mur") for (const q of p.r[0]) zmin = Math.min(zmin, q[2]);
+  zRef = zmin;
+  D.forEach((d, k) => groupe.add(maillage(d, centre, jeux.length > 1 ? (k ? 62 : -62) : 0, jeux.length > 1 ? 58 : 160)));
+  document.getElementById("info").textContent = D.map((d, k) => `${jeux[k]} : ${d.batiments} bât., ${d.polygones.length} polygones`).join(" · ");
+  vue();
+  document.querySelectorAll("button").forEach(b => b.classList.toggle("actif", b.dataset.lieu === etat.lieu || b.dataset.jeu === etat.jeu || b.dataset.vue === etat.vue));
+}
+function vue() {
+  const large = etat.jeu === "deux";
+  const V = { oblique: [[-60, 170, 210], [0, 0, 0]], dessus: [[0, 330, 1], [0, 0, 0]], proche: [[-35, 55, 70], [0, 8, 0]], plan: [[0, 120, 1], [0, 0, 0]] }[etat.vue];
+  camera.position.set(...V[0]); ctl.target.set(...V[1]);
+  if (large && etat.vue === "oblique") camera.position.multiplyScalar(0.8);
+  ctl.update();
+}
+document.querySelectorAll("button").forEach(b => b.onclick = () => {
+  Object.assign(etat, b.dataset.lieu ? { lieu: b.dataset.lieu } : b.dataset.jeu ? { jeu: b.dataset.jeu } : { vue: b.dataset.vue });
+  history.replaceState(null, "", "?" + new URLSearchParams(etat)); charger();
+});
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); rendu.setSize(innerWidth, innerHeight); });
+rendu.setAnimationLoop(() => rendu.render(scene, camera));
+charger();
+</script>
+</body>
+</html>
