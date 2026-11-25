@@ -73,7 +73,7 @@ export function socle(G, zRef, zBas, bords = null, avecReleve = true) {
  */
 export function nappe(G, val, zRef, C, sauf) {
   const { n, c, x0 } = G, m = n + 1;
-  const rang = new Int32Array(m * m).fill(-1), vol = new Int32Array(m * m).fill(-1), pos = [], idx = [];
+  const rang = new Int32Array(m * m).fill(-1), vol = new Int32Array(m * m).fill(-1), pos = [], idx = [], vols = [];
   const coin = k => { // sans contours : moyenne des cellules renseignées autour du coin
     const i = k % m, j = (k - i) / m;
     let s = 0, q = 0;
@@ -97,11 +97,13 @@ export function nappe(G, val, zRef, C, sauf) {
     if (s < 0 || (sauf && sauf[j * n + i] >= 0)) continue;
     const A = sommet(j * m + i, s), B = sommet(j * m + i + 1, s), D = sommet((j + 1) * m + i + 1, s), E = sommet((j + 1) * m + i, s);
     idx.push(A, B, D, A, D, E);
+    vols.push(s);
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
   g.setIndex(idx);
   g.computeVertexNormals();
+  g.userData.volumes = Int32Array.from(vols); // volume de chaque paire de triangles (désignation au clic, mode pro)
   return g;
 }
 
@@ -112,7 +114,7 @@ export function nappe(G, val, zRef, C, sauf) {
  * Retourne aussi les contours du style choisi : hauteur des murs (`hauts`) et, en pans, `pans` (hauteurs du toit).
  */
 export function batiments(G, zRef, pans = false, contours = contoursBatiments(G)) {
-  const C0 = contours.base || contours, P = pans ? (C0.pansCalcules ||= pansToits(G, C0)) : null, { n } = G, m = n + 1, pos = [];
+  const C0 = contours.base || contours, P = pans ? (C0.pansCalcules ||= pansToits(G, C0)) : null, { n } = G, m = n + 1, pos = [], vols = [];
   const entre = (a, b, t) => t === 0 ? a : t === 1 ? b : a + (b - a) * t; // les bouts exacts : murs du relevé inchangés
   const boucles = C0.boucles.map(B => {
     const q = B.coins.length, hauts = P ? new Float32Array(q) : B.hauts;
@@ -139,6 +141,7 @@ export function batiments(G, zRef, pans = false, contours = contoursBatiments(G)
         const x1 = entre(xa, xb, t1), y1 = entre(ya, yb, t1), x2 = entre(xa, xb, t2), y2 = entre(ya, yb, t2);
         const b1 = entre(sa, sb, t1) - zRef, b2 = entre(sa, sb, t2) - zRef;
         pos.push(x1, z1 - zRef, -y1, x1, b1, -y1, x2, b2, -y2, x1, z1 - zRef, -y1, x2, b2, -y2, x2, z2 - zRef, -y2);
+        vols.push(B.seg);
       }
     }
     return P ? { ...B, hauts } : B;
@@ -146,6 +149,7 @@ export function batiments(G, zRef, pans = false, contours = contoursBatiments(G)
   const murs = new THREE.BufferGeometry();
   murs.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
   murs.computeVertexNormals();
+  murs.userData.volumes = Int32Array.from(vols);
   const C = P ? { ...C0, boucles, pans: P, base: C0 } : C0;
   return { toits: P ? toitsPans(G, zRef, C0, P) : nappe(G, G.bat, zRef, C0), murs, contours: C };
 }
@@ -481,4 +485,41 @@ export function hauteursBords(G, zRef, objets) {
     }
   });
   return bords;
+}
+
+/** Limites des parcelles voisines (traits fins posés sur le terrain) et leurs numéros (étiquettes au centre). */
+export function limitesVoisines(voisines, G, zRef, couleur) {
+  const grp = new THREE.Group(), pos = [], R = G.R;
+  const dedans = (x, y) => Math.abs(x) < R - 0.5 && Math.abs(y) < R - 0.5;
+  for (const v of voisines) {
+    for (const a of v.anneauxRel) for (let k = 0; k < a.length - 1; k++) {
+      const [x1, y1] = a[k], [x2, y2] = a[k + 1], L = Math.hypot(x2 - x1, y2 - y1), m = Math.max(1, Math.ceil(L));
+      for (let t = 0; t < m; t++) {
+        const xa = x1 + (x2 - x1) * t / m, ya = y1 + (y2 - y1) * t / m, xb = x1 + (x2 - x1) * (t + 1) / m, yb = y1 + (y2 - y1) * (t + 1) / m;
+        if (!dedans(xa, ya) || !dedans(xb, yb)) continue;
+        pos.push(xa, solEn(G, xa, ya) - zRef + 0.15, -ya, xb, solEn(G, xb, yb) - zRef + 0.15, -yb);
+      }
+    }
+    // numéro au centre de la boîte de la parcelle, s'il est dans la maquette
+    const pts = v.anneauxRel[0], xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+    if (dedans(cx, cy) && v.numero) grp.add(etiquetteNumero(v.numero, couleur, cx, solEn(G, cx, cy) - zRef + 1.2, -cy));
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  grp.add(new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: couleur, transparent: true, opacity: 0.75 })));
+  return grp;
+}
+
+function etiquetteNumero(texte, couleur, x, y, z) {
+  const cv = document.createElement("canvas"), ctx = cv.getContext("2d");
+  cv.width = 128; cv.height = 48;
+  ctx.font = "600 30px system-ui, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.lineWidth = 6; ctx.strokeStyle = "rgba(255,255,255,0.85)"; ctx.strokeText(texte, 64, 25);
+  ctx.fillStyle = couleur; ctx.fillText(texte, 64, 25);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthWrite: false, transparent: true }));
+  sp.position.set(x, y, z); sp.scale.set(6, 2.25, 1);
+  return sp;
 }

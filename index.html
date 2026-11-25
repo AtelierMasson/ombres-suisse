@@ -88,11 +88,7 @@
 
       <section>
         <div class="titre">Affichage</div>
-        <div class="btn-group btn-group-sm w-100 mb-2" role="group" aria-label="Fond du terrain">
-          <input type="radio" class="btn-check" name="fond" id="fCadastre" value="cadastre" checked><label class="btn btn-outline-secondary" for="fCadastre">Plan cadastral</label>
-          <input type="radio" class="btn-check" name="fond" id="fOrtho" value="ortho"><label class="btn btn-outline-secondary" for="fOrtho">Photo aérienne</label>
-          <input type="radio" class="btn-check" name="fond" id="fUni" value="uni"><label class="btn btn-outline-secondary" for="fUni">Uni</label>
-        </div>
+        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vCadastre" checked><label class="form-check-label small" for="vCadastre">Plan cadastral au sol</label></div>
         <div class="small fw-semibold mb-1">Bâtiments</div>
         <div class="btn-group btn-group-sm w-100 mb-1" role="group" aria-label="Bâtiments affichés">
           <input type="radio" class="btn-check" name="batiments" id="bReleve" value="releve" checked><label class="btn btn-outline-secondary" for="bReleve" title="Reconstruits ici à partir du relevé laser">Relevé</label>
@@ -101,6 +97,7 @@
           <input type="radio" class="btn-check" name="batiments" id="bAucun" value="aucun"><label class="btn btn-outline-secondary" for="bAucun">Aucun</label>
         </div>
         <div class="small text-secondary mb-2" id="noteBatiments"></div>
+        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vParcelles" checked><label class="form-check-label small" for="vParcelles">Parcelles voisines <span class="text-secondary">(limites et numéros)</span></label></div>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vArbres" checked><label class="form-check-label small" for="vArbres">Arbres</label></div>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vFacades"><label class="form-check-label small" for="vFacades">Points mesurés sur les façades <span class="text-secondary" id="nbFacades"></span></label></div>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPoints"><label class="form-check-label small" for="vPoints">Nuage de points brut</label></div>
@@ -131,6 +128,71 @@
           <div class="form-check form-switch mt-1"><input class="form-check-input" type="checkbox" id="vHeures" checked><label class="form-check-label small" for="vHeures">Afficher la carte</label></div>
         </div>
       </section>
+
+      <section id="pro">
+        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPro"><label class="form-check-label small" for="vPro"><b>Mode pro</b> <span class="text-secondary">(enlever des bâtiments, exporter)</span></label></div>
+        <div class="small text-secondary" id="etatPro"></div>
+        <div id="outilsPro" hidden>
+          <div class="sous-titre">Bâtiments</div>
+          <div class="d-flex gap-1">
+            <button type="button" class="btn btn-sm btn-outline-secondary active flex-fill" id="btnSelection" title="Clic sur un bâtiment ; Majuscule + clic pour en ajouter">Sélectionner</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnSelParcelle">Bâtiments de la parcelle</button>
+          </div>
+          <div class="form-check form-switch mt-1"><input class="form-check-input" type="checkbox" id="vParVolume"><label class="form-check-label small" for="vParVolume">Par volume <span class="text-secondary">(corps, annexe, lucarne)</span></label></div>
+          <div class="small mt-1" id="fichePro"></div>
+          <button type="button" class="btn btn-sm btn-outline-primary w-100 mt-2" id="btnMasquer" disabled>Masquer la sélection</button>
+          <div class="d-flex gap-1 mt-1">
+            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnReafficher" disabled>Tout réafficher</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnAnnuler" disabled>Annuler</button>
+          </div>
+
+          <div class="sous-titre">Taille de la maquette</div>
+          <select class="form-select form-select-sm" id="rayonPro" aria-label="Rayon chargé autour du lieu">
+            <option value="">Automatique (150 à 300 m autour)</option>
+            <option value="100">100 m autour (200 × 200 m)</option>
+            <option value="150">150 m autour (300 × 300 m)</option>
+            <option value="250">250 m autour (500 × 500 m)</option>
+            <option value="400">400 m autour (800 × 800 m) — long et lourd</option>
+          </select>
+          <div class="small text-secondary mt-1" id="noteRayon"></div>
+
+          <div class="sous-titre">Exporter la maquette complète</div>
+          <div class="d-flex gap-1">
+            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" data-tout="obj" title="Terrain, socle, bâtiments, arbres et limite de parcelle en un fichier OBJ">OBJ</button>
+            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" data-tout="dxf" title="Les mêmes, en DXF (AutoCAD l'ouvre et l'enregistre en DWG)">DXF</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnExport">Au choix…</button>
+          </div>
+          <div id="choixExport" class="mt-2" hidden>
+            <div class="btn-group btn-group-sm w-100 mb-2" role="group" aria-label="Format">
+              <input type="radio" class="btn-check" name="formatExport" id="xDxf" value="dxf" checked><label class="btn btn-outline-secondary" for="xDxf">DXF</label>
+              <input type="radio" class="btn-check" name="formatExport" id="xObj" value="obj"><label class="btn btn-outline-secondary" for="xObj">OBJ</label>
+              <input type="radio" class="btn-check" name="formatExport" id="xGlb" value="glb"><label class="btn btn-outline-secondary" for="xGlb">glTF (.glb)</label>
+              <input type="radio" class="btn-check" name="formatExport" id="xStl" value="stl"><label class="btn btn-outline-secondary" for="xStl">STL</label>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <div class="form-check form-switch flex-fill"><input class="form-check-input" type="checkbox" id="xTerrain" checked><label class="form-check-label small" for="xTerrain">Terrain, maille</label></div>
+              <select class="form-select form-select-sm w-auto" id="xMaille" aria-label="Maille du terrain"><option value="0.5">0,5 m</option><option value="1" selected>1 m</option><option value="2">2 m</option></select>
+            </div>
+            <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="xSocle" checked><label class="form-check-label small" for="xSocle">Socle <span class="text-secondary">(fermé avec le terrain)</span></label></div>
+            <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="xBati" checked><label class="form-check-label small" for="xBati">Bâtiments <span class="text-secondary" id="xJeu"></span></label></div>
+            <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="xArbres" checked><label class="form-check-label small" for="xArbres">Arbres <span class="text-secondary">(volumes simples)</span></label></div>
+            <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="xParcelle" checked><label class="form-check-label small" for="xParcelle">Limite de la parcelle</label></div>
+            <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="xCourbes"><label class="form-check-label small" for="xCourbes">Courbes de niveau <span class="text-secondary">(1 m)</span></label></div>
+            <div class="btn-group btn-group-sm w-100 mt-2" role="group" aria-label="Coordonnées">
+              <input type="radio" class="btn-check" name="coordExport" id="xLocal" value="local" checked><label class="btn btn-outline-secondary" for="xLocal">Origine locale</label>
+              <input type="radio" class="btn-check" name="coordExport" id="xMn95" value="mn95"><label class="btn btn-outline-secondary" for="xMn95">MN95 complètes</label>
+            </div>
+            <div class="small text-secondary mt-1" id="noteExport"></div>
+            <button type="button" class="btn btn-sm btn-primary w-100 mt-2" id="btnTelecharger">Télécharger</button>
+          </div>
+          <div class="d-flex gap-1 align-items-center mt-2 d-none" id="exportCoupe">
+            <span class="small flex-fill">Coupe A–B</span>
+            <button type="button" class="btn btn-sm btn-outline-primary" data-coupe="dxf">DXF</button>
+            <button type="button" class="btn btn-sm btn-outline-primary" data-coupe="svg">SVG</button>
+          </div>
+          <div class="small text-secondary mt-1" id="resultatExport"></div>
+        </div>
+      </section>
     </div>
   </div>
 </aside>
@@ -152,6 +214,17 @@
   </div>
 </div>
 
+<div id="orientation" title="Orientation : cliquez une face (Plan, N, S, E, O)">
+  <div class="cube">
+    <button type="button" class="face dessus" data-vue="plan">Plan</button>
+    <button type="button" class="face nord" data-vue="N">N</button>
+    <button type="button" class="face sud" data-vue="S">S</button>
+    <button type="button" class="face est" data-vue="E">E</button>
+    <button type="button" class="face ouest" data-vue="O">O</button>
+    <div class="face dessous"></div>
+  </div>
+  <button type="button" class="btn btn-sm btn-outline-secondary" id="vue3D" title="Revenir à la vue 3D">3D</button>
+</div>
 <div id="telechargement" class="shadow-sm" hidden role="status" aria-live="polite">
   <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
   <span id="telechargementTexte"></span>
@@ -159,7 +232,7 @@
 </div>
 <div id="message" class="alert alert-warning py-1 px-2 small" hidden></div>
 
-<footer id="pied" class="small">Sources : © swisstopo (swissSURFACE3D, swissALTI3D, SWISSIMAGE, cadastre geo.admin.ch) · relief lointain : Terrain Tiles (AWS Open Data, Mapzen). Résultats indicatifs.</footer>
+<footer id="pied" class="small">Sources : © swisstopo (swissSURFACE3D, swissALTI3D, swissBUILDINGS3D, cadastre geo.admin.ch) · relief lointain : Terrain Tiles (AWS Open Data, Mapzen). Résultats indicatifs.</footer>
 <script type="module" src="/src/main.js"></script>
 </body>
 </html>

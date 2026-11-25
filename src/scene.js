@@ -8,8 +8,9 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RebondPass } from "./rebond.js";
 import { Swiss3D } from "./swiss3d.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
-import { solEn } from "./grille.js";
-import { terrain, socle, nappe, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords } from "./maillages.js";
+import { solEn, majSurface } from "./grille.js";
+import { indexVolumes } from "./volumes.js";
+import { terrain, socle, nappe, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, limitesVoisines } from "./maillages.js";
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
 
@@ -81,6 +82,16 @@ ${contact && `if (contactActif > 0.5) {
 }`}`);
   };
   mat.customProgramCacheKey = () => "platre" + force + contact;
+}
+
+// Couleur de la lumière directe du soleil selon sa hauteur (degrés), après la traversée de l'atmosphère
+const TEINTES_SOLEIL = [[0, "#ff6a30"], [1.5, "#ff8740"], [4, "#ffa45e"], [8, "#ffc285"], [15, "#ffd9ac"], [25, "#ffead0"], [45, "#fff4e6"]]
+  .map(([h, c]) => [h, new THREE.Color(c)]);
+function couleurSoleil(h) {
+  const T = TEINTES_SOLEIL, c = new THREE.Color();
+  if (h <= T[0][0]) return c.copy(T[0][1]);
+  for (let k = 1; k < T.length; k++) if (h <= T[k][0]) return c.copy(T[k - 1][1]).lerp(T[k][1], (h - T[k - 1][0]) / (T[k][0] - T[k - 1][0]));
+  return c.copy(T[T.length - 1][1]);
 }
 
 export class Scene3D {
@@ -167,7 +178,7 @@ export class Scene3D {
     const rendu = ao.render.bind(ao);
     ao.render = (...a) => {
       // les points n'entrent jamais dans l'occlusion (sinon chaque point a son halo sombre)
-      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, c.heures, c.limite, c.arbres, c.facades, c.tous,
+      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, c.heures, c.limite, c.voisines, c.arbres, c.facades, c.tous, c.selection,
         c.canopee?.material.colorWrite === false ? c.canopee : null].filter(o => o && o.visible);
       for (const o of caches) o.visible = false;
       rendu(...a);
@@ -251,9 +262,11 @@ export class Scene3D {
     // bâtiments de la couleur du sol : une maquette d'un seul matériau, le relief vient des ombres
     m.toit.color.set(T.sol).multiplyScalar(sombre); m.mur.color.set(T.sol).multiplyScalar(sombre);
     this.swiss?.materiau.color.set(T.sol);
-    m.socle.color.set(T.socle); m.canopee.color.set(T.arbres[1]); m.parcelle.color.set(T.parcelle);
+    // socle de la même matière que le terrain et les bâtiments
+    m.socle.color.set(T.sol); m.canopee.color.set(T.arbres[1]); m.parcelle.color.set(T.parcelle);
     m.trait.color.set(T.coupe.trait); m.poignee.color.set(T.parcelle);
     CONTACT.teinteSel.value.set(T.parcelle);
+    this.couches?.selection?.material.color.set(T.parcelle);
     m.terrain.color.set(m.terrain.map ? "#ffffff" : T.sol);
     // lumière du ciel quasi uniforme : un mur dos au soleil a le même ton qu'une ombre portée au sol. Le « rebond » du sol
     // (éclairage indirect) teinte légèrement les faces tournées vers le bas ou de côté, à luminosité égale.
@@ -261,7 +274,7 @@ export class Scene3D {
     const rebond = new THREE.Color(T.lumiere.ciel).lerp(new THREE.Color(T.lumiere.sol), 0.35), lum = c => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
     this.ciel.groundColor.copy(rebond.multiplyScalar(lum(this.ciel.color) / Math.max(1e-3, lum(rebond))));
     this.renderer.toneMappingExposure = T.lumiere.exposition;
-    this.scene.fog.density = T.lumiere.brume;
+    this.scene.fog.density = this.modeVue ? 0 : T.lumiere.brume;
     this.couleursPoints();
     if (this.G && this.arbresTeinte && this.T.arbres !== this.arbresTeinte) this.refaireCouronnes();
     if (this.etatSoleil) this.placerSoleil(...this.etatSoleil);
@@ -293,10 +306,11 @@ export class Scene3D {
     this.couches = {};
     this.poignees = [];
     this.coupe = this.contours = this.urls = null;
+    this.contoursTous = this.volumes = this.batOrigine = null;
     this.idScene++;
   }
 
-  /** Construit la scène depuis les grilles. `urls` = { cadastre, ortho } (images du fond de plan) ou null. */
+  /** Construit la scène depuis les grilles. `urls` = { cadastre } (image du plan cadastral) ou null. */
   construire(G, nuage, parcelle, urls) {
     this.vider();
     this.G = G;
@@ -315,7 +329,7 @@ export class Scene3D {
     const base = maille(socle(G, this.zRef, this.zBas), m.socle, false, false);
     const B = batiments(G, this.zRef), bati = new THREE.Group();
     bati.add(maille(B.toits, m.toit, true, true), maille(B.murs, m.mur, true, true));
-    this.contours = B.contours;
+    this.contours = this.contoursTous = B.contours;
     // la canopée (grille) porte l'ombre des points ; sans points, styleArbres() construit des couronnes lissées
     const canopee = maille(nappe(G, G.veg, this.zRef), m.canopee, true, false);
     // arbres toujours en points : sans relevé classé (repli raster), points tirés de la grille de végétation
@@ -336,6 +350,7 @@ export class Scene3D {
     if (this.typeFond !== "cadastre") this.fond(this.typeFond);
     this.controls.target.set(0, 0, 0);
     this.vueDepart();
+    if (this.modeVue) { const m = this.modeVue; this.modeVue = null; this.avant3D = null; this.vueOrtho(m); }
     this.ombres();
   }
 
@@ -409,6 +424,98 @@ export class Scene3D {
       base.geometry = socle(this.G, this.zRef, this.zBas, objets.length ? hauteursBords(this.G, this.zRef, objets) : null, releve);
       this.ombres();
     }, 400);
+  }
+
+  /** Limites et numéros des parcelles voisines (anneaux relatifs au centre), ou null pour les enlever. */
+  /** Change la parcelle choisie sans recharger la maquette : nouvelle limite et nouvelle teinte de sélection. */
+  changerParcelle(parcelle) {
+    const vieux = this.couches.limite;
+    if (vieux) { this.groupe.remove(vieux); this.liberer(vieux); }
+    this.couches.limite = contourParcelle(parcelle, this.G, this.zRef, this.mat.parcelle);
+    this.groupe.add(this.couches.limite);
+    this.surligner(parcelle, null);
+    this.appliquerCoupe();
+    this.ombres();
+  }
+
+  /** Point du sol (ou d'un toit) sous le pointeur, en coordonnées relatives [x est, y nord], ou null. */
+  pointSol(e) {
+    const c = this.couches, cibles = [c.terrain, c.bati?.visible ? c.bati : null].filter(Boolean);
+    const t = this.viser(e).intersectObjects(cibles, true)[0];
+    return t ? [t.point.x, -t.point.z] : null;
+  }
+
+  afficherParcelles(voisines, visibles = true) {
+    const vieux = this.couches.voisines;
+    if (vieux) { this.groupe.remove(vieux); this.liberer(vieux); }
+    this.couches.voisines = voisines?.length && this.G ? limitesVoisines(voisines, this.G, this.zRef, this.T.sombre ? "#c9d3e3" : "#4b4f57") : null;
+    if (this.couches.voisines) { this.couches.voisines.visible = visibles; this.groupe.add(this.couches.voisines); }
+    this.demander();
+  }
+
+  /* ------------------------------------------------------------------ mode pro : volumes */
+
+  /** Index des volumes des bâtiments (calculé à la première demande). */
+  indexer() { return this.volumes ||= indexVolumes(this.G, this.contoursTous); }
+
+  /** Volume de nos bâtiments sous le pointeur (−1 : aucun, ou caché par le terrain ou la coupe). */
+  designer(e) {
+    const b = this.couches.bati;
+    if (!b?.visible) return -1;
+    for (const t of this.viser(e).intersectObjects([this.couches.terrain, ...b.children])) {
+      if (this.coupe && this.plan.distanceToPoint(t.point) < 0) continue; // partie masquée par la coupe
+      if (Math.max(Math.abs(t.point.x), Math.abs(t.point.z)) > this.G.R) continue;
+      return t.object === this.couches.terrain ? -1 : t.object.geometry.userData.volumes[t.faceIndex >> 1];
+    }
+    return -1;
+  }
+
+  /** Surbrillance des volumes choisis (ensemble de numéros), ou rien. */
+  surbrillance(ids) {
+    const vieux = this.couches.selection;
+    if (vieux) { this.groupe.remove(vieux); vieux.geometry.dispose(); vieux.material.dispose(); }
+    this.couches.selection = null;
+    if (ids?.size && this.couches.bati) {
+      const pos = [];
+      for (const m of this.couches.bati.children) {
+        const g = m.geometry, P = g.attributes.position.array, I = g.index?.array, V = g.userData.volumes;
+        for (let q = 0; q < V.length; q++) {
+          if (!ids.has(V[q])) continue;
+          for (let k = 6 * q; k < 6 * q + 6; k++) { const v = 3 * (I ? I[k] : k); pos.push(P[v], P[v + 1], P[v + 2]); }
+        }
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+      const o = this.couches.selection = new THREE.Mesh(g, new THREE.MeshBasicMaterial({
+        color: this.T.parcelle, transparent: true, opacity: 0.5, side: THREE.DoubleSide, depthWrite: false, fog: false,
+        polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4,
+      }));
+      o.renderOrder = 2;
+      this.groupe.add(o);
+    }
+    this.appliquerCoupe();
+    this.demander();
+  }
+
+  /**
+   * Masque les volumes donnés (ensemble de numéros ; vide = tout réafficher), à l'écran et dans les calculs : leurs
+   * cellules sortent de G.bat (le sol dessous est déjà rempli), la surface et la base sont recalculées, toits et murs
+   * sont refaits sans eux. Les valeurs d'origine sont gardées pour la restauration.
+   */
+  masquer(masques) {
+    const G = this.G, C = this.contoursTous, V = this.indexer();
+    this.batOrigine ||= G.bat.slice();
+    G.bat.set(this.batOrigine);
+    const seg = masques.size ? C.seg.slice() : C.seg;
+    for (const s of masques) for (const p of V.cellules[s]) { G.bat[p] = NaN; seg[p] = -1; }
+    majSurface(G);
+    this.contours = masques.size ? { ...C, seg, boucles: C.boucles.filter(B => !masques.has(B.seg)) } : C;
+    const B = batiments(G, this.zRef, false, this.contours), [toits, murs] = this.couches.bati.children;
+    toits.geometry.dispose(); murs.geometry.dispose();
+    toits.geometry = B.toits; murs.geometry = B.murs;
+    this.grillesContact(G); // l'ombre de contact au pied des bâtiments disparaît avec eux
+    this.majBords();
+    this.ombres();
   }
 
   /** Couronnes à refaire (couleurs du thème changées). */
@@ -518,6 +625,46 @@ export class Scene3D {
    * Caméra de départ, en oblique vers le centre ; relevée si le relief, les arbres ou les bâtiments autour d'elle
    * ou sur sa ligne de visée la dépassent (pente, grand arbre) : on ne doit jamais arriver dans la canopée.
    */
+  /**
+   * Vues orthogonales : "plan" (de dessus, nord en haut) ou élévation depuis "N", "S", "E", "O" ; null = retour à la 3D.
+   * Quasiment sans perspective : caméra très éloignée à focale très longue (les passes de rendu restent les mêmes).
+   * Rotation bloquée ; déplacement et zoom libres.
+   */
+  vueOrtho(mode) {
+    const cam = this.camera, ctl = this.controls;
+    if ((mode || null) === (this.modeVue || null)) return;
+    if (mode && !this.modeVue) this.avant3D = { pos: cam.position.clone(), cible: ctl.target.clone(), fov: cam.fov };
+    this.modeVue = mode || null;
+    if (mode) {
+      const R = this.G?.R || 150, fov = 3, h = R * 1.25 / Math.tan(fov * Math.PI / 360);
+      cam.fov = fov; cam.far = h * 3; cam.near = h * 0.2;
+      ctl.enableRotate = false; ctl.screenSpacePanning = true; ctl.minDistance = h * 0.05; ctl.maxDistance = h * 2;
+      if (mode === "plan") {
+        ctl.target.set(ctl.target.x, 0, ctl.target.z);
+        cam.position.set(ctl.target.x, h, ctl.target.z + 0.001);
+        ctl.minPolarAngle = ctl.maxPolarAngle = 0;
+      } else {
+        // élévation : caméra du côté choisi, à hauteur des bâtiments, regard horizontal
+        const [dx, dz] = { N: [0, -1], S: [0, 1], E: [1, 0], O: [-1, 0] }[mode];
+        ctl.target.set(0, 8, 0);
+        cam.position.set(dx * h, 8, dz * h);
+        ctl.minPolarAngle = ctl.maxPolarAngle = Math.PI / 2;
+      }
+      this.scene.fog.density = 0; // à cette distance, la brume masquerait tout
+    } else {
+      const a = this.avant3D;
+      cam.fov = a?.fov || 45; cam.near = 0.5; cam.far = 20000;
+      ctl.enableRotate = true; ctl.minPolarAngle = 0; ctl.maxPolarAngle = Math.PI * 0.495;
+      ctl.minDistance = 0; ctl.maxDistance = Infinity;
+      this.scene.fog.density = this.T.lumiere.brume;
+      if (a) { cam.position.copy(a.pos); ctl.target.copy(a.cible); } else this.vueDepart();
+    }
+    cam.updateProjectionMatrix();
+    ctl.update();
+    this.surVue?.(this.modeVue);
+    this.demander(5);
+  }
+
   vueDepart() {
     const p = new THREE.Vector3(-110, 120, 150), G = this.G;
     if (G) {
@@ -537,7 +684,7 @@ export class Scene3D {
   /** Les ombres portées sont à recalculer (soleil déplacé, couche affichée ou masquée). */
   ombres() { this.renderer.shadowMap.needsUpdate = true; this.demander(); }
 
-  /** Fond de plan du terrain : "cadastre" (reteinté selon le thème), "ortho" ou "uni". */
+  /** Fond de plan du terrain : "cadastre" (reteinté selon le thème) ou "uni". */
   async fond(type) {
     this.typeFond = type;
     const mat = this.mat.terrain, id = this.idScene;
@@ -577,17 +724,21 @@ export class Scene3D {
     const d = new THREE.Vector3(...dir), T = this.T, u = this.voute.material.uniforms;
     this.soleil.position.copy(d.clone().multiplyScalar(900));
     this.soleil.target.position.set(0, 0, 0);
-    // soleil bas : lumière plus chaude
-    const bas = visible ? 1 - Math.min(1, Math.max(0, dir[1] / 0.21)) : 0;
-    this.soleil.color.set(T.lumiere.soleil).lerp(new THREE.Color("#ffb066"), 0.65 * bas * bas);
-    this.soleil.intensity = visible ? 2.6 : 0;
+    // couleur réelle du soleil selon sa hauteur : plus il est bas, plus sa lumière traverse d'atmosphère (le bleu est
+    // diffusé, il reste le jaune puis l'orangé) et plus elle faiblit ; en hiver le soleil reste bas toute la journée
+    const h = Math.asin(Math.max(-1, Math.min(1, dir[1]))) * 180 / Math.PI, bas = visible ? 1 - Math.min(1, Math.max(0, h / 15)) : 0;
+    this.soleil.color.copy(couleurSoleil(h)).lerp(new THREE.Color(T.lumiere.soleil), Math.min(1, Math.max(0, (h - 25) / 20)));
+    this.soleil.intensity = visible ? 2.6 * (0.35 + 0.65 * (1 - Math.exp(-Math.max(0, h) / 6))) : 0;
     this.ciel.intensity = visible ? 1.1 : Math.max(0.35, 0.9 * Math.min(1, (dir[1] + 0.1) * 4));
+    // soleil bas : les ombres prennent un peu le bleu du ciel
+    this.ciel.color.set(T.lumiere.ciel).lerp(new THREE.Color("#c6d6f2"), 0.3 * bas);
+    this.disque.material.color.copy(couleurSoleil(h + 2)).multiplyScalar(1.1);
     this.disque.position.copy(d.clone().multiplyScalar(1200));
     this.disque.visible = dir[1] > -0.02 && !!this.G;
     // ciel : jour, soleil caché par le relief (plus terne), nuit
     const jour = visible ? 1 : dir[1] > 0 ? 0.72 : Math.max(0, Math.min(0.5, 0.5 + dir[1] * 4));
     u.zenith.value.set(T.ciel.nuitZenith).lerp(new THREE.Color(T.ciel.zenith), jour);
-    u.horizon.value.set(T.ciel.nuitHorizon).lerp(new THREE.Color(T.ciel.horizon), jour).lerp(new THREE.Color("#f7c99b"), 0.45 * bas);
+    u.horizon.value.set(T.ciel.nuitHorizon).lerp(new THREE.Color(T.ciel.horizon), jour).lerp(couleurSoleil(h).lerp(new THREE.Color("#f3c9a2"), 0.4), 0.55 * bas);
     u.soleil.value.copy(d).normalize();
     u.force.value = visible ? 1 : 0;
     this.scene.fog.color.copy(u.horizon.value);
@@ -679,6 +830,7 @@ export class Scene3D {
     const cibles = [m.terrain, m.socle, m.canopee, m.couronne, m.parcelle];
     for (const k of ["arbres", "facades", "tous"]) if (c[k]) cibles.push(c[k].material);
     c.heures?.traverse(o => o.material && cibles.push(o.material));
+    if (c.selection) cibles.push(c.selection.material);
     for (const x of cibles) if (!!x.clippingPlanes !== !!plans) { x.clippingPlanes = plans; x.needsUpdate = true; }
   }
 
@@ -713,7 +865,8 @@ export class Scene3D {
     });
     el.addEventListener("pointerup", e => {
       if (prise != null) { prise = null; this.controls.enabled = true; return; }
-      if (!this.trace || !appui || Math.hypot(e.clientX - appui[0], e.clientY - appui[1]) > 5) return;
+      if (!appui || Math.hypot(e.clientX - appui[0], e.clientY - appui[1]) > 5) return;
+      if (!this.trace) { if (e.button === 0) this.surClic?.(e); return; } // simple clic : sélection (mode pro)
       const cibles = [this.couches.terrain, ...(this.couches.bati?.visible ? this.couches.bati.children : [])].filter(Boolean);
       const t = this.viser(e).intersectObjects(cibles)[0];
       if (!t) return;

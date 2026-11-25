@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./style.css";
-import { chercher, parcelleEn, tuilesNuage, tuilesGrille, versWgs } from "./geo.js";
+import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, versWgs } from "./geo.js";
 import { chargerNuage } from "./nuage.js";
 import { depuisPoints, depuisRasters } from "./grille.js";
 import { Scene3D } from "./scene.js";
@@ -14,14 +14,15 @@ import { urlFond, COUCHES } from "./fond.js";
 import { zoneHeures, soleilsPeriode, carreauxFacades, maillagesHeures } from "./heures.js";
 import { profilCoupe, dessinerCoupe } from "./coupe.js";
 import { hameau } from "./demo.js";
+import { brancherPro } from "./pro.js";
 
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const S = { jour: aujourdhui(), minutes: arrondi(new Date().getHours() * 60 + new Date().getMinutes()) };
+// ouverture : aujourd'hui à 14 h, pour qu'il y ait du soleil
+const S = { jour: aujourdhui(), minutes: 14 * 60 };
 let T = appliquerTheme(themeInitial());
 const scene = new Scene3D($("#vue"), T);
 
 function aujourdhui() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
-function arrondi(m) { return Math.round(m / 5) * 5; }
 const hhmm = m => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 const duree = v => { const m = Math.round(v * 60); return `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`; };
 const echap = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -42,6 +43,8 @@ $("#themes").addEventListener("click", () => {
   T = appliquerTheme(document.body.dataset.theme === "nuit" ? "maquette" : "nuit");
   marquerTheme();
   scene.appliquerTheme(T);
+  if (S.voisines?.length) scene.afficherParcelles(S.voisines, $("#vParcelles").checked);
+  matRoofer.color.set(T.sol);
   if (S.resultat) afficherResultat();
   if (S.coupe) majCoupe(S.coupe.A, S.coupe.B);
 });
@@ -91,6 +94,7 @@ function accueil() {
   Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, heuresDemandees: false });
   const D = hameau();
   scene.construire(D.G, D.nuage, D.parcelle, null);
+  pro.reinitialiser();
   scene.voirFacades(false);
   scene.camera.position.set(-78, 52, 96);
   scene.controls.autoRotate = true; scene.controls.autoRotateSpeed = 0.5;
@@ -161,7 +165,8 @@ async function depuisAdresse() {
       $("#lieu").textContent = (h.get("l") || "").replace(/\s*\(CH.*\)$/, "");
     } else message("Pas de parcelle trouvée à cet endroit : analyse autour du point.", 0);
     E0 = Math.round(E0); N0 = Math.round(N0);
-    const R = Math.min(300, Math.max(150, Math.ceil(demi + 120)));
+    // rayon automatique, ou celui choisi en mode pro (taille de la maquette)
+    const R = pro.rayon() || Math.min(300, Math.max(150, Math.ceil(demi + 120)));
     const boite = [E0 - R, N0 - R, E0 + R, N0 + R];
     const rel = parcelle ? { ...parcelle, anneauxRel: parcelle.anneaux.map(a => a.map(([e, n]) => [e - E0, n - N0])) } : { anneauxRel: [] };
 
@@ -190,10 +195,20 @@ async function depuisAdresse() {
     etat(0.85, "Construction de la scène 3D…");
     await pause();
     scene.controls.autoRotate = false;
-    scene.typeFond = $("input[name=fond]:checked").value;
-    scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite) });
+    scene.typeFond = $("#vCadastre").checked ? "cadastre" : "uni";
+    scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite) });
+    pro.reinitialiser();
     // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
     scene.surligner(rel, h.get("t") === "Adresse" ? [E - E0, N - N0] : null);
+    // parcelles voisines (limites et numéros), chargées sans bloquer
+    S.voisines = [];
+    parcellesAutour(boite).then(v => {
+      if (id !== tache) return;
+      S.toutes = v.map(p => ({ numero: p.numero, anneauxRel: p.anneaux.map(a => a.map(([e, n]) => [e - E0, n - N0])) }));
+      S.voisines = S.toutes.filter(p => p.numero !== parcelle?.numero);
+      scene.afficherParcelles(S.voisines, $("#vParcelles").checked);
+      if (S.coupe) majCoupe(S.coupe.A, S.coupe.B);
+    }).catch(e => console.warn("Parcelles voisines :", e.message));
     S.roofer = essaiRoofer(E0, N0);
     choixRoofer();
     scene.comparerSwiss(choixBatiments() === "swiss", { E: S.E0, N: S.N0 });
@@ -279,8 +294,28 @@ function appliquerAffichage() {
   scene.ombres();
 }
 ["#vArbres", "#vFacades", "#vPoints", "#vHeures"].forEach(s => $(s).addEventListener("change", appliquerAffichage));
+// cube d'orientation : il suit la caméra ; une face donne le plan ou une élévation, « 3D » revient à la perspective
+{
+  const cube = $("#orientation .cube");
+  const suivre = () => {
+    const c = scene.controls, theta = c.getAzimuthalAngle() * 180 / Math.PI, phi = c.getPolarAngle() * 180 / Math.PI;
+    cube.style.transform = `rotateX(${phi - 90}deg) rotateY(${-theta}deg)`;
+  };
+  scene.controls.addEventListener("change", suivre);
+  suivre();
+  $$("#orientation [data-vue]").forEach(b => b.addEventListener("click", () => scene.vueOrtho(b.dataset.vue)));
+  $("#vue3D").addEventListener("click", () => scene.vueOrtho(null));
+  scene.surVue = mode => {
+    $$("#orientation [data-vue]").forEach(b => b.classList.toggle("actif", b.dataset.vue === mode));
+    $("#vue3D").classList.toggle("actif", !mode);
+    suivre();
+  };
+  scene.surVue(null);
+}
+$("#vParcelles").addEventListener("change", e => { if (scene.couches.voisines) { scene.couches.voisines.visible = e.target.checked; scene.demander(); } });
 // comparaison roofer : seulement là où un essai a été calculé hors ligne (Lutry)
-const matRoofer = new THREE.MeshStandardMaterial({ color: "#d8b4e2", roughness: 0.9, side: THREE.DoubleSide, flatShading: true });
+// même matière que le terrain (comme nos bâtiments et swisstopo) : la tranche au bord du socle fait une seule masse
+const matRoofer = new THREE.MeshStandardMaterial({ color: T.sol, roughness: 0.92, side: THREE.DoubleSide, flatShading: true });
 async function comparerRoofer() {
   if (!S.roofer || choixBatiments() !== "roofer") { scene.afficherRoofer(null); return; }
   const lieu = S.E0;
@@ -312,8 +347,8 @@ $$("input[name=batiments]").forEach(b => b.addEventListener("change", () => {
   comparerRoofer();
   appliquerAffichage();
 }));
-$$("input[name=fond]").forEach(b => b.addEventListener("change", () => scene.fond(b.value)));
-scene.surFondAbsent = type => message(type === "ortho" ? "Photo aérienne indisponible pour le moment." : "Plan cadastral indisponible ici : terrain uni.");
+$("#vCadastre").addEventListener("change", e => scene.fond(e.target.checked ? "cadastre" : "uni"));
+scene.surFondAbsent = () => message("Plan cadastral indisponible ici : terrain uni.");
 $("#vEffets").addEventListener("change", e => scene.reglerEffets(e.target.checked));
 scene.surQualite = q => {
   if (q < 2) return;
@@ -324,7 +359,7 @@ $("#btnPartager").onclick = async () => { await navigator.clipboard.writeText(lo
 
 /* ------------------------------------------------------------------ coupe */
 function majCoupe(A, B) {
-  S.coupe = { A, B, P: profilCoupe(S.G, scene.contours, A, B, S.parcelle) };
+  S.coupe = { A, B, P: profilCoupe(S.G, scene.contours, A, B, S.parcelle, 0.25, S.voisines || []) };
   scene.definirCoupe(S.coupe.P);
   dessinCoupe();
 }
@@ -429,6 +464,50 @@ function afficherResultat() {
 }
 
 marquerTheme();
+/* ------------------------------------------------------------------ choisir une autre parcelle d'un clic */
+// Un clic (sans glisser) sur le terrain ou un toit choisit la parcelle à cet endroit, sans recharger la maquette.
+// Le clic reste au mode pro quand son outil « Sélectionner » est actif, et au tracé de la coupe.
+{
+  const el = scene.renderer.domElement;
+  let appui = null;
+  el.addEventListener("pointerdown", e => { appui = [e.clientX, e.clientY]; });
+  el.addEventListener("pointerup", e => {
+    if (!appui || Math.hypot(e.clientX - appui[0], e.clientY - appui[1]) > 5 || e.button !== 0) return;
+    appui = null;
+    if (!S.G || !S.toutes?.length || scene.trace || scene.modeVue === "N" || scene.modeVue === "S" || scene.modeVue === "E" || scene.modeVue === "O") return;
+    if ($("#vPro")?.checked && $("#btnSelection")?.classList.contains("active")) return;
+    const p = scene.pointSol(e);
+    if (!p) return;
+    const choisie = S.toutes.find(q => dansParcelle(p[0], p[1], q.anneauxRel));
+    if (choisie && choisie.numero !== S.parcelle?.numero) choisirParcelle(choisie);
+  });
+}
+function dansParcelle(x, y, anneaux) {
+  let ok = false;
+  for (const a of anneaux) for (let i = 0, j = a.length - 1; i < a.length; j = i++) {
+    const [xi, yi] = a[i], [xj, yj] = a[j];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) ok = !ok;
+  }
+  return ok;
+}
+function choisirParcelle(p) {
+  S.parcelle = { ...S.parcelle, numero: p.numero, anneauxRel: p.anneauxRel };
+  S.voisines = S.toutes.filter(q => q.numero !== p.numero);
+  scene.changerParcelle(S.parcelle);
+  scene.afficherParcelles(S.voisines, $("#vParcelles").checked);
+  // en-tête et lien partageable (sans recharger : la maquette couvre déjà cette parcelle)
+  const xs = p.anneauxRel.flat().map(q => q[0]), ys = p.anneauxRel.flat().map(q => q[1]);
+  const E = Math.round(S.E0 + (Math.min(...xs) + Math.max(...xs)) / 2), N = Math.round(S.N0 + (Math.min(...ys) + Math.max(...ys)) / 2);
+  $("#lieuType").textContent = `Parcelle ${p.numero}${S.parcelle.canton ? " · " + S.parcelle.canton : ""}`;
+  $("#lieu").textContent = `Parcelle ${p.numero}`;
+  history.replaceState(null, "", `${location.pathname}${location.search}#e=${E}&n=${N}&l=${encodeURIComponent("Parcelle " + p.numero)}&t=Parcelle`);
+  if (S.coupe) majCoupe(S.coupe.A, S.coupe.B);
+  if (S.heuresDemandees) calculerHeures(); else scene.afficherHeures?.(null);
+}
+
+// mode pro : sélection et masquage de bâtiments, taille de la maquette, exports (pro.js)
+const pro = brancherPro({ scene, S, message, etat, recharger: depuisAdresse, calculerHeures, annulerCalcul, majCoupe, soleilActuel });
+
 majSoleil();
 depuisAdresse();
 if (import.meta.env.DEV) window.ombres = { scene, S }; // pour l'inspection pendant le développement

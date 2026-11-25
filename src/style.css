@@ -53,6 +53,8 @@ body.accueil #haut .recherche { visibility: hidden; }
 #commandes section { border-top: 1px solid var(--bord); margin-top: 12px; padding-top: 10px; }
 .titre { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--doux); margin-bottom: 6px; }
 .bloc-date .btn-group { margin-top: 6px; }
+.sous-titre { font-size: 12px; font-weight: 600; margin: 12px 0 5px; }
+.form-select { background-color: var(--carte); color: var(--texte); border-color: var(--bord-fort); border-radius: calc(var(--rayon) * .5); }
 .bloc-heure { margin-top: 10px; }
 #heureTexte { min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
 #bas { position: absolute; left: calc(var(--large) + 24px); right: 12px; bottom: 36px; z-index: 5; display: flex; gap: 12px; justify-content: flex-end; align-items: flex-end; pointer-events: none; }
@@ -140,3 +142,26 @@ body[data-theme=nuit] #message { background: #3a2f12; color: #ffe2a8; border-col
 #telechargement .spinner-border { color: var(--accent); flex: none; }
 #telechargement .progress { position: absolute; left: 16px; right: 16px; bottom: 4px; height: 3px; }
 #telechargement .progress-bar { transition: width .2s; }
+#svgCoupe .limite-voisine { stroke: var(--doux); stroke-width: 1; stroke-dasharray: 3 3; }
+#svgCoupe .numero { fill: var(--doux); font-size: 10px; }
+#svgCoupe .numero.choisie { fill: var(--parcelle); font-weight: 700; }
+#svgCoupe .cote { fill: var(--texte); font-size: 9.5px; font-variant-numeric: tabular-nums; }
+#svgCoupe .cote-trait { stroke: var(--texte); stroke-width: 1; }
+
+/* cube d'orientation (en haut à droite de la vue) : plan et élévations */
+#orientation { position: absolute; top: calc(var(--haut) + 14px); right: 18px; z-index: 6; width: 76px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+body.accueil #orientation { display: none; }
+#orientation .cube { --c: 52px; width: var(--c); height: var(--c); position: relative; transform-style: preserve-3d; margin-top: 8px; }
+#orientation .face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0;
+  border: 1px solid var(--bord-fort); background: color-mix(in srgb, var(--carte) 92%, transparent); color: var(--texte);
+  font-size: 12px; font-weight: 700; backface-visibility: hidden; cursor: pointer; }
+#orientation .face:hover { background: var(--accent-clair); color: var(--accent-fonce); }
+#orientation .face.actif { background: var(--accent); color: var(--sur-accent); }
+#orientation .dessus { transform: rotateX(90deg) translateZ(calc(var(--c) / 2)); font-size: 11px; }
+#orientation .dessous { transform: rotateX(-90deg) translateZ(calc(var(--c) / 2)); }
+#orientation .sud { transform: translateZ(calc(var(--c) / 2)); }
+#orientation .nord { transform: rotateY(180deg) translateZ(calc(var(--c) / 2)); }
+#orientation .est { transform: rotateY(90deg) translateZ(calc(var(--c) / 2)); }
+#orientation .ouest { transform: rotateY(-90deg) translateZ(calc(var(--c) / 2)); }
+#orientation #vue3D { padding: 1px 10px; font-size: 12px; background: var(--carte); }
+#orientation #vue3D.actif { background: var(--accent); color: var(--sur-accent); border-color: var(--accent); }

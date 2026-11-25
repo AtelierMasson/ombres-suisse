@@ -88,6 +88,9 @@ async function lireFenetre(url, fenetre, essais = 3) {
   }
 }
 
+/** Recalcule la surface et la base après une modification de G.bat (bâtiments masqués en mode pro). */
+export function majSurface(G) { G.surface = surface(G); }
+
 function surface(G) {
   const { sol, bat, veg } = G, s = new Float32Array(sol.length);
   G.base = new Float32Array(sol.length);

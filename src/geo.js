@@ -85,3 +85,15 @@ function cles([e0, n0, e1, n1]) {
     for (let n = Math.floor(n0 / 1000); n <= Math.floor((n1 - 0.01) / 1000); n++) r.push(`${e}-${n}`);
   return r;
 }
+
+/** Parcelles (mensuration officielle) qui touchent une boîte MN95 : [{ numero, anneaux }]. */
+export async function parcellesAutour([e0, n0, e1, n1]) {
+  const u = `${API}/all/MapServer/identify?geometry=${e0},${n0},${e1},${n1}&geometryType=esriGeometryEnvelope` +
+    `&layers=all:ch.kantone.cadastralwebmap-farbe&mapExtent=0,0,100,100&imageDisplay=100,100,96&tolerance=0` +
+    `&sr=2056&returnGeometry=true&geometryFormat=geojson&limit=500`;
+  const d = await (await fetch(u)).json();
+  return (d.results || []).filter(r => r.geometry?.type === "Polygon" || r.geometry?.type === "MultiPolygon").map(r => ({
+    numero: r.properties.number,
+    anneaux: r.geometry.type === "Polygon" ? [r.geometry.coordinates[0]] : r.geometry.coordinates.map(p => p[0]),
+  }));
+}

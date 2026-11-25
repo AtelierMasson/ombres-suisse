@@ -24,7 +24,7 @@ gratuitement (GitHub Pages, Cloudflare Pages…).
    brume légère et ombres adoucies. Un interrupteur « Effets de lumière » les coupe ; ils se réduisent tout seuls
    si l'affichage devient lent.
 7. **Fond du terrain** : plan cadastral (mensuration officielle) reteinté dans la gamme du thème — sol et bâtiments
-   ton sur ton, comme une maquette —, photo aérienne SWISSIMAGE ou terrain uni.
+   ton sur ton, comme une maquette —, ou terrain uni (interrupteur « Plan cadastral au sol »).
 8. **Arbres** en points du relevé (disques plats de teintes variées) qui s'assombrissent dans l'ombre portée ; **points mesurés sur les façades** affichables (classe 26 des vols
    récents et points « bâtiment » sous le toit) : les murs deviennent alors translucides.
 9. **Montagnes lointaines** : profil d'horizon sur 50 km tout autour (y compris France et Italie) ; quand le soleil
@@ -41,6 +41,42 @@ gratuitement (GitHub Pages, Cloudflare Pages…).
 13. **Thèmes** à comparer en direct (boutons en haut à droite, choix mémorisé, ou `?theme=` dans l'adresse) :
     un bouton bascule entre le mode jour (`maquette`, blanc cassé) et le mode nuit (`nuit`, bleu sombre).
     Chaque thème règle l'interface et la scène : ciel, bâtiments, terrain, parcelle, arbres, carte des heures, coupe.
+
+## Mode pro
+
+Un interrupteur « Mode pro », en bas du panneau, affiche des outils supplémentaires (choix mémorisé). Sans lui,
+l'interface reste celle décrite ci-dessus.
+
+- **Sélectionner des bâtiments** : un clic sur un bâtiment du relevé le met en surbrillance et affiche sa fiche
+  (hauteur au-dessus du sol, emprise en m², nombre de niveaux estimé à 3 m par niveau) ; Majuscule + clic en ajoute
+  ou en retire ; « Bâtiments de la parcelle » choisit ceux de la parcelle. L'option « Par volume » désigne un seul
+  volume (corps, annexe, lucarne) au lieu du bâtiment entier.
+- **Masquer la sélection** : le bâtiment disparaît de l'écran **et des calculs** — ombres portées, ombre de contact,
+  bord du socle, heures de soleil (sol, toits, façades : la carte se recalcule si elle est affichée) et coupe.
+  « Tout réafficher » les remet, « Annuler » revient d'un pas en arrière (autant de fois que nécessaire).
+- **Taille de la maquette** : rayon chargé autour du lieu (automatique, 100, 150, 250 ou 400 m). Le lieu est rechargé ;
+  à 400 m, compter une quinzaine de millions de points et environ 1,5 Go de mémoire.
+- **Exporter la maquette** : boutons directs OBJ et DXF (« maquette complète »), ou « Au choix… » :
+  - format DXF, OBJ, glTF binaire (.glb) ou STL ;
+  - contenu : terrain (maille de 0,5, 1 ou 2 m), socle (côtés et fond : fermé avec le terrain), bâtiments du jeu
+    affiché (relevé sans les masqués, swisstopo ou roofer), arbres en volumes simples, limite de la parcelle,
+    courbes de niveau (1 m) ;
+  - coordonnées : **origine locale** (par défaut) ou **MN95 complètes** (DXF et OBJ seulement : le glTF et le STL
+    stockent les nombres en simple précision).
+
+  Le téléchargement est une archive zip : le modèle et un `LISEZ-MOI.txt`. Repère : X = est, Y = nord, Z = altitude,
+  en mètres (le glTF suit sa norme, Y vers le haut : les logiciels le redressent à l'import). L'origine locale
+  (E0, N0, Z0 en MN95, EPSG:2056 ; Z0 = altitude du centre arrondie au mètre) est écrite dans le nom du fichier
+  (`ombres_lutry-3947_E2542768_N1152290_Z675.dxf`), dans le fichier (commentaires de tête et calque INFO du DXF,
+  commentaires de l'OBJ, `asset.extras` du glTF, en-tête du STL) et dans le LISEZ-MOI. DXF en version R12 : calques
+  TERRAIN, SOCLE, BATIMENTS, ARBRES, PARCELLE, COURBES et INFO ; surfaces en 3DFACE, lignes en polylignes 3D.
+  Le DWG n'est pas écrit directement : AutoCAD ouvre le DXF et l'enregistre en DWG.
+- **Exporter la coupe** (quand la coupe est active) : DXF ou SVG, dans le plan de la coupe — X = distance depuis A,
+  Y = altitude réelle, en mètres. Calques TERRAIN_COUPE, BATIMENTS_COUPES, ARBRES, LIMITES_PARCELLE, COTES (bas,
+  corniches, faîte, à 10 cm) et CADRE (échelle graphique, A et B en MN95, soleil). SVG à l'échelle 1:200.
+
+Ordres de grandeur à Lutry (300 × 300 m, maquette complète, terrain à 1 m, 450 000 triangles) : OBJ 14 Mo, glTF 11 Mo,
+STL 22 Mo, DXF 59 Mo (40 Mo avec le terrain à 2 m) ; 4 à 9 Mo une fois zippés ; préparés en 0,5 à 1,5 s.
 
 **Repli** : là où le relevé laser récent n'est pas encore publié en COPC (vols plus anciens livrés en gros fichiers),
 le site utilise les modèles en grille 0,5 m swissALTI3D (terrain) et swissSURFACE3D Raster (surface), issus du même
@@ -85,6 +121,10 @@ npm run build      # site statique dans dist/, à publier tel quel
 | `src/roofer.js` | Comparaison (essais Lutry et Lausanne av. Floréal) : bâtiments LoD2.2 reconstruits hors ligne par roofer (TU Delft) à partir des emprises officielles vaudoises et du nuage 2025 (`public/essais/roofer_*.json`) |
 | `src/diagramme.js` | Diagramme horizon + course du soleil |
 | `src/demo.js` | Hameau inventé de l'écran d'accueil |
+| `src/pro.js` | Mode pro : sélection et masquage de bâtiments, taille de la maquette, boutons d'export |
+| `src/volumes.js` | Mode pro : volumes numérotés, regroupés en bâtiments, fiche (hauteur, emprise, niveaux) |
+| `src/export.js` | Mode pro : export de la maquette en DXF, OBJ, glTF binaire et STL (zip avec LISEZ-MOI) |
+| `src/exportCoupe.js` | Mode pro : export de la coupe A–B en DXF et en SVG |
 
 ## Limites connues
 
@@ -97,7 +137,13 @@ npm run build      # site statique dans dist/, à publier tel quel
   6 et 24 jours.
 - Au-delà du rayon chargé (≥ 150 m), seuls le relief (tuiles ~30–100 m) et non les bâtiments portent ombre.
 - L'heure est celle du navigateur (fuseau supposé : Suisse).
+- Mode pro : un bâtiment est un ensemble de volumes qui se touchent ; des maisons mitoyennes forment un seul bâtiment
+  (utiliser « Par volume » pour n'en enlever qu'une partie). Les points mesurés sur les façades d'un bâtiment masqué
+  restent affichés si leur couche est active.
+- Exports : les bâtiments du relevé sont des enveloppes ouvertes en bas (toit et murs, sans plancher), dont les murs
+  descendent 2,5 m sous le terrain ; seuls le terrain et le socle forment un volume fermé. Le DXF est lourd (un
+  3DFACE par triangle). Les bâtiments swisstopo exportés sont ceux des tuiles chargées à l'écran.
 - Les tuiles Terrarium mélangent plusieurs sources ; en Suisse, l'horizon est précis à quelques dixièmes de degré près.
 
-Sources : © swisstopo (swissSURFACE3D, swissALTI3D, SWISSIMAGE, cadastre geo.admin.ch) · relief lointain :
+Sources : © swisstopo (swissSURFACE3D, swissALTI3D, swissBUILDINGS3D, cadastre geo.admin.ch) · relief lointain :
 Terrain Tiles (AWS Open Data, Mapzen). Résultats indicatifs.

@@ -24,7 +24,7 @@ function valeurEn(G, a, x, y) {
  * Profil le long de la droite A→B, prolongée jusqu'aux bords du modèle. `s` = distance depuis A (négative avant A).
  * `bat` suit les bâtiments tels qu'affichés (contours redressés), `veg` la canopée ; NaN où il n'y en a pas.
  */
-export function profilCoupe(G, contours, A, B, parcelle, pas = 0.25) {
+export function profilCoupe(G, contours, A, B, parcelle, pas = 0.25, voisines = []) {
   const L = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1, ux = (B[0] - A[0]) / L, uy = (B[1] - A[1]) / L, lim = G.R - 1;
   // étendue de la droite dans le carré du modèle
   let s0 = -Infinity, s1 = Infinity;
@@ -45,16 +45,43 @@ export function profilCoupe(G, contours, A, B, parcelle, pas = 0.25) {
     const v = isNaN(bat[k]) ? valeurEn(G, G.veg, x, y) : NaN;
     veg[k] = v > sol[k] + 1 ? v : NaN;
   }
-  // limites de parcelle traversées
-  const limites = [];
-  for (const a of parcelle?.anneauxRel || []) for (let k = 0; k < a.length - 1; k++) {
-    const [x1, y1] = a[k], [x2, y2] = a[k + 1], ex = x2 - x1, ey = y2 - y1, det = ux * ey - uy * ex;
-    if (Math.abs(det) < 1e-9) continue;
-    const t = ((x1 - A[0]) * ey - (y1 - A[1]) * ex) / det, r = ((x1 - A[0]) * uy - (y1 - A[1]) * ux) / det;
-    if (r >= 0 && r <= 1) limites.push(t);
+  // limites traversées : celles de la parcelle choisie, et celles des parcelles voisines (avec leurs numéros)
+  const traversees = anneaux => {
+    const t = [];
+    for (const a of anneaux) for (let k = 0; k < a.length - 1; k++) {
+      const [x1, y1] = a[k], [x2, y2] = a[k + 1], ex = x2 - x1, ey = y2 - y1, det = ux * ey - uy * ex;
+      if (Math.abs(det) < 1e-9) continue;
+      const d = ((x1 - A[0]) * ey - (y1 - A[1]) * ex) / det, r = ((x1 - A[0]) * uy - (y1 - A[1]) * ux) / det;
+      if (r >= 0 && r <= 1) t.push(d);
+    }
+    return t;
+  };
+  const limites = traversees(parcelle?.anneauxRel || []).sort((a, b) => a - b);
+  const toutes = [...limites];
+  for (const v of voisines) for (const d of traversees(v.anneauxRel)) if (!toutes.some(e => Math.abs(e - d) < 0.3)) toutes.push(d);
+  toutes.sort((a, b) => a - b);
+  // tronçons entre deux limites : numéro de la parcelle qui contient leur milieu
+  const parcelles = [], bornes = [s0, ...toutes, s1];
+  for (let k = 0; k < bornes.length - 1; k++) {
+    const m = (bornes[k] + bornes[k + 1]) / 2, x = A[0] + ux * m, y = A[1] + uy * m;
+    const p = (parcelle?.anneauxRel?.length && dansAnneaux(x, y, parcelle.anneauxRel)) ? { numero: parcelle.numero, choisie: true }
+      : voisines.find(v => dansAnneaux(x, y, v.anneauxRel));
+    if (p) parcelles.push({ s0: bornes[k], s1: bornes[k + 1], numero: p.numero, choisie: !!p.choisie });
   }
-  return { A, B, L, ux, uy, pas, nb, s, sol, bat, veg, limites: limites.sort((a, b) => a - b) };
+  return { A, B, L, ux, uy, pas, nb, s, sol, bat, veg, limites, voisines: toutes.filter(d => !limites.some(e => Math.abs(e - d) < 0.3)), parcelles };
 }
+
+function dansAnneaux(x, y, anneaux) {
+  let ok = false;
+  for (const a of anneaux) for (let i = 0, j = a.length - 1; i < a.length; j = i++) {
+    const [xi, yi] = a[i], [xj, yj] = a[j];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) ok = !ok;
+  }
+  return ok;
+}
+
+/** Altitude arrondie à 10 cm, à la suisse romande (virgule). */
+const alt = z => (Math.round(z * 10) / 10).toFixed(1).replace(".", ",");
 
 /** Suites d'échantillons consécutifs où `a` est renseigné : [[début, fin], …] (indices inclus). */
 function suites(a, k0 = 0, k1 = a.length - 1) {
@@ -146,10 +173,35 @@ export function dessinerCoupe(svg, P, soleil) {
   // bâtiments coupés de la même matière que le terrain, et un seul trait de coupe sur le dessus de la masse
   for (const [a, b] of suites(P.bat, k0, k1)) t += `<path d="${chemin(a, b, k => P.bat[k], k => P.sol[k] - 0.05)}" class="terrain"/>`;
   t += `<path d="${chemin(k0, k1, k => enveloppe(P, k))}" class="sol"/>`;
-  // limites de parcelle
+  // limites des parcelles voisines (fines), puis celles de la parcelle choisie
+  for (const s of P.voisines || []) if (s > P.s[k0] && s < P.s[k1]) {
+    const z = P.sol[Math.round((s - P.s[0]) / P.pas)] ?? zmin;
+    t += `<line x1="${f(X(s))}" x2="${f(X(s))}" y1="${f(Y(z) - 14)}" y2="${f(Y(z) + 6)}" class="limite-voisine"/>`;
+  }
   for (const s of P.limites) if (s > P.s[k0] && s < P.s[k1]) {
     const z = P.sol[Math.round((s - P.s[0]) / P.pas)] ?? zmin;
     t += `<line x1="${f(X(s))}" x2="${f(X(s))}" y1="${f(Y(z) - 26)}" y2="${f(Y(z) + 8)}" class="limite"/><text x="${f(X(s))}" y="${f(Y(z) - 29)}" text-anchor="middle" class="limite">limite</text>`;
+  }
+  // numéros des parcelles traversées, dans le terrain sous le trait de coupe
+  for (const p of P.parcelles || []) {
+    const a = Math.max(p.s0, P.s[k0]), b = Math.min(p.s1, P.s[k1]);
+    if (b - a < 6) continue;
+    const km = Math.round(((a + b) / 2 - P.s[0]) / P.pas), z = P.sol[km];
+    t += `<text x="${f(X((a + b) / 2))}" y="${f(Math.min(H - m.b - 4, Y(z) + 14))}" text-anchor="middle" class="${p.choisie ? "numero choisie" : "numero"}">${p.numero}</text>`;
+  }
+  // cotes des bâtiments coupés (arrondies à 10 cm) : point bas du terrain, corniches aux deux façades, faîte
+  for (const [a, b] of suites(P.bat, k0, k1)) {
+    if (P.s[b] - P.s[a] < 3) continue;
+    let zb = Infinity, kf = a;
+    for (let k = a; k <= b; k++) { zb = Math.min(zb, P.sol[k]); if (P.bat[k] > P.bat[kf]) kf = k; }
+    const cote = (x, y, texte, ancre, dy) => t += `<line x1="${f(x - 4)}" x2="${f(x + 4)}" y1="${f(y)}" y2="${f(y)}" class="cote-trait"/>` +
+      `<text x="${f(x + (ancre === "end" ? -6 : ancre === "start" ? 6 : 0))}" y="${f(y + dy)}" text-anchor="${ancre}" class="cote">${texte}</text>`;
+    const xa = X(P.s[a]), xb = X(P.s[b]), za = P.bat[a], zbord = P.bat[b];
+    cote(xa, Y(za), `corniche ${alt(za)}`, "end", -3);
+    if (Math.abs(zbord - za) >= 0.2) cote(xb, Y(zbord), `corniche ${alt(zbord)}`, "start", -3);
+    if (P.bat[kf] > Math.max(za, zbord) + 0.3) cote(X(P.s[kf]), Y(P.bat[kf]), `faîte ${alt(P.bat[kf])}`, "middle", -6);
+    const kb = (() => { for (let k = a; k <= b; k++) if (P.sol[k] === zb) return k; return a; })();
+    cote(X(P.s[kb]), Y(zb), `bas ${alt(zb)}`, X(P.s[kb]) - xa < xb - X(P.s[kb]) ? "end" : "start", 11);
   }
   // rayon du soleil vu dans le plan de coupe (hauteur apparente), posé au milieu de la coupe
   let note = "";
