@@ -1,0 +1,25 @@
+html, body { height: 100%; margin: 0; overflow: hidden; font-size: 14px; }
+#haut { position: absolute; top: 0; left: 0; right: 0; height: 56px; z-index: 10; }
+#vue { position: absolute; top: 56px; left: 0; right: 0; bottom: 0; }
+#vue canvas { display: block; }
+#suggestions { top: 40px; z-index: 20; max-height: 360px; overflow: auto; }
+#suggestions .list-group-item { cursor: pointer; }
+#panneau { position: absolute; top: 68px; left: 12px; width: 320px; max-height: calc(100% - 112px); overflow: auto; z-index: 5; }
+#diagramme { position: absolute; right: 12px; bottom: 36px; width: 440px; z-index: 5; }
+#svgSoleil { width: 100%; height: auto; display: block; font: 10px system-ui, sans-serif; fill: #6c757d; }
+#svgSoleil .grille { stroke: #e3e6ea; stroke-width: 1; }
+#svgSoleil .relief { fill: #8d9aa6; fill-opacity: .75; stroke: #5f6b76; stroke-width: 1; }
+#svgSoleil .course { fill: none; stroke: #f08c00; stroke-width: 2; }
+#svgSoleil .saison { fill: none; stroke: #f08c00; stroke-width: 1; stroke-dasharray: 3 3; opacity: .6; }
+#svgSoleil .astre { fill: #ffcc33; stroke: #c77700; stroke-width: 1.5; }
+.legende span { display: inline-block; width: 14px; height: 8px; margin: 0 4px 0 8px; vertical-align: 0; }
+.legende .l-relief { background: #8d9aa6; }
+.legende .l-course { border-top: 2px solid #f08c00; height: 0; }
+.legende .l-saison { border-top: 1px dashed #f08c00; height: 0; }
+#message { position: absolute; top: 68px; left: 50%; transform: translateX(-50%); z-index: 6; }
+#pied { position: absolute; left: 12px; bottom: 8px; z-index: 5; background: rgba(255, 255, 255, .8); padding: 2px 6px; border-radius: 4px; }
+.degrade { height: 10px; border-radius: 3px; background: linear-gradient(90deg, #264dbf, #f2e533, #f2331a); }
+@media (max-width: 800px) {
+  #panneau { width: auto; right: 12px; max-height: 45%; }
+  #diagramme { left: 12px; right: 12px; width: auto; bottom: 34px; }
+}

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ombres — Suisse</title>
+<meta name="description" content="Ombres et ensoleillement d'une parcelle en Suisse, calculés dans le navigateur à partir du nuage de points laser de swisstopo.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='12' cy='12' r='7' fill='%23f5b301'/%3E%3Cpath d='M6 28 L18 16 L28 28Z' fill='%23334'/%3E%3C/svg%3E">
+</head>
+<body>
+<nav class="navbar bg-white border-bottom px-3 gap-3" id="haut">
+  <span class="navbar-brand fw-semibold d-flex align-items-center gap-2 m-0">
+    <svg width="26" height="26" viewBox="0 0 32 32"><circle cx="12" cy="12" r="7" fill="#f5b301"/><path d="M6 28 L18 16 L28 28Z" fill="#334"/></svg>Ombres
+  </span>
+  <div class="position-relative flex-grow-1" style="max-width:520px">
+    <input id="q" class="form-control" type="search" placeholder="Adresse ou parcelle en Suisse (ex. « Lutry 3947 »)" autocomplete="off">
+    <div id="suggestions" class="list-group position-absolute w-100 shadow-sm" hidden></div>
+  </div>
+  <span class="text-secondary small ms-auto d-none d-lg-inline">Données swisstopo · calcul dans votre navigateur</span>
+</nav>
+
+<main id="vue"></main>
+
+<aside id="panneau" class="card shadow-sm">
+  <div class="card-body">
+    <div id="accueil">
+      <h5 class="card-title">Ombres d'une parcelle</h5>
+      <p class="small text-secondary mb-2">Tapez une adresse ou un numéro de parcelle. Le site lit le relevé laser de swisstopo autour de la parcelle,
+        reconstruit le terrain, les bâtiments et les arbres, puis calcule les ombres, y compris celles des montagnes lointaines.</p>
+      <p class="small text-secondary mb-0">Rien n'est installé ni envoyé : tout se calcule dans votre navigateur.</p>
+    </div>
+    <div id="infos" hidden>
+      <div class="d-flex justify-content-between align-items-start">
+        <div><div class="small text-secondary" id="lieuType"></div><h5 class="mb-0" id="lieu"></h5></div>
+        <button class="btn btn-sm btn-outline-secondary" id="btnPartager" title="Copier le lien">Lien</button>
+      </div>
+      <div class="small text-secondary mt-1" id="source"></div>
+    </div>
+
+    <div id="etat" class="mt-3" hidden>
+      <div class="small mb-1" id="etatTexte"></div>
+      <div class="progress" style="height:6px"><div class="progress-bar" id="etatBarre" style="width:0%"></div></div>
+    </div>
+
+    <div id="commandes" hidden>
+      <hr>
+      <label class="form-label small fw-semibold mb-1" for="jour">Date</label>
+      <input type="date" id="jour" class="form-control form-control-sm">
+      <div class="btn-group btn-group-sm w-100 mt-2" role="group">
+        <button type="button" class="btn btn-outline-secondary" data-jour="12-21">21 déc.</button>
+        <button type="button" class="btn btn-outline-secondary" data-jour="03-20">20 mars</button>
+        <button type="button" class="btn btn-outline-secondary" data-jour="06-21">21 juin</button>
+        <button type="button" class="btn btn-outline-secondary" data-jour="auj">Auj.</button>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <label class="form-label small fw-semibold mb-0" for="heure">Heure</label>
+        <span class="fw-semibold" id="heureTexte"></span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-primary" id="btnLecture" title="Animer la journée">▶</button>
+        <input type="range" id="heure" class="form-range" min="0" max="1439" step="5">
+      </div>
+      <div class="small mt-1" id="soleilTexte"></div>
+
+      <hr>
+      <div class="small fw-semibold mb-1">Affichage</div>
+      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vOrtho" checked><label class="form-check-label small" for="vOrtho">Orthophoto</label></div>
+      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vBati" checked><label class="form-check-label small" for="vBati">Bâtiments</label></div>
+      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vArbres" checked><label class="form-check-label small" for="vArbres">Arbres</label></div>
+      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPoints"><label class="form-check-label small" for="vPoints">Nuage de points brut</label></div>
+      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPieton"><label class="form-check-label small" for="vPieton">Vue depuis la parcelle (1,70 m)</label></div>
+
+      <hr>
+      <button class="btn btn-sm btn-outline-primary w-100" id="btnHeures">Heures de soleil sur la parcelle ce jour-là</button>
+      <div id="heures" class="small mt-2" hidden>
+        <div class="degrade"></div>
+        <div class="d-flex justify-content-between text-secondary"><span>0 h</span><span id="heuresMax"></span></div>
+        <div id="heuresStats" class="mt-1"></div>
+        <div class="form-check form-switch mt-1"><input class="form-check-input" type="checkbox" id="vHeures" checked><label class="form-check-label small" for="vHeures">Afficher la carte</label></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div id="diagramme" class="card shadow-sm" hidden>
+  <div class="card-body p-2">
+    <div class="small fw-semibold px-1">Course du soleil et horizon <span class="text-secondary fw-normal" id="horizonTexte"></span></div>
+    <svg id="svgSoleil"></svg>
+    <div class="legende small text-secondary px-1"><span class="l-relief"></span>Relief jusqu'à 50 km <span class="l-course"></span>Ce jour <span class="l-saison"></span>21 juin / 21 déc.</div>
+  </div>
+</div>
+
+<div id="message" class="alert alert-warning py-1 px-2 small" hidden></div>
+
+<footer id="pied" class="small text-secondary">Sources : © swisstopo (swissSURFACE3D, swissALTI3D, SWISSIMAGE, cadastre geo.admin.ch) · relief lointain : Terrain Tiles (AWS Open Data, Mapzen). Résultats indicatifs.</footer>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
