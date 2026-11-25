@@ -964,17 +964,15 @@ export class Scene3D {
     this.poignees = [];
     this.tranche = null;
     if (P && this.couperModele === false) {
-      // maquette entière : seulement la ligne de coupe, posée sur le terrain et les toits
-      const pts = [];
-      for (let k = 0; k < P.nb; k++) {
-        const x = P.A[0] + P.ux * P.s[k], y = P.A[1] + P.uy * P.s[k];
-        pts.push(x, Math.max(P.sol[k], P.bat[k] || -Infinity) - this.zRef + 0.2, -y);
-      }
-      const g = new LineGeometry();
-      g.setPositions(pts);
-      const l = new Line2(g, this.mat.trait);
-      l.computeLineDistances(); l.renderOrder = 4;
-      this.outils.add(l);
+      // maquette entière : seulement le trait de coupe (terrain et bâtiments, murs à leur position exacte), qui épouse
+      // les toits et les façades ; un rappel pâle, vu à travers, là où il passe derrière un bâtiment
+      this.tranche = trancheCoupe(P, this.zRef, this.zBas, { ...this.T.coupe, arbres: null }, this.mat.trait);
+      const traits = this.tranche.userData.traits || [];
+      this.tranche.traverse(o => { if (o.isMesh && !traits.includes(o)) o.visible = false; });
+      const pale = this.mat.trait.clone();
+      Object.assign(pale, { depthTest: false, transparent: true, opacity: 0.3, linewidth: 2 });
+      for (const l of traits) { const r = l.clone(); r.material = pale; r.renderOrder = 6; this.tranche.add(r); traits.push(r); }
+      this.outils.add(this.tranche);
     } else if (P) {
       this.tranche = trancheCoupe(P, this.zRef, this.zBas, { ...this.T.coupe, arbres: this.T.sombre ? "#7f8da6" : "#8a9096" }, this.mat.trait);
       if (this.tranche.userData.arbres) this.tranche.userData.arbres.visible = this.arbresVisibles !== false;
@@ -1006,7 +1004,8 @@ export class Scene3D {
       this.plan.constant = -(P.A[0] * P.uy - P.A[1] * P.ux) * cote;
       // la tranche reste juste du côté visible (l'occlusion ambiante la coupe sinon), à 4 mm seulement : plus loin,
       // le bout des faces coupées (terrain sous un bâtiment, murs enterrés) dépasse devant le poché en traits fins
-      this.tranche?.position.copy(this.plan.normal).multiplyScalar(0.004);
+      // sans coupe de la maquette, le trait est un peu avancé vers la caméra : il reste visible sur les façades qu'il longe
+      this.tranche?.position.copy(this.plan.normal).multiplyScalar(this.couperModele === false ? -0.12 : 0.004);
     }
     // poignées de taille constante à l'écran, focale comprise (les vues plan et élévation utilisent une focale très longue)
     const f = 0.011 * Math.tan(this.camera.fov * Math.PI / 360) / Math.tan(Math.PI / 8);
