@@ -119,7 +119,9 @@ export function batiments(G, zRef, pans = false, contours = contoursBatiments(G)
         if (hauts[k] === -Infinity) hauts[k] = B.hauts[k];
       }
       if (Math.abs(xa - xb) + Math.abs(ya - yb) < 1e-4) continue;
-      const sa = solEn(G, xa, ya) - 0.3, sb = solEn(G, xb, yb) - 0.3;
+      // murs prolongés de 2,5 m sous le sol mesuré aux angles : sur une pente, le terrain entre deux angles peut
+      // descendre plus bas, ce qui laissait un jour sous le mur (bâtiment qui semble flotter)
+      const sa = solEn(G, xa, ya) - 2.5, sb = solEn(G, xb, yb) - 2.5;
       for (const [t1, z1, t2, z2] of profil) {
         const x1 = entre(xa, xb, t1), y1 = entre(ya, yb, t1), x2 = entre(xa, xb, t2), y2 = entre(ya, yb, t2);
         const b1 = entre(sa, sb, t1) - zRef, b2 = entre(sa, sb, t2) - zRef;

@@ -70,8 +70,8 @@ diffuseColor.rgb *= 1.0 + grainForce * ((g - 0.5) * 1.4 + (pixel - 0.5) * 0.9);
 ${contact && `if (contactActif > 0.5) {
   vec2 uvG = (vec2(vMonde.x, -vMonde.z) - grille.x) / grille.y;
   ${contact === "mur"
-    ? "float hc = vMonde.y - texture2D(tSol, uvG).r; diffuseColor.rgb *= mix(0.62, 1.0, smoothstep(0.0, 1.6, hc));"
-    : "float dc = texture2D(tDist, uvG).r; diffuseColor.rgb *= mix(0.68, 1.0, smoothstep(0.0, 2.2, dc));"}
+    ? "float hc = vMonde.y - texture2D(tSol, uvG).r; diffuseColor.rgb *= mix(0.84, 1.0, smoothstep(0.0, 1.2, hc));"
+    : "float dc = texture2D(tDist, uvG).r; diffuseColor.rgb *= mix(0.86, 1.0, smoothstep(0.0, 1.6, dc));"}
 }`}`);
   };
   mat.customProgramCacheKey = () => "platre" + force + contact;
