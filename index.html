@@ -82,7 +82,45 @@
       </section>
 
 
-      <section>
+      <ul class="nav nav-tabs nav-fill small" id="onglets" role="tablist">
+        <li class="nav-item" role="presentation"><button class="nav-link active" type="button" role="tab" data-onglet="affichage">Affichage</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" type="button" role="tab" data-onglet="coupe">Coupe</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" type="button" role="tab" data-onglet="heures">Heures</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" type="button" role="tab" data-onglet="pro">Pro</button></li>
+      </ul>
+      <section data-onglet="affichage" role="tabpanel">
+    <div class="small fw-semibold mb-1">Bâtiments</div>
+    <div class="btn-group btn-group-sm w-100 mb-1" role="group" aria-label="Bâtiments affichés">
+      <input type="radio" class="btn-check" name="batiments" id="bReleve" value="releve" checked><label class="btn btn-outline-secondary" for="bReleve" title="Reconstruits ici à partir du relevé laser">Normal</label>
+      <input type="radio" class="btn-check" name="batiments" id="bSwiss" value="swiss"><label class="btn btn-outline-secondary" for="bSwiss" title="swissBUILDINGS3D, modèles 3D de swisstopo">Swiss3D</label>
+      <input type="radio" class="btn-check" name="batiments" id="bRoofer" value="roofer"><label class="btn btn-outline-secondary" for="bRoofer" id="etiquetteRoofer" title="roofer (TU Delft), LoD2.2, calculé hors ligne pour quelques lieux d'essai">Advanced</label>
+      <input type="radio" class="btn-check" name="batiments" id="bAucun" value="aucun"><label class="btn btn-outline-secondary" for="bAucun">None</label>
+    </div>
+    <div class="small text-secondary mb-1" id="noteBatiments"></div>
+    <table class="table-calques">
+      <thead><tr><th></th><th>Voir</th><th>Ombre</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><label for="vBatVoir">Bâtiments</label></th>
+          <td><input class="form-check-input" type="checkbox" id="vBatVoir" checked aria-label="Voir les bâtiments"></td>
+          <td><input class="form-check-input" type="checkbox" id="vBatOmbre" checked aria-label="Ombre des bâtiments"></td></tr>
+        <tr><th scope="row"><label for="vArbres">Arbres</label></th>
+          <td><input class="form-check-input" type="checkbox" id="vArbres" checked aria-label="Voir les arbres"></td>
+          <td><input class="form-check-input" type="checkbox" id="vArbresOmbre" checked aria-label="Ombre des arbres"></td></tr>
+        <tr><th scope="row"><label for="vPoints">Nuage de points brut</label></th>
+          <td><input class="form-check-input" type="checkbox" id="vPoints"></td><td></td></tr>
+        <tr><th scope="row"><label for="vDegrade">Couleur selon la hauteur</label></th>
+          <td><input class="form-check-input" type="checkbox" id="vDegrade"></td><td></td></tr>
+        <tr><th scope="row"><label for="vCadastre">Plan cadastral au sol</label></th>
+          <td><input class="form-check-input" type="checkbox" id="vCadastre" checked></td><td></td></tr>
+        <tr><th scope="row"><label for="vParcelles">Parcelles voisines</label></th>
+          <td><input class="form-check-input" type="checkbox" id="vParcelles" checked></td><td></td></tr>
+        <tr><th scope="row"><label for="vEffets" title="Occlusion ambiante et rebond de lumière ; à couper si l'affichage est lent">Effets de lumière</label></th>
+          <td><input class="form-check-input" type="checkbox" id="vEffets" checked></td><td></td></tr>
+      </tbody>
+    </table>
+      </section>
+
+      <section data-onglet="coupe" role="tabpanel" hidden>
         <div class="titre">Coupe</div>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vCoupe"><label class="form-check-label small" for="vCoupe">Couper le terrain et les bâtiments</label></div>
         <div id="outilsCoupe" hidden>
@@ -98,7 +136,7 @@
         </div>
       </section>
 
-      <section>
+      <section data-onglet="heures" role="tabpanel" hidden>
         <div class="titre">Heures de soleil</div>
         <div class="btn-group btn-group-sm w-100 mb-2" role="group" aria-label="Période">
           <input type="radio" class="btn-check" name="periode" id="pJour" value="jour" checked><label class="btn btn-outline-secondary" for="pJour">Jour</label>
@@ -114,7 +152,7 @@
         </div>
       </section>
 
-      <section id="pro">
+      <section id="pro" data-onglet="pro" role="tabpanel" hidden>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPro"><label class="form-check-label small" for="vPro"><b>Mode pro</b> <span class="text-secondary">(enlever des bâtiments, exporter)</span></label></div>
         <div class="small text-secondary" id="etatPro"></div>
         <div id="outilsPro" hidden>
@@ -182,43 +220,6 @@
   </div>
 </aside>
 
-<aside id="calques" class="card" hidden>
-  <button type="button" class="entete" id="calquesBouton" aria-expanded="true" aria-controls="calquesCorps">
-    <span class="titre m-0">Affichage</span><span class="chevron" aria-hidden="true"></span>
-  </button>
-  <div id="calquesCorps">
-    <div class="small fw-semibold mb-1">Bâtiments</div>
-    <div class="btn-group btn-group-sm w-100 mb-1" role="group" aria-label="Bâtiments affichés">
-      <input type="radio" class="btn-check" name="batiments" id="bReleve" value="releve" checked><label class="btn btn-outline-secondary" for="bReleve" title="Reconstruits ici à partir du relevé laser">Normal</label>
-      <input type="radio" class="btn-check" name="batiments" id="bSwiss" value="swiss"><label class="btn btn-outline-secondary" for="bSwiss" title="swissBUILDINGS3D, modèles 3D de swisstopo">Swiss3D</label>
-      <input type="radio" class="btn-check" name="batiments" id="bRoofer" value="roofer"><label class="btn btn-outline-secondary" for="bRoofer" id="etiquetteRoofer" title="roofer (TU Delft), LoD2.2, calculé hors ligne pour quelques lieux d'essai">Advanced</label>
-      <input type="radio" class="btn-check" name="batiments" id="bAucun" value="aucun"><label class="btn btn-outline-secondary" for="bAucun">None</label>
-    </div>
-    <div class="small text-secondary mb-1" id="noteBatiments"></div>
-    <table class="table-calques">
-      <thead><tr><th></th><th>Voir</th><th>Ombre</th></tr></thead>
-      <tbody>
-        <tr><th scope="row"><label for="vBatVoir">Bâtiments</label></th>
-          <td><input class="form-check-input" type="checkbox" id="vBatVoir" checked aria-label="Voir les bâtiments"></td>
-          <td><input class="form-check-input" type="checkbox" id="vBatOmbre" checked aria-label="Ombre des bâtiments"></td></tr>
-        <tr><th scope="row"><label for="vArbres">Arbres</label></th>
-          <td><input class="form-check-input" type="checkbox" id="vArbres" checked aria-label="Voir les arbres"></td>
-          <td><input class="form-check-input" type="checkbox" id="vArbresOmbre" checked aria-label="Ombre des arbres"></td></tr>
-        <tr><th scope="row"><label for="vPoints">Nuage de points brut</label></th>
-          <td><input class="form-check-input" type="checkbox" id="vPoints"></td><td></td></tr>
-        <tr><th scope="row"><label for="vDegrade">Couleur selon la hauteur</label></th>
-          <td><input class="form-check-input" type="checkbox" id="vDegrade"></td><td></td></tr>
-        <tr><th scope="row"><label for="vCadastre">Plan cadastral au sol</label></th>
-          <td><input class="form-check-input" type="checkbox" id="vCadastre" checked></td><td></td></tr>
-        <tr><th scope="row"><label for="vParcelles">Parcelles voisines</label></th>
-          <td><input class="form-check-input" type="checkbox" id="vParcelles" checked></td><td></td></tr>
-        <tr><th scope="row"><label for="vEffets" title="Occlusion ambiante et rebond de lumière ; à couper si l'affichage est lent">Effets de lumière</label></th>
-          <td><input class="form-check-input" type="checkbox" id="vEffets" checked></td><td></td></tr>
-      </tbody>
-    </table>
-  </div>
-</aside>
-
 <div id="bas">
   <div id="coupe" class="card" hidden>
     <div class="card-body p-2">
@@ -237,9 +238,8 @@
   </div>
 </div>
 
-<div id="orientation" title="Orientation : cliquez un axe pour le plan ou une élévation ; glissez pour tourner">
+<div id="orientation" title="Orientation : cliquez un axe pour le plan ou une élévation, le centre pour revenir en 3D ; glissez pour tourner">
   <svg id="boussole" viewBox="-50 -50 100 100" role="group" aria-label="Boussole d'orientation"></svg>
-  <button type="button" class="btn btn-sm btn-outline-secondary" id="vue3D" title="Revenir à la vue 3D">3D</button>
 </div>
 <div id="telechargement" class="shadow" hidden role="progressbar" aria-live="polite" aria-valuemin="0" aria-valuemax="100">
   <div class="ligne"><span id="telechargementTexte"></span><span id="telechargementPct"></span></div>

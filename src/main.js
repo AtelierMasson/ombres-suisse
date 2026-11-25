@@ -90,7 +90,7 @@ function accueil() {
   chargement?.abort();
   annulerCalcul();
   document.body.classList.add("accueil");
-  $("#panneau").hidden = $("#calques").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
+  $("#panneau").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
   message("");
   Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, heuresDemandees: false });
   const D = hameau();
@@ -245,7 +245,7 @@ async function depuisAdresse() {
     S.horizon = await horizon;
     if (id !== tache) return;
     etat(1, "");
-    $("#commandes").hidden = false; $("#calques").hidden = false; $("#diagramme").hidden = false;
+    $("#commandes").hidden = false; $("#diagramme").hidden = false;
     majSoleil();
   } catch (e) {
     if (id !== tache) return; // lieu changé entre-temps : le chargement abandonné n'affiche rien
@@ -338,12 +338,20 @@ function appliquerAffichage() {
     const proj = p => { v.set(...p).applyQuaternion(q); return [v.x * L, -v.y * L, v.z]; };
     svg.replaceChildren();
     el("circle", { class: "fond", r: 46 });
+    // centre : retour à la vue 3D (affiché en plan et en élévation)
+    if (actif) {
+      const g = el("g", { class: "bout centre", "data-vue": "3d", role: "button", "aria-label": "Revenir à la vue 3D" });
+      el("title", {}, g).textContent = "Revenir à la vue 3D";
+      el("circle", { r: 9, fill: "var(--accent)", stroke: "var(--accent)" }, g);
+      el("text", { fill: "#fff" }, g).textContent = "3D";
+    }
     // anneau de l'horizon (plan horizontal), comme le cadran d'une boussole
     const pts = [];
     for (let k = 0; k <= 48; k++) { const t = k / 48 * 2 * Math.PI, [x, y] = proj([Math.cos(t) * 0.82, 0, Math.sin(t) * 0.82]); pts.push(`${x.toFixed(1)},${y.toFixed(1)}`); }
     el("polyline", { class: "anneau", points: pts.join(" ") });
     // du plus lointain au plus proche, pour que les bouts devant recouvrent ceux de derrière
     const liste = AXES.map(a => ({ ...a, p: proj(a.v) })).sort((a, b) => a.p[2] - b.p[2]);
+    const centre = svg.querySelector(".centre");
     for (const a of liste) el("line", { class: "axe" + (a.neg ? " neg" : ""), x1: 0, y1: 0, x2: a.p[0], y2: a.p[1], stroke: a.couleur });
     for (const a of liste) {
       if (!a.vue) continue;
@@ -353,6 +361,7 @@ function appliquerAffichage() {
       el("circle", { r, fill: a.neg ? "var(--carte)" : a.couleur, stroke: a.couleur, opacity: 0.75 + 0.25 * Math.max(0, a.p[2]) }, g);
       el("text", { fill: a.neg ? a.couleur : "#fff" }, g).textContent = a.nom;
     }
+    if (centre) svg.appendChild(centre); // par-dessus les axes
   };
   scene.controls.addEventListener("change", dessiner);
   dessiner();
@@ -373,11 +382,11 @@ function appliquerAffichage() {
     if (!p || p.bouge) return;
     const b = document.elementFromPoint(e.clientX, e.clientY)?.closest("#boussole .bout"); // pointeur capturé : e.target = svg
     if (!b) return;
+    if (b.dataset.vue === "3d") return scene.vueOrtho(null);
     const DIRS = { plan: [0, 1, 0], N: [0, 0, -1], S: [0, 0, 1], E: [1, 0, 0], O: [-1, 0, 0] };
     scene.vueDirection(DIRS[b.dataset.vue]);
   });
-  $("#vue3D").addEventListener("click", () => scene.vueOrtho(null));
-  scene.surVue = mode => { actif = mode || null; $("#vue3D").classList.toggle("actif", !mode); dessiner(); };
+  scene.surVue = mode => { actif = mode || null; dessiner(); };
   scene.surVue(null);
 }
 $("#vParcelles").addEventListener("change", e => { if (scene.couches.voisines) { scene.couches.voisines.visible = e.target.checked; scene.demander(); } });
@@ -396,18 +405,17 @@ async function comparerRoofer() {
 }
 scene.surTuilesSwiss = n => telechargement("swiss", n > 0 ? `Téléchargement des bâtiments swisstopo… ${n} tuile${n > 1 ? "s" : ""} en cours` : null);
 // bâtiments affichés : un seul jeu à la fois (relevé, swisstopo, roofer là où il a été calculé, ou aucun)
-// carte « Affichage » repliable ; l'état est retenu par ce navigateur (replié d'office sur petit écran)
+// onglets du panneau : un seul groupe de réglages visible à la fois ; le dernier choisi est retenu par ce navigateur
 {
-  const carte = $("#calques"), bouton = $("#calquesBouton");
-  const plier = replie => { carte.classList.toggle("replie", replie); bouton.setAttribute("aria-expanded", String(!replie)); };
+  const montrer = nom => {
+    $$("#onglets [data-onglet]").forEach(b => { const ok = b.dataset.onglet === nom; b.classList.toggle("active", ok); b.setAttribute("aria-selected", String(ok)); });
+    $$("#commandes section[data-onglet]").forEach(sec => sec.hidden = sec.dataset.onglet !== nom);
+    try { localStorage.setItem("onglet", nom); } catch { /* stockage indisponible */ }
+  };
+  $$("#onglets [data-onglet]").forEach(b => b.addEventListener("click", () => montrer(b.dataset.onglet)));
   let memo = null;
-  try { memo = localStorage.getItem("calquesReplie"); } catch { /* stockage indisponible */ }
-  plier(memo != null ? memo === "1" : matchMedia("(max-width: 800px)").matches);
-  bouton.addEventListener("click", () => {
-    const replie = !carte.classList.contains("replie");
-    plier(replie);
-    try { localStorage.setItem("calquesReplie", replie ? "1" : "0"); } catch { /* idem */ }
-  });
+  try { memo = localStorage.getItem("onglet"); } catch { /* idem */ }
+  montrer($(`#onglets [data-onglet="${memo}"]`) ? memo : "affichage");
 }
 function choixBatiments() { return $("input[name=batiments]:checked")?.value || "releve"; }
 const NOTES = {

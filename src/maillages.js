@@ -552,7 +552,8 @@ export function pointsVegetation(G) {
  * jusqu'au toit des bâtiments de comparaison coupés au bord (swisstopo, roofer).
  */
 export function hauteursBords(G, zRef, objets) {
-  const { n, c, x0 } = G, R = n * c / 2, bords = [0, 1, 2, 3].map(() => new Float32Array(n).fill(-Infinity));
+  // plans de mesure 5 cm en retrait du bord : les maillages y sont coupés à 3 cm (decouperBord)
+  const { n, c, x0 } = G, R = n * c / 2 - 0.05, bords = [0, 1, 2, 3].map(() => new Float32Array(n).fill(-Infinity));
   const a = new THREE.Vector3(), b = new THREE.Vector3(), d = new THREE.Vector3(), P = [a, b, d];
   // côtés : 0 sud (y = -R), 1 est (x = R), 2 nord (y = R), 3 ouest (x = -R) ; scène : x = est, z = -nord
   const plans = [[p => -p.z + R, p => p.x], [p => p.x - R, p => -p.z], [p => -p.z - R, p => p.x], [p => p.x + R, p => -p.z]];
@@ -678,4 +679,61 @@ export function plansEau(G, zRef) {
   g.setIndex(idx.length > 65535 * 3 ? new THREE.Uint32BufferAttribute(idx, 1) : idx);
   g.computeVertexNormals();
   return g;
+}
+
+/**
+ * Coupe réellement la géométrie d'un maillage au bord du modèle (|x|, |z| ≤ lim, en coordonnées de scène), au lieu
+ * de la masquer par des plans de découpe : sinon le bout des murs coupés tombe dans le plan de la face du socle et
+ * l'occlusion ambiante (qui voit la géométrie jusqu'au bord) y dessine des stries. La géométrie d'origine est gardée
+ * pour redécouper si le maillage bouge (calage des tuiles swisstopo). Les maillages entièrement dedans sont laissés.
+ */
+export function decouperBord(m, lim) {
+  m.updateWorldMatrix(true, false);
+  const orig = m.userData.geomOrig || m.geometry, M = m.matrixWorld, e = M.elements;
+  if (!orig.boundingBox) orig.computeBoundingBox();
+  const bb = orig.boundingBox.clone().applyMatrix4(M);
+  const dedans = bb.min.x >= -lim && bb.max.x <= lim && bb.min.z >= -lim && bb.max.z <= lim;
+  if (dedans) {
+    if (m.userData.geomOrig) { m.geometry.dispose(); m.geometry = orig; delete m.userData.geomOrig; delete m.userData.cleDecoupe; }
+    return;
+  }
+  const cle = e.map(v => v.toFixed(4)).join(",");
+  if (m.userData.cleDecoupe === cle) return;
+  const pos = orig.attributes.position, nor = orig.attributes.normal, idx = orig.index;
+  const nt = (idx ? idx.count : pos.count) / 3, outP = [], outN = [];
+  // sommet : [lx, ly, lz, nx, ny, nz, wx, wz]
+  const sommet = i => {
+    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+    return [x, y, z, nor ? nor.getX(i) : 0, nor ? nor.getY(i) : 0, nor ? nor.getZ(i) : 0,
+      e[0] * x + e[4] * y + e[8] * z + e[12], e[2] * x + e[6] * y + e[10] * z + e[14]];
+  };
+  const mel = (a, b, t) => a.map((v, k) => v + (b[k] - v) * t);
+  // quatre demi-plans : distance positive = dedans
+  const plans = [v => lim - v[6], v => v[6] + lim, v => lim - v[7], v => v[7] + lim];
+  for (let t = 0; t < nt; t++) {
+    let poly = [0, 1, 2].map(s2 => sommet(idx ? idx.getX(3 * t + s2) : 3 * t + s2));
+    for (const d of plans) {
+      if (poly.length < 3) break;
+      const dist = poly.map(d);
+      if (dist.every(v => v >= 0)) continue;
+      const nv = [];
+      for (let k = 0; k < poly.length; k++) {
+        const a = poly[k], b = poly[(k + 1) % poly.length], da = dist[k], db = dist[(k + 1) % poly.length];
+        if (da >= 0) nv.push(a);
+        if ((da >= 0) !== (db >= 0)) nv.push(mel(a, b, da / (da - db)));
+      }
+      poly = nv;
+    }
+    for (let k = 1; k + 1 < poly.length; k++) for (const v of [poly[0], poly[k], poly[k + 1]]) {
+      outP.push(v[0], v[1], v[2]);
+      if (nor) outN.push(v[3], v[4], v[5]);
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(outP, 3));
+  if (nor) g.setAttribute("normal", new THREE.Float32BufferAttribute(outN, 3));
+  else g.computeVertexNormals();
+  if (m.userData.geomOrig) m.geometry.dispose(); else m.userData.geomOrig = orig;
+  m.geometry = g;
+  m.userData.cleDecoupe = cle;
 }

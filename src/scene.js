@@ -10,7 +10,7 @@ import { Swiss3D } from "./swiss3d.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { solEn, majSurface } from "./grille.js";
 import { indexVolumes } from "./volumes.js";
-import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau } from "./maillages.js";
+import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord } from "./maillages.js";
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
 
@@ -350,6 +350,7 @@ export class Scene3D {
     const base = maille(socle(G, this.zRef, this.zBas), m.socle, false, false);
     const B = batiments(G, this.zRef), bati = new THREE.Group();
     bati.add(maille(B.toits, m.toit, true, true), maille(B.murs, m.mur, true, true));
+    bati.children.forEach(o => decouperBord(o, G.R - 0.03));
     this.contours = this.contoursTous = B.contours;
     // la canopée (grille) porte l'ombre des points ; sans points, styleArbres() construit des couronnes lissées
     const canopee = maille(nappeCanopee(G, this.zRef), m.canopee, true, false);
@@ -502,6 +503,8 @@ export class Scene3D {
       const k = this.calques, voir = k.batVoir;
       const objets = voir ? [k.jeu === "swiss" ? this.swiss?.socle : null, k.jeu === "roofer" ? this.couches.roofer : null].filter(Boolean) : [];
       const releve = voir && k.jeu === "releve";
+      // swisstopo et roofer : géométrie coupée 3 cm en retrait du bord, à leur position calée du moment
+      for (const o of [this.swiss?.socle, this.couches.roofer]) o?.traverse(m => m.isMesh && decouperBord(m, this.G.R - 0.03));
       base.geometry.dispose();
       base.geometry = socle(this.G, this.zRef, this.zBas, objets.length ? hauteursBords(this.G, this.zRef, objets) : null, releve);
       this.grilleComp = null; // la coupe relira les bâtiments affichés
@@ -606,8 +609,9 @@ export class Scene3D {
     majSurface(G);
     this.contours = masques.size ? { ...C, seg, boucles: C.boucles.filter(B => !masques.has(B.seg)) } : C;
     const B = batiments(G, this.zRef, false, this.contours), [toits, murs] = this.couches.bati.children;
-    toits.geometry.dispose(); murs.geometry.dispose();
+    for (const o of [toits, murs]) { o.geometry.dispose(); o.userData.geomOrig?.dispose(); delete o.userData.geomOrig; delete o.userData.cleDecoupe; }
     toits.geometry = B.toits; murs.geometry = B.murs;
+    decouperBord(toits, G.R - 0.03); decouperBord(murs, G.R - 0.03);
     this.grillesContact(G); // l'ombre de contact au pied des bâtiments disparaît avec eux
     this.majBords();
     this.ombres();
@@ -666,6 +670,21 @@ export class Scene3D {
       for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n])
         // maisons mitoyennes : le bloc bâti peut couvrir plusieurs parcelles, on s'arrête à la parcelle choisie
         if (q >= 0 && q < n * n && !vu[q] && !isNaN(bat[q]) && (!anneaux.length || sel[2 * q])) { vu[q] = 1; pile.push(q); }
+    }
+    // un bâtiment qui dépasse un peu de sa parcelle est pris en entier : tout bâtiment (contour vectorisé) dont la
+    // moitié au moins est dans la parcelle, ou qui porte le point de l'adresse
+    const seg = this.contours?.seg;
+    if (seg && anneaux.length) {
+      const total = new Map(), dedans = new Map(), entiers = new Set();
+      for (let p = 0; p < n * n; p++) {
+        const s = seg[p];
+        if (s < 0 || isNaN(bat[p])) continue;
+        total.set(s, (total.get(s) || 0) + 1);
+        if (sel[2 * p]) dedans.set(s, (dedans.get(s) || 0) + 1);
+      }
+      for (const [s, t] of total) if ((dedans.get(s) || 0) >= 0.5 * t) entiers.add(s);
+      if (point && graines.length && seg[graines[0]] >= 0) entiers.add(seg[graines[0]]);
+      for (let p = 0; p < n * n; p++) if (entiers.has(seg[p]) && !isNaN(bat[p])) sel[2 * p + 1] = 1;
     }
     // un peu élargi : les murs, posés au bord des cellules, doivent lire la sélection
     const bord = sel.slice();
@@ -947,7 +966,9 @@ export class Scene3D {
     // bâtiments swisstopo : chargés par tuiles bien au-delà du modèle, on les coupe aux bords du terrain
     // (et l'occlusion ambiante ne doit pas voir la partie coupée)
     if (this.G) {
-      const R = this.G.R, boite = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), R));
+      // boîte de l'occlusion 2 cm au-delà du bord : la face du socle est exactement à R, une boîte à R l'effaçait par
+      // endroits (arrondis) et l'occlusion y dessinait des stries ; les bâtiments sont de toute façon coupés à R - 3 cm
+      const R = this.G.R, boite = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), R + 0.02));
       const avecBoite = [...boite, ...(plans || [])];
       if (this.ao.normalMaterial) { this.ao.normalMaterial.clippingPlanes = avecBoite; this.ao.normalMaterial.needsUpdate = true; }
       // nos bâtiments (et roofer) : coupés 3 cm en retrait du bord, sinon les murs du bord sont dans le plan de la face

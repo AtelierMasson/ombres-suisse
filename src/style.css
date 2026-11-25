@@ -136,14 +136,11 @@ body[data-theme=nuit] #message { background: #3a2f12; color: #ffe2a8; border-col
   #bas { flex-direction: column; align-items: flex-end; }
   #coupe { flex: none; width: min(100%, 560px); }
 }
-/* carte « Affichage » : ce qui est montré ou non, à droite de la vue, à côté du cube d'orientation */
-#calques { position: absolute; top: calc(var(--haut) + 12px); right: 112px; width: 262px; z-index: 5; padding: 0; overflow: hidden; }
-#calques .entete { all: unset; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 9px 12px; cursor: pointer; }
-#calques .entete:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-#calques .chevron { width: 8px; height: 8px; border-right: 2px solid var(--doux); border-bottom: 2px solid var(--doux); transform: rotate(45deg) translateY(-2px); transition: transform .15s; }
-#calques.replie .chevron { transform: rotate(-45deg); }
-#calques.replie #calquesCorps { display: none; }
-#calquesCorps { padding: 0 12px 10px; border-top: 1px solid var(--bord); padding-top: 9px; }
+/* onglets du panneau (Affichage, Coupe, Heures, Pro) ; tableau Voir / Ombre de l'onglet Affichage */
+#onglets { margin-top: 12px; }
+#onglets .nav-link { padding: 5px 4px; color: var(--doux); }
+#onglets .nav-link.active { color: var(--texte); font-weight: 600; background: var(--carte); }
+#commandes section[data-onglet] { border-top: 0; margin-top: 0; padding-top: 10px; }
 .table-calques { width: 100%; font-size: 12.5px; border-collapse: collapse; }
 .table-calques thead th { font-size: 10.5px; font-weight: 600; color: var(--doux); text-align: center; padding-bottom: 2px; }
 .table-calques tbody th { font-weight: 400; padding: 3px 0; }
@@ -152,7 +149,6 @@ body[data-theme=nuit] #message { background: #3a2f12; color: #ffe2a8; border-col
 .table-calques .form-check-input { margin: 0; cursor: pointer; }
 .table-calques tbody tr + tr th, .table-calques tbody tr + tr td { border-top: 1px solid var(--bord); }
 @media (max-width: 800px) {
-  #calques { right: 12px; top: auto; bottom: 34px; width: min(262px, calc(100% - 24px)); z-index: 7; }
   #haut .marque { font-size: 0; gap: 0; }
   #panneau, body[data-theme=nuit] #panneau { width: auto; left: 12px; right: 12px; max-height: 45%; }
   #bas, body[data-theme=nuit] #bas { left: 12px; right: 12px; bottom: 34px; }
@@ -194,5 +190,3 @@ body.accueil #orientation { display: none; }
 #boussole .bout text { font: 700 9.5px system-ui, sans-serif; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
 #boussole .bout:hover circle { stroke-width: 2.6; }
 #boussole .bout.actif circle { stroke: var(--texte); stroke-width: 2.4; }
-#orientation #vue3D { padding: 1px 10px; font-size: 12px; background: color-mix(in srgb, var(--carte) 70%, transparent); }
-#orientation #vue3D.actif { background: var(--accent); color: var(--sur-accent); border-color: var(--accent); }
