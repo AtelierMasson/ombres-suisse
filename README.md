@@ -1,5 +1,7 @@
 # Ombres — Suisse
 
+**En ligne : https://ateliermasson.github.io/ombres-suisse/** (publié automatiquement à chaque envoi sur `main`).
+
 Site web gratuit : on tape une adresse ou une parcelle n'importe où en Suisse, et le navigateur calcule les ombres et
 l'ensoleillement à partir du **nuage de points laser de swisstopo** et du **cadastre**, sans modèle 3D tout fait.
 Aucun serveur : tout est lu directement chez swisstopo et calculé dans le navigateur, donc le site s'héberge
