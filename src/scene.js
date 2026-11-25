@@ -35,9 +35,17 @@ void main() {
  * Grain de plâtre : variation de teinte très légère, en coordonnées du monde (indépendante de la forme), avec un grain
  * fin et de larges nuances. `force` = amplitude relative (0,07 = ±3,5 %).
  */
-function grainPlatre(mat, force) {
+// ombre de contact : grilles du lieu (altitude du sol, distance au bâti) partagées par les matériaux
+const CONTACT = { tSol: { value: null }, tDist: { value: null }, grille: { value: new THREE.Vector3(0, 1, 0) }, contactActif: { value: 0 } };
+
+/**
+ * `contact` : "mur" (bas des murs assombri sur ~1,5 m) ou "sol" (sol assombri au pied des bâtiments, ~2 m), sinon rien.
+ * L'occlusion ambiante, large et douce, ne marque pas assez la jonction mur–sol : les bâtiments semblaient flotter.
+ */
+function grainPlatre(mat, force, contact = "") {
   mat.onBeforeCompile = sh => {
     sh.uniforms.grainForce = { value: force };
+    Object.assign(sh.uniforms, CONTACT);
     sh.vertexShader = sh.vertexShader
       .replace("#include <common>", "#include <common>\nvarying vec3 vMonde;")
       .replace("#include <begin_vertex>", "#include <begin_vertex>\nvMonde = (modelMatrix * vec4(transformed, 1.0)).xyz;");
@@ -45,6 +53,9 @@ function grainPlatre(mat, force) {
       .replace("#include <common>", `#include <common>
 varying vec3 vMonde;
 uniform float grainForce;
+uniform sampler2D tSol, tDist;
+uniform vec3 grille; // x0, côté (m), zRef inutilisé
+uniform float contactActif;
 float hachage(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
 float bruit3(vec3 x) {
   vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
@@ -55,9 +66,15 @@ float bruit3(vec3 x) {
 float g = 0.55 * bruit3(vMonde * 2.7) + 0.3 * bruit3(vMonde * 9.0) + 0.15 * bruit3(vMonde * 0.35);
 // trame de cases de 0,5 m (celle du relevé) : un ton légèrement différent par case, sur toutes les faces
 float pixel = hachage(floor(vMonde * 2.0 + 0.001) + 0.37);
-diffuseColor.rgb *= 1.0 + grainForce * ((g - 0.5) * 1.4 + (pixel - 0.5) * 0.9);`);
+diffuseColor.rgb *= 1.0 + grainForce * ((g - 0.5) * 1.4 + (pixel - 0.5) * 0.9);
+${contact && `if (contactActif > 0.5) {
+  vec2 uvG = (vec2(vMonde.x, -vMonde.z) - grille.x) / grille.y;
+  ${contact === "mur"
+    ? "float hc = vMonde.y - texture2D(tSol, uvG).r; diffuseColor.rgb *= mix(0.62, 1.0, smoothstep(0.0, 1.6, hc));"
+    : "float dc = texture2D(tDist, uvG).r; diffuseColor.rgb *= mix(0.68, 1.0, smoothstep(0.0, 2.2, dc));"}
+}`}`);
   };
-  mat.customProgramCacheKey = () => "platre" + force;
+  mat.customProgramCacheKey = () => "platre" + force + contact;
 }
 
 export class Scene3D {
@@ -120,7 +137,7 @@ export class Scene3D {
       poignee: new THREE.MeshBasicMaterial({ depthTest: false, fog: false }),
     };
     // même grain léger partout (sol, socle, toits, murs, couronnes) : aspect de maquette en plâtre
-    for (const [k, force] of [["terrain", 0.07], ["socle", 0.07], ["toit", 0.07], ["mur", 0.07], ["couronne", 0.05]]) grainPlatre(this.mat[k], force);
+    for (const [k, force, contact] of [["terrain", 0.07, "sol"], ["socle", 0.07], ["toit", 0.07], ["mur", 0.07, "mur"], ["couronne", 0.05]]) grainPlatre(this.mat[k], force, contact);
     this.partages = new Set(Object.values(this.mat));
     this.plan = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
     this.couches = {};
@@ -283,6 +300,7 @@ export class Scene3D {
     let zmin = Infinity;
     for (let p = 0; p < G.sol.length; p++) if (G.sol[p] < zmin) zmin = G.sol[p];
     this.zBas = zmin - this.zRef - Math.max(6, G.R * 0.05);
+    this.grillesContact(G);
 
     const m = this.mat, maille = (g, mat, porte, recoit) => { const o = new THREE.Mesh(g, mat); o.castShadow = porte; o.receiveShadow = recoit; return o; };
     const sol = maille(terrain(G, this.zRef), m.terrain, false, true);
@@ -371,6 +389,39 @@ export class Scene3D {
     const o = this.couches.couronnes;
     if (o) { this.groupe.remove(o); o.geometry.dispose(); this.couches.couronnes = null; }
     this.styleArbres();
+  }
+
+  /** Textures de l'ombre de contact : altitude du sol (relative) et distance au bâtiment le plus proche (m, plafonnée). */
+  grillesContact(G) {
+    const { n, c, sol, bat } = G, alt = new Float32Array(n * n), dist = new Float32Array(n * n);
+    for (let p = 0; p < n * n; p++) { alt[p] = sol[p] - this.zRef; dist[p] = isNaN(bat[p]) ? 1e3 : 0; }
+    // distance de chanfrein (deux passes), en mètres
+    const passe = (sens) => {
+      const d0 = sens > 0 ? 0 : n - 1, d1 = sens > 0 ? n : -1;
+      for (let j = d0; j !== d1; j += sens) for (let i = d0; i !== d1; i += sens) {
+        const p = j * n + i;
+        let d = dist[p];
+        for (const [a, b, w] of [[-sens, 0, c], [0, -sens, c], [-sens, -sens, c * 1.414], [sens, -sens, c * 1.414]]) {
+          const x = i + a, y = j + b;
+          if (x >= 0 && y >= 0 && x < n && y < n) d = Math.min(d, dist[y * n + x] + w);
+        }
+        dist[p] = d;
+      }
+    };
+    passe(1); passe(-1);
+    for (let p = 0; p < n * n; p++) dist[p] = Math.min(dist[p], 10);
+    // demi-précision : le filtrage linéaire est garanti partout en WebGL2 (Safari compris), pas celui des flottants 32 bits
+    const tex = a => {
+      const h = new Uint16Array(a.length);
+      for (let p = 0; p < a.length; p++) h[p] = THREE.DataUtils.toHalfFloat(a[p]);
+      const t = new THREE.DataTexture(h, n, n, THREE.RedFormat, THREE.HalfFloatType);
+      t.magFilter = t.minFilter = THREE.LinearFilter; t.needsUpdate = true;
+      return t;
+    };
+    CONTACT.tSol.value?.dispose(); CONTACT.tDist.value?.dispose();
+    CONTACT.tSol.value = tex(alt); CONTACT.tDist.value = tex(dist);
+    CONTACT.grille.value.set(G.x0, n * c, 0);
+    CONTACT.contactActif.value = 1;
   }
 
   /** Les ombres portées sont à recalculer (soleil déplacé, couche affichée ou masquée). */
