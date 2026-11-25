@@ -331,8 +331,8 @@ scene.surTuilesSwiss = n => telechargement("swiss", n > 0 ? `Téléchargement de
 function choixBatiments() { return $("input[name=batiments]:checked")?.value || "releve"; }
 const NOTES = {
   releve: "", aucun: "",
-  swiss: "Modèles swisstopo : ils portent les ombres affichées ; les heures de soleil restent calculées avec le relevé.",
-  roofer: "roofer : ils portent les ombres affichées ; les heures de soleil restent calculées avec le relevé.",
+  swiss: "Swiss3D (swissBUILDINGS3D) : ils portent les ombres affichées ; les heures de soleil restent calculées avec le relevé.",
+  roofer: "Advanced (roofer, TU Delft) : ils portent les ombres affichées ; les heures de soleil restent calculées avec le relevé.",
 };
 function choixRoofer() {
   $("#bRoofer").disabled = !S.roofer;
