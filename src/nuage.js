@@ -1,21 +1,16 @@
 // Lecture du nuage de points swissSURFACE3D (COPC) : on ne télécharge que les blocs qui touchent la boîte,
-// jusqu'à la profondeur qui donne environ un point tous les 0,5 m.
+// jusqu'à la profondeur qui donne environ un point tous les 0,5 m. Les blocs sont téléchargés et décodés par
+// quelques fils de calcul (nuage.worker.js) : la page reste fluide pendant le chargement.
 import { Copc } from "copc";
-import { createLazPerf } from "laz-perf";
-import wasmUrl from "laz-perf/lib/web/laz-perf.wasm?url";
-
-let lazPerf;
-const decodeur = () => (lazPerf ||= createLazPerf({ locateFile: () => wasmUrl }));
 
 /** Classes swisstopo utiles : 2 sol, 3 végétation, 6 bâtiment, 9 eau, 17 pont ; le reste = autre. */
 export const CLASSES = { 2: "sol", 3: "végétation", 6: "bâtiment", 9: "eau", 17: "pont" };
 
 /**
  * Points de la boîte [e0, n0, e1, n1] (MN95). Retourne des tableaux typés relatifs à (E0, N0).
- * onProgres(fraction, texte) est appelé pendant le chargement.
+ * onProgres(fraction, texte) est appelé pendant le chargement. `signal` (AbortSignal) arrête les fils en cours.
  */
-export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, onProgres = () => {}) {
-  const lp = await decodeur();
+export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, onProgres = () => {}, signal = null) {
   const [e0, n0, e1, n1] = boite;
   const taches = [];
   for (const t of tuiles) {
@@ -39,22 +34,35 @@ export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, on
   const total = taches.reduce((s, t) => s + t.n.pointCount, 0);
   const X = new Float32Array(total), Y = new Float32Array(total), Z = new Float32Array(total), C = new Uint8Array(total);
   let n = 0, faits = 0;
-  // quelques téléchargements en parallèle
-  const file = [...taches];
-  const travail = async () => {
-    while (file.length) {
-      const { url, copc, n: noeud } = file.shift();
-      const v = await Copc.loadPointDataView(url, copc, noeud, { lazPerf: lp, include: ["X", "Y", "Z", "Classification"] });
-      const gx = v.getter("X"), gy = v.getter("Y"), gz = v.getter("Z"), gc = v.getter("Classification");
-      for (let i = 0; i < v.pointCount; i++) {
-        const x = gx(i), y = gy(i);
-        if (x < e0 || x >= e1 || y < n0 || y >= n1) continue;
-        X[n] = x - E0; Y[n] = y - N0; Z[n] = gz(i); C[n] = gc(i); n++;
+  // les plus gros blocs d'abord : les fils finissent à peu près ensemble
+  taches.sort((a, b) => b.n.pointCount - a.n.pointCount);
+  const nb = Math.min(6, Math.max(1, (navigator.hardwareConcurrency || 2) - 1), taches.length);
+  const fils = Array.from({ length: nb }, () => new Worker(new URL("./nuage.worker.js", import.meta.url), { type: "module" }));
+  const arreter = () => fils.forEach(w => w.terminate());
+  try {
+    await new Promise((ok, ko) => {
+      if (!taches.length) return ok();
+      let suivante = 0, restantes = taches.length;
+      signal?.addEventListener("abort", () => ko(new DOMException("Chargement annulé", "AbortError")), { once: true });
+      const donner = w => {
+        if (suivante >= taches.length) return;
+        const { url, copc, n: noeud } = taches[suivante];
+        w.postMessage({ id: suivante++, url, copc, noeud, boite, origine: [E0, N0] });
+      };
+      for (const w of fils) {
+        w.onerror = e => ko(new Error("Décodage du nuage : " + (e.message || "fil de calcul en échec")));
+        w.onmessage = ({ data }) => {
+          if (data.erreur) return ko(new Error(data.erreur));
+          X.set(data.X.subarray(0, data.n), n); Y.set(data.Y.subarray(0, data.n), n);
+          Z.set(data.Z.subarray(0, data.n), n); C.set(data.C.subarray(0, data.n), n);
+          n += data.n;
+          faits += taches[data.id].n.pointCount;
+          onProgres(faits / total, `Nuage de points : ${Math.round(faits / 1e3).toLocaleString("fr-CH")} k / ${Math.round(total / 1e3).toLocaleString("fr-CH")} k points`);
+          if (--restantes === 0) ok(); else donner(w);
+        };
+        donner(w);
       }
-      faits += noeud.pointCount;
-      onProgres(faits / total, `Nuage de points : ${Math.round(faits / 1e3).toLocaleString("fr-CH")} k / ${Math.round(total / 1e3).toLocaleString("fr-CH")} k points`);
-    }
-  };
-  await Promise.all([travail(), travail(), travail(), travail()]);
+    });
+  } finally { arreter(); }
   return { X: X.subarray(0, n), Y: Y.subarray(0, n), Z: Z.subarray(0, n), C: C.subarray(0, n), n };
 }

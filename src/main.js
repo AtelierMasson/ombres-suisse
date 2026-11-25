@@ -87,6 +87,7 @@ window.addEventListener("hashchange", depuisAdresse);
 // décor animé : un hameau inventé, le soleil qui passe, la vue qui tourne lentement
 function accueil() {
   tache++;
+  chargement?.abort();
   annulerCalcul();
   document.body.classList.add("accueil");
   $("#panneau").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
@@ -116,7 +117,7 @@ function quitterAccueil() {
 }
 
 /* ------------------------------------------------------------------ chargement d'un lieu */
-let tache = 0;
+let tache = 0, chargement = null; // `chargement` : arrêt des fils qui décodent le nuage quand on change de lieu
 function etat(f, texte) {
   $("#etat").hidden = f >= 1;
   $("#etatTexte").textContent = texte;
@@ -144,6 +145,7 @@ async function depuisAdresse() {
   const h = new URLSearchParams(location.hash.slice(1));
   if (!h.get("e")) return accueil();
   const E = +h.get("e"), N = +h.get("n"), id = ++tache;
+  chargement?.abort();
   annulerCalcul();
   quitterAccueil();
   $("#panneau").hidden = false; $("#commandes").hidden = true; $("#heures").hidden = true; $("#diagramme").hidden = $("#coupe").hidden = true;
@@ -181,7 +183,7 @@ async function depuisAdresse() {
     const copc = await tuilesNuage(boite);
     if (id !== tache) return;
     if (copc) {
-      nuage = await chargerNuage(copc, boite, [E0, N0], 0.5, (f, t) => id === tache && etat(0.05 + 0.7 * f, t));
+      nuage = await chargerNuage(copc, boite, [E0, N0], 0.5, (f, t) => id === tache && etat(0.05 + 0.7 * f, t), (chargement = new AbortController()).signal);
       if (id !== tache) return;
       etat(0.78, "Reconstruction du terrain, des bâtiments et des arbres…");
       await pause();
@@ -233,6 +235,7 @@ async function depuisAdresse() {
     $("#commandes").hidden = false; $("#diagramme").hidden = false;
     majSoleil();
   } catch (e) {
+    if (id !== tache) return; // lieu changé entre-temps : le chargement abandonné n'affiche rien
     console.error(e);
     etat(0, "Erreur : " + e.message);
     $("#etat").hidden = false;
