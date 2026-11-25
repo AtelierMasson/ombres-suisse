@@ -1,8 +1,11 @@
-// Comparaison : bâtiments reconstruits hors ligne par roofer (3DBAG, TU Delft) pour un lieu d'essai (Lutry).
+// Comparaison : bâtiments reconstruits hors ligne par roofer (3DBAG, TU Delft) pour des lieux d'essai (Lutry, Lausanne av. Floréal).
 // Le fichier contient des polygones (toits et murs) en MN95 relatives à son origine, altitudes absolues.
 import * as THREE from "three";
 
-const ESSAIS = [{ url: `${import.meta.env.BASE_URL}essais/roofer_lutry.json`, centre: [2542766, 1152300], rayon: 400 }];
+const ESSAIS = [
+  { url: `${import.meta.env.BASE_URL}essais/roofer_lutry.json`, centre: [2542766, 1152300], rayon: 400, nom: "Lutry" },
+  { url: `${import.meta.env.BASE_URL}essais/roofer_floreal.json`, centre: [2537679, 1151560], rayon: 400, nom: "Lausanne, av. Floréal" },
+];
 
 /** Essai roofer qui couvre le point (E, N), ou null. */
 export function essaiRoofer(E, N) {

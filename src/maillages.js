@@ -34,18 +34,29 @@ export function hauteurTerrain(G, i, j) {
   return u >= v ? z00 + u * (z(a + 1, b) - z00) + v * (z11 - z(a + 1, b)) : z00 + u * (z11 - z(a, b + 1)) + v * (z(a, b + 1) - z00);
 }
 
-/** Socle : bords verticaux du terrain jusqu'à une base plane, comme une maquette posée. */
+/**
+ * Socle : bords verticaux jusqu'à une base plane, comme une maquette posée. Là où un bâtiment touche le bord, la face
+ * monte jusqu'à son toit : la tranche du bâtiment coupé fait partie du socle (une seule masse).
+ */
 export function socle(G, zRef, zBas) {
-  const pas = 2, m = Math.floor(G.n / pas) + 1, pos = [];
-  const bord = [];
-  for (let a = 0; a < m; a++) bord.push([a, 0]);
-  for (let b = 1; b < m; b++) bord.push([m - 1, b]);
-  for (let a = m - 2; a >= 0; a--) bord.push([a, m - 1]);
-  for (let b = m - 2; b >= 0; b--) bord.push([0, b]);
-  const P = bord.map(([a, b]) => { const x = G.x0 + a * pas * G.c, y = G.x0 + b * pas * G.c; return [x, solEn(G, x, y) - zRef, -y]; });
-  for (let k = 0; k < P.length - 1; k++) {
-    const H = P[k], K = P[k + 1], Hb = [H[0], zBas, H[2]], Kb = [K[0], zBas, K[2]];
-    pos.push(...H, ...Hb, ...Kb, ...H, ...Kb, ...K);
+  const { n, c, x0, bat } = G, R = n * c / 2, pos = [];
+  // terrain du bord : comme le maillage du terrain (sommets tous les 1 m, interpolés entre deux)
+  const sol = (x, y) => {
+    const t = (v) => Math.floor((v - x0) / (2 * c)) * 2 * c + x0;
+    if (Math.abs(Math.abs(x) - R) < 1e-6) { const y0 = t(Math.min(y, R - 2 * c)), u = (y - y0) / (2 * c); return solEn(G, x, y0) * (1 - u) + solEn(G, x, y0 + 2 * c) * u; }
+    const xa = t(Math.min(x, R - 2 * c)), u = (x - xa) / (2 * c); return solEn(G, xa, y) * (1 - u) + solEn(G, xa + 2 * c, y) * u;
+  };
+  // les quatre côtés, cellule par cellule : [cellule (i, j), extrémités (x, y) du segment de bord]
+  const cotes = [];
+  for (let i = 0; i < n; i++) cotes.push([i, 0, x0 + i * c, -R, x0 + (i + 1) * c, -R]);
+  for (let j = 0; j < n; j++) cotes.push([n - 1, j, R, x0 + j * c, R, x0 + (j + 1) * c]);
+  for (let i = n - 1; i >= 0; i--) cotes.push([i, n - 1, x0 + (i + 1) * c, R, x0 + i * c, R]);
+  for (let j = n - 1; j >= 0; j--) cotes.push([0, j, -R, x0 + (j + 1) * c, -R, x0 + j * c]);
+  for (const [i, j, xa, ya, xb, yb] of cotes) {
+    const h = bat[j * n + i], za = sol(xa, ya), zb = sol(xb, yb);
+    const ha = isNaN(h) ? za : Math.max(za, h), hb = isNaN(h) ? zb : Math.max(zb, h);
+    const A = [xa, ha - zRef, -ya], B = [xb, hb - zRef, -yb], Ab = [xa, zBas, -ya], Bb = [xb, zBas, -yb];
+    pos.push(...A, ...Ab, ...Bb, ...A, ...Bb, ...B);
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));

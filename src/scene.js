@@ -387,7 +387,7 @@ export class Scene3D {
     const vieux = this.couches.roofer;
     if (vieux) { this.groupe.remove(vieux); vieux.geometry.dispose(); }
     this.couches.roofer = m;
-    if (m) this.groupe.add(m);
+    if (m) { this.groupe.add(m); this.appliquerCoupe(); }
     this.ombres();
   }
 
@@ -651,8 +651,12 @@ export class Scene3D {
       const R = this.G.R, boite = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), R));
       const avecBoite = [...boite, ...(plans || [])];
       for (const x of [this.swiss?.materiau, this.ao.normalMaterial]) if (x) { x.clippingPlanes = avecBoite; x.needsUpdate = true; }
+      // nos bâtiments (et roofer) : coupés 3 cm en retrait du bord, sinon les murs du bord sont dans le plan de la face
+      // du socle et leur partie enterrée apparaît en stries à travers elle
+      const dedans = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), R - 0.03));
+      for (const x of [m.toit, m.mur, c.roofer?.material]) if (x) { x.clippingPlanes = [...dedans, ...(plans || [])]; x.needsUpdate = true; }
     }
-    const cibles = [m.terrain, m.socle, m.toit, m.mur, m.canopee, m.couronne, m.parcelle];
+    const cibles = [m.terrain, m.socle, m.canopee, m.couronne, m.parcelle];
     for (const k of ["arbres", "facades", "tous"]) if (c[k]) cibles.push(c[k].material);
     c.heures?.traverse(o => o.material && cibles.push(o.material));
     for (const x of cibles) if (!!x.clippingPlanes !== !!plans) { x.clippingPlanes = plans; x.needsUpdate = true; }

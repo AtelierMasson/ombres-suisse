@@ -180,6 +180,7 @@ async function depuisAdresse() {
     scene.comparerSwiss($("#vSwiss").checked, { E: S.E0, N: S.N0 });
     S.roofer = essaiRoofer(E0, N0);
     $("#ligneRoofer").hidden = !S.roofer;
+    if (S.roofer) $("#nomRoofer").textContent = S.roofer.nom;
     comparerRoofer();
     appliquerAffichage();
     $("#vArbres").disabled = !nuage && !G.veg.some(v => !isNaN(v)); $("#vPoints").disabled = !nuage;
