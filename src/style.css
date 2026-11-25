@@ -60,7 +60,14 @@ body.accueil #haut .recherche { visibility: hidden; }
 #heureTexte { min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
 #bas { position: absolute; left: 12px; right: 12px; bottom: 36px; z-index: 5; display: flex; gap: 12px; justify-content: flex-end; align-items: flex-end; pointer-events: none; }
 #bas > * { pointer-events: auto; }
-#diagramme { margin: 2px -4px 8px; }
+#diagramme { margin: 2px -4px 8px; position: relative; }
+#diagramme .coin { position: absolute; top: 0; display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px;
+  border: 1px solid var(--bord-fort); background: color-mix(in srgb, var(--carte) 85%, transparent); color: var(--texte); font-size: 11.5px; line-height: 1.4; cursor: pointer; }
+#diagramme .coin:hover { border-color: var(--accent); }
+#diagramme .coin-gauche { left: 30px; font-size: 10px; }
+#diagramme .coin-droit { right: 4px; overflow: hidden; }
+#diagramme .coin-droit input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+#diagramme .coin-droit input::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer; }
 #diagramme .legende { font-size: 10.5px; }
 #coupe { flex: 1 1 0; min-width: 0; }
 #svgCoupe { display: block; margin: 0 auto; max-width: 100%; }

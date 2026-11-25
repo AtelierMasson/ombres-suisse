@@ -64,25 +64,16 @@
         <div class="titre">Soleil <span class="text-secondary fw-normal text-lowercase" id="horizonTexte"></span></div>
         <div id="diagramme" hidden>
           <svg id="svgSoleil" aria-label="Course du soleil et horizon : cliquez ou glissez pour choisir l'heure"></svg>
+          <!-- coins du graphique : animation de la journée, et petit calendrier (le champ date, transparent, couvre le bouton) -->
+          <button type="button" class="coin coin-gauche" id="btnLecture" title="Animer la journée">▶</button>
+          <label class="coin coin-droit" title="Choisir le jour">
+            <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><rect x="1.5" y="3" width="13" height="11.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 6.5h13M5 1.5v3M11 1.5v3" stroke="currentColor" stroke-width="1.4"/></svg>
+            <span id="jourTexte"></span>
+            <input type="date" id="jour" aria-label="Date">
+          </label>
           <div class="legende small text-secondary"><span class="l-relief"></span>Relief jusqu'à 50 km <span class="l-course"></span>Ce jour <span class="l-saison"></span>21 juin / 21 déc.</div>
-        </div>
-        <div class="bloc-date">
-          <input type="date" id="jour" class="form-control form-control-sm" aria-label="Date">
-          <div class="btn-group btn-group-sm w-100" role="group">
-            <button type="button" class="btn btn-outline-secondary" data-jour="12-21">21 déc.</button>
-            <button type="button" class="btn btn-outline-secondary" data-jour="03-20">20 mars</button>
-            <button type="button" class="btn btn-outline-secondary" data-jour="06-21">21 juin</button>
-            <button type="button" class="btn btn-outline-secondary" data-jour="auj">Auj.</button>
-          </div>
-        </div>
-        <div class="bloc-heure">
-          <div class="d-flex align-items-center gap-2">
-            <button class="btn btn-sm btn-primary" id="btnLecture" title="Animer la journée">▶</button>
-            <input type="range" id="heure" class="form-range" min="0" max="1439" step="5" aria-label="Heure" hidden>
-            <span class="small text-secondary flex-grow-1">Glissez sur la course du soleil</span>
-            <span class="fw-semibold" id="heureTexte"></span>
-          </div>
-          <div class="small" id="soleilTexte"></div>
+          <input type="range" id="heure" min="0" max="1439" step="5" aria-label="Heure" hidden>
+          <span id="heureTexte" hidden></span><span id="soleilTexte" hidden></span>
         </div>
       </section>
 

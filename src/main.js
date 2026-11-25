@@ -263,6 +263,7 @@ function soleilActuel() {
 }
 function majSoleil() {
   $("#jour").value = S.jour;
+  $("#jourTexte").textContent = new Date(S.jour + "T12:00").toLocaleDateString("fr-CH", { day: "numeric", month: "short", year: "numeric" });
   $("#heure").value = S.minutes;
   $("#heureTexte").textContent = hhmm(S.minutes);
   if (S.lat == null) return;
