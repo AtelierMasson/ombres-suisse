@@ -85,6 +85,7 @@ npm run build      # site statique dans dist/, à publier tel quel
 | `src/ensoleillement.worker.js` | Lancer de rayons dans la grille (Web Workers, plusieurs fils) |
 | `src/coupe.js` | Coupe : profil le long de la ligne, tranche 3D, dessin 2D |
 | `src/swiss3d.js` | Comparaison : bâtiments 3D swisstopo (swissBUILDINGS3D, tuiles 3D publiques), calés sur notre terrain |
+| `src/roofer.js` | Comparaison (essai Lutry) : bâtiments LoD2.2 reconstruits hors ligne par roofer (TU Delft) à partir des emprises officielles vaudoises et du nuage 2025 (`public/essais/roofer_lutry.json`) |
 | `src/diagramme.js` | Diagramme horizon + course du soleil |
 | `src/demo.js` | Hameau inventé de l'écran d'accueil |
 

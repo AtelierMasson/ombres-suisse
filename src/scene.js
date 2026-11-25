@@ -384,6 +384,15 @@ export class Scene3D {
     this.demander(5);
   }
 
+  /** Couche de comparaison roofer (maillage préparé par roofer.js), ou null pour l'enlever. */
+  afficherRoofer(m) {
+    const vieux = this.couches.roofer;
+    if (vieux) { this.groupe.remove(vieux); vieux.geometry.dispose(); }
+    this.couches.roofer = m;
+    if (m) this.groupe.add(m);
+    this.ombres();
+  }
+
   /** Couronnes à refaire (couleurs du thème changées). */
   refaireCouronnes() {
     const o = this.couches.couronnes;

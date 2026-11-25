@@ -4,6 +4,8 @@ import { chercher, parcelleEn, tuilesNuage, tuilesGrille, versWgs } from "./geo.
 import { chargerNuage } from "./nuage.js";
 import { depuisPoints, depuisRasters } from "./grille.js";
 import { Scene3D } from "./scene.js";
+import { essaiRoofer, maillageRoofer } from "./roofer.js";
+import * as THREE from "three";
 import { positionSoleil, directionSoleil, dateA } from "./soleil.js";
 import { profilHorizon, horizonA } from "./horizon.js";
 import { dessinerDiagramme, soleilVisible, heureSousPointeur } from "./diagramme.js";
@@ -174,6 +176,9 @@ async function depuisAdresse() {
     scene.typeFond = $("input[name=fond]:checked").value;
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite) });
     scene.comparerSwiss($("#vSwiss").checked, { lon: S.lon, lat: S.lat });
+    S.roofer = essaiRoofer(E0, N0);
+    $("#ligneRoofer").hidden = !S.roofer;
+    comparerRoofer();
     appliquerAffichage();
     $("#vArbres").disabled = !nuage && !G.veg.some(v => !isNaN(v)); $("#vPoints").disabled = !nuage;
     const nf = scene.couches.facades?.geometry.attributes.position.count || 0;
@@ -255,6 +260,14 @@ function appliquerAffichage() {
   scene.ombres();
 }
 ["#vBati", "#vArbres", "#vFacades", "#vPoints", "#vHeures"].forEach(s => $(s).addEventListener("change", appliquerAffichage));
+// comparaison roofer : seulement là où un essai a été calculé hors ligne (Lutry)
+const matRoofer = new THREE.MeshStandardMaterial({ color: "#d8b4e2", roughness: 0.9, side: THREE.DoubleSide, flatShading: true });
+async function comparerRoofer() {
+  if (!S.roofer || !$("#vRoofer").checked) { scene.afficherRoofer(null); return; }
+  const lieu = S.E0, m = await maillageRoofer(S.roofer, [S.E0, S.N0], scene.zRef, matRoofer);
+  if (lieu === S.E0 && $("#vRoofer").checked) scene.afficherRoofer(m);
+}
+$("#vRoofer").addEventListener("change", comparerRoofer);
 $("#vSwiss").addEventListener("change", e => scene.comparerSwiss(e.target.checked, S.lon != null ? { lon: S.lon, lat: S.lat } : null));
 // style des toits, mémorisé : grille du relevé (par défaut) ou pans plans, pour comparer
 try { const s = localStorage.getItem("ombres.toits"); if (s) $(`input[name=toits][value=${s}]`).checked = true; } catch { /* idem */ }
