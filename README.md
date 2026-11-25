@@ -18,9 +18,8 @@ gratuitement (GitHub Pages, Cloudflare Pages…).
    forme des toits mesurés), arbres (canopée).
 5. **Bâtiments aux murs droits** : chaque bâtiment est découpé en volumes de hauteur continue (corps principal,
    annexe, lucarne), le contour de chaque volume est simplifié en côtés droits et redressé selon l'orientation
-   dominante ; les murs sont des plans verticaux, sans l'effet d'escalier de la grille. Les toits gardent par défaut
-   les hauteurs du relevé (« Toits : relevé ») ; l'option « Toits : pans » les remplace par des pans plans dont les
-   arêtes (faîtage, arêtier, noue) suivent la direction des façades, et les murs montent jusqu'à ces pans.
+   dominante ; les murs sont des plans verticaux, sans l'effet d'escalier de la grille. Les toits gardent
+   les hauteurs du relevé. (Un essai de pans plans dans l'axe des façades reste dans `src/pans.js`, sans option visible.)
 6. **Ombres** à la date et à l'heure choisies (animation de la journée), avec occlusion ambiante (large, en demi-résolution), un rebond de lumière calculé à l'écran (`src/rebond.js`), ciel en dégradé,
    brume légère et ombres adoucies. Un interrupteur « Effets de lumière » les coupe ; ils se réduisent tout seuls
    si l'affichage devient lent.
@@ -39,10 +38,8 @@ gratuitement (GitHub Pages, Cloudflare Pages…).
     partie devant le plan est masquée, les surfaces tranchées sont pochées avec un trait épais ; le profil 2D
     indique altitudes, limites de parcelle, arbres et rayon du soleil à l'heure choisie. Terrain et bâtiments coupés forment
     une seule masse (même couleur, un seul trait de coupe).
-12. **Vue depuis la parcelle** à 1,70 m.
 13. **Thèmes** à comparer en direct (boutons en haut à droite, choix mémorisé, ou `?theme=` dans l'adresse) :
-    `maquette` (blanc cassé, panneau classique), `alpage` (sable et vert sapin, cartes flottantes), `nuit` (sombre,
-    panneau compact à droite), `atelier` (terre cuite, panneau fixe et barre du temps au-dessus de la vue).
+    un bouton bascule entre le mode jour (`maquette`, blanc cassé) et le mode nuit (`nuit`, bleu sombre).
     Chaque thème règle l'interface et la scène : ciel, bâtiments, terrain, parcelle, arbres, carte des heures, coupe.
 
 **Repli** : là où le relevé laser récent n'est pas encore publié en COPC (vols plus anciens livrés en gros fichiers),
@@ -52,7 +49,7 @@ moins nets, pas de points de façade.
 
 **Comparaison** : la case « Comparer : bâtiments 3D swisstopo » affiche les bâtiments tout faits de
 swissBUILDINGS3D (tuiles 3D de geo.admin.ch, décodeur Draco servi depuis `public/draco/`). Ils portent leurs ombres ;
-décocher « Bâtiments » pour ne voir qu'eux. Leur hauteur est calée sur nos toits (médiane des écarts, de l’ordre de 0,1 m).
+décocher « Bâtiments » pour ne voir qu'eux. Ils sont tournés de la convergence des méridiens (le nord MN95 n’est pas le nord géographique, ≈ 0,5° à Lausanne) et calés sur nos toits (décalage de ±2 m au plus en plan, médiane des écarts en hauteur).
 Le diagramme solaire est cliquable : un clic ou un glissé sur la course place le soleil à l'heure correspondante.
 Bâtiments, sol et toits ont la même couleur et la même trame de cases de 0,5 m (aspect maquette).
 
@@ -73,7 +70,7 @@ npm run build      # site statique dans dist/, à publier tel quel
 | `src/nuage.js` | Lecture partielle du nuage COPC (copc.js + laz-perf en WebAssembly) |
 | `src/grille.js` | Grilles 0,5 m : sol, bâtiments, arbres, surface ; repli raster (geotiff.js) |
 | `src/contours.js` | Volumes et contours des bâtiments : côtés droits, angles redressés |
-| `src/pans.js` | Option « Toits : pans » : pans de toit plans par volume, arêtes dans l'axe des façades |
+| `src/pans.js` | Essai (sans option visible) : pans de toit plans par volume, arêtes dans l'axe des façades |
 | `src/maillages.js` | Géométries : terrain et socle, toits et murs, canopée, nuages de points, limite de parcelle |
 | `src/scene.js` | Scène three.js : lumières, ciel, ombres, occlusion ambiante, fond de plan, plan de coupe |
 | `src/rebond.js` | Un rebond de lumière (éclairage indirect) à l'écran, après l'occlusion ambiante |
@@ -93,9 +90,6 @@ npm run build      # site statique dans dist/, à publier tel quel
 
 - Les bâtiments sont reconstruits en 2,5D (hauteur par cellule de 0,5 m) : pas d'avant-toits ni de passages couverts.
   Les murs sont à l'aplomb du bord du toit : les façades réelles sont souvent en retrait de l'avant-toit.
-- « Toits : pans » : un plan par pan, ajusté sur la grille ; cheminées, petites lucarnes et toits courbes ne sont pas
-  rendus, et un volume trop irrégulier (résidu moyen > 0,4 m : grands îlots, repli raster) garde la grille. Les
-  ombres et les heures de soleil restent calculées dans la grille, quel que soit le style choisi.
 - Le relevé est aérien : environ 1 point par m² sur les façades (contre ~17 sur les toits), très inégalement
   répartis. C'est trop peu pour reconstruire les murs à partir des points ; ils sont seulement affichés.
 - Les heures de soleil sont calculées dans la grille de 0,5 m (et non sur les murs redressés) : écart possible

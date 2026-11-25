@@ -10,14 +10,23 @@ export function urlFond(couche, [e0, n0, e1, n1], px = 2048) {
 }
 export const COUCHES = { cadastre: "ch.kantone.cadastralwebmap-farbe", ortho: "ch.swisstopo.swissimage" };
 
-export function chargerImage(url) {
-  return new Promise((ok, ko) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous"; // nécessaire pour relire les pixels (reteinte) et pour WebGL
-    img.onload = () => ok(img);
-    img.onerror = () => ko(new Error("Fond de plan indisponible"));
-    img.src = url;
-  });
+/** Image du service WMS, avec deux nouvelles tentatives (la dernière hors cache) : un échec ponctuel du réseau
+ * ou du service laissait sinon le terrain uni. */
+export async function chargerImage(url, essais = 3) {
+  for (let k = 1; ; k++) {
+    try {
+      return await new Promise((ok, ko) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous"; // nécessaire pour relire les pixels (reteinte) et pour WebGL
+        img.onload = () => ok(img);
+        img.onerror = () => ko(new Error("Fond de plan indisponible"));
+        img.src = k < essais ? url : `${url}&essai=${Date.now()}`;
+      });
+    } catch (e) {
+      if (k >= essais) throw e;
+      await new Promise(r => setTimeout(r, 600 * k));
+    }
+  }
 }
 
 const rvb = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];

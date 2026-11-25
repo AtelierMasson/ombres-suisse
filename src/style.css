@@ -105,24 +105,7 @@ body:not(.accueil) #accueil { display: none; }
 .atouts svg { width: 26px; height: 26px; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .atouts b { display: block; color: var(--texte); font-size: 13px; }
 
-/* ---------- Thème « Alpage » : sable et vert sapin, tout flotte au-dessus de la vue ---------- */
-body[data-theme=alpage] {
-  --barre: rgba(252, 249, 240, .82); --carte: #fcf9f0; --texte: #22332b; --doux: #647268; --bord: #e3dcc8; --bord-fort: #c9c0a6;
-  --accent: #2f6b4f; --accent-fonce: #1f4d3a; --accent-clair: #e3efe2; --rayon: 18px; --ombre: 0 10px 34px rgba(34, 51, 43, .16);
-  --relief: #9aa58d; --relief-trait: #66725e; --course: #d9480f; --grille: #e6e0cf; --astre: #ffd24a; --haut: 58px;
-  --coupe-bati: #2f5d49; --coupe-terrain: #cdbf9c; --coupe-trait: #1f3b2f; --coupe-arbres: #8fbf78; --parcelle: #d9480f;
-  background: #e2ece2;
-}
-body[data-theme=alpage] #vue { top: 0; }
-body[data-theme=alpage] #haut { top: 10px; left: 12px; right: 12px; height: 48px; background: none; border: 0; padding: 0; pointer-events: none; }
-body[data-theme=alpage] #haut > * { pointer-events: auto; }
-body[data-theme=alpage] #haut .marque, body[data-theme=alpage] #themes { height: 44px; padding: 0 16px; border-radius: 999px; background: var(--barre); border: 1px solid var(--bord); box-shadow: var(--ombre); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-body[data-theme=alpage] #themes { align-items: center; padding: 0 8px; }
-body[data-theme=alpage] #haut .recherche .form-control { height: 44px; border-radius: 999px; padding-left: 18px; box-shadow: var(--ombre); border-color: var(--bord); }
-body[data-theme=alpage] #panneau, body[data-theme=alpage] #bas .card { background: color-mix(in srgb, var(--carte) 84%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
-body[data-theme=alpage] .btn-group > .btn { --bs-btn-border-radius: 999px; }
-
-/* ---------- Thème « Nuit bleue » : sombre, panneau compact à droite ---------- */
+/* ---------- Mode nuit (« Nuit bleue ») : mêmes emplacements que le jour, couleurs sombres ---------- */
 body[data-theme=nuit] {
   --barre: rgba(13, 22, 38, .88); --carte: #14213a; --texte: #e6ecf5; --doux: #9aa9c0; --bord: #263756; --bord-fort: #3a4d70;
   --accent: #ffb84d; --accent-fonce: #f09a1a; --accent-clair: #2a3654; --sur-accent: #1a1206; --rayon: 8px; --ombre: 0 10px 34px rgba(0, 0, 0, .45); --large: 292px;
@@ -130,49 +113,16 @@ body[data-theme=nuit] {
   --coupe-bati: #c9d3e3; --coupe-terrain: #55627c; --coupe-trait: #ffb84d; --coupe-arbres: #4fa39a; --parcelle: #ffb84d;
   background: #0f1a2e; font-size: 13px;
 }
-body[data-theme=nuit] #vue { top: 0; }
 body[data-theme=nuit] #haut { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-body[data-theme=nuit] #panneau { left: auto; right: 12px; }
-body[data-theme=nuit] #panneau .card-body { padding: 12px; }
-body[data-theme=nuit] #commandes section { margin-top: 9px; padding-top: 8px; }
-body[data-theme=nuit] #bas { left: 12px; right: calc(var(--large) + 24px); flex-direction: row-reverse; }
 body[data-theme=nuit] .badge.text-bg-light { background: #263756 !important; color: var(--texte) !important; }
 body[data-theme=nuit] .carte-accueil { box-shadow: 0 18px 60px rgba(0, 0, 0, .5); }
 body[data-theme=nuit] #message { background: #3a2f12; color: #ffe2a8; border-color: #6b5417; }
-
-/* ---------- Thème « Terre cuite » : panneau fixe pleine hauteur, barre du temps au-dessus de la vue ---------- */
-body[data-theme=atelier] {
-  --barre: #fbf5ee; --carte: #fffaf4; --texte: #3a2a25; --doux: #7d675e; --bord: #ead9cb; --bord-fort: #d3bba9;
-  --accent: #b5533c; --accent-fonce: #8f3b28; --accent-clair: #f6e3d8; --rayon: 6px; --ombre: 0 6px 22px rgba(58, 42, 37, .14); --large: 336px;
-  --relief: #b39a8c; --relief-trait: #7d675e; --course: #b5533c; --grille: #eddccf; --astre: #f3c14b;
-  --coupe-bati: #7c3a2b; --coupe-terrain: #d6bfae; --coupe-trait: #3a2420; --coupe-arbres: #a3ad6a; --parcelle: #0b7285;
-  background: #f1e3d6;
-}
-@media (min-width: 801px) {
-  body[data-theme=atelier]:not(.accueil) #vue { left: var(--large); }
-  body[data-theme=atelier] #panneau { top: var(--haut); left: 0; bottom: 0; max-height: none; border-radius: 0; border-width: 0 1px 0 0; box-shadow: none; }
-  body[data-theme=atelier]:not(.accueil) #pied { left: calc(var(--large) + 12px); max-width: calc(100% - var(--large) - 24px); }
-  body[data-theme=atelier] #bas { left: calc(var(--large) + 12px); }
-  body[data-theme=atelier] #temps { position: fixed; top: calc(var(--haut) + 12px); left: calc(var(--large) + (100vw - var(--large)) / 2); transform: translateX(-50%); z-index: 6;
-    width: min(760px, calc(100vw - var(--large) - 40px)); display: flex; align-items: center; gap: 16px; margin: 0; padding: 8px 14px;
-    background: var(--carte); border: 1px solid var(--bord); border-radius: 999px; box-shadow: var(--ombre); }
-  body[data-theme=atelier] #temps .titre { display: none; }
-  body[data-theme=atelier] #temps .bloc-date { display: flex; align-items: center; gap: 8px; flex: none; }
-  body[data-theme=atelier] #temps .bloc-date .btn-group { margin: 0; width: auto !important; }
-  body[data-theme=atelier] #temps .bloc-date input { width: 132px; }
-  body[data-theme=atelier] #temps .bloc-heure { flex: 1; min-width: 0; margin: 0; display: flex; flex-direction: column; }
-  body[data-theme=atelier] #temps #soleilTexte { font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  body[data-theme=atelier] #commandes section:nth-of-type(2) { border-top: 0; margin-top: 4px; }
-  body[data-theme=atelier] #message { top: calc(var(--haut) + 92px); left: calc(var(--large) + (100vw - var(--large)) / 2); }
-}
 
 @media (max-width: 1150px) {
   #themes button:not(.actif) span { display: none; }
   #themes button:not(.actif) { padding: 3px 4px; }
   #bas { flex-direction: column; align-items: flex-end; }
-  body[data-theme=nuit] #bas { flex-direction: column; align-items: flex-start; }
   #coupe { flex: none; width: min(100%, 560px); }
-  body[data-theme=atelier] #temps .bloc-date .btn-group { display: none; }
 }
 @media (max-width: 800px) {
   #haut .marque { font-size: 0; gap: 0; }

@@ -18,7 +18,7 @@
     <input id="q" class="form-control" type="search" placeholder="Adresse ou parcelle en Suisse (ex. « Lutry 3947 »)" autocomplete="off">
     <div class="suggestions list-group position-absolute w-100 shadow" hidden></div>
   </div>
-  <div id="themes" role="group" aria-label="Thème d'affichage"></div>
+  <div id="themes" role="group" aria-label="Mode jour ou nuit"></div>
 </nav>
 
 <section id="accueil">
@@ -96,14 +96,9 @@
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vBati" checked><label class="form-check-label small" for="vBati">Bâtiments</label></div>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vSwiss"><label class="form-check-label small" for="vSwiss">Comparer : bâtiments 3D swisstopo <span class="text-secondary">(swissBUILDINGS3D)</span></label></div>
         <div class="form-check form-switch" id="ligneRoofer" hidden><input class="form-check-input" type="checkbox" id="vRoofer"><label class="form-check-label small" for="vRoofer">Comparer : roofer <span class="text-secondary">(TU Delft, LoD2.2, mauves — essai Lutry)</span></label></div>
-        <div class="btn-group btn-group-sm w-100 mb-2" role="group" aria-label="Style des toits">
-          <input type="radio" class="btn-check" name="toits" id="tPans" value="pans"><label class="btn btn-outline-secondary" for="tPans" title="Pans plans, arêtes dans l'axe des façades">Toits : pans</label>
-          <input type="radio" class="btn-check" name="toits" id="tReleve" value="releve" checked><label class="btn btn-outline-secondary" for="tReleve" title="Hauteurs du relevé laser, cellule par cellule">Toits : relevé</label>
-        </div>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vArbres" checked><label class="form-check-label small" for="vArbres">Arbres</label></div>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vFacades"><label class="form-check-label small" for="vFacades">Points mesurés sur les façades <span class="text-secondary" id="nbFacades"></span></label></div>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPoints"><label class="form-check-label small" for="vPoints">Nuage de points brut</label></div>
-        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPieton"><label class="form-check-label small" for="vPieton">Vue depuis la parcelle (1,70 m)</label></div>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vEffets" checked><label class="form-check-label small" for="vEffets">Effets de lumière <span class="text-secondary">(à couper si l'affichage est lent)</span></label></div>
       </section>
 

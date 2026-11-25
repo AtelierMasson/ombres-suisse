@@ -9,7 +9,7 @@ import * as THREE from "three";
 import { positionSoleil, directionSoleil, dateA } from "./soleil.js";
 import { profilHorizon, horizonA } from "./horizon.js";
 import { dessinerDiagramme, soleilVisible, heureSousPointeur } from "./diagramme.js";
-import { THEMES, themeInitial, appliquerTheme } from "./themes.js";
+import { themeInitial, appliquerTheme } from "./themes.js";
 import { urlFond, COUCHES } from "./fond.js";
 import { zoneHeures, soleilsPeriode, carreauxFacades, maillagesHeures } from "./heures.js";
 import { profilCoupe, dessinerCoupe } from "./coupe.js";
@@ -33,13 +33,13 @@ function message(texte, tenir = 6000) {
 }
 
 /* ------------------------------------------------------------------ thèmes */
-$("#themes").innerHTML = Object.entries(THEMES).map(([id, t]) =>
-  `<button type="button" data-id="${id}" title="${t.nom} — ${t.resume}"><i style="background:linear-gradient(135deg, ${t.pastilles[0]} 0 50%, ${t.pastilles[1]} 50% 100%); border-color:${t.pastilles[2]}"></i><span>${t.nom}</span></button>`).join("");
-function marquerTheme() { $$("#themes button").forEach(b => b.classList.toggle("actif", b.dataset.id === document.body.dataset.theme)); }
-$("#themes").addEventListener("click", e => {
-  const b = e.target.closest("[data-id]");
-  if (!b) return;
-  T = appliquerTheme(b.dataset.id);
+// mode jour (maquette claire) / nuit (bleu sombre) : un seul bouton
+function marquerTheme() {
+  const nuit = document.body.dataset.theme === "nuit";
+  $("#themes").innerHTML = `<button type="button" class="actif" title="${nuit ? "Passer en mode jour" : "Passer en mode nuit"}">${nuit ? "☀︎ Mode jour" : "☾ Mode nuit"}</button>`;
+}
+$("#themes").addEventListener("click", () => {
+  T = appliquerTheme(document.body.dataset.theme === "nuit" ? "maquette" : "nuit");
   marquerTheme();
   scene.appliquerTheme(T);
   if (S.resultat) afficherResultat();
@@ -168,7 +168,7 @@ async function depuisAdresse() {
     $("#source").textContent = source;
     [S.lon, S.lat] = versWgs(E0, N0);
     Object.assign(S, { E0, N0, parcelle: rel, G, horizon: null, zone: null, facades: null, resultat: null, coupe: null, heuresDemandees: false });
-    $("#vCoupe").checked = false; $("#outilsCoupe").hidden = true; $("#vPieton").checked = false;
+    $("#vCoupe").checked = false; $("#outilsCoupe").hidden = true;
     $("#btnHeures").textContent = "Calculer les heures de soleil";
     etat(0.85, "Construction de la scène 3D…");
     await pause();
@@ -177,7 +177,7 @@ async function depuisAdresse() {
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite) });
     // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
     scene.surligner(rel, h.get("t") === "Adresse" ? [E - E0, N - N0] : null);
-    scene.comparerSwiss($("#vSwiss").checked, { lon: S.lon, lat: S.lat });
+    scene.comparerSwiss($("#vSwiss").checked, { E: S.E0, N: S.N0 });
     S.roofer = essaiRoofer(E0, N0);
     $("#ligneRoofer").hidden = !S.roofer;
     comparerRoofer();
@@ -270,21 +270,9 @@ async function comparerRoofer() {
   if (lieu === S.E0 && $("#vRoofer").checked) scene.afficherRoofer(m);
 }
 $("#vRoofer").addEventListener("change", comparerRoofer);
-$("#vSwiss").addEventListener("change", e => scene.comparerSwiss(e.target.checked, S.lon != null ? { lon: S.lon, lat: S.lat } : null));
-// style des toits, mémorisé : grille du relevé (par défaut) ou pans plans, pour comparer
-try { const s = localStorage.getItem("ombres.toits"); if (s) $(`input[name=toits][value=${s}]`).checked = true; } catch { /* idem */ }
-scene.toits = $("input[name=toits]:checked")?.value || "releve";
-$$("input[name=toits]").forEach(b => b.addEventListener("change", () => {
-  try { localStorage.setItem("ombres.toits", b.value); } catch { /* idem */ }
-  if (!scene.styleToits(b.value) || !S.G) return;
-  // murs et toits ont changé de hauteur : la coupe et la carte des heures se recalent
-  S.facades = null;
-  if (S.coupe) majCoupe(S.coupe.A, S.coupe.B);
-  if (S.heuresDemandees) calculerHeures(); else scene.afficherHeures(null);
-}));
+$("#vSwiss").addEventListener("change", e => scene.comparerSwiss(e.target.checked, S.E0 != null ? { E: S.E0, N: S.N0 } : null));
 $$("input[name=fond]").forEach(b => b.addEventListener("change", () => scene.fond(b.value)));
 scene.surFondAbsent = type => message(type === "ortho" ? "Photo aérienne indisponible pour le moment." : "Plan cadastral indisponible ici : terrain uni.");
-$("#vPieton").addEventListener("change", e => scene.vuePieton(e.target.checked));
 $("#vEffets").addEventListener("change", e => scene.reglerEffets(e.target.checked));
 scene.surQualite = q => {
   if (q < 2) return;
