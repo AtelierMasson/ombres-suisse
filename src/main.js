@@ -172,6 +172,12 @@ async function depuisAdresse() {
 
     etat(0.05, "Recherche du relevé laser…");
     let G, nuage = null, source;
+    // relief lointain : ses tuiles se téléchargent pendant le chargement du relevé ; l'altitude de l'observateur
+    // (connue une fois le terrain reconstruit) lui est donnée plus bas
+    let donnerAltitude, horizonFini = 0;
+    const horizon = profilHorizon(E0, N0, new Promise(r => donnerAltitude = r), { rayonProche: R, onProgres: f => horizonFini = f });
+    horizon.catch(() => {}); // l'erreur éventuelle est traitée à l'attente, plus bas
+
     const copc = await tuilesNuage(boite);
     if (id !== tache) return;
     if (copc) {
@@ -219,8 +225,9 @@ async function depuisAdresse() {
     $("#vFacades").disabled = !nf; if (!nf) $("#vFacades").checked = false;
     $("#nbFacades").textContent = nf ? `(${nf.toLocaleString("fr-CH")})` : nuage ? "(aucun ici)" : "(relevé non disponible)";
 
-    etat(0.9, "Relief lointain (montagnes)…");
-    S.horizon = await profilHorizon(E0, N0, scene.zRef + 1.7, { rayonProche: R, onProgres: (f, t) => id === tache && etat(0.9 + 0.1 * f, t) });
+    donnerAltitude(scene.zRef + 1.7);
+    if (horizonFini < 1) etat(0.9 + 0.1 * horizonFini, "Relief lointain (montagnes)…");
+    S.horizon = await horizon;
     if (id !== tache) return;
     etat(1, "");
     $("#commandes").hidden = false; $("#diagramme").hidden = false;

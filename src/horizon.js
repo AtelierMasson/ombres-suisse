@@ -31,6 +31,8 @@ const versTuile = (lon, lat, z) => {
 /**
  * Profil d'horizon vu depuis (E, N, altitude) : hauteur angulaire (degrés) tous les `pas` degrés d'azimut.
  * Le relief à moins de `rayonProche` m est ignoré (il vient du nuage de points).
+ * `alt` peut être une promesse : les tuiles sont alors téléchargées sans attendre l'altitude de l'observateur
+ * (elle n'est connue qu'une fois le terrain reconstruit), qui ne sert qu'au calcul final.
  */
 export async function profilHorizon(E, N, alt, { pas = 1, rayonProche = 150, rayonMax = 50000, onProgres = () => {} } = {}) {
   const za = 10, zp = 12; // tuile grossière au loin, plus fine jusqu'à 6 km
@@ -56,6 +58,7 @@ export async function profilHorizon(E, N, alt, { pas = 1, rayonProche = 150, ray
     try { tuiles.set(k, await tuile(z, x, y)); } catch { /* hors couverture : ignoré */ }
     onProgres(++faits / liste.length, `Relief lointain : ${faits} / ${liste.length} tuiles`);
   }));
+  alt = await alt;
   const R = 6371000, k = 0.13; // courbure de la Terre et réfraction
   const profil = new Float32Array(nA).fill(-5);
   for (let q = 0; q < echant.length; q += 5) {
