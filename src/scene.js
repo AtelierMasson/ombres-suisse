@@ -430,9 +430,13 @@ export class Scene3D {
     u.soleil.value.copy(d).normalize();
     u.force.value = visible ? 1 : 0;
     this.scene.fog.color.copy(u.horizon.value);
-    for (const k of ["arbres", "facades", "tous"]) {
-      const u = this.couches[k]?.material.uniforms;
-      if (u) { u.lum.value = 0.45 + 0.55 * jour; u.ombre.value = visible ? 0.5 : 1; } // soleil caché : pas d'ombre portée
+    // les points ne sont pas éclairés par three.js : leur luminosité suit la lumière présente (ciel + soleil), rapportée
+    // à celle d'un jour clair, comme pour les surfaces ; à l'ombre, ils ne gardent que la part du ciel
+    const k = 0.55, jourClair = 1.1 + 2.6 * k, total = this.ciel.intensity + this.soleil.intensity * k;
+    for (const c of ["arbres", "facades", "tous"]) {
+      const u = this.couches[c]?.material.uniforms;
+      const f = Math.min(1, total / jourClair);
+      if (u) { u.lum.value = Math.max(0.04, f ** 1.5); u.gris.value = 0.7 * (1 - f) ** 2; u.ombre.value = visible ? this.ciel.intensity / total : 1; }
     }
     this.ombres();
   }

@@ -214,7 +214,7 @@ void main() {
   #include <fog_vertex>
 }`;
 const FRAGMENTS = /* glsl */`
-uniform float lum, relief, ombre;
+uniform float lum, relief, ombre, gris;
 varying vec3 vCouleur;
 #include <common>
 #include <packing>
@@ -230,7 +230,9 @@ void main() {
   if (r2 > 1.0) discard; // point rond
   // dans l'ombre portée (bâtiments, autres arbres, sa propre couronne) : même assombrissement que le sol
   float soleil = mix(ombre, 1.0, getShadowMask());
-  gl_FragColor = vec4(vCouleur * (1.0 - relief * (0.3 * r2 + 0.12 * p.y)) * lum * soleil, 1.0);
+  // crépuscule et nuit : couleurs désaturées (vision de nuit), en plus de l'assombrissement
+  vec3 c = mix(vCouleur, vec3(dot(vCouleur, vec3(0.2126, 0.7152, 0.0722))), gris);
+  gl_FragColor = vec4(c * (1.0 - relief * (0.3 * r2 + 0.12 * p.y)) * lum * soleil, 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
   #include <fog_fragment>
@@ -240,7 +242,7 @@ void main() {
 export function materiauPoints(taille, parClasse = false) {
   return new THREE.ShaderMaterial({
     uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, THREE.UniformsLib.lights, {
-      taille: { value: taille }, echelle: { value: 800 }, lum: { value: 1 }, relief: { value: 1 }, ombre: { value: 0.5 },
+      taille: { value: taille }, echelle: { value: 800 }, lum: { value: 1 }, relief: { value: 1 }, ombre: { value: 0.5 }, gris: { value: 0 },
       c1: { value: new THREE.Color("#2f5d2a") }, c2: { value: new THREE.Color("#7fae4b") }, c3: { value: new THREE.Color("#b9c45a") },
     }]),
     defines: parClasse ? { PAR_CLASSE: 1 } : {},
