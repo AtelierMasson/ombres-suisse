@@ -146,7 +146,7 @@ function textureHachure() {
   cv.width = cv.height = 64;
   const x = cv.getContext("2d");
   x.strokeStyle = "#fff";
-  x.lineWidth = 5;
+  x.lineWidth = 9;
   for (const o of [-64, 0, 64]) { x.beginPath(); x.moveTo(o, 64); x.lineTo(o + 64, 0); x.stroke(); }
   hachure = new THREE.CanvasTexture(cv);
   hachure.wrapS = hachure.wrapT = THREE.RepeatWrapping;
@@ -273,7 +273,7 @@ export function trancheCoupe(P, zRef, zBas, couleurs, materiauTrait) {
   trait(dessus);
   // arbres coupés : hachure diagonale grise dans le plan de coupe, du sol jusqu'à la cime (groupe `arbres`)
   if (couleurs.arbres && P.arbres?.length) {
-    const pos = [], uv = [], ech = 0.7; // une ligne de hachure tous les ~0,7 m
+    const pos = [], uv = [], ech = 0.55; // une ligne de hachure tous les ~0,55 m
     for (const T of P.arbres) {
       const p = bande(T.a, T.b, k => P.sol[k] - zRef, k => T.haut[k - T.a] - zRef);
       pos.push(...p);
@@ -322,7 +322,7 @@ export function dessinerCoupe(svg, P, soleil) {
   svg.style.width = `${W}px`;
   const X = s => m.g + (s - P.s[k0]) * e, Y = z => m.h + (haut - z) * e, f = v => v.toFixed(1);
   let t = `<defs><clipPath id="cadreCoupe"><rect x="${m.g}" y="${m.h}" width="${W - m.g - m.d}" height="${H - m.h - m.b}"/></clipPath>`
-    + `<pattern id="hachureArbres" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" class="hachure"/></pattern></defs>`;
+    + `<pattern id="hachureArbres" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" class="hachure"/></pattern></defs>`;
   // altitudes rondes
   const ecart = [1, 2, 5, 10, 20, 50, 100].find(v => (haut - bas) / v <= 6) || 200;
   for (let z = Math.ceil(bas / ecart) * ecart; z < haut; z += ecart)

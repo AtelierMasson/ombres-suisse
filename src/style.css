@@ -83,7 +83,7 @@ body.accueil #haut .recherche { visibility: hidden; }
 #svgCoupe .grille { stroke-width: .5; }
 #svgCoupe .axe { stroke: var(--coupe-fin); stroke-width: .6; }
 #svgCoupe .arbres { fill: url(#hachureArbres); stroke: none; }
-#svgCoupe .hachure { stroke: var(--coupe-arbres); stroke-width: .6; }
+#svgCoupe .hachure { stroke: var(--coupe-arbres); stroke-width: 1; }
 #svgCoupe .terrain { fill: var(--coupe-terrain); stroke: none; }
 #svgCoupe .tronc { stroke: var(--coupe-arbres); stroke-width: .9; stroke-linecap: round; }
 #svgCoupe .points { fill: none; stroke-width: 1.5; stroke-linecap: round; }
