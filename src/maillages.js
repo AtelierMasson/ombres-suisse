@@ -138,7 +138,7 @@ void main() {
   #include <fog_vertex>
 }`;
 const FRAGMENTS = /* glsl */`
-uniform float lum;
+uniform float lum, relief;
 varying vec3 vCouleur;
 #include <common>
 #include <fog_pars_fragment>
@@ -148,7 +148,7 @@ void main() {
   vec2 p = gl_PointCoord * 2.0 - 1.0;
   float r2 = dot(p, p);
   if (r2 > 1.0) discard; // point rond
-  gl_FragColor = vec4(vCouleur * (1.0 - 0.3 * r2 - 0.12 * p.y) * lum, 1.0);
+  gl_FragColor = vec4(vCouleur * (1.0 - relief * (0.3 * r2 + 0.12 * p.y)) * lum, 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
   #include <fog_fragment>
@@ -158,7 +158,7 @@ void main() {
 export function materiauPoints(taille, parClasse = false) {
   return new THREE.ShaderMaterial({
     uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, {
-      taille: { value: taille }, echelle: { value: 800 }, lum: { value: 1 },
+      taille: { value: taille }, echelle: { value: 800 }, lum: { value: 1 }, relief: { value: 1 },
       c1: { value: new THREE.Color("#2f5d2a") }, c2: { value: new THREE.Color("#7fae4b") }, c3: { value: new THREE.Color("#b9c45a") },
     }]),
     defines: parClasse ? { PAR_CLASSE: 1 } : {},
@@ -233,4 +233,96 @@ export function contourParcelle(parcelle, G, zRef, materiau) {
     grp.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, "catmullrom", 0), pts.length * 2, 0.3, 6), materiau));
   }
   return grp;
+}
+
+/* ------------------------------------------------------------------ couronnes d'arbres */
+/** Flou gaussien séparable (rayon en cellules) d'une grille n × n. */
+function flou(a, n, r) {
+  const k = [], s = r / 2;
+  for (let d = -r; d <= r; d++) k.push(Math.exp(-d * d / (2 * s * s)));
+  const t = new Float32Array(n * n), b = new Float32Array(n * n);
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    let v = 0, w = 0;
+    for (let d = -r; d <= r; d++) { const x = i + d; if (x >= 0 && x < n) { v += a[j * n + x] * k[d + r]; w += k[d + r]; } }
+    t[j * n + i] = v / w;
+  }
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    let v = 0, w = 0;
+    for (let d = -r; d <= r; d++) { const y = j + d; if (y >= 0 && y < n) { v += t[y * n + i] * k[d + r]; w += k[d + r]; } }
+    b[j * n + i] = v / w;
+  }
+  return b;
+}
+
+/**
+ * Couronnes d'arbres lissées : un volume fermé et arrondi par massif (dessus bombé, dessous plus plat), au lieu de
+ * milliers de points. Teinte variée par vertex (couleurs du thème : c1 ombre, c2 lumière, c3 accent).
+ * `retrait` (0..1) amincit les couronnes (mode mixte, où des points les habillent).
+ */
+export function couronnes(G, zRef, couleurs, retrait = 0) {
+  const { n, c, x0, sol, veg } = G, pas = 2, m = Math.floor(n / pas);
+  // grille réduite à 1 m : présence de végétation et hauteur de couronne
+  const pres = new Float32Array(m * m), haut = new Float32Array(m * m);
+  for (let j = 0; j < m; j++) for (let i = 0; i < m; i++) {
+    let q = 0, h = 0;
+    for (let b = 0; b < pas; b++) for (let a = 0; a < pas; a++) {
+      const p = (j * pas + b) * n + i * pas + a;
+      if (!isNaN(veg[p])) { q++; h = Math.max(h, veg[p] - sol[p]); }
+    }
+    pres[j * m + i] = q / (pas * pas); haut[j * m + i] = h;
+  }
+  // masque lissé (bouche les trous entre points), puis distance au bord en mètres (chanfrein 3-4)
+  const P = flou(pres, m, 2), Hp = flou(haut.map((h, k) => h * pres[k]), m, 2), seuil = 0.3;
+  const dist = new Float32Array(m * m);
+  for (let k = 0; k < m * m; k++) dist[k] = P[k] >= seuil ? 1e9 : 0;
+  const passe = (j0, j1, dj, i0, i1, di) => {
+    for (let j = j0; j !== j1; j += dj) for (let i = i0; i !== i1; i += di) {
+      const k = j * m + i;
+      if (!dist[k]) continue;
+      let d = dist[k];
+      for (const [a, b, w] of [[-di, 0, 1], [0, -dj, 1], [-di, -dj, 1.4142], [di, -dj, 1.4142]]) {
+        const x = i + a, y = j + b;
+        d = x < 0 || y < 0 || x >= m || y >= m ? Math.min(d, w) : Math.min(d, dist[y * m + x] + w);
+      }
+      dist[k] = d;
+    }
+  };
+  passe(0, m, 1, 0, m, 1); passe(m - 1, -1, -1, m - 1, -1, -1);
+  const idx = new Int32Array(m * m).fill(-1), pos = [], col = [], tri = [];
+  const C = couleurs.map(x => new THREE.Color(x)), coul = new THREE.Color();
+  const solM = (i, j) => sol[Math.min(n - 1, j * pas + 1) * n + Math.min(n - 1, i * pas + 1)];
+  const dessus = [], dessous = [];
+  for (let j = 0; j < m; j++) for (let i = 0; i < m; i++) {
+    const k = j * m + i;
+    if (!dist[k]) continue;
+    // dôme : profil en quart de cercle, dont le rayon suit la hauteur de la couronne
+    const H = Hp[k] / Math.max(1e-3, P[k]), z0 = solM(i, j) - zRef;
+    const rayon = Math.max(1.5, H * 0.45) * (1 + retrait), d = Math.max(0, dist[k] * pas * c - 0.5 - retrait * 1.5);
+    const e = Math.sqrt(Math.max(0, 1 - (1 - Math.min(1, d / rayon)) ** 2));
+    const base = z0 + H * 0.45, sommet = z0 + H;
+    const x = x0 + (i + 0.5) * pas * c, y = x0 + (j + 0.5) * pas * c;
+    dessus[k] = [x, base + (sommet - base) * e, -y];
+    dessous[k] = [x, base - (sommet - base) * 0.12 * e, -y];
+    const v = 0.7 * bruit(x / 6, y / 6) + 0.3 * alea(i, j);
+    coul.copy(C[0]).lerp(C[1], 0.3 + 0.55 * e).lerp(C[2], Math.max(0, v - 0.55) * 1.2).multiplyScalar(0.9 + 0.2 * v);
+    dessus[k].c = [coul.r, coul.g, coul.b];
+    dessous[k].c = [coul.r * 0.7, coul.g * 0.7, coul.b * 0.7];
+  }
+  for (const [nappeV, inverse] of [[dessus, false], [dessous, true]]) {
+    idx.fill(-1);
+    for (let k = 0; k < m * m; k++) if (nappeV[k]) { idx[k] = pos.length / 3; pos.push(...nappeV[k]); col.push(...nappeV[k].c); }
+    for (let j = 0; j < m - 1; j++) for (let i = 0; i < m - 1; i++) {
+      const a = idx[j * m + i], b = idx[j * m + i + 1], d = idx[(j + 1) * m + i + 1], e = idx[(j + 1) * m + i];
+      const t1 = [a, b, d], t2 = [a, d, e], t3 = [a, b, e], t4 = [b, d, e];
+      const ajoute = t => { if (t.every(v => v >= 0)) tri.push(...(inverse ? [t[0], t[2], t[1]] : t)); };
+      if (a >= 0 && d >= 0) { ajoute(t1); ajoute(t2); } else { ajoute(t3); ajoute(t4); }
+    }
+  }
+  if (!tri.length) return null;
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+  g.setIndex(tri);
+  g.computeVertexNormals();
+  return g;
 }

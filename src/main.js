@@ -234,14 +234,20 @@ $("#btnLecture").onclick = () => {
 function appliquerAffichage() {
   const c = scene.couches || {};
   if (c.bati) c.bati.visible = $("#vBati").checked;
-  if (c.arbres) c.arbres.visible = $("#vArbres").checked;
-  if (c.canopee) c.canopee.visible = $("#vArbres").checked;
+  scene.styleArbres(styleArbres(), $("#vArbres").checked);
   scene.voirFacades($("#vFacades").checked);
   if (c.tous) c.tous.visible = $("#vPoints").checked;
   if (c.heures) c.heures.visible = $("#vHeures").checked;
   scene.ombres();
 }
 ["#vBati", "#vArbres", "#vFacades", "#vPoints", "#vHeures"].forEach(s => $(s).addEventListener("change", appliquerAffichage));
+// style des arbres, mémorisé
+function styleArbres() { return $("input[name=arbres]:checked")?.value || "couronnes"; }
+try { const s = localStorage.getItem("ombres.arbres"); if (s) $(`input[name=arbres][value=${s}]`).checked = true; } catch { /* stockage indisponible */ }
+$$("input[name=arbres]").forEach(b => b.addEventListener("change", () => {
+  try { localStorage.setItem("ombres.arbres", b.value); } catch { /* idem */ }
+  appliquerAffichage();
+}));
 $$("input[name=fond]").forEach(b => b.addEventListener("change", () => scene.fond(b.value)));
 scene.surFondAbsent = type => message(type === "ortho" ? "Photo aérienne indisponible pour le moment." : "Plan cadastral indisponible ici : terrain uni.");
 $("#vPieton").addEventListener("change", e => scene.vuePieton(e.target.checked));

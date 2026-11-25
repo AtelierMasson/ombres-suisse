@@ -204,8 +204,11 @@ export function maillagesHeures(G, C, zone, facades, { heures, heuresF }, max, e
   facades.carreaux.forEach((K, t) => {
     const { g, d, nx, ny, l, nr, alpha: a } = K, v = heuresF[t];
     const bas = l > 0 ? (v + heuresF[t - 1]) / 2 : v, haut = l < nr - 1 ? (v + heuresF[t + 1]) / 2 : v;
-    const P = (pt, f) => [pt[0] + nx * 0.07, pt[3] + (pt[2] - pt[3]) * f - zRef, -(pt[1] + ny * 0.07)];
-    const f0 = l / nr, f1 = (l + 1) / nr, Q = [[P(g, f0), bas], [P(d, f0), bas], [P(d, f1), haut], [P(g, f1), haut]];
+    // carreaux un peu prolongés sur les côtés (angles) et, en haut, jusqu'à la carte du toit (posée 0,12 m au-dessus) :
+    // sinon un liseré du bâtiment gris apparaît aux angles et au bord des toits
+    const lx = d[0] - g[0], ly = d[1] - g[1], L = Math.hypot(lx, ly) || 1, ux = lx / L * 0.09, uy = ly / L * 0.09;
+    const P = (pt, f, s) => [pt[0] + nx * 0.07 + s * ux, pt[3] + (pt[2] - pt[3]) * f - zRef + (f === 1 ? 0.14 : 0), -(pt[1] + ny * 0.07 + s * uy)];
+    const f0 = l / nr, f1 = (l + 1) / nr, Q = [[P(g, f0, -1), bas], [P(d, f0, 1), bas], [P(d, f1, 1), haut], [P(g, f1, -1), haut]];
     for (const k of [0, 1, 2, 0, 2, 3]) {
       couleurEchelle(palette, Q[k][1] / max, teinte);
       posF.push(...Q[k][0]); colF.push(teinte.r, teinte.g, teinte.b, a);
@@ -216,7 +219,7 @@ export function maillagesHeures(G, C, zone, facades, { heures, heuresF }, max, e
     g.setAttribute("position", new THREE.Float32BufferAttribute(p, 3));
     g.setAttribute("color", new THREE.Float32BufferAttribute(k, 4));
     return new THREE.Mesh(g, new THREE.MeshBasicMaterial({
-      vertexColors: true, transparent: true, opacity: 0.9, side: THREE.DoubleSide, depthWrite: false,
+      vertexColors: true, transparent: true, opacity: 1, side: THREE.DoubleSide, depthWrite: false, // opaque : pas d'arête grise par transparence (le bord fondu vient de l'alpha des sommets)
       polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
     }));
   };

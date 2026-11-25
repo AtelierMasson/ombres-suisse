@@ -27,6 +27,7 @@ export function depuisPoints(nuage, R, c = 0.5) {
     if (veg[p] < sol[p] + 1.0) veg[p] = NaN;
   }
   retirerIsoles(bat, n, 3);
+  retirerMats(bat, sol, n, c);
   G.surface = surface(G);
   return G;
 }
@@ -63,6 +64,7 @@ export async function depuisRasters({ terrain, surface: surf }, [E0, N0], R, c =
   // sans classes : tout ce qui dépasse le sol de plus de 2 m est un obstacle, puis on sépare toits (lisses) et arbres (rugueux)
   for (let p = 0; p < G.n * G.n; p++) if (dsm[p] > G.sol[p] + 2) G.bat[p] = dsm[p];
   retirerIsoles(G.bat, G.n, 3);
+  retirerMats(G.bat, G.sol, G.n, c);
   separerArbres(G);
   G.surface = surface(G);
   return G;
@@ -163,6 +165,25 @@ function fermer(a, n, passes) {
 }
 
 /** Supprime les cellules isolées (bruit : antennes, câbles…). */
+/** Supprime les « bâtiments » minuscules et très hauts : mâts de grue, cheminées isolées, antennes. */
+function retirerMats(bat, sol, n, c) {
+  const vu = new Uint8Array(n * n);
+  for (let p0 = 0; p0 < n * n; p0++) {
+    if (vu[p0] || isNaN(bat[p0])) continue;
+    const pile = [p0], membres = [];
+    vu[p0] = 1;
+    let h = 0;
+    while (pile.length) {
+      const p = pile.pop(), i = p % n;
+      membres.push(p); h = Math.max(h, bat[p] - sol[p]);
+      for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n])
+        if (q >= 0 && q < n * n && !vu[q] && !isNaN(bat[q])) { vu[q] = 1; pile.push(q); }
+    }
+    const aire = membres.length * c * c;
+    if (aire < 12 && h > 12 + aire) for (const p of membres) bat[p] = NaN;
+  }
+}
+
 function retirerIsoles(a, n, min) {
   const out = [];
   for (let j = 1; j < n - 1; j++) for (let i = 1; i < n - 1; i++) {

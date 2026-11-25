@@ -7,7 +7,7 @@ import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { solEn } from "./grille.js";
-import { terrain, socle, nappe, batiments, nuagePoints, contourParcelle } from "./maillages.js";
+import { terrain, socle, nappe, batiments, nuagePoints, contourParcelle, couronnes } from "./maillages.js";
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
 
@@ -28,6 +28,33 @@ void main() {
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }`;
+
+/**
+ * Grain de plâtre : variation de teinte très légère, en coordonnées du monde (indépendante de la forme), avec un grain
+ * fin et de larges nuances. `force` = amplitude relative (0,07 = ±3,5 %).
+ */
+function grainPlatre(mat, force) {
+  mat.onBeforeCompile = sh => {
+    sh.uniforms.grainForce = { value: force };
+    sh.vertexShader = sh.vertexShader
+      .replace("#include <common>", "#include <common>\nvarying vec3 vMonde;")
+      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvMonde = (modelMatrix * vec4(transformed, 1.0)).xyz;");
+    sh.fragmentShader = sh.fragmentShader
+      .replace("#include <common>", `#include <common>
+varying vec3 vMonde;
+uniform float grainForce;
+float hachage(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+float bruit3(vec3 x) {
+  vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(mix(hachage(i), hachage(i + vec3(1, 0, 0)), f.x), mix(hachage(i + vec3(0, 1, 0)), hachage(i + vec3(1, 1, 0)), f.x), f.y),
+             mix(mix(hachage(i + vec3(0, 0, 1)), hachage(i + vec3(1, 0, 1)), f.x), mix(hachage(i + vec3(0, 1, 1)), hachage(i + vec3(1, 1, 1)), f.x), f.y), f.z);
+}`)
+      .replace("#include <map_fragment>", `#include <map_fragment>
+float g = 0.55 * bruit3(vMonde * 2.7) + 0.3 * bruit3(vMonde * 9.0) + 0.15 * bruit3(vMonde * 0.35);
+diffuseColor.rgb *= 1.0 + grainForce * (g - 0.5) * 2.0;`);
+  };
+  mat.customProgramCacheKey = () => "platre" + force;
+}
 
 export class Scene3D {
   constructor(conteneur, theme) {
@@ -50,8 +77,12 @@ export class Scene3D {
     this.controls.maxPolarAngle = Math.PI * 0.495;
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.12;
+    this.controls.zoomToCursor = true;
+    // rendu à la demande : tout mouvement de la caméra (molette comprise, avec son amorti) redessine
+    this.controls.addEventListener("change", () => this.demander(3));
+    r.domElement.addEventListener("wheel", () => this.demander(40), { passive: true });
 
-    // lumières : ciel (hémisphère), soleil (ombres portées) et un léger contre-jour qui donne du volume aux faces à l'ombre
+    // lumières : ciel (hémisphère) et soleil (ombres portées)
     this.ciel = new THREE.HemisphereLight("#ffffff", "#8a8f7a", 1.1);
     const s = this.soleil = new THREE.DirectionalLight("#fff6e0", 2.6);
     s.castShadow = true;
@@ -59,8 +90,7 @@ export class Scene3D {
     s.shadow.bias = -0.0004;
     s.shadow.normalBias = 0.25;
     s.shadow.radius = 2; // bord d'ombre adouci
-    this.appoint = new THREE.DirectionalLight("#dfe9ff", 0.3);
-    this.scene.add(this.ciel, s, s.target, this.appoint);
+    this.scene.add(this.ciel, s, s.target);
 
     this.voute = new THREE.Mesh(new THREE.SphereGeometry(9000, 32, 16), new THREE.ShaderMaterial({
       uniforms: {
@@ -81,9 +111,12 @@ export class Scene3D {
     this.mat = {
       terrain: std({ roughness: 1, side: THREE.FrontSide }), socle: std({ roughness: 1 }),
       toit: std({ flatShading: true }), mur: std({ flatShading: true }), canopee: std({ roughness: 1 }),
+      couronne: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }),
       parcelle: new THREE.MeshBasicMaterial(), trait: new LineMaterial({ linewidth: 4, fog: false }),
       poignee: new THREE.MeshBasicMaterial({ depthTest: false, fog: false }),
     };
+    // même grain léger partout (sol, socle, toits, murs, couronnes) : aspect de maquette en plâtre
+    for (const [k, force] of [["terrain", 0.07], ["socle", 0.07], ["toit", 0.07], ["mur", 0.07], ["couronne", 0.05]]) grainPlatre(this.mat[k], force);
     this.partages = new Set(Object.values(this.mat));
     this.plan = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
     this.couches = {};
@@ -102,7 +135,9 @@ export class Scene3D {
     // l'occlusion ne doit voir ni le ciel, ni la canopée invisible, ni les poignées et calques posés par-dessus
     const rendu = ao.render.bind(ao);
     ao.render = (...a) => {
-      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, c.heures, c.limite, this.canopeeCachee ? c.canopee : null].filter(o => o && o.visible);
+      // les points n'entrent jamais dans l'occlusion (sinon chaque point a son halo sombre)
+      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, c.heures, c.limite, c.arbres, c.facades, c.tous,
+        c.canopee?.material.colorWrite === false ? c.canopee : null].filter(o => o && o.visible);
       for (const o of caches) o.visible = false;
       rendu(...a);
       for (const o of caches) o.visible = true;
@@ -183,10 +218,12 @@ export class Scene3D {
     m.socle.color.set(T.socle); m.canopee.color.set(T.arbres[1]); m.parcelle.color.set(T.parcelle);
     m.trait.color.set(T.coupe.trait); m.poignee.color.set(T.parcelle);
     m.terrain.color.set(m.terrain.map ? "#ffffff" : T.sol);
-    this.ciel.color.set(T.lumiere.ciel); this.ciel.groundColor.set(T.lumiere.sol);
+    // lumière du ciel quasi uniforme : un mur dos au soleil a le même ton qu'une ombre portée au sol
+    this.ciel.color.set(T.lumiere.ciel); this.ciel.groundColor.set(T.lumiere.ciel).lerp(new THREE.Color(T.lumiere.sol), 0.15);
     this.renderer.toneMappingExposure = T.lumiere.exposition;
     this.scene.fog.density = T.lumiere.brume;
     this.couleursPoints();
+    if (this.G && this.arbresTeinte && this.T.arbres !== this.arbresTeinte) this.refaireCouronnes();
     if (this.etatSoleil) this.placerSoleil(...this.etatSoleil);
     if (this.typeFond === "cadastre" && this.urls) this.fond("cadastre");
     this.demander();
@@ -237,7 +274,7 @@ export class Scene3D {
     const B = batiments(G, this.zRef), bati = new THREE.Group();
     bati.add(maille(B.toits, m.toit, true, true), maille(B.murs, m.mur, true, true));
     this.contours = B.contours;
-    // la canopée porte l'ombre mais reste invisible : les arbres sont affichés en points
+    // la canopée (grille) porte l'ombre en mode « points » ; les couronnes lissées sont construites par styleArbres()
     const canopee = maille(nappe(G, G.veg, this.zRef), m.canopee, true, false);
     const arbres = nuage ? nuagePoints(nuage, G, this.zRef, "arbres", 0.5, 0.9) : null;
     const facades = nuage ? nuagePoints(nuage, G, this.zRef, "facades", 1, 0.42) : null;
@@ -247,15 +284,54 @@ export class Scene3D {
     for (const o of Object.values(this.couches)) if (o) this.groupe.add(o);
     if (tous) tous.visible = false;
     if (facades) facades.visible = false;
-    this.canopeeCachee = !!arbres;
-    m.canopee.colorWrite = m.canopee.depthWrite = !arbres;
-    m.canopee.needsUpdate = true;
+    this.styleArbres(this.style || "couronnes");
     this.appliquerCoupe();
     this.appliquerTheme(this.T);
     if (this.typeFond !== "cadastre") this.fond(this.typeFond);
     this.controls.target.set(0, 0, 0);
     this.camera.position.set(-110, 120, 150);
     this.ombres();
+  }
+
+  /**
+   * Rendu des arbres : "couronnes" (volumes lissés, une ombre douce par massif), "points" (relevé laser, disques plats
+   * sans halo ; la canopée invisible porte l'ombre) ou "mixte" (couronnes amincies habillées de points clairsemés).
+   */
+  styleArbres(style, visibles = this.arbresVisibles ?? true) {
+    this.style = style; this.arbresVisibles = visibles;
+    const c = this.couches, m = this.mat;
+    if (!this.G) return;
+    for (const k of ["couronnes", "mixte"]) if (c[k]) c[k].visible = false;
+    if (style !== "points" || !c.arbres) {
+      const k = style === "mixte" && c.arbres ? "mixte" : "couronnes";
+      if (!c[k]) {
+        this.arbresTeinte = this.T.arbres;
+        const g = couronnes(this.G, this.zRef, this.T.arbres, k === "mixte" ? 0.35 : 0);
+        if (g) { c[k] = new THREE.Mesh(g, m.couronne); c[k].castShadow = c[k].receiveShadow = true; this.groupe.add(c[k]); this.appliquerCoupe(); }
+      }
+      if (c[k]) c[k].visible = visibles;
+    }
+    // la canopée en grille ne sert plus qu'à porter l'ombre des points
+    c.canopee.visible = visibles && style === "points" && !!c.arbres;
+    m.canopee.colorWrite = m.canopee.depthWrite = false;
+    m.canopee.needsUpdate = true;
+    if (c.arbres) {
+      c.arbres.visible = visibles && style !== "couronnes";
+      const u = c.arbres.material.uniforms;
+      u.relief.value = 0; // disques plats : plus d'effet de petites boules
+      u.taille.value = style === "mixte" ? 0.55 : 0.7;
+    }
+    this.ombres();
+  }
+
+  /** Couronnes à refaire (couleurs du thème changées). */
+  refaireCouronnes() {
+    for (const k of ["couronnes", "mixte"]) {
+      const o = this.couches[k];
+      if (!o) continue;
+      this.groupe.remove(o); o.geometry.dispose(); this.couches[k] = null;
+    }
+    this.styleArbres(this.style);
   }
 
   /** Les ombres portées sont à recalculer (soleil déplacé, couche affichée ou masquée). */
@@ -306,8 +382,6 @@ export class Scene3D {
     this.soleil.color.set(T.lumiere.soleil).lerp(new THREE.Color("#ffb066"), 0.65 * bas * bas);
     this.soleil.intensity = visible ? 2.6 : 0;
     this.ciel.intensity = visible ? 1.1 : Math.max(0.35, 0.9 * Math.min(1, (dir[1] + 0.1) * 4));
-    this.appoint.position.set(-dir[0], 0.35, -dir[2]).multiplyScalar(500);
-    this.appoint.intensity = visible ? 0.3 : 0;
     this.disque.position.copy(d.clone().multiplyScalar(1200));
     this.disque.visible = dir[1] > -0.02 && !!this.G;
     // ciel : jour, soleil caché par le relief (plus terne), nuit
@@ -397,7 +471,7 @@ export class Scene3D {
 
   appliquerCoupe() {
     const plans = this.coupe ? [this.plan] : null, c = this.couches, m = this.mat;
-    const cibles = [m.terrain, m.socle, m.toit, m.mur, m.canopee, m.parcelle, this.ao.normalMaterial];
+    const cibles = [m.terrain, m.socle, m.toit, m.mur, m.canopee, m.couronne, m.parcelle, this.ao.normalMaterial];
     for (const k of ["arbres", "facades", "tous"]) if (c[k]) cibles.push(c[k].material);
     c.heures?.traverse(o => o.material && cibles.push(o.material));
     for (const x of cibles) if (!!x.clippingPlanes !== !!plans) { x.clippingPlanes = plans; x.needsUpdate = true; }
