@@ -41,3 +41,16 @@ export function soleilVisible(jour, lat, lon, horizon) {
   }
   return { debut, fin, minutes };
 }
+
+/** Heure (minutes) du point de la course du jour le plus proche du pointeur, ou null hors de la course. */
+export function heureSousPointeur(svg, e, { jour, lat, lon }) {
+  const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(svg.getScreenCTM().inverse());
+  let meilleur = null, dmin = Infinity;
+  for (let t = 0; t < 1440; t += 5) {
+    const p = positionSoleil(dateA(jour, t), lat, lon);
+    if (p.hauteur < -2 || p.azimut <= AZ0 || p.azimut >= AZ1) continue;
+    const d = Math.hypot(X(p.azimut) - pt.x, Y(p.hauteur) - pt.y);
+    if (d < dmin) { dmin = d; meilleur = t; }
+  }
+  return meilleur;
+}

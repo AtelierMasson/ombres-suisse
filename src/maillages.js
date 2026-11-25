@@ -193,6 +193,7 @@ attribute vec3 aCouleur;
 varying vec3 vCouleur;
 #include <common>
 #include <fog_pars_vertex>
+#include <shadowmap_pars_vertex>
 #include <clipping_planes_pars_vertex>
 void main() {
   #ifdef PAR_CLASSE
@@ -202,17 +203,24 @@ void main() {
     c = mix(c, c3, smoothstep(0.55, 1.0, aVar) * 0.75);
     vCouleur = c * (0.84 + 0.32 * fract(aVar * 7.31));
   #endif
-  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+  vec3 transformed = position;
+  vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
   gl_Position = projectionMatrix * mvPosition;
+  #include <worldpos_vertex>
+  #include <shadowmap_vertex>
   // taille en mètres, avec un minimum en pixels pour que les arbres lointains ne disparaissent pas
   gl_PointSize = clamp(taille * echelle / max(0.1, -mvPosition.z), 2.0, 44.0);
   #include <clipping_planes_vertex>
   #include <fog_vertex>
 }`;
 const FRAGMENTS = /* glsl */`
-uniform float lum, relief;
+uniform float lum, relief, ombre;
 varying vec3 vCouleur;
 #include <common>
+#include <packing>
+#include <lights_pars_begin>
+#include <shadowmap_pars_fragment>
+#include <shadowmask_pars_fragment>
 #include <fog_pars_fragment>
 #include <clipping_planes_pars_fragment>
 void main() {
@@ -220,7 +228,9 @@ void main() {
   vec2 p = gl_PointCoord * 2.0 - 1.0;
   float r2 = dot(p, p);
   if (r2 > 1.0) discard; // point rond
-  gl_FragColor = vec4(vCouleur * (1.0 - relief * (0.3 * r2 + 0.12 * p.y)) * lum, 1.0);
+  // dans l'ombre portée (bâtiments, autres arbres, sa propre couronne) : même assombrissement que le sol
+  float soleil = mix(ombre, 1.0, getShadowMask());
+  gl_FragColor = vec4(vCouleur * (1.0 - relief * (0.3 * r2 + 0.12 * p.y)) * lum * soleil, 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
   #include <fog_fragment>
@@ -229,12 +239,12 @@ void main() {
 /** Matériau des points : ronds, taille en mètres, teinte variée (c1 bas, c2 haut, c3 accent) ou couleur par classe. */
 export function materiauPoints(taille, parClasse = false) {
   return new THREE.ShaderMaterial({
-    uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, {
-      taille: { value: taille }, echelle: { value: 800 }, lum: { value: 1 }, relief: { value: 1 },
+    uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, THREE.UniformsLib.lights, {
+      taille: { value: taille }, echelle: { value: 800 }, lum: { value: 1 }, relief: { value: 1 }, ombre: { value: 0.5 },
       c1: { value: new THREE.Color("#2f5d2a") }, c2: { value: new THREE.Color("#7fae4b") }, c3: { value: new THREE.Color("#b9c45a") },
     }]),
     defines: parClasse ? { PAR_CLASSE: 1 } : {},
-    vertexShader: SOMMETS, fragmentShader: FRAGMENTS, fog: true, clipping: true,
+    vertexShader: SOMMETS, fragmentShader: FRAGMENTS, fog: true, clipping: true, lights: true,
   });
 }
 
@@ -283,6 +293,7 @@ export function nuagePoints(nuage, G, zRef, mode, part, taille) {
   g.setAttribute("aVar", new THREE.Float32BufferAttribute(va, 1));
   if (mode === "tous") g.setAttribute("aCouleur", new THREE.Float32BufferAttribute(col, 3));
   const pts = new THREE.Points(g, materiauPoints(taille, mode === "tous"));
+  pts.receiveShadow = true;
   const v = new THREE.Vector2();
   pts.onBeforeRender = (r, s, cam) => { pts.material.uniforms.echelle.value = r.getDrawingBufferSize(v).y / (2 * Math.tan(cam.fov * Math.PI / 360)); };
   return pts;
@@ -329,9 +340,8 @@ function flou(a, n, r) {
 /**
  * Couronnes d'arbres lissées : un volume fermé et arrondi par massif (dessus bombé, dessous plus plat), au lieu de
  * milliers de points. Teinte variée par vertex (couleurs du thème : c1 ombre, c2 lumière, c3 accent).
- * `retrait` (0..1) amincit les couronnes (mode mixte, où des points les habillent).
  */
-export function couronnes(G, zRef, couleurs, retrait = 0) {
+export function couronnes(G, zRef, couleurs) {
   const { n, c, x0, sol, veg } = G, pas = 2, m = Math.floor(n / pas);
   // grille réduite à 1 m : présence de végétation et hauteur de couronne
   const pres = new Float32Array(m * m), haut = new Float32Array(m * m);
@@ -369,7 +379,7 @@ export function couronnes(G, zRef, couleurs, retrait = 0) {
     if (!dist[k]) continue;
     // dôme : profil en quart de cercle, dont le rayon suit la hauteur de la couronne
     const H = Hp[k] / Math.max(1e-3, P[k]), z0 = solM(i, j) - zRef;
-    const rayon = Math.max(1.5, H * 0.45) * (1 + retrait), d = Math.max(0, dist[k] * pas * c - 0.5 - retrait * 1.5);
+    const rayon = Math.max(1.5, H * 0.45), d = Math.max(0, dist[k] * pas * c - 0.5);
     const e = Math.sqrt(Math.max(0, 1 - (1 - Math.min(1, d / rayon)) ** 2));
     const base = z0 + H * 0.45, sommet = z0 + H;
     const x = x0 + (i + 0.5) * pas * c, y = x0 + (j + 0.5) * pas * c;

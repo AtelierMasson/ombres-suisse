@@ -94,16 +94,12 @@
           <input type="radio" class="btn-check" name="fond" id="fUni" value="uni"><label class="btn btn-outline-secondary" for="fUni">Uni</label>
         </div>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vBati" checked><label class="form-check-label small" for="vBati">Bâtiments</label></div>
+        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vSwiss"><label class="form-check-label small" for="vSwiss">Comparer : bâtiments 3D swisstopo <span class="text-secondary">(swissBUILDINGS3D, bleutés)</span></label></div>
         <div class="btn-group btn-group-sm w-100 mb-2" role="group" aria-label="Style des toits">
           <input type="radio" class="btn-check" name="toits" id="tPans" value="pans"><label class="btn btn-outline-secondary" for="tPans" title="Pans plans, arêtes dans l'axe des façades">Toits : pans</label>
           <input type="radio" class="btn-check" name="toits" id="tReleve" value="releve" checked><label class="btn btn-outline-secondary" for="tReleve" title="Hauteurs du relevé laser, cellule par cellule">Toits : relevé</label>
         </div>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vArbres" checked><label class="form-check-label small" for="vArbres">Arbres</label></div>
-        <div class="btn-group btn-group-sm w-100 mb-2" role="group" aria-label="Style des arbres">
-          <input type="radio" class="btn-check" name="arbres" id="aCouronnes" value="couronnes" checked><label class="btn btn-outline-secondary" for="aCouronnes">Couronnes</label>
-          <input type="radio" class="btn-check" name="arbres" id="aMixte" value="mixte"><label class="btn btn-outline-secondary" for="aMixte">Mixte</label>
-          <input type="radio" class="btn-check" name="arbres" id="aPoints" value="points"><label class="btn btn-outline-secondary" for="aPoints">Points</label>
-        </div>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vFacades"><label class="form-check-label small" for="vFacades">Points mesurés sur les façades <span class="text-secondary" id="nbFacades"></span></label></div>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPoints"><label class="form-check-label small" for="vPoints">Nuage de points brut</label></div>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPieton"><label class="form-check-label small" for="vPieton">Vue depuis la parcelle (1,70 m)</label></div>
@@ -143,7 +139,7 @@
     <div class="card-body p-2">
       <div class="small fw-semibold px-1">Coupe A–B <span class="text-secondary fw-normal" id="coupeTexte"></span></div>
       <svg id="svgCoupe"></svg>
-      <div class="legende small text-secondary px-1"><span class="l-bati"></span>Bâtiment coupé <span class="l-terrain"></span>Terrain <span class="l-arbres"></span>Arbres <span class="l-limite"></span>Limite de parcelle <span class="l-course"></span>Soleil</div>
+      <div class="legende small text-secondary px-1"><span class="l-terrain"></span>Terrain et bâtiments coupés <span class="l-arbres"></span>Arbres <span class="l-limite"></span>Limite de parcelle <span class="l-course"></span>Soleil</div>
     </div>
   </div>
   <div id="diagramme" class="card" hidden>

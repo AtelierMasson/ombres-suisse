@@ -61,6 +61,7 @@ body.accueil #haut .recherche { visibility: hidden; }
 #coupe { flex: 1 1 0; min-width: 0; max-width: 780px; }
 #svgSoleil, #svgCoupe { width: 100%; height: auto; display: block; font: 10px system-ui, sans-serif; fill: var(--doux); }
 #svgCoupe { max-height: 240px; }
+#svgSoleil { cursor: pointer; touch-action: none; }
 #svgSoleil .grille, #svgCoupe .grille { stroke: var(--grille); stroke-width: 1; }
 #svgSoleil .relief { fill: var(--relief); fill-opacity: .75; stroke: var(--relief-trait); stroke-width: 1; }
 #svgSoleil .course { fill: none; stroke: var(--course); stroke-width: 2; }

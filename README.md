@@ -26,7 +26,7 @@ gratuitement (GitHub Pages, Cloudflare Pages…).
    si l'affichage devient lent.
 7. **Fond du terrain** : plan cadastral (mensuration officielle) reteinté dans la gamme du thème — sol et bâtiments
    ton sur ton, comme une maquette —, photo aérienne SWISSIMAGE ou terrain uni.
-8. **Arbres** en points ronds de teintes variées ; **points mesurés sur les façades** affichables (classe 26 des vols
+8. **Arbres** en points du relevé (disques plats de teintes variées) qui s'assombrissent dans l'ombre portée ; **points mesurés sur les façades** affichables (classe 26 des vols
    récents et points « bâtiment » sous le toit) : les murs deviennent alors translucides.
 9. **Montagnes lointaines** : profil d'horizon sur 50 km tout autour (y compris France et Italie) ; quand le soleil
    passe derrière, la parcelle est à l'ombre. Le diagramme montre l'horizon et la course du soleil (jour choisi,
@@ -37,7 +37,8 @@ gratuitement (GitHub Pages, Cloudflare Pages…).
     (moyenne, min., max.) sur la parcelle seule.
 11. **Coupe** verticale à travers le terrain et les bâtiments : deux poignées A et B à déplacer (ou deux clics), la
     partie devant le plan est masquée, les surfaces tranchées sont pochées avec un trait épais ; le profil 2D
-    indique altitudes, limites de parcelle, arbres et rayon du soleil à l'heure choisie.
+    indique altitudes, limites de parcelle, arbres et rayon du soleil à l'heure choisie. Terrain et bâtiments coupés forment
+    une seule masse (même couleur, un seul trait de coupe).
 12. **Vue depuis la parcelle** à 1,70 m.
 13. **Thèmes** à comparer en direct (boutons en haut à droite, choix mémorisé, ou `?theme=` dans l'adresse) :
     `maquette` (blanc cassé, panneau classique), `alpage` (sable et vert sapin, cartes flottantes), `nuit` (sombre,
@@ -48,6 +49,12 @@ gratuitement (GitHub Pages, Cloudflare Pages…).
 le site utilise les modèles en grille 0,5 m swissALTI3D (terrain) et swissSURFACE3D Raster (surface), issus du même
 relevé. Bâtiments et arbres sont alors séparés par la forme (toit lisse, couronne rugueuse) : moins fiable, murs
 moins nets, pas de points de façade.
+
+**Comparaison** : la case « Comparer : bâtiments 3D swisstopo » affiche, en bleuté, les bâtiments tout faits de
+swissBUILDINGS3D (tuiles 3D de geo.admin.ch, décodeur Draco servi depuis `public/draco/`). Ils portent leurs ombres ;
+décocher « Bâtiments » pour ne voir qu'eux. Leur hauteur est calée sur notre terrain (pieds des murs).
+Le diagramme solaire est cliquable : un clic ou un glissé sur la course place le soleil à l'heure correspondante.
+Bâtiments, sol et toits ont la même couleur et la même trame de cases de 0,5 m (aspect maquette).
 
 ## Lancer
 
@@ -77,6 +84,7 @@ npm run build      # site statique dans dist/, à publier tel quel
 | `src/heures.js` | Heures de soleil : zone arrondie, positions du soleil par période, carreaux de façade, maillages colorés |
 | `src/ensoleillement.worker.js` | Lancer de rayons dans la grille (Web Workers, plusieurs fils) |
 | `src/coupe.js` | Coupe : profil le long de la ligne, tranche 3D, dessin 2D |
+| `src/swiss3d.js` | Comparaison : bâtiments 3D swisstopo (swissBUILDINGS3D, tuiles 3D publiques), calés sur notre terrain |
 | `src/diagramme.js` | Diagramme horizon + course du soleil |
 | `src/demo.js` | Hameau inventé de l'écran d'accueil |
 

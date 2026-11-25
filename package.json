@@ -10,6 +10,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "3d-tiles-renderer": "^0.5.4",
     "bootstrap": "^5.3.9",
     "copc": "^0.0.9",
     "geotiff": "^3.0.5",

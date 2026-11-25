@@ -6,7 +6,7 @@ import { depuisPoints, depuisRasters } from "./grille.js";
 import { Scene3D } from "./scene.js";
 import { positionSoleil, directionSoleil, dateA } from "./soleil.js";
 import { profilHorizon, horizonA } from "./horizon.js";
-import { dessinerDiagramme, soleilVisible } from "./diagramme.js";
+import { dessinerDiagramme, soleilVisible, heureSousPointeur } from "./diagramme.js";
 import { THEMES, themeInitial, appliquerTheme } from "./themes.js";
 import { urlFond, COUCHES } from "./fond.js";
 import { zoneHeures, soleilsPeriode, carreauxFacades, maillagesHeures } from "./heures.js";
@@ -173,6 +173,7 @@ async function depuisAdresse() {
     scene.controls.autoRotate = false;
     scene.typeFond = $("input[name=fond]:checked").value;
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite) });
+    scene.comparerSwiss($("#vSwiss").checked, { lon: S.lon, lat: S.lat });
     appliquerAffichage();
     $("#vArbres").disabled = !nuage && !G.veg.some(v => !isNaN(v)); $("#vPoints").disabled = !nuage;
     const nf = scene.couches.facades?.geometry.attributes.position.count || 0;
@@ -223,6 +224,19 @@ function changerJour(jour) {
 $("#jour").addEventListener("change", e => { if (e.target.value) changerJour(e.target.value); });
 $("#heure").addEventListener("input", e => { S.minutes = +e.target.value; majSoleil(); });
 $$("[data-jour]").forEach(b => b.onclick = () => changerJour(b.dataset.jour === "auj" ? aujourdhui() : `${S.jour.slice(0, 4)}-${b.dataset.jour}`));
+// clic ou glissé sur le diagramme : le soleil va au point le plus proche de sa course du jour
+{
+  const svg = $("#svgSoleil");
+  let appui = false;
+  const placer = e => {
+    if (S.lat == null) return;
+    const t = heureSousPointeur(svg, e, S);
+    if (t != null && t !== S.minutes) { S.minutes = t; majSoleil(); }
+  };
+  svg.addEventListener("pointerdown", e => { appui = true; svg.setPointerCapture(e.pointerId); placer(e); });
+  svg.addEventListener("pointermove", e => { if (appui) placer(e); });
+  svg.addEventListener("pointerup", () => { appui = false; });
+}
 let lecture = null;
 $("#btnLecture").onclick = () => {
   if (lecture) { clearInterval(lecture); lecture = null; $("#btnLecture").textContent = "▶"; return; }
@@ -234,20 +248,14 @@ $("#btnLecture").onclick = () => {
 function appliquerAffichage() {
   const c = scene.couches || {};
   if (c.bati) c.bati.visible = $("#vBati").checked;
-  scene.styleArbres(styleArbres(), $("#vArbres").checked);
+  scene.styleArbres($("#vArbres").checked);
   scene.voirFacades($("#vFacades").checked);
   if (c.tous) c.tous.visible = $("#vPoints").checked;
   if (c.heures) c.heures.visible = $("#vHeures").checked;
   scene.ombres();
 }
 ["#vBati", "#vArbres", "#vFacades", "#vPoints", "#vHeures"].forEach(s => $(s).addEventListener("change", appliquerAffichage));
-// style des arbres, mémorisé
-function styleArbres() { return $("input[name=arbres]:checked")?.value || "couronnes"; }
-try { const s = localStorage.getItem("ombres.arbres"); if (s) $(`input[name=arbres][value=${s}]`).checked = true; } catch { /* stockage indisponible */ }
-$$("input[name=arbres]").forEach(b => b.addEventListener("change", () => {
-  try { localStorage.setItem("ombres.arbres", b.value); } catch { /* idem */ }
-  appliquerAffichage();
-}));
+$("#vSwiss").addEventListener("change", e => scene.comparerSwiss(e.target.checked, S.lon != null ? { lon: S.lon, lat: S.lat } : null));
 // style des toits, mémorisé : grille du relevé (par défaut) ou pans plans, pour comparer
 try { const s = localStorage.getItem("ombres.toits"); if (s) $(`input[name=toits][value=${s}]`).checked = true; } catch { /* idem */ }
 scene.toits = $("input[name=toits]:checked")?.value || "releve";

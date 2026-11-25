@@ -6,6 +6,7 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RebondPass } from "./rebond.js";
+import { Swiss3D } from "./swiss3d.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { solEn } from "./grille.js";
 import { terrain, socle, nappe, batiments, nuagePoints, contourParcelle, couronnes } from "./maillages.js";
@@ -52,7 +53,9 @@ float bruit3(vec3 x) {
 }`)
       .replace("#include <map_fragment>", `#include <map_fragment>
 float g = 0.55 * bruit3(vMonde * 2.7) + 0.3 * bruit3(vMonde * 9.0) + 0.15 * bruit3(vMonde * 0.35);
-diffuseColor.rgb *= 1.0 + grainForce * (g - 0.5) * 2.0;`);
+// trame de cases de 0,5 m (celle du relevé) : un ton légèrement différent par case, sur toutes les faces
+float pixel = hachage(floor(vMonde * 2.0 + 0.001) + 0.37);
+diffuseColor.rgb *= 1.0 + grainForce * ((g - 0.5) * 1.4 + (pixel - 0.5) * 0.9);`);
   };
   mat.customProgramCacheKey = () => "platre" + force;
 }
@@ -196,6 +199,7 @@ export class Scene3D {
 
   rendre() {
     if (this.coupe) this.orienterCoupe();
+    this.swiss?.mettreAJour();
     if (this.effets && this.qualite < 2) this.composeur.render(); else this.renderer.render(this.scene, this.camera);
   }
 
@@ -221,7 +225,8 @@ export class Scene3D {
   appliquerTheme(T) {
     this.T = T;
     const m = this.mat, sombre = this.G && !this.G.classifie ? 0.93 : 1; // sans classes : bâtiments un peu plus sombres (moins fiables)
-    m.toit.color.set(T.toit).multiplyScalar(sombre); m.mur.color.set(T.mur).multiplyScalar(sombre);
+    // bâtiments de la couleur du sol : une maquette d'un seul matériau, le relief vient des ombres
+    m.toit.color.set(T.sol).multiplyScalar(sombre); m.mur.color.set(T.sol).multiplyScalar(sombre);
     m.socle.color.set(T.socle); m.canopee.color.set(T.arbres[1]); m.parcelle.color.set(T.parcelle);
     m.trait.color.set(T.coupe.trait); m.poignee.color.set(T.parcelle);
     m.terrain.color.set(m.terrain.map ? "#ffffff" : T.sol);
@@ -255,6 +260,7 @@ export class Scene3D {
   }
 
   vider() {
+    this.swiss?.vider();
     this.liberer(this.groupe); this.liberer(this.outils);
     for (const F of Object.values(this.fonds)) F.tex?.dispose();
     this.fonds = {};
@@ -284,7 +290,7 @@ export class Scene3D {
     const B = batiments(G, this.zRef, this.toits === "pans"), bati = new THREE.Group();
     bati.add(maille(B.toits, m.toit, true, true), maille(B.murs, m.mur, true, true));
     this.contours = B.contours;
-    // la canopée (grille) porte l'ombre en mode « points » ; les couronnes lissées sont construites par styleArbres()
+    // la canopée (grille) porte l'ombre des points ; sans points, styleArbres() construit des couronnes lissées
     const canopee = maille(nappe(G, G.veg, this.zRef), m.canopee, true, false);
     const arbres = nuage ? nuagePoints(nuage, G, this.zRef, "arbres", 0.5, 0.9) : null;
     const facades = nuage ? nuagePoints(nuage, G, this.zRef, "facades", 1, 0.42) : null;
@@ -294,7 +300,10 @@ export class Scene3D {
     for (const o of Object.values(this.couches)) if (o) this.groupe.add(o);
     if (tous) tous.visible = false;
     if (facades) facades.visible = false;
-    this.styleArbres(this.style || "couronnes");
+    // la canopée qui porte l'ombre des points est un peu abaissée : le haut des couronnes reste au soleil,
+    // l'intérieur et le bas s'assombrissent
+    canopee.position.y = -0.8;
+    this.styleArbres();
     this.appliquerCoupe();
     this.appliquerTheme(this.T);
     if (this.typeFond !== "cadastre") this.fond(this.typeFond);
@@ -320,44 +329,48 @@ export class Scene3D {
   }
 
   /**
-   * Rendu des arbres : "couronnes" (volumes lissés, une ombre douce par massif), "points" (relevé laser, disques plats
-   * sans halo ; la canopée invisible porte l'ombre) ou "mixte" (couronnes amincies habillées de points clairsemés).
+   * Arbres : les points du relevé laser (disques plats, sans halo), qui reçoivent les ombres ; la canopée invisible
+   * porte leur ombre. Sans points (repli raster), des couronnes lissées.
    */
-  styleArbres(style, visibles = this.arbresVisibles ?? true) {
-    this.style = style; this.arbresVisibles = visibles;
+  styleArbres(visibles = this.arbresVisibles ?? true) {
+    this.arbresVisibles = visibles;
     const c = this.couches, m = this.mat;
     if (!this.G) return;
-    for (const k of ["couronnes", "mixte"]) if (c[k]) c[k].visible = false;
-    if (style !== "points" || !c.arbres) {
-      const k = style === "mixte" && c.arbres ? "mixte" : "couronnes";
-      if (!c[k]) {
+    if (c.arbres) {
+      c.arbres.visible = visibles;
+      c.arbres.material.uniforms.relief.value = 0; // plus d'effet de petites boules
+      c.arbres.material.uniforms.taille.value = 0.7;
+      c.canopee.visible = visibles;
+    } else {
+      if (!c.couronnes) {
         this.arbresTeinte = this.T.arbres;
-        const g = couronnes(this.G, this.zRef, this.T.arbres, k === "mixte" ? 0.35 : 0);
-        if (g) { c[k] = new THREE.Mesh(g, m.couronne); c[k].castShadow = c[k].receiveShadow = true; this.groupe.add(c[k]); this.appliquerCoupe(); }
+        const g = couronnes(this.G, this.zRef, this.T.arbres);
+        if (g) { c.couronnes = new THREE.Mesh(g, m.couronne); c.couronnes.castShadow = c.couronnes.receiveShadow = true; this.groupe.add(c.couronnes); this.appliquerCoupe(); }
       }
-      if (c[k]) c[k].visible = visibles;
+      if (c.couronnes) c.couronnes.visible = visibles;
+      c.canopee.visible = false;
     }
-    // la canopée en grille ne sert plus qu'à porter l'ombre des points
-    c.canopee.visible = visibles && style === "points" && !!c.arbres;
     m.canopee.colorWrite = m.canopee.depthWrite = false;
     m.canopee.needsUpdate = true;
-    if (c.arbres) {
-      c.arbres.visible = visibles && style !== "couronnes";
-      const u = c.arbres.material.uniforms;
-      u.relief.value = 0; // disques plats : plus d'effet de petites boules
-      u.taille.value = style === "mixte" ? 0.55 : 0.7;
-    }
     this.ombres();
+  }
+
+  /**
+   * Comparaison avec les bâtiments 3D tout faits de swisstopo (swissBUILDINGS3D). `lieu` = { lon, lat } du centre.
+   * Ils portent et reçoivent les ombres comme les nôtres ; décocher « Bâtiments » pour ne voir qu'eux.
+   */
+  comparerSwiss(actif, lieu) {
+    if (!this.swiss) this.swiss = new Swiss3D(this, new THREE.MeshStandardMaterial({ color: "#b9cce0", roughness: 0.9, side: THREE.DoubleSide }));
+    if (lieu) this.swiss.lieu = lieu;
+    this.swiss.montrer(!!actif && !!this.G);
+    this.demander(5);
   }
 
   /** Couronnes à refaire (couleurs du thème changées). */
   refaireCouronnes() {
-    for (const k of ["couronnes", "mixte"]) {
-      const o = this.couches[k];
-      if (!o) continue;
-      this.groupe.remove(o); o.geometry.dispose(); this.couches[k] = null;
-    }
-    this.styleArbres(this.style);
+    const o = this.couches.couronnes;
+    if (o) { this.groupe.remove(o); o.geometry.dispose(); this.couches.couronnes = null; }
+    this.styleArbres();
   }
 
   /** Les ombres portées sont à recalculer (soleil déplacé, couche affichée ou masquée). */
@@ -417,7 +430,10 @@ export class Scene3D {
     u.soleil.value.copy(d).normalize();
     u.force.value = visible ? 1 : 0;
     this.scene.fog.color.copy(u.horizon.value);
-    for (const k of ["arbres", "facades", "tous"]) if (this.couches[k]) this.couches[k].material.uniforms.lum.value = 0.45 + 0.55 * jour;
+    for (const k of ["arbres", "facades", "tous"]) {
+      const u = this.couches[k]?.material.uniforms;
+      if (u) { u.lum.value = 0.45 + 0.55 * jour; u.ombre.value = visible ? 0.5 : 1; } // soleil caché : pas d'ombre portée
+    }
     this.ombres();
   }
 

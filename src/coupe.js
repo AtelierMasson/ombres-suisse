@@ -98,19 +98,16 @@ export function trancheCoupe(P, zRef, zBas, couleurs, materiauTrait) {
     grp.add(l);
   };
   plein(bande(0, P.nb - 1, () => zBas + zRef, k => P.sol[k]), couleurs.terrain);
-  const ligneSol = [];
-  for (let k = 0; k < P.nb; k++) ligneSol.push(pt(k, P.sol[k]));
-  trait(ligneSol);
-  for (const [a, b] of suites(P.bat)) {
-    if (b - a < 1) continue;
-    plein(bande(a, b, k => P.sol[k] - 0.05, k => P.bat[k]), couleurs.bati);
-    const c = [pt(a, P.sol[a])];
-    for (let k = a; k <= b; k++) c.push(pt(k, P.bat[k]));
-    c.push(pt(b, P.sol[b]));
-    trait(c);
-  }
+  // terrain et bâtiments coupés forment une seule masse : même couleur, un seul trait qui suit le dessus
+  for (const [a, b] of suites(P.bat)) if (b - a >= 1) plein(bande(a, b, k => P.sol[k] - 0.05, k => P.bat[k]), couleurs.terrain);
+  const dessus = [];
+  for (let k = 0; k < P.nb; k++) dessus.push(pt(k, enveloppe(P, k)));
+  trait(dessus);
   return grp;
 }
+
+/** Dessus de la masse coupée : le toit là où il y a un bâtiment, sinon le terrain. */
+const enveloppe = (P, k) => isNaN(P.bat[k]) ? P.sol[k] : Math.max(P.sol[k], P.bat[k]);
 
 /* ------------------------------------------------------------------ 2D */
 
@@ -146,8 +143,9 @@ export function dessinerCoupe(svg, P, soleil) {
   // arbres (silhouette), terrain poché, bâtiments pochés, trait de coupe
   for (const [a, b] of suites(P.veg, k0, k1)) t += `<path d="${chemin(a, b, k => P.veg[k], k => P.sol[k])}" class="arbres"/>`;
   t += `<path d="${chemin(k0, k1, k => P.sol[k], () => bas - 5)}" class="terrain"/>`;
-  for (const [a, b] of suites(P.bat, k0, k1)) t += `<path d="${chemin(a, b, k => P.bat[k], k => P.sol[k] - 0.05)}" class="bati"/>`;
-  t += `<path d="${chemin(k0, k1, k => P.sol[k])}" class="sol"/>`;
+  // bâtiments coupés de la même matière que le terrain, et un seul trait de coupe sur le dessus de la masse
+  for (const [a, b] of suites(P.bat, k0, k1)) t += `<path d="${chemin(a, b, k => P.bat[k], k => P.sol[k] - 0.05)}" class="terrain"/>`;
+  t += `<path d="${chemin(k0, k1, k => enveloppe(P, k))}" class="sol"/>`;
   // limites de parcelle
   for (const s of P.limites) if (s > P.s[k0] && s < P.s[k1]) {
     const z = P.sol[Math.round((s - P.s[0]) / P.pas)] ?? zmin;
