@@ -2,7 +2,7 @@
 import { positionSoleil, dateA } from "./soleil.js";
 import { horizonA } from "./horizon.js";
 
-const W = 420, H = 170, m = { g: 28, d: 8, h: 10, b: 22 }, AZ0 = 40, AZ1 = 320, HMAX = 72;
+const W = 300, H = 140, m = { g: 26, d: 6, h: 8, b: 20 }, AZ0 = 40, AZ1 = 320, HMAX = 72;
 const X = az => m.g + (az - AZ0) / (AZ1 - AZ0) * (W - m.g - m.d);
 const Y = h => H - m.b - (Math.max(-2, h) + 2) / (HMAX + 2) * (H - m.h - m.b);
 
@@ -27,7 +27,12 @@ export function dessinerDiagramme(svg, { horizon, jour, minutes, lat, lon }) {
   s += `<path d="${ligne(course(`${an}-06-21`, lat, lon))}" class="saison"/><path d="${ligne(course(`${an}-12-21`, lat, lon))}" class="saison"/>`;
   s += `<path d="${ligne(course(jour, lat, lon))}" class="course"/>`;
   const p = positionSoleil(dateA(jour, minutes), lat, lon);
-  if (p.hauteur > -2 && p.azimut > AZ0 && p.azimut < AZ1) s += `<circle cx="${X(p.azimut)}" cy="${Y(p.hauteur)}" r="6" class="astre"/>`;
+  const hh = `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+  if (p.hauteur > -2 && p.azimut > AZ0 && p.azimut < AZ1) {
+    const x = X(p.azimut), y = Y(p.hauteur), dx = x > W - 50 ? -10 : 10;
+    s += `<circle cx="${x}" cy="${y}" r="6" class="astre"/>`
+      + `<text x="${x + dx}" y="${Math.max(m.h + 10, y - 8)}" text-anchor="${dx < 0 ? "end" : "start"}" class="heure-astre">${hh}</text>`;
+  } else s += `<text x="${W - m.d - 2}" y="${m.h + 10}" text-anchor="end" class="heure-astre">${hh} · soleil couché</text>`;
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   svg.innerHTML = s;
 }

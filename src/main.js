@@ -315,6 +315,7 @@ function appliquerAffichage() {
   scene.styleArbres($("#vArbres").checked);
   scene.voirPoints($("#vPoints").checked && !$("#vPoints").disabled);
   if (c.heures) c.heures.visible = $("#vHeures").checked;
+  scene.arbresSurHeures();
   scene.ombres();
 }
 ["#vArbres", "#vArbresOmbre", "#vBatVoir", "#vBatOmbre", "#vPoints", "#vHeures"].forEach(s => $(s).addEventListener("change", appliquerAffichage));
@@ -462,6 +463,19 @@ function majCoupe(A, B) {
 function dessinCoupe() {
   const r = dessinerCoupe($("#svgCoupe"), S.coupe.P, soleilActuel());
   $("#coupeTexte").textContent = r ? `· ${r.long.toFixed(0)} m${r.note ? " · " + r.note : ""}` : "";
+}
+$("#vCouperModele").addEventListener("change", e => { scene.couperModele = e.target.checked; if (S.coupe) scene.definirCoupe(S.coupe.P); });
+// la carte de la coupe prend toute la largeur en bas : le panneau s'arrête au-dessus, le profil suit la largeur
+new ResizeObserver(() => {
+  const h = $("#coupe").hidden ? 0 : $("#coupe").offsetHeight + 12;
+  document.body.style.setProperty("--coupe-h", `${h}px`);
+}).observe($("#coupe"));
+{
+  let largeur = 0;
+  new ResizeObserver(([e]) => {
+    const l = Math.round(e.contentRect.width);
+    if (l && Math.abs(l - largeur) > 4 && S.coupe) { largeur = l; dessinCoupe(); }
+  }).observe($("#bas"));
 }
 $("#vCoupe").addEventListener("change", e => {
   $("#outilsCoupe").hidden = $("#coupe").hidden = !e.target.checked;

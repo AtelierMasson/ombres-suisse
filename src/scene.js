@@ -8,6 +8,8 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RebondPass } from "./rebond.js";
 import { Swiss3D } from "./swiss3d.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
+import { Line2 } from "three/addons/lines/Line2.js";
+import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { solEn, majSurface } from "./grille.js";
 import { indexVolumes } from "./volumes.js";
 import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord } from "./maillages.js";
@@ -684,7 +686,16 @@ export class Scene3D {
       }
       for (const [s, t] of total) if ((dedans.get(s) || 0) >= 0.5 * t) entiers.add(s);
       if (point && graines.length && seg[graines[0]] >= 0) entiers.add(seg[graines[0]]);
-      for (let p = 0; p < n * n; p++) if (entiers.has(seg[p]) && !isNaN(bat[p])) sel[2 * p + 1] = 1;
+      // un bâtiment qui appartient à une autre parcelle n'est pas teint, même s'il déborde un peu sur celle-ci (avant-toit
+      // sur la route, mur mitoyen). Seule exception : parcelle sans bâtiment à elle, dans un bloc mitoyen dont elle
+      // porte une part nette (au moins 15 % du bloc et 20 m²) : on teint cette part seulement.
+      const partiels = new Set();
+      if (!entiers.size) for (const [s, t] of total) { const d = dedans.get(s) || 0; if (d >= 0.15 * t && d * c * c >= 20) partiels.add(s); }
+      for (let p = 0; p < n * n; p++) {
+        if (isNaN(bat[p])) continue;
+        const s = seg[p];
+        sel[2 * p + 1] = entiers.has(s) || (partiels.has(s) && sel[2 * p]) ? 1 : 0;
+      }
     }
     // un peu élargi : les murs, posés au bord des cellules, doivent lire la sélection
     const bord = sel.slice();
@@ -908,12 +919,24 @@ export class Scene3D {
     this.ombres();
   }
 
+  /** Arbres beige-gris transparents tant que la carte des heures de soleil est affichée (sinon ils la cachent). */
+  arbresSurHeures() {
+    const m = this.couches.arbres?.material;
+    if (!m) return;
+    const actif = !!this.couches.heures?.visible;
+    if (m.uniforms.neutre.value === (actif ? 1 : 0)) return;
+    m.uniforms.neutre.value = actif ? 1 : 0;
+    m.transparent = actif; m.depthWrite = !actif; m.needsUpdate = true;
+    this.demander();
+  }
+
   /** Carte des heures d'ensoleillement (groupe de maillages préparé par heures.js), ou null pour l'enlever. */
   afficherHeures(grp) {
     const vieux = this.couches.heures;
     if (vieux) { this.groupe.remove(vieux); this.liberer(vieux); }
     this.couches.heures = grp;
     if (grp) { if (vieux) grp.visible = vieux.visible; this.groupe.add(grp); }
+    this.arbresSurHeures();
     this.appliquerCoupe();
     this.demander();
   }
@@ -925,10 +948,25 @@ export class Scene3D {
     this.liberer(this.outils);
     this.coupe = P;
     this.poignees = [];
-    if (P) {
-      this.tranche = trancheCoupe(P, this.zRef, this.zBas, { ...this.T.coupe, arbres: this.T.arbres[1] }, this.mat.trait);
+    this.tranche = null;
+    if (P && this.couperModele === false) {
+      // maquette entière : seulement la ligne de coupe, posée sur le terrain et les toits
+      const pts = [];
+      for (let k = 0; k < P.nb; k++) {
+        const x = P.A[0] + P.ux * P.s[k], y = P.A[1] + P.uy * P.s[k];
+        pts.push(x, Math.max(P.sol[k], P.bat[k] || -Infinity) - this.zRef + 0.2, -y);
+      }
+      const g = new LineGeometry();
+      g.setPositions(pts);
+      const l = new Line2(g, this.mat.trait);
+      l.computeLineDistances(); l.renderOrder = 4;
+      this.outils.add(l);
+    } else if (P) {
+      this.tranche = trancheCoupe(P, this.zRef, this.zBas, { ...this.T.coupe, arbres: this.T.sombre ? "#7f8da6" : "#8a9096" }, this.mat.trait);
       if (this.tranche.userData.arbres) this.tranche.userData.arbres.visible = this.arbresVisibles !== false;
       this.outils.add(this.tranche);
+    }
+    if (P) {
       this.poignees = [P.A, P.B].map(([x, y], k) => {
         const g = new THREE.Group(), boule = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 12), this.mat.poignee);
         boule.renderOrder = 5; boule.userData.bout = k;
@@ -954,7 +992,7 @@ export class Scene3D {
       this.plan.constant = -(P.A[0] * P.uy - P.A[1] * P.ux) * cote;
       // la tranche reste juste du côté visible (l'occlusion ambiante la coupe sinon), à 4 mm seulement : plus loin,
       // le bout des faces coupées (terrain sous un bâtiment, murs enterrés) dépasse devant le poché en traits fins
-      this.tranche.position.copy(this.plan.normal).multiplyScalar(0.004);
+      this.tranche?.position.copy(this.plan.normal).multiplyScalar(0.004);
     }
     // poignées de taille constante à l'écran, focale comprise (les vues plan et élévation utilisent une focale très longue)
     const f = 0.011 * Math.tan(this.camera.fov * Math.PI / 360) / Math.tan(Math.PI / 8);
@@ -962,7 +1000,7 @@ export class Scene3D {
   }
 
   appliquerCoupe() {
-    const plans = this.coupe ? [this.plan] : null, c = this.couches, m = this.mat;
+    const plans = this.coupe && this.couperModele !== false ? [this.plan] : null, c = this.couches, m = this.mat;
     // bâtiments swisstopo : chargés par tuiles bien au-delà du modèle, on les coupe aux bords du terrain
     // (et l'occlusion ambiante ne doit pas voir la partie coupée)
     if (this.G) {

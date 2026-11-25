@@ -306,7 +306,8 @@ void main() {
   #include <fog_vertex>
 }`;
 const FRAGMENTS = /* glsl */`
-uniform float lum, relief, ombre, gris;
+uniform float lum, relief, ombre, gris, neutre;
+uniform vec3 teinteNeutre;
 varying vec3 vCouleur;
 varying float vHaut;
 #include <common>
@@ -328,8 +329,10 @@ void main() {
   vec3 base = vCouleur;
   // dégradé selon la hauteur : la teinte de la rampe, nuancée par la clarté propre à chaque point
   if (degrade > 0.5) base = rampeHaut(vHaut) * (0.8 + 0.9 * (dot(vCouleur, vec3(0.2126, 0.7152, 0.0722)) - 0.25));
+  // carte des heures de soleil affichée : arbres beige-gris et transparents, pour la laisser lisible
+  if (neutre > 0.5) base = teinteNeutre * (0.85 + 0.6 * (dot(vCouleur, vec3(0.2126, 0.7152, 0.0722)) - 0.25));
   vec3 c = mix(base, vec3(dot(base, vec3(0.2126, 0.7152, 0.0722))), gris);
-  gl_FragColor = vec4(c * (1.0 - relief * (0.3 * r2 + 0.12 * p.y)) * lum * soleil, 1.0);
+  gl_FragColor = vec4(c * (1.0 - relief * (0.3 * r2 + 0.12 * p.y)) * lum * soleil, neutre > 0.5 ? 0.3 : 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
   #include <fog_fragment>
@@ -340,6 +343,7 @@ export function materiauPoints(taille, parClasse = false) {
   const mat = new THREE.ShaderMaterial({
     uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, THREE.UniformsLib.lights, {
       taille: { value: taille }, echelle: { value: 800 }, lum: { value: 1 }, relief: { value: 1 }, ombre: { value: 0.5 }, gris: { value: 0 },
+      neutre: { value: 0 }, teinteNeutre: { value: new THREE.Color("#cdc5b6") },
       c1: { value: new THREE.Color("#2f5d2a") }, c2: { value: new THREE.Color("#7fae4b") }, c3: { value: new THREE.Color("#b9c45a") },
     }]),
     defines: parClasse ? { PAR_CLASSE: 1 } : {},

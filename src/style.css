@@ -50,7 +50,7 @@ body.accueil #haut .recherche { visibility: hidden; }
 /* vue 3D, panneau, cartes du bas */
 #vue { position: absolute; top: var(--haut); left: 0; right: 0; bottom: 0; }
 #vue canvas { display: block; }
-#panneau { position: absolute; top: calc(var(--haut) + 12px); left: 12px; width: var(--large); max-height: calc(100% - var(--haut) - 56px); overflow: auto; z-index: 5; }
+#panneau { position: absolute; top: calc(var(--haut) + 12px); left: 12px; width: var(--large); max-height: calc(100% - var(--haut) - 56px - var(--coupe-h, 0px)); overflow: auto; z-index: 5; }
 #commandes section { border-top: 1px solid var(--bord); margin-top: 12px; padding-top: 10px; }
 .titre { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--doux); margin-bottom: 6px; }
 .bloc-date .btn-group { margin-top: 6px; }
@@ -58,10 +58,12 @@ body.accueil #haut .recherche { visibility: hidden; }
 .form-select { background-color: var(--carte); color: var(--texte); border-color: var(--bord-fort); border-radius: calc(var(--rayon) * .5); }
 .bloc-heure { margin-top: 10px; }
 #heureTexte { min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
-#bas { position: absolute; left: calc(var(--large) + 24px); right: 12px; bottom: 36px; z-index: 5; display: flex; gap: 12px; justify-content: flex-end; align-items: flex-end; pointer-events: none; }
+#bas { position: absolute; left: 12px; right: 12px; bottom: 36px; z-index: 5; display: flex; gap: 12px; justify-content: flex-end; align-items: flex-end; pointer-events: none; }
 #bas > * { pointer-events: auto; }
-#diagramme { width: 440px; flex: none; }
-#coupe { flex: 1 1 0; min-width: 0; max-width: 780px; }
+#diagramme { margin: 2px -4px 8px; }
+#diagramme .legende { font-size: 10.5px; }
+#coupe { flex: 1 1 0; min-width: 0; }
+#svgCoupe { display: block; margin: 0 auto; max-width: 100%; }
 #svgSoleil, #svgCoupe { width: 100%; height: auto; display: block; font: 10px system-ui, sans-serif; fill: var(--doux); }
 #svgCoupe { max-height: 240px; }
 #svgSoleil { cursor: pointer; touch-action: none; }
@@ -73,8 +75,8 @@ body.accueil #haut .recherche { visibility: hidden; }
 #svgCoupe { font-size: 8.5px; }
 #svgCoupe .grille { stroke-width: .5; }
 #svgCoupe .axe { stroke: var(--coupe-fin); stroke-width: .6; }
-#svgCoupe .arbres { fill: url(#hachureArbres); stroke: var(--coupe-arbres); stroke-width: .6; stroke-linejoin: round; }
-#svgCoupe .hachure { stroke: var(--coupe-arbres); stroke-width: .5; opacity: .6; }
+#svgCoupe .arbres { fill: url(#hachureArbres); stroke: none; }
+#svgCoupe .hachure { stroke: var(--coupe-arbres); stroke-width: .6; }
 #svgCoupe .terrain { fill: var(--coupe-terrain); stroke: none; }
 #svgCoupe .tronc { stroke: var(--coupe-arbres); stroke-width: .9; stroke-linecap: round; }
 #svgCoupe .points { fill: none; stroke-width: 1.5; stroke-linecap: round; }
@@ -94,7 +96,7 @@ body:not(.pro) .pro-seul { display: none !important; }
 .legende .l-saison { border-top: 1px dashed var(--course); height: 0; }
 .legende .l-bati { background: var(--coupe-bati); }
 .legende .l-terrain { background: var(--coupe-terrain); border-top: 1px solid var(--coupe-trait); }
-.legende .l-arbres { background: repeating-linear-gradient(45deg, transparent 0 2px, var(--coupe-arbres) 2px 2.6px); outline: .6px solid var(--coupe-arbres); }
+.legende .l-arbres { background: repeating-linear-gradient(-45deg, transparent 0 2.4px, var(--coupe-arbres) 2.4px 3px); }
 .legende .l-limite { border-top: 1px dashed var(--coupe-trait); height: 0; }
 #message { position: absolute; top: calc(var(--haut) + 12px); left: 50%; transform: translateX(-50%); z-index: 6; box-shadow: var(--ombre); }
 #pied { position: absolute; left: 12px; bottom: 8px; z-index: 5; max-width: calc(100% - 24px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--doux); background: color-mix(in srgb, var(--carte) 82%, transparent); padding: 2px 8px; border-radius: 6px; }
@@ -134,7 +136,7 @@ body[data-theme=nuit] #message { background: #3a2f12; color: #ffe2a8; border-col
   #themes button:not(.actif) span { display: none; }
   #themes button:not(.actif) { padding: 3px 4px; }
   #bas { flex-direction: column; align-items: flex-end; }
-  #coupe { flex: none; width: min(100%, 560px); }
+  #coupe { flex: none; width: 100%; }
 }
 /* onglets du panneau (Affichage, Coupe, Heures, Pro) ; tableau Voir / Ombre de l'onglet Affichage */
 #onglets { margin-top: 12px; }
@@ -152,7 +154,7 @@ body[data-theme=nuit] #message { background: #3a2f12; color: #ffe2a8; border-col
   #haut .marque { font-size: 0; gap: 0; }
   #panneau, body[data-theme=nuit] #panneau { width: auto; left: 12px; right: 12px; max-height: 45%; }
   #bas, body[data-theme=nuit] #bas { left: 12px; right: 12px; bottom: 34px; }
-  #diagramme, #coupe { width: 100%; }
+  #coupe { width: 100%; }
   .atouts { grid-template-columns: 1fr; }
   .carte-accueil { padding: 22px 20px; }
 }
@@ -190,3 +192,5 @@ body.accueil #orientation { display: none; }
 #boussole .bout text { font: 700 9.5px system-ui, sans-serif; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
 #boussole .bout:hover circle { stroke-width: 2.6; }
 #boussole .bout.actif circle { stroke: var(--texte); stroke-width: 2.4; }
+
+#svgSoleil .heure-astre { font-size: 11px; font-weight: 700; fill: var(--texte); paint-order: stroke; stroke: var(--carte); stroke-width: 3px; }

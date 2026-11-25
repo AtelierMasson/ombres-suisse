@@ -182,8 +182,8 @@ function fermer(a, n, passes) {
  */
 function boucherTrous(a, n, c, aireMax = 30, largeur = 2.5) {
   // fermeture (max puis min sur une fenêtre de ±largeur) : hauteur du toit « tendu » par-dessus les creux étroits
-  const r = Math.round(largeur / c), N = n * n;
-  const filtre = (src, max, horiz) => {
+  const N = n * n;
+  const filtre = (src, max, horiz, r) => {
     const out = new Float32Array(N);
     for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
       let m = max ? -Infinity : Infinity;
@@ -198,9 +198,12 @@ function boucherTrous(a, n, c, aireMax = 30, largeur = 2.5) {
     }
     return out;
   };
-  const tendu = filtre(filtre(filtre(filtre(a, true, true), true, false), false, true), false, false);
+  const fermeture = r => filtre(filtre(filtre(filtre(a, true, true, r), true, false, r), false, true, r), false, false, r);
+  // deux fermetures : large (creux jusqu'à ~5 m de large, profonds de plus de 2 m) et étroite (fentes de moins de ~2 m,
+  // dès 1,2 m de profondeur : la noue d'un toit à moins de 50° de pente reste en dessous)
+  const tendu = fermeture(Math.round(largeur / c)), tenduE = fermeture(Math.round(1 / c));
   const creux = new Uint8Array(N);
-  for (let p = 0; p < N; p++) creux[p] = isNaN(a[p]) || tendu[p] - a[p] > 2 ? 1 : 0;
+  for (let p = 0; p < N; p++) creux[p] = isNaN(a[p]) || tendu[p] - a[p] > 2 || tenduE[p] - a[p] > 1.2 ? 1 : 0;
   const vu = new Uint8Array(N), maxCel = aireMax / (c * c);
   for (let p0 = 0; p0 < N; p0++) {
     if (vu[p0] || !creux[p0]) continue;
@@ -216,7 +219,7 @@ function boucherTrous(a, n, c, aireMax = 30, largeur = 2.5) {
     }
     if (ouvert || m.length > maxCel) continue;
     // toit « tendu » par-dessus le creux ; là où il manque, de proche en proche depuis le bord
-    for (const p of m) a[p] = tendu[p];
+    for (const p of m) a[p] = tendu[p] - a[p] > 2 || isNaN(tenduE[p]) ? tendu[p] : tenduE[p];
     // de proche en proche : chaque passe remplit les cellules qui touchent déjà du toit
     let reste = m.filter(p => isNaN(a[p]));
     while (reste.length) {

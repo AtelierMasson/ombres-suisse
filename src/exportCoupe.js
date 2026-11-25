@@ -4,7 +4,7 @@
 
 const alt = z => (Math.round(z * 10) / 10).toFixed(1).replace(".", ",");
 const ascii = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\x20-\x7e]/g, "-");
-const COULEURS = { TERRAIN_COUPE: [7, "#1f2933"], BATIMENTS_COUPES: [8, "#3b4754"], ARBRES: [3, "#5f9a3f"], NUAGE: [8, "#7a7f8c"], LIMITES_PARCELLE: [1, "#e0262b"], COTES: [5, "#1d4f91"], CADRE: [9, "#66727f"] };
+const COULEURS = { TERRAIN_COUPE: [7, "#1f2933"], BATIMENTS_COUPES: [8, "#3b4754"], ARBRES: [8, "#9aa0a6"], NUAGE: [8, "#7a7f8c"], LIMITES_PARCELLE: [1, "#e0262b"], COTES: [5, "#1d4f91"], CADRE: [9, "#66727f"] };
 
 // points du nuage par catégorie (sol, végétation, bâtiment, autre) : couleur DXF (indice) et SVG
 const POINTS = [[30, "#8a6d3b"], [3, "#3f8f3a"], [1, "#d9523a"], [8, "#7a7f8c"]];
@@ -35,12 +35,11 @@ export function dessinCoupe(P, o) {
   const profil = (a, b, v) => { const pts = []; for (let k = a; k <= b; k++) pts.push(P.s[k], v(k)); return pts; };
   const retour = (a, b, v) => { const pts = []; for (let k = b; k >= a; k--) pts.push(P.s[k], v(k)); return pts; };
   // arbres (silhouettes fermées), terrain coupé, bâtiments coupés (contours fermés)
-  // arbres : couronne (contour fermé, du dessous au dessus) et tronc, comme dans le profil affiché
+  // arbres : contour fermé du sol jusqu'à la cime, comme la hachure du profil affiché
   for (const T of P.arbres || []) {
     const a = Math.max(T.a, k0), b = Math.min(T.b, k1);
     if (b <= a) continue;
-    ligne("ARBRES", [...profil(a, b, k => T.haut[k - T.a]), ...retour(a, b, k => T.bas[k - T.a])], true);
-    for (const k of T.troncs) if (k >= a && k <= b) ligne("ARBRES", [P.s[k], P.sol[k], P.s[k], T.bas[k - T.a]]);
+    ligne("ARBRES", [...profil(a, b, k => T.haut[k - T.a]), ...retour(a, b, k => P.sol[k])], true);
   }
   ligne("TERRAIN_COUPE", profil(k0, k1, k => P.sol[k]));
   for (const [a, b] of suites(P.bat, k0, k1)) {

@@ -138,6 +138,22 @@ function lireNuage(P, nuage, distance) {
   return { points: distance ? { s: S.subarray(0, n), z: Zp.subarray(0, n), c: Cp.subarray(0, n), n, distance } : null, nv, haut, bas };
 }
 
+/** Texture de hachure diagonale (traits sur fond transparent), répétée ; partagée. */
+let hachure = null;
+function textureHachure() {
+  if (hachure) return hachure;
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = 64;
+  const x = cv.getContext("2d");
+  x.strokeStyle = "#fff";
+  x.lineWidth = 5;
+  for (const o of [-64, 0, 64]) { x.beginPath(); x.moveTo(o, 64); x.lineTo(o + 64, 0); x.stroke(); }
+  hachure = new THREE.CanvasTexture(cv);
+  hachure.wrapS = hachure.wrapT = THREE.RepeatWrapping;
+  hachure.anisotropy = 4;
+  return hachure;
+}
+
 /**
  * Arbres coupés : pour chaque couronne traversée, son dessus et son dessous (lissés, bouts arrondis) et ses troncs.
  * Le dessus vient de la canopée (grille) ou, quand les points proches sont affichés, de leur enveloppe ; le dessous,
@@ -255,25 +271,25 @@ export function trancheCoupe(P, zRef, zBas, couleurs, materiauTrait) {
     if (!isNaN(P.fin[k])) dessus.push(en(P.fin[k], P.bat[k]), en(P.fin[k], Math.min(P.sol[k], P.bat[k])));
   }
   trait(dessus);
-  // arbres coupés : silhouette de la couronne et tronc, en aplat translucide dans le plan (groupe `arbres`)
+  // arbres coupés : hachure diagonale grise dans le plan de coupe, du sol jusqu'à la cime (groupe `arbres`)
   if (couleurs.arbres && P.arbres?.length) {
-    const pos = [], troncs = [];
+    const pos = [], uv = [], ech = 0.7; // une ligne de hachure tous les ~0,7 m
     for (const T of P.arbres) {
-      pos.push(...bande(T.a, T.b, k => T.bas[k - T.a], k => T.haut[k - T.a]));
-      for (const k of T.troncs) {
-        const x = P.s[k], bas = P.sol[k] - zRef, haut = T.bas[k - T.a] - zRef, q = (d, y) => [P.A[0] + P.ux * (x + d), y, -(P.A[1] + P.uy * (x + d))];
-        troncs.push(...q(-0.15, bas), ...q(0.15, bas), ...q(0.15, haut), ...q(-0.15, bas), ...q(0.15, haut), ...q(-0.15, haut));
+      const p = bande(T.a, T.b, k => P.sol[k] - zRef, k => T.haut[k - T.a] - zRef);
+      pos.push(...p);
+      // coordonnées de texture : abscisse le long de la coupe et altitude, en mètres
+      for (let q = 0; q < p.length; q += 3) {
+        const d = (p[q] - P.A[0]) * P.ux + (-p[q + 2] - P.A[1]) * P.uy;
+        uv.push(d / ech, p[q + 1] / ech);
       }
     }
-    const arbres = new THREE.Group(), aplat = (p, opacite) => {
-      const g = new THREE.BufferGeometry();
-      g.setAttribute("position", new THREE.Float32BufferAttribute(p, 3));
-      const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: couleurs.arbres, side: THREE.DoubleSide, fog: false, transparent: true, opacity: opacite, depthWrite: false }));
-      m.renderOrder = 2;
-      arbres.add(m);
-    };
-    aplat(pos, 0.5);
-    if (troncs.length) aplat(troncs, 0.85);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+    const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: couleurs.arbres, map: textureHachure(), side: THREE.DoubleSide, fog: false, transparent: true, depthWrite: false }));
+    m.renderOrder = 2;
+    const arbres = new THREE.Group();
+    arbres.add(m);
     grp.add(arbres);
     grp.userData.arbres = arbres;
   }
@@ -299,10 +315,14 @@ export function dessinerCoupe(svg, P, soleil) {
     zmax = Math.max(zmax, P.sol[k], P.bat[k] || -Infinity, P.veg[k] || -Infinity);
   }
   const long = P.s[k1] - P.s[k0], bas = zmin - Math.max(2, long * 0.03), haut = Math.max(zmax + Math.max(3, long * 0.05), bas + long * 0.22);
-  const W = 720, m = { g: 46, d: 12, h: 8, b: 20 }, e = (W - m.g - m.d) / long, H = Math.round((haut - bas) * e + m.h + m.b);
+  // largeur de la carte (pixels de l'écran, textes à leur taille), hauteur limitée ; échelle identique en x et en z
+  const m = { g: 46, d: 12, h: 8, b: 20 }, largeDispo = Math.max(360, (svg.parentElement?.clientWidth || 736) - 16), Hmax = 250;
+  const e = Math.min((largeDispo - m.g - m.d) / long, (Hmax - m.h - m.b) / (haut - bas));
+  const W = Math.round(long * e + m.g + m.d), H = Math.round((haut - bas) * e + m.h + m.b);
+  svg.style.width = `${W}px`;
   const X = s => m.g + (s - P.s[k0]) * e, Y = z => m.h + (haut - z) * e, f = v => v.toFixed(1);
   let t = `<defs><clipPath id="cadreCoupe"><rect x="${m.g}" y="${m.h}" width="${W - m.g - m.d}" height="${H - m.h - m.b}"/></clipPath>`
-    + `<pattern id="hachureArbres" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" class="hachure"/></pattern></defs>`;
+    + `<pattern id="hachureArbres" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" class="hachure"/></pattern></defs>`;
   // altitudes rondes
   const ecart = [1, 2, 5, 10, 20, 50, 100].find(v => (haut - bas) / v <= 6) || 200;
   for (let z = Math.ceil(bas / ecart) * ecart; z < haut; z += ecart)
@@ -316,12 +336,11 @@ export function dessinerCoupe(svg, P, soleil) {
     if (dessous) for (let k = b; k >= a; k--) p += `L${f(X(P.s[k]))},${f(Y(dessous(k)))}`;
     return p + (dessous ? "Z" : "");
   };
-  // arbres : couronne hachurée au contour fin, tronc
+  // arbres : simple hachure diagonale grise, du sol jusqu'à la cime
   for (const T of P.arbres || []) {
     const a = Math.max(T.a, k0), b = Math.min(T.b, k1);
     if (b <= a) continue;
-    for (const k of T.troncs) if (k >= a && k <= b) t += `<line x1="${f(X(P.s[k]))}" x2="${f(X(P.s[k]))}" y1="${f(Y(P.sol[k]))}" y2="${f(Y(T.bas[k - T.a]))}" class="tronc"/>`;
-    t += `<path d="${chemin(a, b, k => T.haut[k - T.a], k => T.bas[k - T.a])}" class="arbres"/>`;
+    t += `<path d="${chemin(a, b, k => T.haut[k - T.a], k => P.sol[k])}" class="arbres"/>`;
   }
   // masse coupée (terrain et bâtiments, d'une seule matière) et trait de coupe, murs à leur position exacte
   const dans = d => d >= P.s[k0] && d <= P.s[k1];
