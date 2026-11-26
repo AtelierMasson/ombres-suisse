@@ -705,6 +705,8 @@ function dessinCoupe() {
   const r = dessinerCoupe($("#svgCoupe"), S.coupe.P, soleilActuel(), { audela: "plans" });
   $("#coupeTexte").textContent = r ? `· ${nombre(r.long, 0)} m${r.note ? " · " + r.note : ""}` : "";
 }
+// inverser la coupe : A et A' échangés, on regarde de l'autre côté (jamais automatique)
+$("#btnInverserCoupe").addEventListener("click", () => { if (S.coupe) majCoupe(S.coupe.B, S.coupe.A); });
 $("#vCouperModele").addEventListener("change", e => { scene.couperModele = e.target.checked; if (S.coupe) scene.definirCoupe(S.coupe.P); });
 // la carte de la coupe prend toute la largeur en bas : le panneau s'arrête au-dessus, le profil suit la largeur
 new ResizeObserver(() => {

@@ -323,7 +323,9 @@ body.accueil #orientation { display: none; }
 #infos .infos-texte b { font-weight: 600; }
 #infos .btn { padding: 1px 8px; }
 body.accueil #infos { display: none; }
-@media (max-width: 760px) { #infos .infos-texte #lieuType { display: none; } }
+@media (max-width: 1100px) { #infos .infos-texte #lieuType { display: none; } }
+/* petit écran : le nom du lieu cède la place à la recherche, les boutons ☆ et Lien restent */
+@media (max-width: 760px) { #infos { flex: none; } #infos .infos-texte { display: none; } }
 
 /* panneau : une carte par partie (heure, ensoleillement, coupe) au lieu d'une seule grande carte */
 #panneau.card { --bs-card-bg: transparent; --bs-card-border-color: transparent; box-shadow: none; background: none; border: 0; }
