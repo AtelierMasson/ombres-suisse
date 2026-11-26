@@ -260,7 +260,7 @@ export class Scene3D {
     const rendu = ao.render.bind(ao);
     ao.render = (...a) => {
       // les points n'entrent jamais dans l'occlusion (sinon chaque point a son halo sombre)
-      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, c.heures, c.limite, c.voisines, c.arbres, c.tous, c.selection, c.laser,
+      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, c.heures, c.limite, c.voisines, c.arbres, c.tous, c.selection, c.laser, ...(this.horsAO || []),
         this.coupe ? this.tranche?.userData.arbres : null, ...(this.coupe && this.tranche?.userData.traits || []),
         c.canopee?.material.colorWrite === false ? c.canopee : null].filter(o => o && o.visible);
       for (const o of caches) o.visible = false;
@@ -945,15 +945,17 @@ export class Scene3D {
         const cv = document.createElement("canvas"); cv.width = 1; cv.height = 512;
         const x = cv.getContext("2d"), img = x.createImageData(1, 512);
         for (let j = 0; j < 512; j++) {
-          const v = j / 511, a = 0.2 * Math.pow(1 - v, 5) + (v < 0.006 ? 0.55 : 0);
+          const v = j / 511, a = 0.1 * Math.pow(1 - v, 4) + (v < 0.01 ? 0.3 : 0);
           img.data.set([255, Math.round(255 * Math.min(1, a)), 255, 255], (511 - j) * 4);
         }
         x.putImageData(img, 0, 0);
         const tex = new THREE.CanvasTexture(cv);
-        this.mat.laser = new THREE.MeshBasicMaterial({ alphaMap: tex, transparent: true, depthWrite: false, side: THREE.DoubleSide, fog: false });
+        // mélange additif : le résultat ne dépend pas de l'ordre des faces (sinon les murs transparents qui se recouvrent
+        // dessinaient des triangles)
+        this.mat.laser = new THREE.MeshBasicMaterial({ alphaMap: tex, transparent: true, depthWrite: false, side: THREE.DoubleSide, fog: false, blending: THREE.AdditiveBlending });
       }
       this.mat.laser.color.set(this.T.parcelle);
-      const H = 250, pos = [], h = [];
+      const H = 150, pos = [], h = [];
       // un point seul : deux plans en croix de 0,6 m, comme un faisceau
       const P = pts.length === 1 ? [[pts[0][0] - 0.3, pts[0][1]], [pts[0][0] + 0.3, pts[0][1]], null, [pts[0][0], pts[0][1] - 0.3], [pts[0][0], pts[0][1] + 0.3]] : pts;
       const bas = p => solEn(this.G, p[0], p[1]) - this.zRef - 0.3;

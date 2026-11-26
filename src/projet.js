@@ -33,7 +33,10 @@ export function volumeGeometrie(v, G, zRef) {
   const P = v.coins, base = Math.min(...P.map(([x, y]) => solEn(G, x, y))) - zRef;
   const bas = base - 0.5, h = base + v.hauteur, pos = [];
   const S = ([x, y], z) => [x, z, -y];
-  const tri = (a, b, c) => pos.push(...a, ...b, ...c);
+  // face de chaque triangle (édition) : k ≥ 0 = mur du côté k (coins k → k+1), −1 = toit
+  const faces = [];
+  let face = -1;
+  const tri = (a, b, c) => { pos.push(...a, ...b, ...c); faces.push(face); };
   const quad = (a, b, c, d) => { tri(a, b, c); tri(a, c, d); };
   // toit à deux pans : faîte au milieu, parallèle au grand côté (rectangle seulement)
   const deuxPans = v.toit === "deux" && P.length === 4 && v.faite > 0;
@@ -48,8 +51,10 @@ export function volumeGeometrie(v, G, zRef) {
   // murs
   for (let k = 0; k < P.length; k++) {
     const a = P[k], b = P[(k + 1) % P.length];
+    face = k;
     quad(S(a, bas), S(b, bas), S(b, haut[(k + 1) % P.length]), S(a, haut[k]));
   }
+  face = -1;
   if (!deuxPans) {
     for (let k = 1; k + 1 < P.length; k++) tri(S(P[0], h), S(P[k], h), S(P[k + 1], h));
   } else {
@@ -70,6 +75,8 @@ export function volumeGeometrie(v, G, zRef) {
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
   g.computeVertexNormals();
+  g.userData.faces = faces;
+  g.userData.base = base; // pied des murs (repère de la scène)
   return g;
 }
 

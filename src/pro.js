@@ -9,6 +9,7 @@ import { importerModele } from "./importer.js";
 import { dxfReference } from "./referenceParcelle.js";
 import { solEn } from "./grille.js";
 import { ICONE } from "./icones.js";
+import { brancherEdition } from "./editionVolumes.js";
 
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const memoire = (cle, valeur) => {
@@ -63,6 +64,7 @@ export function brancherPro(o) {
 
   scene.surClic = e => {
     if (dessin) return clicDessin(e);
+    if (edition?.consomme()) return; // clic pris par l'édition d'un volume
     if (!actif() || !pret() || jeu() !== "releve") return;
     const V = scene.indexer(), s = scene.designer(e);
     let ids = [], nom = null;
@@ -160,8 +162,17 @@ export function brancherPro(o) {
     scene.laserVolume(dessin.length === 1 ? [dessin[0], p] : coins || [dessin[0], dessin[1]], dessin.length === 2 && !!coins);
   });
   /** Volumes changés : maquette, ombres, coupe, heures de soleil (si affichées), liste du panneau. */
+  // édition des volumes à la souris (sélection, faces, déplacer, tourner) : editionVolumes.js
+  let edition = null;
+  queueMicrotask(() => {
+    edition = brancherEdition({
+      scene, volumes: () => P.volumes, actif, dessine: () => !!dessin, changes: volumesChanges,
+      retirer: id => { P.volumes = P.volumes.filter(v => v.id !== id); volumesChanges(); },
+    });
+  });
   function volumesChanges() {
     scene.afficherVolumes(P.volumes);
+    edition?.maj();
     S.versionProjet = (S.versionProjet || 0) + 1;
     S.volumesProjet = P.volumes;
     if (S.coupe) o.majCoupe(S.coupe.A, S.coupe.B);
