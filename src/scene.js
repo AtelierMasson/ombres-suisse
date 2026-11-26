@@ -82,6 +82,8 @@ export const ZONE = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
 const ZONE_FINE = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
 /** Zone vue par l'occlusion ambiante et le rebond : tout ce qui est hors du cercle (ou de l'anneau) en est retiré. */
 const ZONE_AO = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
+// anneau seul (entre le cercle fin et le bord extérieur) : ponts swissTLM3D, nos ponts étant dans la maquette fine
+const ZONE_ANNEAU = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
 function decoupeZone(mat, zone = ZONE) {
   if (mat.userData.zone) return;
   mat.userData.zone = true;
@@ -317,6 +319,28 @@ export class Scene3D {
       rendu(...a);
       for (const o of caches) o.visible = true;
     };
+    // l'occlusion s'efface dans la brume, comme le reste : facteur de brume (FogExp2) tiré de la profondeur
+    Object.assign(ao.blendMaterial.uniforms, { tDepth: { value: ao.depthTexture }, cameraNear: { value: 1 }, cameraFar: { value: 1000 }, densite: { value: 0 }, ortho: { value: 0 } });
+    ao.blendMaterial.fragmentShader = `
+uniform float intensity, cameraNear, cameraFar, densite, ortho;
+uniform sampler2D tDiffuse, tDepth;
+varying vec2 vUv;
+#include <packing>
+void main() {
+  vec4 texel = texture2D(tDiffuse, vUv);
+  float z = texture2D(tDepth, vUv).x;
+  float d = ortho > 0.5 ? -orthographicDepthToViewZ(z, cameraNear, cameraFar) : -perspectiveDepthToViewZ(z, cameraNear, cameraFar);
+  float brume = z >= 1.0 ? 1.0 : 1.0 - exp(-densite * densite * d * d);
+  gl_FragColor = vec4(mix(vec3(1.0), texel.rgb, intensity * (1.0 - brume)), texel.a);
+}`;
+    ao.blendMaterial.needsUpdate = true;
+    const majBrumeAo = () => {
+      const u = ao.blendMaterial.uniforms, cam = this.camera;
+      u.tDepth.value = ao.depthTexture; u.cameraNear.value = cam.near; u.cameraFar.value = cam.far;
+      u.densite.value = this.scene.fog?.density || 0; u.ortho.value = cam.isOrthographicCamera ? 1 : 0;
+    };
+    const rendu2 = ao.render;
+    ao.render = (...a) => { majBrumeAo(); rendu2(...a); };
     this.composeur.addPass(ao);
     // un rebond de lumière (éclairage indirect) à l'écran, après l'occlusion dont il reprend profondeur et normales
     this.composeur.addPass(this.rebond = new RebondPass(this.camera, ao));
@@ -592,7 +616,12 @@ export class Scene3D {
     if (gp || modeles.length) {
       ponts = new THREE.Group();
       if (gp) ponts.add(maille(gp.dessus, m.terrain, true, true), maille(gp.cotes, m.mur, true, true));
-      for (const P of modeles) ponts.add(maille(maillagePont(P, Ep, Np, this.zRef, (x, y) => solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y)))), m.mur, true, true));
+      for (const P of modeles) {
+        // chaussée : matière du terrain (cadastre, photo, bruit, grain continuent sur le pont), le reste en plâtre
+        const g = maillagePont(P, Ep, Np, this.zRef, (x, y) => solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y))),
+          (x, y) => [(x - G.x0) / (2 * G.R), (y - G.x0) / (2 * G.R)]);
+        ponts.add(maille(g.dessus, m.terrain, true, true), maille(g.reste, m.mur, true, true));
+      }
       ponts.children.forEach(o => decouperBord(o, G.R - 0.03));
     }
     this.couches = { terrain: sol, socle: base, bati, canopee, arbres, limite, eau, ponts };
@@ -761,6 +790,7 @@ export class Scene3D {
     ZONE_AO.zoneMax.value = Rf ? Math.max(Rf, this.rayonExt || 0) + 0.5 : 1e9;
     if (!Rf) { ZONE.zoneMin.value = 0; ZONE.zoneMax.value = 1e9; return; }
     ZONE.zoneMax.value = Math.max(Rf, this.rayonExt || 0) - 0.03;
+    ZONE_ANNEAU.zoneMin.value = Rf - 0.03; ZONE_ANNEAU.zoneMax.value = Math.max(Rf, this.rayonExt || 0) - 0.03;
     ZONE.zoneMin.value = this.calques.jeu === "swiss" ? 0 : Rf - 0.03;
     this.demander();
   }
@@ -856,6 +886,9 @@ export class Scene3D {
     }
     ["c1", "c2", "c3"].forEach((u, i) => this.mat.pointsAnneau.uniforms[u].value.set(this.T.arbres[i]));
     this.swiss.chargerArbres({ couronne: this.mat.couronne, tronc: this.mat.mur, points: this.mat.pointsAnneau, calqueOmbre: CALQUE_OMBRE, zone: [Rint, Rext] }, 10);
+    // ponts de l'anneau : swissTLM3D (légers), coupés au cercle fin et au bord ; nos ponts modélisés à part y sont ajoutés
+    if (!this.mat.pontsAnneau) { this.mat.pontsAnneau = new THREE.MeshStandardMaterial({ color: this.T.mur, roughness: 1 }); decoupeZone(this.mat.pontsAnneau, ZONE_ANNEAU); }
+    this.swiss.chargerPonts(this.mat.pontsAnneau);
     this.appliquerCoupe();
     this.majZone();
     this.appliquerCalques();

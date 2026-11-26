@@ -10,6 +10,8 @@ import { versWgs } from "./geo.js";
 const TUILES = "https://3d.geo.admin.ch/ch.swisstopo.swissbuildings3d.3d/v1/tileset.json";
 // arbres isolés et forêts de swisstopo (swissTLM3D) : arbres instanciés (Tree-n.glb), chargés selon la vue
 const ARBRES = "https://3d.geo.admin.ch/ch.swisstopo.vegetation.3d/v1/tileset.json";
+// ponts et autres ouvrages de swissTLM3D (quelques centaines de triangles par pont) : pour l'anneau de la maquette
+const PONTS = "https://3d.geo.admin.ch/ch.swisstopo.swisstlm3d.3d/v1/tileset.json";
 const GEOIDE = 0; // les tuiles sont ensuite calées sur nos toits (voir caler)
 // les tuiles swisstopo sont compressées en Draco : décodeur copié dans public/draco (servi avec le site)
 let draco;
@@ -250,6 +252,25 @@ export class Swiss3D {
     t.addEventListener("tiles-load-end", () => s.demander(3));
   }
 
+  /** Ponts de swissTLM3D (tuiles selon la vue), même repère et même calage que les bâtiments. `materiau` : leur matière. */
+  chargerPonts(materiau, erreur = 8) {
+    if (!this.versScene || this.ponts) return;
+    const s = this.s, t = this.ponts = new TilesRenderer(PONTS);
+    t.errorTarget = erreur;
+    t.registerPlugin(new GLTFExtensionsPlugin({ dracoLoader: decodeur() }));
+    t.setCamera(s.camera);
+    t.setResolutionFromRenderer(s.camera, s.renderer);
+    t.group.matrixAutoUpdate = false;
+    t.group.matrix.copy(this.versScene);
+    t.group.matrixWorldNeedsUpdate = true;
+    this.socle.add(t.group);
+    t.addEventListener("load-model", ({ scene }) => {
+      scene.traverse(o => { if (o.isMesh) { o.material = materiau; o.castShadow = o.receiveShadow = true; o.frustumCulled = false; } });
+      s.ombres();
+    });
+    t.addEventListener("tiles-load-end", () => s.demander(3));
+  }
+
   /** Appelé à chaque image : charge ou décharge les tuiles selon la caméra. */
   mettreAJour() {
     if (!this.tuiles || !this.socle.visible) return;
@@ -257,6 +278,7 @@ export class Swiss3D {
     this.tuiles.setResolutionFromRenderer(this.s.camera, this.s.renderer);
     this.tuiles.update();
     if (this.arbres) { this.arbres.setResolutionFromRenderer(this.s.camera, this.s.renderer); this.arbres.update(); }
+    if (this.ponts) { this.ponts.setResolutionFromRenderer(this.s.camera, this.s.renderer); this.ponts.update(); }
     // rendu à la demande : tant que des tuiles arrivent, on redemande des images pour poursuivre le chargement
     const st = this.tuiles.stats, sa = this.arbres?.stats, n = st.downloading + st.parsing + st.queued + (sa ? sa.downloading + sa.parsing + sa.queued : 0);
     if (n > 0) this.s.demander(2);
@@ -273,6 +295,7 @@ export class Swiss3D {
   vider() {
     if (this.enCours) { this.enCours = 0; this.s.surTuilesSwiss?.(0); }
     if (this.arbres) { this.socle.remove(this.arbres.group); this.arbres.dispose(); this.arbres = null; }
+    if (this.ponts) { this.socle.remove(this.ponts.group); this.ponts.dispose(); this.ponts = null; }
     if (!this.tuiles) return;
     this.socle.remove(this.tuiles.group);
     this.tuiles.dispose();

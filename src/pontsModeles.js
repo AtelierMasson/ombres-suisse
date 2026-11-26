@@ -25,9 +25,11 @@ export function dansPont(P, E0, N0, x, y) {
 
 /**
  * Maillage d'un pont modélisé, dans le repère de la scène (x est, y = altitude - zRef, z = -nord).
- * `sol(x, y)` : altitude du terrain (relative au centre) pour le pied des culées.
+ * `sol(x, y)` : altitude du terrain (relative au centre) pour le pied des culées ; `uvPlan(x, y)` : coordonnées du plan
+ * au sol (cadastre, photo) pour le dessus de la chaussée, qui prend la matière du terrain.
+ * Renvoie { dessus, reste } : la chaussée (avec uv) et tout le reste (tablier, appuis, arches).
  */
-export function maillagePont(P, E0, N0, zRef, sol) {
+export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0]) {
   const a = P.axe.map(([e, n, z]) => [e - E0, n - N0, z]), s = [0];
   for (let i = 1; i < a.length; i++) s.push(s[i - 1] + Math.hypot(a[i][0] - a[i - 1][0], a[i][1] - a[i - 1][1]));
   const L = s.at(-1);
@@ -37,28 +39,44 @@ export function maillagePont(P, E0, N0, zRef, sol) {
     const u = (t - s[i]) / ((s[i + 1] - s[i]) || 1), dx = a[i + 1][0] - a[i][0], dy = a[i + 1][1] - a[i][1], l = Math.hypot(dx, dy) || 1;
     return { x: a[i][0] + dx * u, y: a[i][1] + dy * u, z: a[i][2] + (a[i + 1][2] - a[i][2]) * u, ux: dx / l, uy: dy / l };
   };
-  const pos = [];
+  const pos = [], posD = [], uvD = [];
   const v = (x, y, z) => [x, z - zRef, -y];
+  // dessus de la chaussée : une seule face, vers le haut, avec les coordonnées du plan au sol
+  const chaussee = (p, q, r, w) => { for (const c of [p, r, q, p, w, r]) { posD.push(...v(...c)); uvD.push(...uvPlan(c[0], c[1])); } };
   // quadrilatère (quatre sommets [x, y, z] dans l'ordre) en deux triangles, les deux faces
   const quad = (p, q, r, w) => pos.push(...v(...p), ...v(...q), ...v(...r), ...v(...p), ...v(...r), ...v(...w), ...v(...p), ...v(...r), ...v(...q), ...v(...p), ...v(...w), ...v(...r));
   // volume balayé le long de l'axe entre t0 et t1 : en travers de largeur `l`, du bas `bas(t)` au haut `haut(t)`
-  const balaye = (t0, t1, l, bas, haut, pas = 2) => {
+  const balaye = (t0, t1, l, bas, haut, pas = 2, route = false) => {
     const n = Math.max(1, Math.ceil((t1 - t0) / pas)), coupe = t => {
       const A = surAxe(t), nx = -A.uy * l / 2, ny = A.ux * l / 2, b = bas(t), h = haut(t);
-      return [[A.x + nx, A.y + ny, b], [A.x - nx, A.y - ny, b], [A.x - nx, A.y - ny, h], [A.x + nx, A.y + ny, h]];
+      // chaussée : aux bouts, chaque arête rejoint le terrain là où elle se pose (raccord sans marche)
+      const hg = route ? raccord(A.x + nx, A.y + ny, t, h) : h, hd = route ? raccord(A.x - nx, A.y - ny, t, h) : h;
+      return [[A.x + nx, A.y + ny, Math.min(b, hg - 0.3)], [A.x - nx, A.y - ny, Math.min(b, hd - 0.3)], [A.x - nx, A.y - ny, hd], [A.x + nx, A.y + ny, hg]];
     };
     let avant = coupe(t0);
     quad(...avant);
     for (let k = 1; k <= n; k++) {
       const c = coupe(t0 + (t1 - t0) * k / n);
-      for (let f = 0; f < 4; f++) quad(avant[f], c[f], c[(f + 1) % 4], avant[(f + 1) % 4]);
+      for (let f = 0; f < 4; f++) (route && f === 2 ? chaussee : quad)(avant[f], c[f], c[(f + 1) % 4], avant[(f + 1) % 4]);
       avant = c;
     }
     quad(...avant);
   };
   const ep = P.epaisseur || 1, dessus = t => surAxe(t).z, dessous = t => surAxe(t).z - ep;
+  // raccord au terrain : sur les 6 derniers mètres de chaque bout, le dessus glisse vers l'altitude du terrain mesurée
+  // sous l'arête (si elle est proche : moins de 2,5 m d'écart, sinon le terrain est le fond de la vallée)
+  const RACCORD = 6, raccord = (x, y, t, h) => {
+    const d = Math.min(t, L - t);
+    if (d >= RACCORD) return h;
+    const z = sol(x, y);
+    if (!(Math.abs(z - h) < 2.5)) return h;
+    const w = 1 - d / RACCORD, f = w * w * (3 - 2 * w);
+    return h + (z - h) * f;
+  };
   // tablier
-  balaye(0, L, P.largeur, dessous, dessus);
+  balaye(0, Math.min(RACCORD, L / 2), P.largeur, dessous, dessus, 1, true);
+  balaye(Math.min(RACCORD, L / 2), Math.max(L / 2, L - RACCORD), P.largeur, dessous, dessus, 2, true);
+  balaye(Math.max(L / 2, L - RACCORD), L, P.largeur, dessous, dessus, 1, true);
   // arches : arc parabolique de la naissance à la clé ; pleines (maçonnerie jusqu'au tablier) ou arc porteur et montants
   const arcs = P.arches || [];
   for (const A of arcs) {
@@ -99,5 +117,9 @@ export function maillagePont(P, E0, N0, zRef, sol) {
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
   g.computeVertexNormals();
-  return g;
+  const d = new THREE.BufferGeometry();
+  d.setAttribute("position", new THREE.Float32BufferAttribute(posD, 3));
+  d.setAttribute("uv", new THREE.Float32BufferAttribute(uvD, 2));
+  d.computeVertexNormals();
+  return { dessus: d, reste: g };
 }
