@@ -916,8 +916,12 @@ export class Scene3D {
       const f = Math.min(1, total / jourClair);
       if (u) {
         u.lum.value = Math.max(0.04, f ** 1.5); u.gris.value = 0.7 * (1 - f) ** 2; u.ombre.value = visible ? this.ciel.intensity / total : 1;
-        const s = this.soleil.color, mx = Math.max(s.r, s.g, s.b, 1e-3);
-        if (u.teinteSoleil) u.teinteSoleil.value.setRGB(s.r / mx, s.g / mx, s.b / mx);
+        // teintes ramenées à une luminosité de 1 (la couleur change, pas la clarté), un peu atténuées
+        const teinte = (src, dst, force) => {
+          const l = Math.max(1e-3, 0.2126 * src.r + 0.7152 * src.g + 0.0722 * src.b);
+          dst.setRGB(src.r / l, src.g / l, src.b / l).lerp(new THREE.Color(1, 1, 1), 1 - force);
+        };
+        if (u.teinteSoleil) { teinte(this.soleil.color, u.teinteSoleil.value, 0.6); teinte(this.ciel.color, u.teinteOmbre.value, 0.5); }
       }
     }
     this.ombres();
