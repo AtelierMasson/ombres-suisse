@@ -1,0 +1,24 @@
+# Topograph sur Infomaniak (déployé par .github/workflows/infomaniak.yml)
+# HTTPS obligatoire, et www.topograph.ch -> topograph.ch
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://topograph.ch%{REQUEST_URI} [R=301,L]
+RewriteCond %{HTTP_HOST} ^www\. [NC]
+RewriteRule ^ https://topograph.ch%{REQUEST_URI} [R=301,L]
+
+# compression (repris de la configuration d'Infomaniak)
+SetOutputFilter DEFLATE
+AddOutputFilterByType DEFLATE application/javascript application/json text/css text/html text/javascript text/plain image/svg+xml application/xml
+
+# cache : les fichiers construits portent une empreinte dans leur nom ; la page d'accueil est toujours relue
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|woff2?|png|jpg|svg|wasm)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "(index\.html|version\.txt)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+
+# protection git
+RedirectMatch 404 /\.git
