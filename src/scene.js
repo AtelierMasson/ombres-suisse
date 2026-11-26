@@ -268,6 +268,21 @@ export class Scene3D {
     this.demander();
   }
 
+  /** Plan cadastral sur 4 × 4 km, reteinté comme celui de la maquette, drapé sur le paysage proche : raccord continu. */
+  async fondLointain() {
+    const u = this.loin.mat.uniforms, id = this.idScene;
+    if (this.typeFond !== "cadastre" || !this.urls?.cadastreLarge) { u.fondActif.value = 0; this.demander(); return; }
+    try {
+      const F = this.fonds.cadastreLarge ||= { image: chargerImage(this.urls.cadastreLarge) };
+      const img = await F.image;
+      if (id !== this.idScene || this.typeFond !== "cadastre") return;
+      if (F.theme !== this.T) { F.canvas = teinterCadastre(img, this.T.plan, F.canvas); F.theme = this.T; if (F.tex) F.tex.needsUpdate = true; }
+      if (!F.tex) { F.tex = new THREE.CanvasTexture(F.canvas); F.tex.colorSpace = THREE.SRGBColorSpace; F.tex.anisotropy = 8; }
+      u.tFond.value = F.tex; u.fondDemi.value = this.urls.demiLarge; u.fondActif.value = 1;
+      this.demander();
+    } catch (e) { console.warn("Plan cadastral autour :", e.message); u.fondActif.value = 0; }
+  }
+
   /**
    * Densité de la brume, la même pour la maquette et le paysage : avec le paysage, une brume légère qui estompe les
    * montagnes lointaines sans blanchir la maquette ; sans paysage, celle du thème (la maquette se fond dans le ciel).
@@ -280,8 +295,8 @@ export class Scene3D {
   /** Couleurs et lumière du relief lointain, celles de la maquette (thème, soleil, ciel). */
   majLointain() {
     const u = this.loin.mat.uniforms, v = this.voute.material.uniforms;
-    u.sol.value.copy(this.mat.terrain.color);
-    u.lac.value.copy(this.mat.terrain.color).lerp(new THREE.Color(this.T.sombre ? "#3d5f86" : "#7fa8d4"), 0.5); // lacs légèrement bleus
+    u.sol.value.set(this.T.sol);
+    u.lac.value.set(this.T.sol).lerp(new THREE.Color(this.T.sombre ? "#3d5f86" : "#7fa8d4"), 0.5); // lacs légèrement bleus
     u.ciel.value.copy(this.ciel.color).multiplyScalar(this.ciel.intensity);
     u.terreCiel.value.copy(this.ciel.groundColor).multiplyScalar(this.ciel.intensity);
     u.soleilCouleur.value.copy(this.soleil.color).multiplyScalar(this.soleil.intensity);
@@ -375,6 +390,7 @@ export class Scene3D {
     this.couches = {};
     this.poignees = [];
     this.coupe = this.contours = this.urls = null;
+    this.loin.mat.uniforms.fondActif.value = 0;
     // la teinte de sélection du lieu précédent (grille d'une autre taille) ne doit pas déteindre sur le suivant, ni sur l'accueil
     CONTACT.tSel.value?.dispose(); CONTACT.tSel.value = null;
     this.contoursTous = this.volumes = this.batOrigine = this.nuage = this.grilleComp = null;
@@ -956,7 +972,7 @@ export class Scene3D {
       mat.color.set(tex ? "#ffffff" : this.T.sol);
       this.demander();
     };
-    if (type === "uni" || !this.urls) return poser(null);
+    if (type === "uni" || !this.urls) { this.fondLointain(); return poser(null); }
     try {
       const F = this.fonds[type] ||= { image: chargerImage(this.urls[type]) };
       if (!F.tex) poser(null);
@@ -972,6 +988,7 @@ export class Scene3D {
         F.tex.colorSpace = THREE.SRGBColorSpace; F.tex.anisotropy = 8; F.tex.needsUpdate = true;
       }
       poser(F.tex);
+      if (type === "cadastre") this.fondLointain();
     } catch (e) {
       console.warn(e.message);
       if (id === this.idScene) delete this.fonds[type];
@@ -1021,7 +1038,12 @@ export class Scene3D {
           const l = Math.max(1e-3, 0.2126 * src.r + 0.7152 * src.g + 0.0722 * src.b);
           dst.setRGB(src.r / l, src.g / l, src.b / l).lerp(new THREE.Color(1, 1, 1), 1 - force);
         };
-        if (u.teinteSoleil) { teinte(this.soleil.color, u.teinteSoleil.value, 0.6); teinte(this.ciel.color, u.teinteOmbre.value, 0.5); }
+        if (u.teinteSoleil) {
+          teinte(this.ciel.color, u.teinteOmbre.value, 0.5);
+          // soleil couché ou caché : plus de lumière directe, donc plus de teinte rouge orangé (seule celle du ciel)
+          if (visible && this.soleil.intensity > 0) teinte(this.soleil.color, u.teinteSoleil.value, 0.6 * Math.min(1, this.soleil.intensity / 1.2));
+          else u.teinteSoleil.value.copy(u.teinteOmbre.value);
+        }
       }
     }
     this.ombres();

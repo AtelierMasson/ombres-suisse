@@ -2,9 +2,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./style.css";
 document.documentElement.classList.add("pret"); // styles chargés : la page peut s'afficher
 import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
-import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, versWgs } from "./geo.js";
+import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, versWgs } from "./geo.js";
 import { chargerNuage } from "./nuage.js";
-import { depuisPoints, depuisRasters, solEn } from "./grille.js";
+import { depuisPoints, depuisRasters, solEn, terrainAutour } from "./grille.js";
 import { reliefLointain } from "./lointain.js";
 import { Scene3D } from "./scene.js";
 import { essaiRoofer, maillageRoofer } from "./roofer.js";
@@ -231,7 +231,8 @@ async function depuisAdresse() {
     await pause();
     scene.controls.autoRotate = false;
     scene.typeFond = $("#vCadastre").checked ? "cadastre" : "uni";
-    scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite) });
+    scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite),
+      cadastreLarge: urlFond(COUCHES.cadastre, [E0 - 2000, N0 - 2000, E0 + 2000, N0 + 2000]), demiLarge: 2000 });
     pro.reinitialiser();
     // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
     scene.surligner(rel, h.get("t") === "Adresse" ? [E - E0, N - N0] : null);
@@ -257,7 +258,12 @@ async function depuisAdresse() {
     if (id !== tache) return;
     // paysage jusqu'à 50 km, des mêmes tuiles (déjà en cache), sans bloquer
     const idScene = scene.idScene;
-    reliefLointain(E0, N0, G.R, scene.zRef, (x, y) => solEn(G, x, y)).then(g => scene.afficherLointain(g, idScene))
+    // anneau intermédiaire : terrain swissALTI3D à 2 m jusqu'à 2 km, puis relief libre jusqu'à 50 km
+    const RAYON_FIN = 2000;
+    tuilesAlti2m([E0 - RAYON_FIN, N0 - RAYON_FIN, E0 + RAYON_FIN, N0 + RAYON_FIN])
+      .then(l => terrainAutour(l, E0, N0, RAYON_FIN)).catch(e => { console.warn("swissALTI3D 2 m :", e.message); return null; })
+      .then(fin => id === tache ? reliefLointain(E0, N0, G.R, scene.zRef, (x, y) => solEn(G, x, y), fin) : null)
+      .then(g => g && scene.afficherLointain(g, idScene))
       .catch(e => console.warn("Relief lointain :", e.message));
     etat(1, "");
     $("#commandes").hidden = false; $("#diagramme").hidden = false;

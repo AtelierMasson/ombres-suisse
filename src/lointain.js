@@ -11,7 +11,15 @@ const RAYON_TERRE = 6371000, REFRACTION = 0.13;
  * Maillage du relief entre le bord de la maquette (carré de demi-côté R) et `rayonMax`.
  * `hBord(x, y)` : altitude du terrain de la maquette au bord, pour raccorder sans marche.
  */
-export async function reliefLointain(E0, N0, R, zRef, hBord, rayonMax = 50000) {
+export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMax = 50000) {
+  // anneau intermédiaire : terrain swissALTI3D à 2 m (fin), fondu vers le relief libre sur ses 500 derniers mètres
+  const rayonFin = fin ? fin.n * fin.c / 2 - 50 : 0;
+  const altFin = (E, N) => {
+    const x = (E - fin.e0) / fin.c - 0.5, y = (fin.n1 - N) / fin.c - 0.5, i = Math.floor(x), j = Math.floor(y);
+    if (i < 0 || j < 0 || i >= fin.n - 1 || j >= fin.n - 1) return NaN;
+    const u = x - i, v = y - j, p = j * fin.n + i, H = fin.h;
+    return (H[p] * (1 - u) + H[p + 1] * u) * (1 - v) + (H[p + fin.n] * (1 - u) + H[p + fin.n + 1] * u) * v;
+  };
   const nA = 1440;
   // anneaux : écart au bord de la maquette, de plus en plus espacés avec la distance
   const ecarts = [0];
@@ -28,9 +36,16 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, rayonMax = 50000) {
     const i = Math.floor(x), j = Math.floor(y), u = x - i, v = y - j, p = j * 256 + i;
     return (h[p] * (1 - u) + h[p + 1] * u) * (1 - v) + (h[p + 256] * (1 - u) + h[p + 257] * u) * v;
   };
-  const altEn = (E, N, z) => {
+  const altLibre = (E, N, z) => {
     const [cle, fx, fy] = cleEn(E, N, z), h = tuiles.get(cle);
     return h ? bil(h, fx, fy) : NaN;
+  };
+  const altEn = (E, N, z) => {
+    const d = Math.hypot(E - E0, N - N0);
+    if (!fin || d > rayonFin) return altLibre(E, N, z);
+    const f = altFin(E, N), w = Math.min(1, Math.max(0, (rayonFin - d) / 500)), t = w * w * (3 - 2 * w);
+    if (isNaN(f)) return altLibre(E, N, z);
+    return t >= 1 ? f : f * t + altLibre(E, N, z) * (1 - t);
   };
   const sommets = [];
   for (let a = 0; a < nA; a++) {
@@ -38,7 +53,7 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, rayonMax = 50000) {
     const r0 = R / Math.max(Math.abs(sx), Math.abs(sy)); // bord du carré dans cette direction
     for (let k = 0; k < nR; k++) {
       const d = r0 + ecarts[k];
-      sommets.push({ e: sx * d, n: sy * d, d, s: ecarts[k], bx: sx * r0 * 0.995, by: sy * r0 * 0.995, z: d < 10000 ? 12 : d < 25000 ? 11 : 10, pas: Math.max(20, d * 0.006) });
+      sommets.push({ e: sx * d, n: sy * d, d, s: ecarts[k], bx: sx * r0 * 0.995, by: sy * r0 * 0.995, z: d < 10000 ? 12 : d < 25000 ? 11 : 10, pas: d < rayonFin ? Math.max(3, d * 0.004) : Math.max(20, d * 0.006) });
     }
   }
   // tuiles nécessaires (sommets et voisins servant aux pentes)
@@ -68,9 +83,9 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, rayonMax = 50000) {
         for (let i = Math.max(0, i0 - 1); i <= Math.min(255, i0 + 2); i++) if (T.eau[j * 256 + i]) { niveau = T[j * 256 + i]; break; }
       if (!isNaN(niveau)) { const u = Math.min(1, Math.max(0, (niveau + 1.2 - alt) / 1.0)); lac = u * u * (3 - 2 * u); }
     }
-    // raccord au bord de la maquette sur les 300 premiers mètres
+    // raccord au bord de la maquette : sur 300 m avec le seul relief libre, sur 30 m avec le terrain à 2 m (même relevé)
     const b = hBord(P.bx, P.by);
-    const m = Math.min(1, P.s / 300), t = m * m * (3 - 2 * m);
+    const m = Math.min(1, P.s / (fin ? 30 : 300)), t = m * m * (3 - 2 * m);
     if (isNaN(alt)) alt = b;
     alt = b * (1 - t) + alt * t;
     alt -= P.d * P.d / (2 * RAYON_TERRE) * (1 - REFRACTION); // courbure de la Terre
@@ -107,11 +122,18 @@ void main() {
 }`;
 const FRAGMENTS = /* glsl */`
 uniform vec3 sol, lac, ciel, terreCiel, soleilCouleur, soleilDir, horizon;
-uniform float densite;
+uniform float densite, fondActif, fondDemi; // plan cadastral drapé autour de la maquette (demi-côté en m)
+uniform sampler2D tFond;
 varying vec3 vMonde, vN;
 varying float vEau;
 void main() {
-  vec3 n = normalize(vN), base = mix(sol, lac, smoothstep(0.3, 0.9, vEau));
+  vec3 n = normalize(vN), base = sol;
+  if (fondActif > 0.5) {
+    vec2 uv = vec2(vMonde.x, -vMonde.z) / (2.0 * fondDemi) + 0.5;
+    float bord = max(abs(uv.x - 0.5), abs(uv.y - 0.5)) * 2.0; // 0 au centre, 1 au bord de l'image
+    base = mix(texture2D(tFond, uv).rgb, sol, smoothstep(0.85, 1.0, bord));
+  }
+  base = mix(base, lac, smoothstep(0.3, 0.9, vEau));
   // même éclairage que la maquette (ciel en hémisphère + soleil), sans ombres portées
   vec3 lum = mix(terreCiel, ciel, n.y * 0.5 + 0.5) + soleilCouleur * max(dot(n, soleilDir), 0.0);
   vec3 c = base * lum / 3.14159;
@@ -128,6 +150,7 @@ export function materiauLointain() {
       sol: { value: new THREE.Color() }, lac: { value: new THREE.Color() }, ciel: { value: new THREE.Color() },
       terreCiel: { value: new THREE.Color() }, soleilCouleur: { value: new THREE.Color() }, soleilDir: { value: new THREE.Vector3(0, 1, 0) },
       horizon: { value: new THREE.Color() }, densite: { value: 0 },
+      tFond: { value: null }, fondActif: { value: 0 }, fondDemi: { value: 2000 },
     },
     vertexShader: SOMMETS, fragmentShader: FRAGMENTS,
   });

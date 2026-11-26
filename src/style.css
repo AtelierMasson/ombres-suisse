@@ -193,7 +193,8 @@ body[data-theme=nuit] #message { background: #3a2f12; color: #ffe2a8; border-col
 #svgCoupe .cote { fill: var(--texte); font-size: 10px; font-variant-numeric: tabular-nums; }
 /* liseré de la couleur du fond : les étiquettes restent lisibles sur le trait de coupe et sur les points */
 #svgCoupe .cote, #svgCoupe .numero { paint-order: stroke; stroke: var(--carte); stroke-width: 2.2px; stroke-linejoin: round; }
-#svgCoupe .cote-trait { stroke: var(--coupe-trait); stroke-width: .9; }
+#svgCoupe .cote-trait { stroke: var(--coupe-trait); stroke-width: .9; fill: none; }
+#svgCoupe .niveau { stroke-width: .8; stroke-linejoin: round; }
 
 /* boussole d'orientation (en haut à droite de la vue) : trois axes en 3D qui suivent la caméra */
 #orientation { position: absolute; top: calc(var(--haut) + 8px); right: 12px; z-index: 6; width: 92px; display: flex; flex-direction: column; align-items: center; gap: 4px; user-select: none; }
@@ -238,3 +239,9 @@ body.accueil #orientation { display: none; }
   --oeil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
   --oeil-ferme: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.6-7 10-7c2 0 3.7.7 5.1 1.6M22 12s-3.6 7-10 7c-2 0-3.7-.7-5.1-1.6'/%3E%3Cpath d='M3 3l18 18'/%3E%3C/svg%3E");
 }
+
+/* coins du graphique du soleil : une ligne à eux au-dessus du dessin, même hauteur, alignés sur ses bords */
+#diagramme { padding-top: 30px; }
+#diagramme .coin { top: 2px; height: 24px; padding: 0 9px; }
+#diagramme .coin-gauche { left: 4px; width: 32px; justify-content: center; padding: 0; font-size: 11px; }
+#diagramme .coin-droit { right: 4px; }

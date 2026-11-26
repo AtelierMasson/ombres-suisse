@@ -377,10 +377,19 @@ export function dessinerCoupe(svg, P, soleil) {
   // étiquettes : chacune réserve sa place ; une étiquette qui en recouvrirait une autre est décalée, sinon omise
   const prises = [], large = (texte, taille) => texte.length * taille * 0.56;
   const libre = (x0, y0, x1, y1) => x0 >= m.g && x1 <= W - m.d && y0 >= m.h && !prises.some(b => x0 < b[2] && x1 > b[0] && y0 < b[3] && y1 > b[1]);
-  const poser = (x, y, texte, ancre, classe, taille, decalages = [0]) => {
+  // une étiquette « hors masse » ne doit pas mordre dans le terrain ou les bâtiments coupés (sous le trait de coupe)
+  const dansMasse = (x0, y0, x1, y1) => {
+    for (let px = x0; px <= x1; px += 2) {
+      const k = Math.min(k1, Math.max(k0, Math.round((P.s[k0] + (px - m.g) / e - P.s[0]) / P.pas)));
+      if (y1 > Y(enveloppe(P, k)) + 0.5) return true;
+    }
+    return false;
+  };
+  const poser = (x, y, texte, ancre, classe, taille, decalages = [0], horsMasse = false) => {
     const l = large(texte, taille), x0 = ancre === "end" ? x - l : ancre === "middle" ? x - l / 2 : x;
     for (const dy of decalages) {
       if (!libre(x0 - 1, y + dy - taille, x0 + l + 1, y + dy + 2)) continue;
+      if (horsMasse && dansMasse(x0 - 1, y + dy - taille, x0 + l + 1, y + dy + 2)) continue;
       prises.push([x0 - 1, y + dy - taille, x0 + l + 1, y + dy + 2]);
       t += `<text x="${f(x)}" y="${f(y + dy)}" text-anchor="${ancre}" class="${classe}">${texte}</text>`;
       return dy;
@@ -402,18 +411,20 @@ export function dessinerCoupe(svg, P, soleil) {
     // repère : un petit trait horizontal au niveau coté, juste à côté du point ; le texte sur la même ligne, à droite
     // ou à gauche du trait (côté préféré d'abord). Seulement si les deux côtés sont pris : texte décalé en hauteur,
     // relié au trait par un fin renvoi.
+    // symbole de niveau traditionnel : petit triangle, pointe en bas, posé sur une barre au niveau coté ; le texte à
+    // côté du triangle, du côté libre (ni sur une autre étiquette, ni dans la masse coupée)
     const cote = (x, z, texte, prefere) => {
-      const y = Y(z), base = y + 3.5, cotes = prefere === "g" ? ["g", "d"] : ["d", "g"];
+      const y = Y(z), cotes = prefere === "g" ? ["g", "d"] : ["d", "g"];
       const essai = (sens, dy) => {
-        const x1 = sens === "g" ? x - 11 : x + 3, x2 = x1 + 8, xt = sens === "g" ? x1 - 2 : x2 + 2;
-        const dyPose = poser(xt, base + dy, texte, sens === "g" ? "end" : "start", "cote", 10, [0]);
+        const xt = sens === "g" ? x - 7 : x + 7, yt = y - 1.5 + dy;
+        const dyPose = poser(xt, yt, texte, sens === "g" ? "end" : "start", "cote", 10, [0], true);
         if (dyPose == null) return false;
-        t += `<line x1="${f(x1)}" x2="${f(x2)}" y1="${f(y)}" y2="${f(y)}" class="cote-trait"/>`;
-        if (dy) t += `<line x1="${f(sens === "g" ? x1 : x2)}" x2="${f(xt)}" y1="${f(y)}" y2="${f(y + dy)}" class="cote-trait"/>`;
+        t += `<path d="M${f(x - 5)},${f(y)}H${f(x + 5)}M${f(x - 3.2)},${f(y - 5.5)}H${f(x + 3.2)}L${f(x)},${f(y)}Z" class="cote-trait niveau"/>`;
+        if (dy) t += `<line x1="${f(x)}" x2="${f(xt)}" y1="${f(y - 5.5)}" y2="${f(yt - 3)}" class="cote-trait"/>`;
         return true;
       };
       for (const sens of cotes) if (essai(sens, 0)) return;
-      for (const dy of [-12, 12, -24, 24]) for (const sens of cotes) if (essai(sens, dy)) return;
+      for (const dy of [-12, -24, 12, 24]) for (const sens of cotes) if (essai(sens, dy)) return;
     };
     const xa = X(isNaN(P.debut[a]) ? P.s[a] : P.debut[a]), xb = X(isNaN(P.fin[b]) ? P.s[b] : P.fin[b]), za = P.bat[a], zbord = P.bat[b];
     const xf = X(P.s[kf]), xbas = X(P.s[kb]);

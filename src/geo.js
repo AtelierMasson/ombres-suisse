@@ -79,6 +79,16 @@ export async function tuilesGrille(boite) {
   return { terrain, surface };
 }
 
+/** Terrain swissALTI3D à 2 m (le plus récent par tuile kilométrique) pour une boîte MN95 : [{ url, annee, cle }]. */
+export async function tuilesAlti2m(boite) {
+  const m = new Map();
+  for (const f of await tuiles("ch.swisstopo.swissalti3d", boite)) {
+    const a = Object.values(f.assets).find(a => /_2_2056_5728\.tif$/.test(a.href));
+    if (a && (!m.has(cle(f)) || annee(f) > m.get(cle(f)).annee)) m.set(cle(f), { url: a.href, annee: annee(f), cle: cle(f) });
+  }
+  return [...m.values()];
+}
+
 function cles([e0, n0, e1, n1]) {
   const r = [];
   for (let e = Math.floor(e0 / 1000); e <= Math.floor((e1 - 0.01) / 1000); e++)

@@ -95,6 +95,36 @@ async function lireFenetre(url, fenetre, essais = 3) {
   }
 }
 
+/**
+ * Terrain swissALTI3D à 2 m autour de (E0, N0), jusqu'à `rayon` : une grille unique { e0, n1, c, n, h } (lignes depuis
+ * le nord, NaN hors couverture). Sert d'anneau intermédiaire entre la maquette et le paysage lointain.
+ */
+export async function terrainAutour(liste, E0, N0, rayon) {
+  const c = 2, n = Math.ceil(2 * rayon / c), e0 = Math.floor((E0 - rayon) / c) * c, n1 = Math.ceil((N0 + rayon) / c) * c;
+  const h = new Float32Array(n * n).fill(NaN);
+  let i = 0;
+  const lire = async () => {
+    while (i < liste.length) {
+      const t = liste[i++];
+      try {
+        const img = await (await fromUrl(t.url, { maxRanges: 1 })).getImage();
+        const [bx0, , , by1] = img.getBoundingBox(), w = img.getWidth(), hh = img.getHeight();
+        const ras = (await img.readRasters({ samples: [0] }))[0];
+        for (let l = 0; l < hh; l++) {
+          const j = Math.round((n1 - (by1 - l * c)) / c);
+          if (j < 0 || j >= n) continue;
+          for (let col = 0; col < w; col++) {
+            const k = Math.round((bx0 + col * c - e0) / c), v = ras[l * w + col];
+            if (k >= 0 && k < n && v > -1000) h[j * n + k] = v;
+          }
+        }
+      } catch (e) { console.warn("swissALTI3D 2 m :", t.cle, e.message); }
+    }
+  };
+  await Promise.all([lire(), lire(), lire(), lire()]); // quatre téléchargements à la fois
+  return { e0, n1, c, n, h };
+}
+
 /** Recalcule la surface et la base après une modification de G.bat (bâtiments masqués en mode pro). */
 export function majSurface(G) { G.surface = surface(G); }
 
