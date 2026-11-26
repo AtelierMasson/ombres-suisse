@@ -702,7 +702,7 @@ function coupeParDefaut(travers = false) {
   return travers ? [[-L, 0], [L, 0]] : [[0, -L], [0, L]];
 }
 function dessinCoupe() {
-  const r = dessinerCoupe($("#svgCoupe"), S.coupe.P, soleilActuel(), { audela: $("#vueAudela").value });
+  const r = dessinerCoupe($("#svgCoupe"), S.coupe.P, soleilActuel(), { audela: "plans" });
   $("#coupeTexte").textContent = r ? `· ${nombre(r.long, 0)} m${r.note ? " · " + r.note : ""}` : "";
 }
 $("#vCouperModele").addEventListener("change", e => { scene.couperModele = e.target.checked; if (S.coupe) scene.definirCoupe(S.coupe.P); });
@@ -743,8 +743,6 @@ const refaireCoupe = () => { if (S.coupe) majCoupe(S.coupe.A, S.coupe.B); };
 // affichée, sont recalculées avec les bâtiments montrés
 scene.surBatiments = () => { refaireCoupe(); relancerHeures(); };
 $("#distPoints").addEventListener("change", refaireCoupe);
-$("#vueAudela").addEventListener("change", () => { try { localStorage.setItem("vueAudela", $("#vueAudela").value); } catch { /* stockage indisponible */ } if (S.coupe) dessinCoupe(); });
-try { const v = localStorage.getItem("vueAudela"); if (v && $(`#vueAudela option[value="${v}"]`)) $("#vueAudela").value = v; } catch { /* idem */ }
 $("#vPro").addEventListener("change", refaireCoupe);
 
 /* ------------------------------------------------------------------ heures d'ensoleillement */
