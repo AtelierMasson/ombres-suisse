@@ -301,7 +301,7 @@ export default {
     <p>This statement follows the Swiss Federal Act on Data Protection (FADP).</p>
     <p><b>Local computation</b><br>The model, shadows and exports are computed in your browser. No files or results are sent to Atelier Masson.</p>
     <p><b>Third-party services</b><br>To load the data, your browser contacts swisstopo's servers directly (api3.geo.admin.ch, data.geo.admin.ch, wms.geo.admin.ch, 3d.geo.admin.ch), which receive the address searched for and the area displayed, as well as Amazon Web Services' servers for the distant terrain. The host, GitHub, records visitors' IP addresses in its technical logs.</p>
-    <p><b>Local storage</b><br>The site keeps a few display settings (theme, open tab, pro mode) in your browser's local storage. No advertising cookies or audience measurement tools are used.</p>
+    <p><b>Local storage</b><br>The site keeps a few display settings (language, theme, open tab, pro mode) in your browser's local storage. No advertising cookies or audience measurement tools are used.</p>
     <p><b>Your rights</b><br>For any questions about your data: <a href="mailto:[email]">[email]</a>.</p>`,
   "legal.pageConditions": `<h2>Terms of use</h2>
     <p><b>Use</b><br>The site is provided free of charge, with no guarantee of availability.</p>

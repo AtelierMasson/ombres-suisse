@@ -301,7 +301,7 @@ export default {
     <p>Diese Erklärung richtet sich nach dem Bundesgesetz über den Datenschutz (DSG).</p>
     <p><b>Lokale Berechnung</b><br>Das Modell, die Schatten und die Exporte werden in Ihrem Browser berechnet. Es werden keine Dateien oder Ergebnisse an Atelier Masson übermittelt.</p>
     <p><b>Dienste Dritter</b><br>Um die Daten zu laden, kontaktiert Ihr Browser direkt die Server von swisstopo (api3.geo.admin.ch, data.geo.admin.ch, wms.geo.admin.ch, 3d.geo.admin.ch), die die gesuchte Adresse und den angezeigten Bereich erhalten, sowie jene von Amazon Web Services für das ferne Relief. Der Hoster GitHub speichert die IP-Adressen der Besucherinnen und Besucher in seinen technischen Protokollen.</p>
-    <p><b>Lokale Speicherung</b><br>Die Website speichert einige Anzeigeeinstellungen (Thema, geöffneter Reiter, Pro-Modus) im lokalen Speicher Ihres Browsers. Es werden weder Werbe-Cookies noch Werkzeuge zur Reichweitenmessung verwendet.</p>
+    <p><b>Lokale Speicherung</b><br>Die Website speichert einige Anzeigeeinstellungen (Sprache, Thema, geöffneter Reiter, Pro-Modus) im lokalen Speicher Ihres Browsers. Es werden weder Werbe-Cookies noch Werkzeuge zur Reichweitenmessung verwendet.</p>
     <p><b>Ihre Rechte</b><br>Bei Fragen zu Ihren Daten: <a href="mailto:[email]">[email]</a>.</p>`,
   "legal.pageConditions": `<h2>Nutzungsbedingungen</h2>
     <p><b>Nutzung</b><br>Die Website wird kostenlos und ohne Gewähr für ihre Verfügbarkeit bereitgestellt.</p>

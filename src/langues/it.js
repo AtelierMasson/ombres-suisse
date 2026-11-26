@@ -301,7 +301,7 @@ export default {
     <p>La presente dichiarazione si basa sulla legge federale sulla protezione dei dati (LPD).</p>
     <p><b>Calcolo locale</b><br>Il modello, le ombre e le esportazioni sono calcolati nel vostro browser. Nessun file né risultato viene inviato ad Atelier Masson.</p>
     <p><b>Servizi di terzi</b><br>Per caricare i dati, il vostro browser contatta direttamente i server di swisstopo (api3.geo.admin.ch, data.geo.admin.ch, wms.geo.admin.ch, 3d.geo.admin.ch), che ricevono l'indirizzo cercato e la zona visualizzata, e quelli di Amazon Web Services per il rilievo lontano. L'hosting GitHub registra l'indirizzo IP dei visitatori nei suoi log tecnici.</p>
-    <p><b>Memorizzazione locale</b><br>Il sito conserva alcune impostazioni di visualizzazione (tema, scheda aperta, modalità pro) nella memoria locale del vostro browser. Non vengono utilizzati cookie pubblicitari né strumenti di misurazione dell'audience.</p>
+    <p><b>Memorizzazione locale</b><br>Il sito conserva alcune impostazioni di visualizzazione (lingua, tema, scheda aperta, modalità pro) nella memoria locale del vostro browser. Non vengono utilizzati cookie pubblicitari né strumenti di misurazione dell'audience.</p>
     <p><b>I vostri diritti</b><br>Per qualsiasi domanda sui vostri dati: <a href="mailto:[email]">[email]</a>.</p>`,
   "legal.pageConditions": `<h2>Condizioni d'uso</h2>
     <p><b>Uso</b><br>Il sito è messo a disposizione gratuitamente, senza garanzia di disponibilità.</p>
