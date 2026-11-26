@@ -764,30 +764,32 @@ export function decouperBord(m, lim) {
 }
 
 /**
- * Tablier des ponts (classe 17 du relevé) : une dalle de `epaisseur` m sous la surface relevée, avec ses rives ; le vide
- * reste dessous (les piles et les arches, mal vues par le laser, ne sont pas reconstruites). Null s'il n'y a pas de pont.
+ * Ponts (classe 17 du relevé) : le tablier, de sa surface jusqu'au dessous relevé (G.pontBas : intrados des arches,
+ * pied des piles), avec ses rives ; le vide reste dessous ailleurs. Null s'il n'y a pas de pont.
  */
-export function tabliersPonts(G, zRef, epaisseur = 1.5) {
-  const { n, c, x0, pont } = G;
+export function tabliersPonts(G, zRef) {
+  const { n, c, x0, pont, pontBas } = G;
   if (!pont || !pont.some(v => !isNaN(v))) return null;
   const pos = [], P = (i, j, z) => [x0 + i * c, z - zRef, -(x0 + j * c)];
   const quad = (a, b, d, e) => pos.push(...a, ...b, ...d, ...a, ...d, ...e);
-  const z = (i, j) => { // altitude au coin : moyenne des cellules de tablier voisines
+  const coin = (g, i, j) => { // valeur au coin : moyenne des cellules de tablier voisines
     let s = 0, k = 0;
-    for (const [a, b] of [[i - 1, j - 1], [i, j - 1], [i - 1, j], [i, j]]) if (a >= 0 && b >= 0 && a < n && b < n && !isNaN(pont[b * n + a])) { s += pont[b * n + a]; k++; }
+    for (const [a, b] of [[i - 1, j - 1], [i, j - 1], [i - 1, j], [i, j]]) if (a >= 0 && b >= 0 && a < n && b < n && !isNaN(pont[b * n + a])) { s += g[b * n + a]; k++; }
     return s / k;
   };
+  const sous = pontBas || pont.map(z => z - 1.5);
   for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
     if (isNaN(pont[j * n + i])) continue;
-    const h = [z(i, j), z(i + 1, j), z(i + 1, j + 1), z(i, j + 1)];
+    const C = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]];
+    const h = C.map(([a, b]) => coin(pont, a, b)), d = C.map(([a, b]) => coin(sous, a, b));
     quad(P(i, j, h[0]), P(i + 1, j, h[1]), P(i + 1, j + 1, h[2]), P(i, j + 1, h[3])); // dessus
-    quad(P(i, j + 1, h[3] - epaisseur), P(i + 1, j + 1, h[2] - epaisseur), P(i + 1, j, h[1] - epaisseur), P(i, j, h[0] - epaisseur)); // dessous
+    quad(P(i, j + 1, d[3]), P(i + 1, j + 1, d[2]), P(i + 1, j, d[1]), P(i, j, d[0])); // dessous (intrados, pied des piles)
     // rives : là où la cellule voisine n'est pas du tablier
     const vide = (a, b) => a < 0 || b < 0 || a >= n || b >= n || isNaN(pont[b * n + a]);
-    if (vide(i, j - 1)) quad(P(i, j, h[0] - epaisseur), P(i + 1, j, h[1] - epaisseur), P(i + 1, j, h[1]), P(i, j, h[0]));
-    if (vide(i + 1, j)) quad(P(i + 1, j, h[1] - epaisseur), P(i + 1, j + 1, h[2] - epaisseur), P(i + 1, j + 1, h[2]), P(i + 1, j, h[1]));
-    if (vide(i, j + 1)) quad(P(i + 1, j + 1, h[2] - epaisseur), P(i, j + 1, h[3] - epaisseur), P(i, j + 1, h[3]), P(i + 1, j + 1, h[2]));
-    if (vide(i - 1, j)) quad(P(i, j + 1, h[3] - epaisseur), P(i, j, h[0] - epaisseur), P(i, j, h[0]), P(i, j + 1, h[3]));
+    if (vide(i, j - 1)) quad(P(i, j, d[0]), P(i + 1, j, d[1]), P(i + 1, j, h[1]), P(i, j, h[0]));
+    if (vide(i + 1, j)) quad(P(i + 1, j, d[1]), P(i + 1, j + 1, d[2]), P(i + 1, j + 1, h[2]), P(i + 1, j, h[1]));
+    if (vide(i, j + 1)) quad(P(i + 1, j + 1, d[2]), P(i, j + 1, d[3]), P(i, j + 1, h[3]), P(i + 1, j + 1, h[2]));
+    if (vide(i - 1, j)) quad(P(i, j + 1, d[3]), P(i, j, d[0]), P(i, j, h[0]), P(i, j + 1, h[3]));
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));

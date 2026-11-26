@@ -34,6 +34,7 @@ export function depuisPoints(nuage, R, c = 0.5) {
     if (pont[p] < sol[p] + 2.5 || !isNaN(bat[p])) pont[p] = NaN; // tablier au ras du sol : c'est la chaussée
   }
   retirerIsoles(pont, n, 3);
+  G.pontBas = dessousPonts(nuage, G, R, c);
   retirerIsoles(bat, n, 3);
   boucherTrous(bat, n, c);
   retirerMats(bat, sol, n, c);
@@ -144,6 +145,61 @@ export async function terrainAutour(liste, E0, N0, rayon) {
 
 /** Recalcule la surface et la base après une modification de G.bat (bâtiments masqués en mode pro). */
 export function majSurface(G) { G.surface = surface(G); }
+
+/**
+ * Dessous des ponts : le laser voit, sous le tablier, les flancs des piles et l'intrados des arches (classes 1, 17, 26,
+ * 27). Par cellule de tablier, le dessous est le point le plus bas de ces ouvrages (une pile descend ainsi jusqu'au sol,
+ * une arche s'arrête à sa voûte) ; sans point vu, la médiane des voisines à 3 m, sinon 1,5 m sous le tablier.
+ */
+function dessousPonts(nuage, G, R, c) {
+  const { n, pont, sol } = G, bas = new Float32Array(n * n).fill(NaN), { X, Y, Z, C } = nuage;
+  for (let k = 0; k < nuage.n; k++) {
+    const cl = C[k];
+    if (cl !== 1 && cl !== 17 && cl !== 26 && cl !== 27) continue;
+    const i = Math.floor((X[k] + R) / c), j = Math.floor((Y[k] + R) / c);
+    if (i < 0 || j < 0 || i >= n || j >= n) continue;
+    const p = j * n + i, z = Z[k];
+    if (isNaN(pont[p]) || z > pont[p] - 1 || z < sol[p] + 0.3) continue;
+    if (!(bas[p] <= z)) bas[p] = z;
+  }
+  const r = Math.round(3 / c), fin = new Float32Array(n * n).fill(NaN);
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    const p = j * n + i;
+    if (isNaN(pont[p])) continue;
+    if (!isNaN(bas[p])) { fin[p] = bas[p]; continue; }
+    const v = [];
+    for (let b = Math.max(0, j - r); b <= Math.min(n - 1, j + r); b++) for (let a = Math.max(0, i - r); a <= Math.min(n - 1, i + r); a++) {
+      const q = b * n + a;
+      if (!isNaN(bas[q])) v.push(bas[q] - pont[q] + pont[p]); // même profondeur sous le tablier que la voisine
+    }
+    fin[p] = v.length >= 3 ? v.sort((x, y) => x - y)[v.length >> 1] : pont[p] - 1.5;
+  }
+  // lissage : médiane de la profondeur sous le tablier sur 2 m (le bruit cellule par cellule dessinait des stalactites),
+  // puis deux passes de moyenne ; les arches et les piles gardent leur forme
+  const prof = new Float32Array(n * n).fill(NaN);
+  for (let p = 0; p < n * n; p++) if (!isNaN(fin[p])) prof[p] = pont[p] - fin[p];
+  const rm = Math.round(2 / c), lisse = prof.slice();
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    const p = j * n + i;
+    if (isNaN(prof[p])) continue;
+    const v = [];
+    for (let b = Math.max(0, j - rm); b <= Math.min(n - 1, j + rm); b++) for (let a = Math.max(0, i - rm); a <= Math.min(n - 1, i + rm); a++) if (!isNaN(prof[b * n + a])) v.push(prof[b * n + a]);
+    lisse[p] = v.sort((x, y) => x - y)[v.length >> 1];
+  }
+  for (let passe = 0; passe < 2; passe++) {
+    const t = lisse.slice();
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+      const p = j * n + i;
+      if (isNaN(t[p])) continue;
+      let s = 0, k = 0;
+      for (const q of [p, i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n]) if (q >= 0 && q < n * n && !isNaN(t[q])) { s += t[q]; k++; }
+      lisse[p] = s / k;
+    }
+  }
+  // jamais sous le sol, jamais moins de 0,8 m d'épaisseur
+  for (let p = 0; p < n * n; p++) if (!isNaN(lisse[p])) fin[p] = Math.min(pont[p] - 0.8, Math.max(sol[p], pont[p] - lisse[p]));
+  return fin;
+}
 
 function surface(G) {
   const { sol, bat, veg } = G, s = new Float32Array(sol.length);
