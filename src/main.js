@@ -19,6 +19,7 @@ import { contoursBatiments } from "./contours.js";
 import { profilCoupe, dessinerCoupe } from "./coupe.js";
 import { hameau } from "./demo.js";
 import { lancerVol } from "./vol.js";
+import { ICONE } from "./icones.js";
 import { brancherPro } from "./pro.js";
 import { brancherCompte } from "./compte.js";
 import "./compte.css";
@@ -61,8 +62,8 @@ function message(texte, tenir = 6000) {
 function marquerTheme() {
   const nuit = document.body.dataset.theme === "nuit";
   const titre = t(nuit ? "themes.versJour" : "themes.versNuit");
-  // symbole seul (☀︎ pour passer en jour, ☾ pour passer en nuit) ; le texte reste dans title et aria-label
-  $("#themes").innerHTML = `<button type="button" class="actif symbole" title="${titre}" aria-label="${titre}">${nuit ? "☀︎" : "☾"}</button>`;
+  // symbole seul (soleil pour passer en jour, lune pour passer en nuit) ; le texte reste dans title et aria-label
+  $("#themes").innerHTML = `<button type="button" class="actif symbole" title="${titre}" aria-label="${titre}">${nuit ? ICONE.soleil : ICONE.lune}</button>`;
 }
 $("#themes").addEventListener("click", () => {
   T = appliquerTheme(document.body.dataset.theme === "nuit" ? "maquette" : "nuit");
@@ -387,6 +388,10 @@ function changerJour(jour) {
   relancerHeures();
 }
 $("#jour").addEventListener("change", e => { if (e.target.value) changerJour(e.target.value); });
+$("#btnJour").addEventListener("click", () => {
+  const champ = $("#jour");
+  try { champ.showPicker(); } catch { champ.focus(); champ.click(); } // showPicker : Chrome, Edge, Firefox, Safari récents
+});
 $("#heure").addEventListener("input", e => { S.minutes = +e.target.value; majSoleil(); });
 $$("[data-jour]").forEach(b => b.onclick = () => changerJour(b.dataset.jour === "auj" ? aujourdhui() : `${S.jour.slice(0, 4)}-${b.dataset.jour}`));
 // clic ou glissé sur le diagramme : le soleil va au point le plus proche de sa course du jour
@@ -404,8 +409,8 @@ $$("[data-jour]").forEach(b => b.onclick = () => changerJour(b.dataset.jour === 
 }
 let lecture = null;
 $("#btnLecture").onclick = () => {
-  if (lecture) { clearInterval(lecture); lecture = null; $("#btnLecture").textContent = "▶"; return; }
-  $("#btnLecture").textContent = "❚❚";
+  if (lecture) { clearInterval(lecture); lecture = null; $("#btnLecture").innerHTML = ICONE.lecture; return; }
+  $("#btnLecture").innerHTML = ICONE.pause;
   lecture = setInterval(() => { S.minutes = (S.minutes + 5) % 1440; majSoleil(); }, 60);
 };
 
@@ -602,7 +607,7 @@ function ongletsCoupe() {
     nom.type = "button"; nom.textContent = t("coupe.nom", { a: c.lettres[0], b: c.lettres[1] });
     nom.onclick = () => { if (c !== S.coupe) { S.coupe = c; majCoupe(c.A, c.B); } };
     const x = document.createElement("button");
-    x.type = "button"; x.className = "retirer"; x.textContent = "×"; x.title = x.ariaLabel = t("coupe.retirer");
+    x.type = "button"; x.className = "retirer"; x.innerHTML = ICONE.fermer; x.title = x.ariaLabel = t("coupe.retirer");
     x.onclick = () => {
       S.coupes = S.coupes.filter(d => d !== c);
       if (!S.coupes.length) { $("#vCoupe").checked = false; $("#vCoupe").dispatchEvent(new Event("change")); return; }

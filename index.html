@@ -69,12 +69,12 @@
         <div id="diagramme" hidden>
           <svg id="svgSoleil" data-i18n-aria-label="soleil.diagrammeAria" aria-label="Course du soleil et horizon : cliquez ou glissez pour choisir l'heure"></svg>
           <!-- coins du graphique : animation de la journée, et petit calendrier (le champ date, transparent, couvre le bouton) -->
-          <button type="button" class="coin coin-gauche" id="btnLecture" data-i18n-title="soleil.animer" title="Animer la journée">▶</button>
-          <label class="coin coin-droit" data-i18n-title="soleil.choisirJour" title="Choisir le jour">
+          <button type="button" class="coin coin-gauche" id="btnLecture" data-i18n-title="soleil.animer" title="Animer la journée" aria-label="Animer la journée"><svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" focusable="false" fill="currentColor" style="display:block"><path d="M4.5 2.8v10.4l8.6-5.2z"/></svg></button>
+          <button type="button" class="coin coin-droit" id="btnJour" data-i18n-title="soleil.choisirJour" title="Choisir le jour">
             <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><rect x="1.5" y="3" width="13" height="11.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 6.5h13M5 1.5v3M11 1.5v3" stroke="currentColor" stroke-width="1.4"/></svg>
             <span id="jourTexte"></span>
-            <input type="date" id="jour" data-i18n-aria-label="soleil.date" aria-label="Date">
-          </label>
+          </button>
+          <input type="date" id="jour" class="champ-jour" tabindex="-1" data-i18n-aria-label="soleil.date" aria-label="Date">
           <div class="legende small text-secondary" data-i18n-html="soleil.legende"><span><i class="l-course"></i>Ce jour</span><span><i class="l-saison"></i>21 juin · 21 déc.</span></div>
           <input type="range" id="heure" min="0" max="1439" step="5" data-i18n-aria-label="soleil.heure" aria-label="Heure" hidden>
           <span id="heureTexte" hidden></span><span id="soleilTexte" hidden></span>
@@ -197,7 +197,7 @@
           <div class="d-flex gap-1">
             <select class="form-select form-select-sm flex-fill" id="listeProjets" data-i18n-aria-label="projet.liste" aria-label="Projets enregistrés"></select>
             <button type="button" class="btn btn-sm btn-outline-secondary" id="btnEnregistrer" data-i18n="projet.enregistrer">Enregistrer</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnSupprimerProjet" data-i18n-title="projet.supprimer" title="Supprimer ce projet" aria-label="Supprimer ce projet">×</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnSupprimerProjet" data-i18n-title="projet.supprimer" title="Supprimer ce projet" aria-label="Supprimer ce projet"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="display:block;margin:auto"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
           </div>
           <div class="d-flex gap-1 mt-1">
             <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnVolume" data-i18n="projet.dessiner" data-i18n-title="projet.dessinerTitre" title="Trois clics sur la maquette : deux pour un côté, un pour la profondeur">Dessiner un volume</button>

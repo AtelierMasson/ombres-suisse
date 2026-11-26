@@ -8,6 +8,7 @@ import { rectangle, dimensions, listerProjets, enregistrerProjet, supprimerProje
 import { importerModele } from "./importer.js";
 import { dxfReference } from "./referenceParcelle.js";
 import { solEn } from "./grille.js";
+import { ICONE } from "./icones.js";
 
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const memoire = (cle, valeur) => {
@@ -180,7 +181,7 @@ export function brancherPro(o) {
       const d = document.createElement("div");
       d.className = "volume";
       d.innerHTML = `<span></span><span style="grid-column: 2 / 6">${t("import.modele", { nom: m.nom })}<br><span class="text-secondary">${m.note}</span></span>`
-        + `<button type="button" title="${t("import.retirer")}" aria-label="${t("import.retirer")}">×</button>`;
+        + `<button type="button" title="${t("import.retirer")}" aria-label="${t("import.retirer")}">${ICONE.fermer}</button>`;
       d.querySelector("button").onclick = () => { P.imports = P.imports.filter(x => x !== m); importsChanges(); };
       return d;
     });
@@ -191,7 +192,7 @@ export function brancherPro(o) {
         + `<button type="button" class="pastille" title="${t("projet.couleur")}" aria-label="${t("projet.couleur")}" style="background:${v.couleur || couleurs[0]}"></button>`
         + `<input type="number" class="form-control form-control-sm" min="1" max="200" step="0.5" value="${v.hauteur}" title="${t("projet.hauteur")}" aria-label="${t("projet.hauteur")}">`
         + `<select class="form-select form-select-sm"><option value="plat">${t("projet.plat")}</option><option value="deux">${t("projet.deuxPans")}</option></select>`
-        + `<button type="button" title="${t("projet.retirer")}" aria-label="${t("projet.retirer")}">×</button>`
+        + `<button type="button" title="${t("projet.retirer")}" aria-label="${t("projet.retirer")}">${ICONE.fermer}</button>`
         + `<div class="palette" hidden>${couleurs.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join("")}</div>`;
       d.prepend(oeil(v.visible !== false, t("projet.voir"), ok => { v.visible = ok; volumesChanges(); }));
       const [pastille, h, toit, x] = d.querySelectorAll(":scope > input[type=number], :scope > select, :scope > button");
@@ -208,7 +209,7 @@ export function brancherPro(o) {
       const d = document.createElement("div");
       d.className = "volume";
       d.innerHTML = `<span style="grid-column: 2 / 6">${c.nom} <span class="text-secondary">· ${t(c.visible ? "pro.montre" : "pro.masque")}</span></span>`
-        + `<button type="button" title="${t("pro.retablir")}" aria-label="${t("pro.retablir")}">×</button>`;
+        + `<button type="button" title="${t("pro.retablir")}" aria-label="${t("pro.retablir")}">${ICONE.fermer}</button>`;
       d.prepend(oeil(c.visible, t("pro.voirMasque"), ok => { memoriser(); c.visible = ok; appliquer(); }));
       d.querySelector("button").onclick = () => { memoriser(); P.caches = P.caches.filter(x => x !== c); appliquer(); };
       return d;

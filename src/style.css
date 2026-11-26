@@ -75,8 +75,8 @@ body.accueil #haut .recherche { visibility: hidden; }
 #diagramme .coin:hover { border-color: var(--accent); }
 #diagramme .coin-gauche { left: 30px; font-size: 10px; }
 #diagramme .coin-droit { right: 4px; overflow: hidden; }
-#diagramme .coin-droit input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-#diagramme .coin-droit input::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer; }
+/* champ date invisible, sous le bouton du calendrier : le sélecteur s'ouvre là (showPicker) */
+#diagramme .champ-jour { position: absolute; top: 0; right: 4px; width: 110px; height: 24px; opacity: 0; pointer-events: none; border: 0; padding: 0; }
 #diagramme .legende { font-size: 10.5px; }
 #coupe { flex: 1 1 0; min-width: 0; }
 #svgCoupe { display: block; margin: 0 auto; max-width: 100%; }
@@ -295,3 +295,9 @@ body.accueil #orientation { display: none; }
 /* mention « beta » à côté du nom */
 .marque .beta { margin-left: 6px; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--bord-fort); font-size: 10px; font-weight: 600;
   letter-spacing: .06em; text-transform: uppercase; color: var(--doux); vertical-align: 2px; }
+
+/* barres de défilement fines (sous Windows, celles par défaut sont épaisses et grises) */
+#colonne, #listeResultats, .list-group, #coupe, #svgCoupeCadre { scrollbar-width: thin; scrollbar-color: var(--bord-fort) transparent; }
+#colonne::-webkit-scrollbar { width: 8px; }
+#colonne::-webkit-scrollbar-thumb { background: var(--bord-fort); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+#colonne::-webkit-scrollbar-track { background: transparent; }
