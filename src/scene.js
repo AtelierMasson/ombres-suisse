@@ -46,7 +46,8 @@ const CONTACT = { tSol: { value: null }, tDist: { value: null }, grille: { value
   // sélection : R = parcelle choisie, G = bâtiment(s) de l'adresse ou de la parcelle ; teinte = couleur de parcelle du thème
   tSel: { value: null }, teinteSel: { value: new THREE.Color("#e0262b") },
   // couleurs réelles (orthophoto lue par catégorie) : sol, et bâtiments (toits, couleur reprise par leurs façades)
-  tReelSol: { value: null }, tReelBati: { value: null }, tReelMur: { value: null }, reelActif: { value: 0 } };
+  tReelSol: { value: null }, tReelBati: { value: null }, tReelMur: { value: null }, reelActif: { value: 0 },
+  teinteReel: { value: new THREE.Color("#efe6d6") } }; // beige lumineux vers lequel les couleurs réelles sont adoucies
 
 /**
  * `contact` : "mur" (bas des murs assombri sur ~1,5 m), "sol" (sol assombri au pied des bâtiments, ~2 m) ou "toit" ;
@@ -66,6 +67,7 @@ varying vec3 vMonde;
 uniform float grainForce;
 uniform sampler2D tSol, tDist, tSel, tReelSol, tReelBati, tReelMur;
 uniform float reelActif;
+uniform vec3 teinteReel;
 uniform vec3 teinteSel;
 uniform vec3 grille; // x0, côté (m), zRef inutilisé
 uniform float contactActif;
@@ -84,7 +86,14 @@ float pixel = hachage(floor(vMonde * 2.0 + 0.001) + 0.37);
 diffuseColor.rgb *= 1.0 + grainForce * ((g - 0.5) * 1.4 + (pixel - 0.5) * 0.9);
 ${contact && `if (contactActif > 0.5) {
   vec2 uvG = (vec2(vMonde.x, -vMonde.z) - grille.x) / grille.y;
-  if (reelActif > 0.5) diffuseColor.rgb = texture2D(${contact === "sol" ? "tReelSol" : contact === "mur" ? "tReelMur" : "tReelBati"}, uvG).rgb * (1.0 + grainForce * (g - 0.5) * 0.7);
+  if (reelActif > 0.5) {
+    // couleurs de la photo adoucies : en bonne partie désaturées, éclaircies et fondues dans un beige lumineux (maquette)
+    vec3 r = texture2D(${contact === "sol" ? "tReelSol" : contact === "mur" ? "tReelMur" : "tReelBati"}, uvG).rgb;
+    float l = dot(r, vec3(0.2126, 0.7152, 0.0722));
+    r = mix(vec3(l), r, 0.4);
+    r = mix(r, teinteReel, 0.45) * (0.82 + 0.35 * smoothstep(0.0, 0.5, l));
+    diffuseColor.rgb = r * (1.0 + grainForce * (g - 0.5) * 0.7);
+  }
   ${contact === "mur"
     ? "float hc = vMonde.y - texture2D(tSol, uvG).r; diffuseColor.rgb *= mix(0.84, 1.0, smoothstep(0.0, 1.2, hc));"
     : contact === "sol" ? "float dc = texture2D(tDist, uvG).r; diffuseColor.rgb *= mix(0.86, 1.0, smoothstep(0.0, 1.6, dc));" : ""}
