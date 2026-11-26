@@ -369,8 +369,29 @@ function plansEau(eauZ, n, c, aireMin = 20) {
     }
     if (m.length * c * c < aireMin || z.length < 10) continue;
     z.sort((a, b) => a - b);
-    const h = z[Math.floor(z.length / 2)];
-    for (const p of m) niveau[p] = h;
+    // lac, étang : un plan au niveau médian. Rivière, ruisseau (niveau qui varie de plus d'un mètre) : l'eau suit sa pente,
+    // niveau de chaque cellule = celui des points voisins (proche en proche), puis lissé
+    if (z[Math.floor(z.length * 0.9)] - z[Math.floor(z.length * 0.1)] < 1) {
+      const h = z[Math.floor(z.length / 2)];
+      for (const p of m) niveau[p] = h;
+      continue;
+    }
+    const dans = new Uint8Array(N), file = [];
+    for (const p of m) { dans[p] = 1; if (!isNaN(eauZ[p])) { niveau[p] = eauZ[p]; file.push(p); } }
+    for (let t = 0; t < file.length; t++) {
+      const p = file[t], i = p % n;
+      for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n])
+        if (q >= 0 && q < N && dans[q] && isNaN(niveau[q])) { niveau[q] = niveau[p]; file.push(q); }
+    }
+    for (let passe = 0; passe < 4; passe++) {
+      const t = niveau.slice();
+      for (const p of m) {
+        const i = p % n;
+        let s = 0, k = 0;
+        for (const q of [p, i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n]) if (q >= 0 && q < N && dans[q] && !isNaN(t[q])) { s += t[q]; k++; }
+        niveau[p] = s / k;
+      }
+    }
   }
   return niveau;
 }

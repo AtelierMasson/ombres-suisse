@@ -679,24 +679,29 @@ function etiquetteNumero(texte, couleur, x, y, z) {
 export function plansEau(G, zRef) {
   const { n, c, x0, eau } = G;
   if (!eau) return null;
-  const pos = [], idx = [];
+  // plan d'eau par cellule, chaque coin à la moyenne des cellules d'eau voisines : plat sur un lac, en pente douce
+  // le long d'une rivière (sans marches)
+  const coin = (i, j) => {
+    let s = 0, k = 0;
+    for (const [a, b] of [[i - 1, j - 1], [i, j - 1], [i - 1, j], [i, j]]) if (a >= 0 && b >= 0 && a < n && b < n && !isNaN(eau[b * n + a])) { s += eau[b * n + a]; k++; }
+    return s / k - zRef;
+  };
+  const pos = [], P = (a, b) => [x0 + a * c, coin(a, b), -(x0 + b * c)];
   for (let j = 0; j < n; j++) {
     let i = 0;
     while (i < n) {
       const h = eau[j * n + i];
       if (isNaN(h)) { i++; continue; }
       let k = i + 1;
-      while (k < n && eau[j * n + k] === h) k++;
-      const xa = x0 + i * c, xb = x0 + k * c, ya = x0 + j * c, yb = ya + c, y = h - zRef, b = pos.length / 3;
-      pos.push(xa, y, -ya, xb, y, -ya, xb, y, -yb, xa, y, -yb);
-      idx.push(b, b + 1, b + 2, b, b + 2, b + 3);
+      while (k < n && eau[j * n + k] === h) k++; // suite de cellules au même niveau (lac) : un seul quadrilatère
+      const A = P(i, j), B = P(k, j), C = P(k, j + 1), D = P(i, j + 1);
+      pos.push(...A, ...B, ...C, ...A, ...C, ...D);
       i = k;
     }
   }
-  if (!idx.length) return null;
+  if (!pos.length) return null;
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  g.setIndex(idx.length > 65535 * 3 ? new THREE.Uint32BufferAttribute(idx, 1) : idx);
   g.computeVertexNormals();
   return g;
 }
