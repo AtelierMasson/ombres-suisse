@@ -298,7 +298,10 @@ export class Scene3D {
   rendre() {
     if (this.coupe) this.orienterCoupe();
     const L = this.loin, enPlan = this.modeVue === "plan";
-    if (L.maille) L.maille.visible = L.voir && (!this.modeVue || enPlan);
+    // maquette coupée : posée seule, comme une maquette d'atelier (le paysage autour laisserait un vide à la place de la
+    // moitié enlevée) ; avec la ligne de coupe seule, le paysage reste
+    const coupee = !!this.coupe && this.couperModele !== false;
+    if (L.maille) L.maille.visible = L.voir && (!this.modeVue || enPlan) && !coupee;
     // plan en tuiles : avec le plan cadastral, en 3D avec le paysage, et toujours en vue plan
     const tuiles = this.typeFond === "cadastre" && !!L.maille && L.maille.visible;
     if (tuiles !== this.tuilesPlan.actif) { this.tuilesPlan.actif = tuiles; if (tuiles) this.tuilesPlan.demander(); }
@@ -348,7 +351,7 @@ export class Scene3D {
     // socle de la même matière que le terrain et les bâtiments
     m.socle.color.set(T.sol); m.canopee.color.set(T.arbres[1]); m.parcelle.color.set(T.parcelle);
     m.eau.color.set(T.eau || (T.sombre ? "#36536e" : "#a7c6d6"));
-    m.trait.color.set(T.coupe.trait); m.poignee.color.set(T.parcelle);
+    m.trait.color.set(T.coupe.trait); m.poignee.color.set(T.coupe.trait); // poignées A et B à l'encre du trait de coupe, discrètes
     CONTACT.teinteSel.value.set(T.parcelle);
     this.couches?.selection?.material.color.set(T.parcelle);
     m.terrain.color.set(m.terrain.map ? "#ffffff" : T.sol);
@@ -1142,7 +1145,7 @@ export class Scene3D {
     }
     if (P) {
       this.poignees = [P.A, P.B].map(([x, y], k) => {
-        const g = new THREE.Group(), boule = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 12), this.mat.poignee);
+        const g = new THREE.Group(), boule = new THREE.Mesh(new THREE.SphereGeometry(0.55, 20, 12), this.mat.poignee);
         boule.renderOrder = 5; boule.userData.bout = k;
         g.add(boule, etiquette(k ? "B" : "A", this.T.coupe.trait));
         g.position.set(x, solEn(this.G, x, y) - this.zRef + 1, -y);
@@ -1266,13 +1269,13 @@ function etiquette(texte, couleur) {
   const cv = document.createElement("canvas");
   cv.width = cv.height = 64;
   const ctx = cv.getContext("2d");
-  ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.arc(32, 32, 26, 0, 7); ctx.fill();
-  ctx.lineWidth = 5; ctx.strokeStyle = couleur; ctx.stroke();
-  ctx.fillStyle = "#1f2933"; ctx.font = "bold 34px system-ui, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.fillText(texte, 32, 34);
+  // lettre seule, à l'encre du trait, avec un fin liseré clair pour rester lisible sur tous les fonds
+  ctx.font = "600 40px system-ui, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.lineWidth = 7; ctx.lineJoin = "round"; ctx.strokeStyle = "rgba(255,255,255,0.85)"; ctx.strokeText(texte, 32, 34);
+  ctx.fillStyle = couleur; ctx.fillText(texte, 32, 34);
   const tex = new THREE.CanvasTexture(cv);
   tex.colorSpace = THREE.SRGBColorSpace;
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, fog: false }));
-  s.position.y = 3.2; s.scale.setScalar(3.4); s.renderOrder = 6;
+  s.position.y = 2.6; s.scale.setScalar(2.6); s.renderOrder = 6;
   return s;
 }
