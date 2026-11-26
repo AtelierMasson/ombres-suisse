@@ -312,3 +312,7 @@ body.accueil #orientation { display: none; }
 
 /* parties réservées au Pro : l'accent devient l'encre rouge */
 #panneauPro, .pro-seul, .compte-pro, #compte .compte-offre, #compte .compte-statut-pro { --accent: var(--pro); --accent-fonce: var(--pro-fonce); --accent-clair: var(--pro-clair); }
+
+/* export de la coupe (Pro) : boutons à l'encre rouge dans la carte de la coupe */
+.export-coupe-pro { --accent: var(--pro); --accent-fonce: var(--pro-fonce); --accent-clair: var(--pro-clair); align-items: center; }
+.export-coupe-pro .badge-pro { font-size: 10px; font-weight: 700; color: var(--pro); letter-spacing: .04em; }

@@ -40,6 +40,7 @@ export default {
   "lieux.titre": "Mes lieux",
   "lieux.vide": "Aucun lieu enregistré : utilisez ☆ à côté de « Lien ».",
   "lieux.supprimer": "Retirer",
+  "compte.raisonCoupe": "L'export des coupes en PDF et DXF fait partie de Topograph Pro.",
   "accueil.essayer": "Essayer :",
   "accueil.exLutry": "Lutry",
   "accueil.exBerne": "Berne",

@@ -15,7 +15,9 @@
     "bootstrap": "^5.3.9",
     "copc": "^0.0.9",
     "geotiff": "^3.0.5",
+    "jspdf": "^4.2.1",
     "laz-perf": "^0.0.7",
+    "svg2pdf.js": "^2.9.0",
     "three": "^0.187.0"
   },
   "devDependencies": {

@@ -39,6 +39,7 @@ export default {
   "lieux.titre": "Meine Orte",
   "lieux.vide": "Noch keine Orte gespeichert: ☆ neben «Link» verwenden.",
   "lieux.supprimer": "Entfernen",
+  "compte.raisonCoupe": "Der Export von Schnitten als PDF und DXF ist Teil von Topograph Pro.",
   "accueil.essayer": "Beispiele:",
   "accueil.exLutry": "Lutry",
   "accueil.exBerne": "Bern",

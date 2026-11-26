@@ -2,7 +2,7 @@
 // Les outils n'apparaissent que lorsque l'interrupteur « Mode pro » est activé.
 import { ficheVolumes, volumesParcelle } from "./volumes.js";
 import { FORMATS, exporterSite, estimer, sansAccent } from "./export.js";
-import { dessinCoupe, coupeDxf, coupeSvg } from "./exportCoupe.js";
+import { dessinCoupe, coupeDxf, coupeSvg, coupePdf } from "./exportCoupe.js";
 import { t, nombre, entier, date } from "./i18n.js";
 import { rectangle, dimensions, listerProjets, enregistrerProjet, supprimerProjet } from "./projet.js";
 import { importerModele } from "./importer.js";
@@ -364,13 +364,23 @@ export function brancherPro(o) {
   $$("[data-tout]").forEach(b => b.onclick = () => exporter(b.dataset.tout, { terrain: true, maille: b.dataset.tout === "dxf" ? 2 : 1, socle: true, batiments: true, arbres: true, parcelle: true, courbes: false }, false));
 
   /* ---------------------------------------------------------------- export de la coupe */
-  $$("[data-coupe]").forEach(b => b.onclick = () => {
+  $$("[data-coupe]").forEach(b => b.onclick = async () => {
     if (!S.coupe) return;
+    // export des coupes : réservé au Pro (sans API des comptes, en développement, il reste ouvert)
+    if (o.compte?.disponible() && !o.compte.etat().pro && !o.compte.exigerPro(t("compte.raisonCoupe"))) return;
     const C = S.coupe, lieu = $("#lieu").textContent || "site", pt = ([x, y]) => `${Math.round(S.E0 + x)}-${Math.round(S.N0 + y)}`;
     const D = dessinCoupe(C.P, { E0: S.E0, N0: S.N0, lieu, soleil: o.soleilActuel(), jour: date(new Date(S.jour + "T12:00:00")) });
     const infos = [t("export.infoCoupe", { lieu }), `A = E ${fr(S.E0 + C.A[0])} N ${fr(S.N0 + C.A[1])} ; B = E ${fr(S.E0 + C.B[0])} N ${fr(S.N0 + C.B[1])} (MN95, EPSG:2056)`,
       t("export.infoAxesCoupe"), t("export.infoSourceCoupe")];
     const nom = `coupe_${sansAccent(lieu)}_A${pt(C.A)}_B${pt(C.B)}.${b.dataset.coupe}`;
+    if (b.dataset.coupe === "pdf") {
+      try {
+        const blob = await coupePdf(coupeSvg(D, infos), infos.slice(1), t("export.infoCoupe", { lieu }) + " — 1:200");
+        telecharger(blob, nom);
+        $("#resultatExport").innerHTML = t("pro.telechargeCoupe", { nom, taille: mo(blob.size) });
+      } catch (e) { console.error(e); o.message(t("pro.exportImpossible", { m: e.message })); }
+      return;
+    }
     const texte = b.dataset.coupe === "dxf" ? coupeDxf(D, infos) : coupeSvg(D, infos);
     telecharger(new Blob([texte], { type: b.dataset.coupe === "dxf" ? "application/dxf" : "image/svg+xml" }), nom);
     $("#resultatExport").innerHTML = t("pro.telechargeCoupe", { nom, taille: mo(texte.length) });

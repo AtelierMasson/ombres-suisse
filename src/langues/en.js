@@ -39,6 +39,7 @@ export default {
   "lieux.titre": "My places",
   "lieux.vide": "No places saved yet: use ☆ next to ‘Link’.",
   "lieux.supprimer": "Remove",
+  "compte.raisonCoupe": "Exporting sections as PDF and DXF is part of Topograph Pro.",
   "accueil.essayer": "Try:",
   "accueil.exLutry": "Lutry",
   "accueil.exBerne": "Bern",

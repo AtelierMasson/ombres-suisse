@@ -153,3 +153,25 @@ export function coupeSvg(D, infos, echelle = 200) {
   }
   return t + `</svg>\n`;
 }
+
+/**
+ * PDF vectoriel de la coupe, à l'échelle du SVG (1:200 par défaut) : la page fait la taille du dessin, plus une marge,
+ * un titre et les informations (lieu, points A et B, sources). jsPDF et svg2pdf ne sont chargés qu'à la demande.
+ */
+export async function coupePdf(svgTexte, infos, titre) {
+  const [{ jsPDF }] = await Promise.all([import("jspdf"), import("svg2pdf.js")]);
+  const svg = new DOMParser().parseFromString(svgTexte, "image/svg+xml").documentElement;
+  const w = parseFloat(svg.getAttribute("width")), h = parseFloat(svg.getAttribute("height")), m = 12;
+  const W = Math.max(w + 2 * m, 210), H = Math.max(h + 2 * m + 22, 148);
+  const pdf = new jsPDF({ unit: "mm", format: [W, H], orientation: W > H ? "landscape" : "portrait" });
+  pdf.setFont("helvetica", "bold"); pdf.setFontSize(12); pdf.text(ascii(titre), m, m);
+  // svg2pdf a besoin de l'élément dans le document pour mesurer les textes
+  const hote = document.createElement("div");
+  hote.style.cssText = "position:absolute;left:-99999px;top:0";
+  hote.append(document.importNode(svg, true));
+  document.body.append(hote);
+  try { await pdf.svg(hote.firstChild, { x: m, y: m + 6, width: w, height: h }); } finally { document.body.removeChild(hote); }
+  pdf.setFont("helvetica", "normal"); pdf.setFontSize(7); pdf.setTextColor(100);
+  infos.forEach((l, i) => pdf.text(ascii(l), m, H - m + 2 - (infos.length - 1 - i) * 3.2));
+  return pdf.output("blob");
+}
