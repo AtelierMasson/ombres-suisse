@@ -380,6 +380,7 @@ async function depuisAdresse(o = null) {
     scene.pontsModeles = await pontsAutour(E0, N0, R).catch(() => []); scene.lieuPonts = { E: E0, N: N0 };
     if (id !== tache) return;
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite), bruit: urlFond(COUCHES.bruit, boite) });
+    scene.animerConstruction(); // les bâtiments montent du sol, puis les arbres apparaissent
     // vue enregistrée (lieu du compte) : la caméra reprend sa place
     const cam = (h.get("cam") || "").split(",").map(Number);
     if (cam.length === 6 && cam.every(Number.isFinite)) { scene.camera.position.set(cam[0], cam[1], cam[2]); scene.controls.target.set(cam[3], cam[4], cam[5]); scene.controls.update(); scene.demander?.(3); }

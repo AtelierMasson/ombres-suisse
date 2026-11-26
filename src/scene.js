@@ -60,6 +60,8 @@ void main() {
  */
 // ombre de contact : grilles du lieu (altitude du sol, distance au bâti) partagées par les matériaux
 const CONTACT = { tSol: { value: null }, tDist: { value: null }, grille: { value: new THREE.Vector3(0, 1, 0) }, contactActif: { value: 0 },
+  // animation de construction (0 → 1) : les murs et les toits montent du sol, en vague depuis le centre
+  montee: { value: 1 },
   // carte des heures de soleil, peinte directement sur le sol et les toits : une couleur par cellule (pixels nets)
   tHeures: { value: null }, heuresZone: { value: new THREE.Vector4(0, 0, 1, 1) }, heuresActif: { value: 0 },
   // sélection : R = parcelle choisie, G = bâtiment(s) de l'adresse ou de la parcelle ; teinte = couleur de parcelle du thème
@@ -129,9 +131,17 @@ function grainPlatre(mat, force, contact = "") {
   mat.onBeforeCompile = sh => {
     sh.uniforms.grainForce = { value: force };
     Object.assign(sh.uniforms, CONTACT, DEGRADE);
+    const monte = contact === "mur" || contact === "toit";
     sh.vertexShader = sh.vertexShader
-      .replace("#include <common>", "#include <common>\nvarying vec3 vMonde;")
-      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvMonde = (modelMatrix * vec4(transformed, 1.0)).xyz;");
+      .replace("#include <common>", "#include <common>\nvarying vec3 vMonde;" + (monte ? "\nuniform sampler2D tSol;\nuniform vec3 grille;\nuniform float montee, contactActif;" : ""))
+      .replace("#include <begin_vertex>", "#include <begin_vertex>\n" + (monte ? `if (montee < 0.999 && contactActif > 0.5) {
+  vec4 wm = modelMatrix * vec4(transformed, 1.0);
+  float sol = texture(tSol, (vec2(wm.x, -wm.z) - grille.x) / grille.y).r;
+  float k = clamp(montee * 1.7 - length(wm.xz) / max(grille.y * 0.5, 1.0) * 0.7, 0.0, 1.0);
+  k = k * k * (3.0 - 2.0 * k);
+  transformed.y += (sol + (wm.y - sol) * k) - wm.y;
+}
+` : "") + "vMonde = (modelMatrix * vec4(transformed, 1.0)).xyz;");
     sh.fragmentShader = sh.fragmentShader
       .replace("#include <common>", `#include <common>
 varying vec3 vMonde;
@@ -1486,6 +1496,24 @@ void main() {
     CONTACT.tSol.value = tex(alt); CONTACT.tDist.value = tex(dist);
     CONTACT.grille.value.set(G.x0, n * c, 0);
     CONTACT.contactActif.value = 1;
+  }
+
+  /**
+   * Animation de construction d'un lieu qui arrive : les bâtiments montent du sol en vague depuis le centre (~1,4 s),
+   * puis les arbres apparaissent (taille des points de 0 à la normale).
+   */
+  animerConstruction(duree = 1600) {
+    const arbres = this.couches.arbres?.material?.uniforms?.taille, base = arbres?.value, t0 = performance.now();
+    CONTACT.montee.value = 0;
+    if (arbres) arbres.value = 0;
+    const pas = () => {
+      const f = Math.min(1, (performance.now() - t0) / duree);
+      CONTACT.montee.value = Math.min(1, f / 0.8);
+      if (arbres) { const g = Math.min(1, Math.max(0, (f - 0.55) / 0.45)); arbres.value = base * g * g * (3 - 2 * g); }
+      this.demander(2);
+      if (f < 1) requestAnimationFrame(pas); else { CONTACT.montee.value = 1; if (arbres) arbres.value = base; }
+    };
+    requestAnimationFrame(pas);
   }
 
   /**
