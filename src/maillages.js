@@ -439,7 +439,8 @@ void main() {
   #include <fog_vertex>
 }`;
 const FRAGMENTS = /* glsl */`
-uniform float lum, relief, ombre, gris, neutre;
+uniform float lum, relief, ombre, gris, neutre, versSol;
+uniform vec3 teinteSol; // couleur du sol : par faible lumière, les arbres s'en rapprochent (moins verts, moins sombres)
 uniform vec3 teinteSoleil, teinteOmbre; // teintes (luminosité 1) de la lumière du soleil et de celle du ciel
 uniform vec3 teinteNeutre;
 varying vec3 vCouleur;
@@ -474,6 +475,8 @@ void main() {
     base = teinteNeutre * (0.85 + 0.6 * (dot(vCouleur, vec3(0.2126, 0.7152, 0.0722)) - 0.25));
   }
   vec3 c = mix(base, vec3(dot(base, vec3(0.2126, 0.7152, 0.0722))), gris);
+  // lumière faible : vers la teinte du sol (gardant un peu de la clarté propre à chaque point)
+  c = mix(c, teinteSol * (0.75 + 0.8 * (dot(vCouleur, vec3(0.2126, 0.7152, 0.0722)) - 0.25)), versSol);
   gl_FragColor = vec4(c * mix(teinteOmbre, teinteSoleil, masque) * (1.0 - relief * (0.3 * r2 + 0.12 * p.y)) * lum * soleil, 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -485,7 +488,7 @@ export function materiauPoints(taille, parClasse = false) {
   const mat = new THREE.ShaderMaterial({
     uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, THREE.UniformsLib.lights, {
       taille: { value: taille }, echelle: { value: 800 }, lum: { value: 1 }, relief: { value: 1 }, ombre: { value: 0.5 }, gris: { value: 0 },
-      neutre: { value: 0 }, teinteSoleil: { value: new THREE.Color(1, 1, 1) }, teinteOmbre: { value: new THREE.Color(1, 1, 1) }, teinteNeutre: { value: new THREE.Color("#b9b6b0") },
+      neutre: { value: 0 }, versSol: { value: 0 }, teinteSol: { value: new THREE.Color("#d8cfbf") }, teinteSoleil: { value: new THREE.Color(1, 1, 1) }, teinteOmbre: { value: new THREE.Color(1, 1, 1) }, teinteNeutre: { value: new THREE.Color("#b9b6b0") },
       tZone: { value: null }, grilleZone: { value: new THREE.Vector3(0, 1, 0) },
       c1: { value: new THREE.Color("#2f5d2a") }, c2: { value: new THREE.Color("#7fae4b") }, c3: { value: new THREE.Color("#b9c45a") },
     }]),

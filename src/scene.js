@@ -146,7 +146,10 @@ float bruit3(vec3 x) {
 if (degrade > 0.5) diffuseColor.rgb = rampeHaut(vMonde.y); // dégradé selon la hauteur (le grain reste)
 float g = 0.55 * bruit3(vMonde * 2.7) + 0.3 * bruit3(vMonde * 9.0) + 0.15 * bruit3(vMonde * 0.35);
 // trame de cases de 0,5 m (celle du relevé) : un ton légèrement différent par case, sur toutes les faces
-float pixel = hachage(floor(vMonde * 2.0 + 0.001) + 0.37);
+// de très près, une case fait des dizaines de pixels et ressemble à un défaut d'affichage : elle s'efface
+vec2 tailleCase = fwidth(vec2(vMonde.x, vMonde.z));
+float visibleCase = smoothstep(0.008, 0.035, max(tailleCase.x, tailleCase.y));
+float pixel = mix(0.5, hachage(floor(vMonde * 2.0 + 0.001) + 0.37), visibleCase);
 diffuseColor.rgb *= 1.0 + grainForce * ((g - 0.5) * 1.4 + (pixel - 0.5) * 0.9);
 ${contact && `if (contactActif > 0.5) {
   vec2 uvG = (vec2(vMonde.x, -vMonde.z) - grille.x) / grille.y;
@@ -1275,9 +1278,16 @@ export class Scene3D {
   /** Vues plan et élévation : la caméra est loin, les plans proche et lointain encadrent juste la maquette. */
   plansCamera() {
     // en vue plan, le paysage et le plan en tuiles autour (relief compris) restent dans le champ
-    const autour = this.modeVue === "plan" && (this.loin.maille || this.tuilesPlan.lieu) ? 6000 : 0;
+    const autour = this.modeVue === "plan" && this.loin.maille && this.loin.voir ? 6000 : 0;
     const cam = this.camera, d = cam.position.distanceTo(this.controls.target), marge = 2 * (this.G?.R || 150) + 200 + autour;
-    const near = Math.max(0.5, d - marge), far = d + marge;
+    let near = Math.max(0.5, d - marge), far = d + marge;
+    // vue de dessus : le plan proche juste au-dessus du plus haut point (meilleure précision de profondeur en zoomant,
+    // moins de surfaces qui scintillent)
+    if (this.modeVue === "plan" && !autour) {
+      const haut = (DEGRADE.zHaut?.value ?? 60) + 30;
+      near = Math.max(0.5, cam.position.y - haut);
+      far = cam.position.y - (this.zBas ?? -50) + 50;
+    }
     if (Math.abs(cam.near - near) > 0.01 * near || Math.abs(cam.far - far) > 1) { cam.near = near; cam.far = far; cam.updateProjectionMatrix(); }
     // le ciel suit la caméra et tient dans le champ (la caméra est loin, la voûte de 9 km serait coupée)
     this.voute.position.copy(cam.position);
@@ -1457,7 +1467,9 @@ export class Scene3D {
       const u = this.couches[c]?.material.uniforms;
       const f = Math.min(1, total / jourClair);
       if (u) {
-        u.lum.value = Math.max(0.04, f ** 1.5); u.gris.value = 0.7 * (1 - f) ** 2; u.ombre.value = visible ? this.ciel.intensity / total : 1;
+        // lumière faible : moins sombres et moins verts qu'avant, ils tirent vers la couleur du sol (comme la maquette)
+        u.lum.value = Math.max(0.3, f ** 0.9); u.gris.value = 0.5 * (1 - f) ** 2; u.ombre.value = visible ? this.ciel.intensity / total : 1;
+        if (u.versSol) { u.versSol.value = Math.min(0.85, 1.0 * (1 - f) ** 1.1); u.teinteSol.value.set(this.T.sol); }
         // teintes ramenées à une luminosité de 1 (la couleur change, pas la clarté), un peu atténuées
         const teinte = (src, dst, force) => {
           const l = Math.max(1e-3, 0.2126 * src.r + 0.7152 * src.g + 0.0722 * src.b);
