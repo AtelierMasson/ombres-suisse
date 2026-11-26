@@ -124,6 +124,13 @@ const FRAGMENTS = /* glsl */`
 uniform vec3 sol, lac, ciel, terreCiel, soleilCouleur, soleilDir, horizon;
 uniform float densite, fondActif, fondDemi, procheDemi; // plan cadastral drapé autour de la maquette (demi-côtés en m)
 uniform sampler2D tFond, tProche; // large (environ 1 m par pixel) et proche (environ 0,4 m par pixel)
+// grain de papier (le même que la maquette : voir grainPlatre dans scene.js)
+float hachage(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+float bruit3(vec3 x) {
+  vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(mix(hachage(i), hachage(i + vec3(1, 0, 0)), f.x), mix(hachage(i + vec3(0, 1, 0)), hachage(i + vec3(1, 1, 0)), f.x), f.y),
+             mix(mix(hachage(i + vec3(0, 0, 1)), hachage(i + vec3(1, 0, 1)), f.x), mix(hachage(i + vec3(0, 1, 1)), hachage(i + vec3(1, 1, 1)), f.x), f.y), f.z);
+}
 varying vec3 vMonde, vN;
 varying float vEau;
 void main() {
@@ -137,6 +144,15 @@ void main() {
     if (bordP < 1.0) base = mix(texture2D(tProche, uvP).rgb, base, smoothstep(0.9, 1.0, bordP));
   }
   base = mix(base, lac, smoothstep(0.3, 0.9, vEau));
+  // même grain que le sol de la maquette sur les 4 × 4 km du plan ; le grain fin s'efface quand il devient plus
+  // petit qu'un pixel (sinon il scintille au loin)
+  if (fondActif > 0.5 && max(abs(vMonde.x), abs(vMonde.z)) < fondDemi) {
+    float g = 0.55 * bruit3(vMonde * 2.7) + 0.3 * bruit3(vMonde * 9.0) + 0.15 * bruit3(vMonde * 0.35);
+    float pixel = hachage(floor(vMonde * 2.0 + 0.001) + 0.37);
+    vec2 taille = fwidth(vMonde.xz);
+    float fin = 1.0 - smoothstep(0.15, 0.6, max(taille.x, taille.y));
+    base *= 1.0 + 0.07 * ((g - 0.5) * 1.4 * mix(0.5, 1.0, fin) + (pixel - 0.5) * 0.9 * fin);
+  }
   // même éclairage que la maquette (ciel en hémisphère + soleil), sans ombres portées
   vec3 lum = mix(terreCiel, ciel, n.y * 0.5 + 0.5) + soleilCouleur * max(dot(n, soleilDir), 0.0);
   vec3 c = base * lum / 3.14159;
