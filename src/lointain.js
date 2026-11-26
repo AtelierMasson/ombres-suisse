@@ -17,35 +17,49 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, rayonMax = 50000) {
   const ecarts = [0];
   while (ecarts.at(-1) < rayonMax) ecarts.push(ecarts.at(-1) * 1.045 + 8);
   const nR = ecarts.length;
-  const pts = new Array(nA * nR);
-  const besoin = new Map();
+  // altitude en un point (E, N) : tuile la plus fine jusqu'à 6 km (mêmes niveaux que l'horizon, tuiles en cache)
+  const tuiles = new Map();
+  const cleEn = (E, N, z) => {
+    const [lon, lat] = versWgs(E, N), [tx, ty] = versTuile(lon, lat, z);
+    return [`${z}/${Math.floor(tx)}/${Math.floor(ty)}`, (tx - Math.floor(tx)) * 256, (ty - Math.floor(ty)) * 256];
+  };
+  const bil = (h, fx, fy) => {
+    const x = Math.min(254.999, Math.max(0, fx - 0.5)), y = Math.min(254.999, Math.max(0, fy - 0.5));
+    const i = Math.floor(x), j = Math.floor(y), u = x - i, v = y - j, p = j * 256 + i;
+    return (h[p] * (1 - u) + h[p + 1] * u) * (1 - v) + (h[p + 256] * (1 - u) + h[p + 257] * u) * v;
+  };
+  const altEn = (E, N, z) => {
+    const [cle, fx, fy] = cleEn(E, N, z), h = tuiles.get(cle);
+    return h ? bil(h, fx, fy) : NaN;
+  };
+  const sommets = [];
   for (let a = 0; a < nA; a++) {
     const az = a / nA * 2 * Math.PI, sx = Math.sin(az), sy = Math.cos(az);
     const r0 = R / Math.max(Math.abs(sx), Math.abs(sy)); // bord du carré dans cette direction
     for (let k = 0; k < nR; k++) {
-      const d = r0 + ecarts[k], e = sx * d, n = sy * d;
-      const [lon, lat] = versWgs(E0 + e, N0 + n), z = d < 6000 ? 12 : 10; // mêmes niveaux que l'horizon (tuiles en cache)
-      const [tx, ty] = versTuile(lon, lat, z), cle = `${z}/${Math.floor(tx)}/${Math.floor(ty)}`;
-      besoin.set(cle, null);
-      pts[a * nR + k] = { e, n, d, s: ecarts[k], bx: sx * r0 * 0.995, by: sy * r0 * 0.995, cle, fx: (tx - Math.floor(tx)) * 256, fy: (ty - Math.floor(ty)) * 256 };
+      const d = r0 + ecarts[k];
+      sommets.push({ e: sx * d, n: sy * d, d, s: ecarts[k], bx: sx * r0 * 0.995, by: sy * r0 * 0.995, z: d < 6000 ? 12 : 10, pas: Math.max(30, d * 0.012) });
     }
   }
-  await Promise.all([...besoin.keys()].map(async cle => {
+  // tuiles nécessaires (sommets et voisins servant aux pentes)
+  const besoin = new Set();
+  for (const P of sommets) for (const [de, dn] of [[0, 0], [P.pas, 0], [-P.pas, 0], [0, P.pas], [0, -P.pas]])
+    besoin.add(cleEn(E0 + P.e + de, N0 + P.n + dn, P.z)[0]);
+  await Promise.all([...besoin].map(async cle => {
     const [z, x, y] = cle.split("/").map(Number);
-    try { besoin.set(cle, await tuile(z, x, y)); } catch { /* hors couverture */ }
+    try { tuiles.set(cle, await tuile(z, x, y)); } catch { /* hors couverture */ }
   }));
 
-  const pos = new Float32Array(nA * nR * 3), eau = new Float32Array(nA * nR);
-  for (let q = 0; q < pts.length; q++) {
-    const P = pts[q], h = besoin.get(P.cle);
-    let alt = NaN, lac = 0;
-    if (h) {
-      // bilinéaire dans la tuile (bord de tuile : pixel le plus proche)
-      const x = Math.min(254.999, Math.max(0, P.fx - 0.5)), y = Math.min(254.999, Math.max(0, P.fy - 0.5));
-      const i = Math.floor(x), j = Math.floor(y), u = x - i, v = y - j, p = j * 256 + i;
-      alt = (h[p] * (1 - u) + h[p + 1] * u) * (1 - v) + (h[p + 256] * (1 - u) + h[p + 257] * u) * v;
-      lac = h.eau[Math.min(255, Math.round(P.fy - 0.5)) * 256 + Math.min(255, Math.round(P.fx - 0.5))];
-    }
+  const pos = new Float32Array(nA * nR * 3), nor = new Float32Array(nA * nR * 3), eau = new Float32Array(nA * nR);
+  for (let q = 0; q < sommets.length; q++) {
+    const P = sommets[q], E = E0 + P.e, N = N0 + P.n, h = P.pas;
+    let alt = altEn(E, N, P.z);
+    // pente mesurée sur le terrain lui-même (et non sur les facettes du maillage polaire, qui dessinaient des rayons)
+    const hE = altEn(E + h, N, P.z), hO = altEn(E - h, N, P.z), hN = altEn(E, N + h, P.z), hS = altEn(E, N - h, P.z);
+    let nx = 0, nz = 0;
+    if (![hE, hO, hN, hS].some(isNaN)) { nx = -(hE - hO) / (2 * h); nz = (hN - hS) / (2 * h); }
+    const [cle, fx, fy] = cleEn(E, N, P.z), T = tuiles.get(cle);
+    const lac = T ? T.eau[Math.min(255, Math.round(fy - 0.5)) * 256 + Math.min(255, Math.round(fx - 0.5))] : 0;
     // raccord au bord de la maquette sur les 300 premiers mètres
     const b = hBord(P.bx, P.by);
     const m = Math.min(1, P.s / 300), t = m * m * (3 - 2 * m);
@@ -53,6 +67,8 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, rayonMax = 50000) {
     alt = b * (1 - t) + alt * t;
     alt -= P.d * P.d / (2 * RAYON_TERRE) * (1 - REFRACTION); // courbure de la Terre
     pos.set([P.e, alt - zRef, -P.n], 3 * q);
+    const l = Math.hypot(nx * t, 1, nz * t);
+    nor.set([nx * t / l, 1 / l, nz * t / l], 3 * q);
     eau[q] = lac * t;
   }
   const idx = [];
@@ -66,8 +82,8 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, rayonMax = 50000) {
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   g.setAttribute("eau", new THREE.BufferAttribute(eau, 1));
+  g.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
   g.setIndex(idx);
-  g.computeVertexNormals();
   g.computeBoundingSphere();
   return g;
 }

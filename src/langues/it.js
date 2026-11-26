@@ -103,6 +103,8 @@ export default {
   "aff.arbres": "Alberi",
   "aff.arbresVoir": "Mostra gli alberi",
   "aff.arbresOmbre": "Ombra degli alberi",
+  "aff.couleurs": "colori reali",
+  "aff.couleursTitre": "Colore di ogni punto preso dall'ortofoto SWISSIMAGE, in verticale (le facciate prendono il colore del tetto o del suolo vicino)",
   "aff.points": "Nuvola di punti grezza",
   "aff.degrade": "Colore secondo l'altezza",
   "aff.cadastre": "Piano catastale al suolo",

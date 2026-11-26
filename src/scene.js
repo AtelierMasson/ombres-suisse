@@ -293,6 +293,8 @@ export class Scene3D {
     if (this.coupe) this.orienterCoupe();
     const L = this.loin, voirLoin = !!(L.maille && L.voir && !this.modeVue);
     this.voute.material.uniforms.aLoin.value = voirLoin ? 1 : 0;
+    // dans le paysage, la maquette n'est plus un bloc posé : son socle disparaît, le relief lointain prend le relais
+    if (this.couches.socle) this.couches.socle.visible = !voirLoin;
     if (voirLoin) {
       const r = this.renderer, fond = r.getClearColor(new THREE.Color()), alpha = r.getClearAlpha();
       L.cam.copy(this.camera); L.cam.near = 20; L.cam.far = 150000; L.cam.updateProjectionMatrix();
@@ -450,9 +452,44 @@ export class Scene3D {
     }
     if (!c.tous) return;
     c.tous.visible = !!actif;
+    if (actif) this.couleursPoints(this.couleursReelles);
     const g = c.tous.geometry;
     g.setDrawRange(0, this.arbresVisibles !== false && c.arbres ? g.userData.autres : Infinity);
     this.demander();
+  }
+
+  /**
+   * Couleurs du nuage brut : par classe, ou « réelles », prises sur l'orthophoto SWISSIMAGE à la verticale de chaque
+   * point (toits, sol et arbres justes ; les façades, vues seulement d'en haut, prennent la couleur voisine).
+   */
+  async couleursPoints(reelles) {
+    this.couleursReelles = !!reelles;
+    const pts = this.couches.tous, id = this.idScene;
+    if (!pts) return;
+    const g = pts.geometry, attr = g.getAttribute("aCouleur");
+    g.userData.classes ||= attr.array.slice();
+    if (!reelles) { attr.array.set(g.userData.classes); attr.needsUpdate = true; this.demander(); return; }
+    if (!g.userData.reelles) {
+      if (!this.urls?.ortho) return;
+      g.userData.reelles = (async () => {
+        const img = await chargerImage(this.urls.ortho), cv = document.createElement("canvas");
+        const w = cv.width = img.naturalWidth, h = cv.height = img.naturalHeight, ctx = cv.getContext("2d", { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0);
+        const d = ctx.getImageData(0, 0, w, h).data, pos = g.getAttribute("position").array, R = this.G.R, out = new Uint8Array(attr.array.length);
+        for (let q = 0; q < out.length / 3; q++) {
+          const x = pos[3 * q], y = -pos[3 * q + 2];
+          const i = Math.min(w - 1, Math.max(0, Math.floor((x + R) / (2 * R) * w))), j = Math.min(h - 1, Math.max(0, Math.floor((R - y) / (2 * R) * h)));
+          const p = 4 * (j * w + i);
+          out[3 * q] = d[p]; out[3 * q + 1] = d[p + 1]; out[3 * q + 2] = d[p + 2];
+        }
+        return out;
+      })();
+    }
+    try {
+      const reel = await g.userData.reelles;
+      if (id !== this.idScene || !this.couleursReelles || this.couches.tous !== pts) return;
+      attr.array.set(reel); attr.needsUpdate = true; this.demander();
+    } catch (e) { g.userData.reelles = null; console.warn("Orthophoto :", e.message); }
   }
 
   /**

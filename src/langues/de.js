@@ -103,6 +103,8 @@ export default {
   "aff.arbres": "Bäume",
   "aff.arbresVoir": "Bäume zeigen",
   "aff.arbresOmbre": "Schatten der Bäume",
+  "aff.couleurs": "echte Farben",
+  "aff.couleursTitre": "Farbe jedes Punkts aus dem Orthofoto SWISSIMAGE, senkrecht darüber (Fassaden erhalten die Farbe des Dachs oder des Bodens daneben)",
   "aff.points": "Rohe Punktwolke",
   "aff.degrade": "Einfärbung nach Höhe",
   "aff.cadastre": "Katasterplan auf dem Boden",

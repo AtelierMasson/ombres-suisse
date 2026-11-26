@@ -103,6 +103,8 @@ export default {
   "aff.arbres": "Trees",
   "aff.arbresVoir": "Show trees",
   "aff.arbresOmbre": "Tree shadows",
+  "aff.couleurs": "real colours",
+  "aff.couleursTitre": "Colour of each point taken from the SWISSIMAGE orthophoto, straight above it (façades take the colour of the roof or ground next to them)",
   "aff.points": "Raw point cloud",
   "aff.degrade": "Colour by height",
   "aff.cadastre": "Cadastral plan on the ground",

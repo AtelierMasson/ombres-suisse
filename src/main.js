@@ -26,6 +26,7 @@ brancherSelecteur($("#langues"));
 const S = { jour: aujourdhui(), minutes: 14 * 60 };
 let T = appliquerTheme(themeInitial());
 const scene = new Scene3D($("#vue"), T);
+if (import.meta.env.DEV) window.__scene = scene; // inspection en développement
 
 function aujourdhui() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
 const hhmm = m => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
@@ -229,7 +230,7 @@ async function depuisAdresse() {
     await pause();
     scene.controls.autoRotate = false;
     scene.typeFond = $("#vCadastre").checked ? "cadastre" : "uni";
-    scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite) });
+    scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite) });
     pro.reinitialiser();
     // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
     scene.surligner(rel, h.get("t") === "Adresse" ? [E - E0, N - N0] : null);
@@ -468,6 +469,10 @@ window.addEventListener("pageshow", synchroSwiss);
 $("#vCadastre").addEventListener("change", e => scene.fond(e.target.checked ? "cadastre" : "uni"));
 scene.surFondAbsent = () => message(t("msg.cadastreAbsent"));
 $("#vEffets").addEventListener("change", e => scene.reglerEffets(e.target.checked));
+$("#vCouleursReelles").addEventListener("change", e => {
+  scene.couleursPoints(e.target.checked);
+  if (e.target.checked && !$("#vPoints").checked && !$("#vPoints").disabled) { $("#vPoints").checked = true; appliquerAffichage(); }
+});
 $("#vLointain").addEventListener("change", e => scene.reglerLointain({ voir: e.target.checked }));
 $("#vBrume").addEventListener("change", e => scene.reglerLointain({ brume: e.target.checked }));
 $("#vDegrade").addEventListener("change", e => scene.degradeHauteur(e.target.checked));
