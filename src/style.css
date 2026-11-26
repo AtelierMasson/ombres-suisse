@@ -2,7 +2,9 @@
 html, body { height: 100%; margin: 0; overflow: hidden; font-size: 14px; }
 body {
   --barre: #ffffff; --carte: #ffffff; --texte: #1f2933; --doux: #66727f; --bord: #e2e5e9; --bord-fort: #c5cbd3;
-  --accent: #e8890c; --accent-fonce: #c26d00; --accent-clair: #fdf1df; --sur-accent: #ffffff;
+  /* encre : bleu foncé pour la mise en avant, rouge foncé pour ce qui est réservé au Pro (dessin à l'encre sur papier) */
+  --accent: #1f3b6b; --accent-fonce: #132a52; --accent-clair: #e9eef6; --sur-accent: #ffffff;
+  --pro: #8c1c1c; --pro-fonce: #6b1212; --pro-clair: #f7e9e7;
   --rayon: 10px; --ombre: 0 6px 24px rgba(31, 41, 51, .12); --haut: 56px; --large: 320px;
   --relief: #8d9aa6; --relief-trait: #5f6b76; --course: #f08c00; --grille: #e3e6ea; --astre: #ffcc33;
   --coupe-bati: #3b4754; --coupe-terrain: #edecea; --coupe-trait: #15181c; --coupe-arbres: #9aa0a6; --coupe-fin: #6b7178;
@@ -153,7 +155,8 @@ body:not(.accueil) #accueil { display: none; }
 /* ---------- Mode nuit (« Nuit bleue ») : mêmes emplacements que le jour, couleurs sombres ---------- */
 body[data-theme=nuit] {
   --barre: rgba(13, 22, 38, .88); --carte: #14213a; --texte: #e6ecf5; --doux: #9aa9c0; --bord: #263756; --bord-fort: #3a4d70;
-  --accent: #ffb84d; --accent-fonce: #f09a1a; --accent-clair: #2a3654; --sur-accent: #1a1206; --rayon: 8px; --ombre: 0 10px 34px rgba(0, 0, 0, .45); --large: 292px;
+  --accent: #9db8e8; --accent-fonce: #7f9fd8; --accent-clair: #22304f; --sur-accent: #0d1626;
+  --pro: #e8968e; --pro-fonce: #d97a71; --pro-clair: #3a2230; --rayon: 8px; --ombre: 0 10px 34px rgba(0, 0, 0, .45); --large: 292px;
   --relief: #4d6187; --relief-trait: #8ea3c9; --course: #ffb84d; --grille: #263756; --astre: #ffd98a;
   --coupe-bati: #c9d3e3; --coupe-terrain: #22304d; --coupe-trait: #eef2f8; --coupe-arbres: #7f8da6; --coupe-fin: #9aa9c0;
   --pt-sol: #e0bf7e; --pt-veg: #86dc8a; --pt-bati: #ff8f78; --pt-autre: #b4bccb; --parcelle: #ffb84d;
@@ -306,3 +309,6 @@ body.accueil #orientation { display: none; }
 /* curseurs dans la table d'Affichage : sur toute la largeur */
 .table-calques tr.ligne-curseur td { width: auto; text-align: left; padding: 4px 0 2px; }
 .table-calques tr.ligne-curseur .form-range { height: 1.2rem; }
+
+/* parties réservées au Pro : l'accent devient l'encre rouge */
+#panneauPro, .pro-seul, .compte-pro, #compte .compte-offre, #compte .compte-statut-pro { --accent: var(--pro); --accent-fonce: var(--pro-fonce); --accent-clair: var(--pro-clair); }

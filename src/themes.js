@@ -6,7 +6,7 @@
 export const THEMES = {
   maquette: {
     nom: "Maquette", resume: "Blanc cassé, ciel doux, panneau classique", sombre: false,
-    pastilles: ["#f4f0e9", "#e8890c", "#bcd6ee"],
+    pastilles: ["#f4f0e9", "#1f3b6b", "#bcd6ee"],
     ciel: { zenith: "#8fb8e0", horizon: "#e4eef6", nuitZenith: "#1c2738", nuitHorizon: "#4a586c" },
     lumiere: { ciel: "#f3f7ff", sol: "#a39c8c", soleil: "#fff3dc", exposition: 1.0, brume: 0.00055 },
     mur: "#f6f2eb", toit: "#ece6db", sol: "#e6e0d5", socle: "#cfc8ba",
@@ -17,14 +17,14 @@ export const THEMES = {
   },
   nuit: {
     nom: "Nuit bleue", resume: "Mode sombre, panneau compact à droite", sombre: true,
-    pastilles: ["#c9d3e3", "#ffb84d", "#16233b"],
+    pastilles: ["#c9d3e3", "#9db8e8", "#16233b"],
     ciel: { zenith: "#0f1a2e", horizon: "#3a5078", nuitZenith: "#070c16", nuitHorizon: "#1b2740" },
     lumiere: { ciel: "#cfdcf5", sol: "#6f7a90", soleil: "#ffe9c4", exposition: 0.95, brume: 0.0008 },
     mur: "#d5deec", toit: "#c3cee0", sol: "#b9c4d6", socle: "#8f9bb0",
     plan: { sol: "#b9c4d6", route: "#adb9cc", bati: "#a8b4c8", foret: "#a9bcc0", eau: "#9db6d6", trait: "#56637a", force: 0.8 },
     parcelle: "#ffb84d", arbres: ["#1d5560", "#4fa39a", "#9bd0a8"],
     heures: ["#1b1044", "#6a1f7d", "#c43c6c", "#f5874f", "#fce68a"],
-    coupe: { trait: "#ffb84d", bati: "#22304a", terrain: "#77839a" },
+    coupe: { trait: "#9db8e8", bati: "#22304a", terrain: "#77839a" },
   },
 };
 

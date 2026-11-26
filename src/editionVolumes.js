@@ -12,7 +12,7 @@ function icone(dessin) {
   const c = cv.getContext("2d");
   c.fillStyle = "rgba(255,255,255,0.95)"; c.strokeStyle = "rgba(0,0,0,0.25)"; c.lineWidth = 2;
   c.beginPath(); c.arc(32, 32, 28, 0, Math.PI * 2); c.fill(); c.stroke();
-  c.strokeStyle = "#c8741a"; c.fillStyle = "#c8741a"; c.lineWidth = 4; c.lineCap = "round"; c.lineJoin = "round";
+  c.strokeStyle = "#8c1c1c"; c.fillStyle = "#8c1c1c"; c.lineWidth = 4; c.lineCap = "round"; c.lineJoin = "round";
   dessin(c);
   const t = new THREE.CanvasTexture(cv);
   t.colorSpace = THREE.SRGBColorSpace;
@@ -37,8 +37,8 @@ export function brancherEdition({ scene, volumes, actif, dessine, changes, retir
     fleche(c, 32 + 15 * Math.cos(-Math.PI * 0.15), 32 + 15 * Math.sin(-Math.PI * 0.15), Math.PI * 0.35);
   });
   deplacer.userData.poignee = "deplacer"; tourner.userData.poignee = "tourner";
-  const matFace = new THREE.MeshBasicMaterial({ color: "#f0a03c", transparent: true, opacity: 0.45, depthTest: true, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
-  const matContour = new THREE.LineBasicMaterial({ color: "#c8741a", depthTest: false, transparent: true });
+  const matFace = new THREE.MeshBasicMaterial({ color: "#b84a44", transparent: true, opacity: 0.45, depthTest: true, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+  const matContour = new THREE.LineBasicMaterial({ color: "#8c1c1c", depthTest: false, transparent: true });
   let sel = null, survol = null, prise = null, avantClic = 0;
   const el = scene.renderer.domElement, rayon = e => scene.viser(e);
   const mailles = () => (scene.couches.volumes?.children || []).filter(m => m.visible);

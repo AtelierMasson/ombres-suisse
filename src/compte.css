@@ -27,8 +27,8 @@
 #compte .compte-profil-form .large { grid-column: 1 / -1; }
 
 /* offre Pro : un encadré à part, couleur d'accent */
-#compte .compte-offre { margin: 14px 0 6px; padding: 12px 14px 8px; border: 1.5px solid var(--accent, #c8741a); border-radius: 12px;
-  background: color-mix(in srgb, var(--accent, #c8741a) 9%, transparent); }
+#compte .compte-offre { margin: 14px 0 6px; padding: 12px 14px 8px; border: 1.5px solid var(--accent, #8c1c1c); border-radius: 12px;
+  background: color-mix(in srgb, var(--accent, #8c1c1c) 9%, transparent); }
 #compte .compte-offre-titre { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
 #compte .compte-offre-texte { margin: 0 0 10px; font-size: 13px; }
 #compte .compte-offre .compte-note { margin: 6px 0 0; }

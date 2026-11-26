@@ -1,0 +1,30 @@
+{
+  "nom": "Pont Bessières, Lausanne",
+  "axe": [
+    [2538491.91, 1152472.41, 514.7],
+    [2538479.00, 1152486.35, 515.4],
+    [2538451.14, 1152516.44, 515.9],
+    [2538423.28, 1152546.53, 515.4],
+    [2538410.37, 1152560.48, 514.9]
+  ],
+  "largeur": 15.0,
+  "epaisseur": 1.2,
+  "appuis": [
+    {"type": "culee", "s": 0},
+    {"type": "pile", "s": 17.2, "forme": "rect", "long": 4.4, "larg": 16.0, "z_bas": 493.0, "fruit": 0.02},
+    {"type": "pile", "s": 102.8, "forme": "rect", "long": 4.4, "larg": 16.0, "z_bas": 493.0, "fruit": 0.02},
+    {"type": "culee", "s": 120.0}
+  ],
+  "arches": [
+    {"s0": 0.0, "s1": 15.0, "z_naissance": 504.0, "z_cle": 511.5, "epaisseur": 0.8, "larg": 15.0, "plein": true},
+    {"s0": 19.4, "s1": 100.6, "z_naissance": 500.0, "z_cle": 514.5, "epaisseur": 1.5, "larg": 13.0, "plein": false},
+    {"s0": 105.0, "s1": 120.0, "z_naissance": 504.0, "z_cle": 511.5, "epaisseur": 0.8, "larg": 15.0, "plein": true}
+  ],
+  "sources": [
+    "https://fr.wikipedia.org/wiki/Pont_Bessi%C3%A8res",
+    "https://api3.geo.admin.ch/rest/services/api/MapServer/identify (ch.swisstopo.swisstlm3d-strassen, Pont Charles-Bessières)",
+    "https://api3.geo.admin.ch/rest/services/profile.json (profil swissALTI3D le long de l'axe)"
+  ],
+  "confiance": "moyenne",
+  "notes": "Portées (arc métallique bi-articulé de 80-81 m flanqué de deux voûtes de 15 m, longueur 120 m, largeur 15 m) tirées de Wikipedia et calées sur le profil MNT (fond du Flon ~492.5 m) ; altitudes de naissance et de clé des arcs, épaisseurs et cote des chaussées estimées sans photo ni plan, à ±1-2 m."
+}

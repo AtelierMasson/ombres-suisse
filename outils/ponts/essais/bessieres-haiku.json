@@ -1,0 +1,93 @@
+{
+  "nom": "Pont Bessières, Lausanne",
+  "axe": [
+    [
+      2538482.4,
+      1152482.8,
+      515.3
+    ],
+    [
+      2538451.6,
+      1152516.2,
+      515.9
+    ],
+    [
+      2538424.2,
+      1152545.5,
+      515.6
+    ],
+    [
+      2538401.1,
+      1152571.1,
+      514.6
+    ]
+  ],
+  "largeur": 15.0,
+  "epaisseur": 1.2,
+  "appuis": [
+    {
+      "type": "culee",
+      "s": 0
+    },
+    {
+      "type": "pile",
+      "s": 13.6,
+      "forme": "rect",
+      "long": 4.0,
+      "larg": 15.0,
+      "z_bas": 492.5,
+      "fruit": 0
+    },
+    {
+      "type": "pile",
+      "s": 94.8,
+      "forme": "rect",
+      "long": 4.0,
+      "larg": 15.0,
+      "z_bas": 492.5,
+      "fruit": 0
+    },
+    {
+      "type": "culee",
+      "s": 120.0
+    }
+  ],
+  "arches": [
+    {
+      "s0": 0.0,
+      "s1": 13.6,
+      "z_naissance": 506.0,
+      "z_cle": 512.0,
+      "epaisseur": 1.2,
+      "larg": 15.0,
+      "plein": true
+    },
+    {
+      "s0": 13.6,
+      "s1": 94.8,
+      "z_naissance": 497.0,
+      "z_cle": 513.5,
+      "epaisseur": 1.5,
+      "larg": 15.0,
+      "plein": false
+    },
+    {
+      "s0": 94.8,
+      "s1": 109.8,
+      "z_naissance": 506.0,
+      "z_cle": 512.0,
+      "epaisseur": 1.2,
+      "larg": 15.0,
+      "plein": true
+    }
+  ],
+  "sources": [
+    "https://fr.wikipedia.org/wiki/Pont_Bessi%C3%A8res",
+    "https://api3.geo.admin.ch/rest/services/api/SearchServer?searchText=Pont%20Bessi%C3%A8res%20Lausanne&type=locations&sr=2056",
+    "https://api3.geo.admin.ch/rest/services/api/MapServer/identify?geometryType=esriGeometryEnvelope&geometry=2538380,1152520,2538500,1152640&imageDisplay=500,500,96&mapExtent=2538380,1152520,2538500,1152640&tolerance=5&layers=all:ch.swisstopo.swisstlm3d-strassen&sr=2056&returnGeometry=true",
+    "https://api3.geo.admin.ch/rest/services/height?easting=2538482.4&northing=1152482.8&sr=2056",
+    "https://api3.geo.admin.ch/rest/services/profile.json?geom={\"type\":\"LineString\",\"coordinates\":[[2538482.4,1152482.8],[2538389.3,1152583.3]]}&sr=2056&nb_points=20"
+  ],
+  "confiance": "moyenne",
+  "notes": "Plan et position fiables (swissTLM3D, axe tronque a 120 m pour correspondre au 120 m de Wikipedia). Arche metallique 81,2 m entre culees, voutes de 15 m aux extremites, largeur 15 m d'apres Wikipedia. Z du tablier, hauteur des naissances et des cles, et profondeur des appuis non mesures : estimations (Z terrain aux extremites 515,3 m, fond de vallee 492,5 m). Pas de photo analysee ; le nombre d'arches (3 : 2 voutes + 1 arche metallique) vient de la description textuelle."
+}

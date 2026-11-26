@@ -1,0 +1,24 @@
+{
+  "nom": "Pont Bessières, Lausanne",
+  "axe": [[2538486.8, 1152478.1, 515.2], [2538445.9, 1152522.0, 516.0], [2538405.1, 1152566.0, 515.2]],
+  "largeur": 15.0,
+  "epaisseur": 1.3,
+  "appuis": [
+    {"type": "culee", "s": 0},
+    {"type": "pile", "s": 19.4, "forme": "rect", "long": 4.0, "larg": 15.0, "z_bas": 492.3, "fruit": 0},
+    {"type": "pile", "s": 100.6, "forme": "rect", "long": 4.0, "larg": 15.0, "z_bas": 492.3, "fruit": 0},
+    {"type": "culee", "s": 120.0}
+  ],
+  "arches": [
+    {"s0": 2.4, "s1": 17.4, "z_naissance": 503.0, "z_cle": 507.0, "epaisseur": 1.0, "larg": 15.0, "plein": true},
+    {"s0": 21.4, "s1": 98.6, "z_naissance": 496.0, "z_cle": 512.5, "epaisseur": 1.5, "larg": 12.0, "plein": false},
+    {"s0": 102.6, "s1": 117.6, "z_naissance": 503.0, "z_cle": 507.0, "epaisseur": 1.0, "larg": 15.0, "plein": true}
+  ],
+  "sources": [
+    "https://fr.wikipedia.org/wiki/Pont_Bessi%C3%A8res",
+    "https://api3.geo.admin.ch/rest/services/api/MapServer/identify (swissTLM3D strassen, enveloppe 2538330,1152490,2538520,1152680)",
+    "https://api3.geo.admin.ch/rest/services/profile.json (profil le long de l'axe)"
+  ],
+  "confiance": "moyenne",
+  "notes": "Dimensions globales (120 m, 15 m de large, culées à 81,20 m, arche métallique à 2 articulations de 80 m à cinq arcs espacés de 3 m, deux voûtes de 15 m de chaque côté) tirées de Wikipedia ; l'implantation de l'axe est calée sur la symétrie par rapport au vide du Flon (profil swisstopo), et les altitudes de naissance/clé des arches et des voûtes, ainsi que le profil en long (Z au milieu), sont estimées sans photo mesurée."
+}
