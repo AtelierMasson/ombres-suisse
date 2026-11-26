@@ -29,8 +29,13 @@ function jetable(g, garder = []) {
 /** Terrain (un sommet tous les mètres) avec coordonnées de texture pour le fond de plan. */
 export function terrain(G, zRef) {
   const pas = 2, m = Math.floor(G.n / pas) + 1, pos = new Float32Array(m * m * 3), uv = new Float32Array(m * m * 2);
+  // maquette ronde : les sommets hors du cercle sont ramenés sur le cercle (le bord devient rond), les triangles
+  // entièrement dehors sont retirés
+  const Rz = G.rayonZone, dehors = new Uint8Array(m * m);
   for (let b = 0; b < m; b++) for (let a = 0; a < m; a++) {
-    const x = G.x0 + a * pas * G.c, y = G.x0 + b * pas * G.c, k = b * m + a;
+    let x = G.x0 + a * pas * G.c, y = G.x0 + b * pas * G.c;
+    const k = b * m + a, d = Math.hypot(x, y);
+    if (Rz && d > Rz) { x *= Rz / d; y *= Rz / d; dehors[k] = 1; }
     pos[3 * k] = x; pos[3 * k + 1] = solEn(G, x, y) - zRef; pos[3 * k + 2] = -y;
     uv[2 * k] = (x - G.x0) / (2 * G.R); uv[2 * k + 1] = (y - G.x0) / (2 * G.R);
   }
@@ -38,12 +43,13 @@ export function terrain(G, zRef) {
   let q = 0;
   for (let b = 0; b < m - 1; b++) for (let a = 0; a < m - 1; a++) {
     const p = b * m + a;
-    idx[q++] = p; idx[q++] = p + 1; idx[q++] = p + m + 1; idx[q++] = p; idx[q++] = p + m + 1; idx[q++] = p + m;
+    if (!(dehors[p] && dehors[p + 1] && dehors[p + m + 1])) { idx[q++] = p; idx[q++] = p + 1; idx[q++] = p + m + 1; }
+    if (!(dehors[p] && dehors[p + m + 1] && dehors[p + m])) { idx[q++] = p; idx[q++] = p + m + 1; idx[q++] = p + m; }
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
-  g.setIndex(new THREE.BufferAttribute(idx, 1));
+  g.setIndex(new THREE.BufferAttribute(idx.subarray(0, q), 1));
   g.computeVertexNormals();
   return g;
 }
@@ -60,7 +66,32 @@ export function hauteurTerrain(G, i, j) {
  * Socle : bords verticaux jusqu'à une base plane, comme une maquette posée. Là où un bâtiment touche le bord, la face
  * monte jusqu'à son toit : la tranche du bâtiment coupé fait partie du socle (une seule masse).
  */
+/**
+ * Socle d'une maquette ronde : la paroi du cercle de rayon `R`, du terrain (et du toit des bâtiments coupés par le
+ * cercle, si `bat`) jusqu'au fond `zBas`. `solA(x, y)` : altitude absolue du terrain au bord.
+ */
+export function socleRond(R, solA, zRef, zBas, batA = null) {
+  const nb = Math.min(4096, Math.max(256, Math.ceil(2 * Math.PI * R))), pos = new Float32Array(nb * 18);
+  const haut = a => {
+    const x = Math.cos(a) * R, y = Math.sin(a) * R, z = solA(x, y), b = batA ? batA(x * 0.998, y * 0.998) : NaN;
+    return [x, (b > z ? b : z) - zRef, y];
+  };
+  let q = 0, A = haut(0);
+  for (let k = 1; k <= nb; k++) {
+    const B = haut(k / nb * 2 * Math.PI);
+    // A, A bas, B bas ; A, B bas, B (sens trigonométrique vu de dessus : face vers l'extérieur)
+    for (const [x, z, y] of [[A[0], A[1], A[2]], [A[0], zBas, A[2]], [B[0], zBas, B[2]], [A[0], A[1], A[2]], [B[0], zBas, B[2]], [B[0], B[1], B[2]]]) { pos[q++] = x; pos[q++] = z; pos[q++] = -y; }
+    A = B;
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  return g;
+}
+
 export function socle(G, zRef, zBas, bords = null, avecReleve = true) {
+  if (G.rayonZone) return socleRond(G.rayonZone, (x, y) => solEn(G, x, y), zRef, zBas,
+    avecReleve ? (x, y) => { const i = Math.floor((x - G.x0) / G.c), j = Math.floor((y - G.x0) / G.c); return i < 0 || j < 0 || i >= G.n || j >= G.n ? NaN : G.bat[j * G.n + i]; } : null);
   // `bords` (facultatif) : hauteurs absolues des bâtiments de comparaison qui traversent chaque côté, par cellule
   const { n, c, x0, bat } = G, R = n * c / 2, pos = new Float32Array(4 * n * 18);
   // terrain du bord : comme le maillage du terrain (sommets tous les 1 m, interpolés entre deux)
@@ -460,7 +491,8 @@ const vegetation = cl => cl === 3 || cl === 4 || cl === 5;
  */
 export function nuagePoints(nuage, G, zRef, mode, part, taille) {
   const { n, c, R } = G, { X, Y, Z, C } = nuage, pas = Math.max(1, Math.round(1 / part)), arbres = mode === "arbres";
-  const dedans = k => { const i = Math.floor((X[k] + R) / c), j = Math.floor((Y[k] + R) / c); return i < 0 || j < 0 || i >= n || j >= n ? -1 : j * n + i; };
+  const r2 = G.rayonZone ? G.rayonZone * G.rayonZone : Infinity; // maquette ronde : points du cercle seulement
+  const dedans = k => { const i = Math.floor((X[k] + R) / c), j = Math.floor((Y[k] + R) / c); return i < 0 || j < 0 || i >= n || j >= n || X[k] * X[k] + Y[k] * Y[k] > r2 ? -1 : j * n + i; };
   // première passe : compter (tableaux typés à la bonne taille)
   let nv = 0, na = 0;
   for (let k = 0; k < nuage.n; k += arbres ? 1 : pas) {
@@ -713,7 +745,8 @@ export function hauteursDessus(G, zRef, objets) {
 /** Limites des parcelles voisines (traits fins posés sur le terrain) et leurs numéros (étiquettes au centre). */
 export function limitesVoisines(voisines, G, zRef, couleur) {
   const grp = new THREE.Group(), pos = new Tampon(), R = G.R;
-  const dedans = (x, y) => Math.abs(x) < R - 0.5 && Math.abs(y) < R - 0.5;
+  const Rz = G.rayonZone ? G.rayonZone - 0.5 : Infinity; // maquette ronde : le cercle
+  const dedans = (x, y) => Math.abs(x) < R - 0.5 && Math.abs(y) < R - 0.5 && x * x + y * y < Rz * Rz;
   for (const v of voisines) {
     for (const a of v.anneauxRel) for (let k = 0; k < a.length - 1; k++) {
       const [x1, y1] = a[k], [x2, y2] = a[k + 1], L = Math.hypot(x2 - x1, y2 - y1), m = Math.max(1, Math.ceil(L));

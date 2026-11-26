@@ -20,6 +20,22 @@ const decodeur = () => draco ||= new DRACOLoader().setDecoderPath(`${import.meta
  * une couronne arrondie (du tiers de la hauteur au sommet), plus denses en surface, avec les attributs du matériau des
  * arbres du relevé (aRel : hauteur relative, aVar : teinte propre à l'arbre). Repère : celui du maillage (le nuage reprend sa position).
  */
+/**
+ * Instances d'arbres hors de la zone [rmin, rmax] (distance au centre de la scène) : échelle nulle. Le maillage n'est
+ * pas encore rattaché : sa position dans la scène = matrice du groupe des tuiles × chaîne de ses parents.
+ */
+function limiterZone(mesh, groupe, [rmin, rmax]) {
+  mesh.updateWorldMatrix(true, false);
+  const M = new THREE.Matrix4().multiplyMatrices(groupe.matrix, mesh.matrixWorld), I = new THREE.Matrix4(), v = new THREE.Vector3(), zero = new THREE.Matrix4().makeScale(0, 0, 0);
+  for (let k = 0; k < mesh.count; k++) {
+    mesh.getMatrixAt(k, I);
+    v.setFromMatrixPosition(I).applyMatrix4(M);
+    const d = Math.hypot(v.x, v.z);
+    if (d < rmin || d > rmax) mesh.setMatrixAt(k, zero);
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+}
+
 function nuageArbres(mesh, materiau) {
   const g = mesh.geometry;
   g.computeBoundingBox();
@@ -36,6 +52,7 @@ function nuageArbres(mesh, materiau) {
     mesh.getMatrixAt(k, I);
     M.copy(I); // repère du maillage (sa position, loin de l'origine, est reprise par le nuage : précision des flottants)
     echelle.setFromMatrixScale(M);
+    if (echelle.x === 0) continue; // instance hors de la zone (limiterZone)
     const hm = H * echelle.getComponent(haut), rm = Math.max(r1, r2) * echelle.getComponent(l1);
     // nombre de points selon la taille de la couronne (de 14 à 55)
     const nb = Math.round(Math.min(55, Math.max(14, rm * rm * 1.6 + hm)));
@@ -212,6 +229,8 @@ export class Swiss3D {
         o.castShadow = true; o.receiveShadow = true;
         o.frustumCulled = false; // les instances débordent de la boîte du modèle d'origine
         // arbres en nuage de points, comme ceux du relevé : le modèle ne sert plus qu'à porter l'ombre
+        // zone [min, max] : les instances hors de l'anneau sont réduites à rien (ni dessinées ni portant d'ombre)
+        if (materiaux.zone && o.isInstancedMesh) limiterZone(o, t.group, materiaux.zone);
         if (materiaux.points && o.isInstancedMesh && !tronc) {
           const p = nuageArbres(o, materiaux.points);
           if (p) nuages.push([o.parent, p]);

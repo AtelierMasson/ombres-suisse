@@ -41,6 +41,11 @@ export function profilCoupe(G, contours, A, B, parcelle, pas = 0.25, voisines = 
     s0 = Math.max(s0, Math.min(a, b)); s1 = Math.min(s1, Math.max(a, b));
   }
   s0 = Math.max(s0, -2 * G.R * 1.5); s1 = Math.min(s1, 2 * G.R * 1.5);
+  // maquette ronde : la droite s'arrête au cercle
+  if (G.rayonZone) {
+    const r = G.rayonZone - 1, b = A[0] * ux + A[1] * uy, cc = A[0] * A[0] + A[1] * A[1] - r * r, delta = b * b - cc;
+    if (delta > 0) { s0 = Math.max(s0, -b - Math.sqrt(delta)); s1 = Math.min(s1, -b + Math.sqrt(delta)); }
+  }
   const nb = Math.max(2, Math.floor((s1 - s0) / pas) + 1), s = new Float32Array(nb), sol = new Float32Array(nb), bat = new Float32Array(nb), veg = new Float32Array(nb);
   // toit tel qu'affiché à la distance d : le plan du pan s'il y en a un, sinon la grille (NaN hors bâtiment)
   const toit = d => toitEn(A[0] + ux * d, A[1] + uy * d);

@@ -132,6 +132,13 @@
   <div class="card-body">
       <section id="affichage">
         <div class="titre" data-i18n="onglet.affichage">Affichage</div>
+        <!-- rayon de la maquette ronde : relevé laser jusqu'à 300 m, puis anneau (terrain 2 m, tuiles swisstopo) -->
+        <div class="mb-2">
+          <label class="form-label small d-flex justify-content-between mb-0" for="rayonZone"><span data-i18n="zone.rayon">Rayon de la maquette</span><b id="rayonZoneVal"></b></label>
+          <input type="range" class="form-range" id="rayonZone" min="100" max="1000" step="25">
+          <div class="form-check form-switch small mt-1"><input class="form-check-input" type="checkbox" id="vRonde" checked><label class="form-check-label" for="vRonde" data-i18n="zone.ronde">Maquette ronde</label></div>
+          <div class="small text-secondary" id="noteZone"></div>
+        </div>
     <!-- jeu de bâtiments : boutons radio cachés, pilotés par la case « Swiss3D » de la ligne Bâtiments (main.js) -->
     <div class="btn-group btn-group-sm w-100 mb-1" role="group" hidden data-i18n-aria-label="aff.batimentsAria" aria-label="Bâtiments affichés">
       <input type="radio" class="btn-check" name="batiments" id="bReleve" value="releve" checked><label class="btn btn-outline-secondary" for="bReleve" data-i18n="aff.normal" data-i18n-title="aff.normalTitre" title="Reconstruits ici à partir du relevé laser">Normal</label>
@@ -142,26 +149,31 @@
     <div class="small text-secondary mb-1" id="noteBatiments" hidden></div>
     <table class="table-calques">
       <tbody>
+        <tr class="groupe"><th colspan="2" data-i18n="aff.gBati">Bâti</th></tr>
         <tr><th scope="row"><label for="vBatVoir" data-i18n="aff.batiments">Bâtiments</label> <span class="choix-swiss">(<input class="form-check-input" type="checkbox" id="vSwiss" data-i18n-title="aff.swissCase" title="Modèles 3D swisstopo (swissBUILDINGS3D) au lieu des bâtiments reconstruits" data-i18n-aria-label="aff.swissCase" aria-label="Modèles 3D swisstopo (swissBUILDINGS3D) au lieu des bâtiments reconstruits"><label for="vSwiss">Swiss3D</label>)</span></th>
           <td><input class="form-check-input oeil" type="checkbox" id="vBatVoir" checked data-i18n-aria-label="aff.batVoir" aria-label="Voir les bâtiments"></td>
 </tr>
         <tr><th scope="row"><label for="vBatOmbre" data-i18n="aff.batOmbre">Ombre des bâtiments</label></th>
           <td><input class="form-check-input oeil" type="checkbox" id="vBatOmbre" checked></td></tr>
+        <tr class="groupe"><th colspan="2" data-i18n="aff.gVeg">Végétation</th></tr>
         <tr><th scope="row"><label for="vArbres" data-i18n="aff.arbres">Arbres</label></th>
           <td><input class="form-check-input oeil" type="checkbox" id="vArbres" checked data-i18n-aria-label="aff.arbresVoir" aria-label="Voir les arbres"></td>
 </tr>
         <tr><th scope="row"><label for="vArbresOmbre" data-i18n="aff.arbresOmbre">Ombre des arbres</label></th>
           <td><input class="form-check-input oeil" type="checkbox" id="vArbresOmbre" checked></td></tr>
+        <tr class="groupe"><th colspan="2" data-i18n="aff.gSol">Sol</th></tr>
+        <tr><th scope="row"><label for="vReel" data-i18n="aff.reel" data-i18n-title="aff.reelTitre" title="Orthophoto SWISSIMAGE posée sur le terrain, un peu éclaircie">Photo aérienne au sol</label></th>
+          <td><input class="form-check-input oeil" type="checkbox" id="vReel"></td></tr>
+        <tr><th scope="row"><label for="vCadastre" data-i18n="aff.cadastre">Plan cadastral au sol</label></th>
+          <td><input class="form-check-input oeil" type="checkbox" id="vCadastre" checked></td></tr>
+        <tr><th scope="row"><label for="vParcelles" data-i18n="aff.parcelles">Parcellaire</label></th>
+          <td><input class="form-check-input oeil" type="checkbox" id="vParcelles" checked></td></tr>
+        <tr class="groupe"><th colspan="2" data-i18n="aff.gReleve">Relevé</th></tr>
         <tr><th scope="row"><label for="vPoints" data-i18n="aff.points">Nuage de points brut</label> <span class="choix-swiss">(<input class="form-check-input" type="checkbox" id="vCouleursReelles" data-i18n-title="aff.couleursTitre" title="Couleur de chaque point prise sur l'orthophoto SWISSIMAGE, à la verticale (les façades prennent la couleur du toit ou du sol voisin)" data-i18n-aria-label="aff.couleursTitre" aria-label="Couleur de chaque point prise sur l'orthophoto SWISSIMAGE, à la verticale (les façades prennent la couleur du toit ou du sol voisin)"><label for="vCouleursReelles" data-i18n="aff.couleurs">couleurs réelles</label>)</span></th>
           <td><input class="form-check-input oeil" type="checkbox" id="vPoints"></td></tr>
         <tr><th scope="row"><label for="vDegrade" data-i18n="aff.degrade">Couleur selon la hauteur</label></th>
           <td><input class="form-check-input oeil" type="checkbox" id="vDegrade"></td></tr>
-        <tr><th scope="row"><label for="vReel" data-i18n="aff.reel" data-i18n-title="aff.reelTitre" title="Sol et bâtiments aux couleurs de l'orthophoto SWISSIMAGE : le sol dégagé (sous les arbres, celui d'à côté), les toits, et la couleur du toit pour les façades">Couleurs réelles</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vReel"></td></tr>
-        <tr><th scope="row"><label for="vCadastre" data-i18n="aff.cadastre">Plan cadastral au sol</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vCadastre" checked></td></tr>
-        <tr><th scope="row"><label for="vParcelles" data-i18n="aff.parcelles">Parcelles voisines</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vParcelles" checked></td></tr>
+        <tr class="groupe"><th colspan="2" data-i18n="aff.gPaysage">Paysage et rendu</th></tr>
         <tr><th scope="row"><label for="vLointain" data-i18n="aff.lointain" data-i18n-title="aff.lointainTitre" title="Collines, montagnes et lacs jusqu'à 50 km autour, d'après le relief libre Terrain Tiles">Paysage</label></th>
           <td><input class="form-check-input oeil" type="checkbox" id="vLointain" checked></td></tr>
         <tr><th scope="row"><label for="vBrume" data-i18n="aff.brume" data-i18n-title="aff.brumeTitre" title="Le paysage s'estompe avec la distance">Brume</label></th>
@@ -204,15 +216,6 @@
           <div class="sous-titre" data-i18n="pro.elements">Ajoutés et masqués</div>
           <div id="listeVolumes"></div>
 
-          <div class="sous-titre" data-i18n="pro.taille">Taille de la maquette</div>
-          <select class="form-select form-select-sm" id="rayonPro" data-i18n-aria-label="pro.rayonAria" aria-label="Rayon chargé autour du lieu">
-            <option value="" data-i18n="pro.rayonAuto">Automatique (150 à 300 m autour)</option>
-            <option value="100" data-i18n="pro.rayon100">100 m autour (200 × 200 m)</option>
-            <option value="150" data-i18n="pro.rayon150">150 m autour (300 × 300 m)</option>
-            <option value="250" data-i18n="pro.rayon250">250 m autour (500 × 500 m)</option>
-            <option value="400" data-i18n="pro.rayon400">400 m autour (800 × 800 m) — long et lourd</option>
-          </select>
-          <div class="small text-secondary mt-1" id="noteRayon"></div>
 
           <div class="sous-titre" data-i18n="pro.exporter">Exporter la maquette complète</div>
           <div class="d-flex gap-1">

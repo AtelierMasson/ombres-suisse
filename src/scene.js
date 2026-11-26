@@ -12,6 +12,7 @@ import { Line2 } from "three/addons/lines/Line2.js";
 import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { solEn, majSurface } from "./grille.js";
 import { indexVolumes } from "./volumes.js";
+import { socleRond, materiauPoints } from "./maillages.js";
 import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord, tabliersPonts } from "./maillages.js";
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
@@ -69,6 +70,34 @@ const CONTACT = { tSol: { value: null }, tDist: { value: null }, grille: { value
  * les trois reçoivent aussi la teinte légère de la sélection (parcelle, bâtiment).
  * L'occlusion ambiante, large et douce, ne marque pas assez la jonction mur–sol : les bâtiments semblaient flotter.
  */
+/**
+ * Zone ronde : rayons (m, depuis le centre) entre lesquels un matériau est dessiné. Sert aux tuiles swisstopo (bâtiments,
+ * roofer) : maquette ronde (0 à R) ou anneau autour de la maquette fine (R fin à R zone). Partagé par les matériaux.
+ */
+export const ZONE = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
+function decoupeZone(mat) {
+  if (mat.userData.zone) return;
+  mat.userData.zone = true;
+  const avant = mat.onBeforeCompile, cle = mat.customProgramCacheKey;
+  mat.onBeforeCompile = (sh, r) => {
+    avant?.call(mat, sh, r);
+    Object.assign(sh.uniforms, ZONE);
+    sh.vertexShader = sh.vertexShader
+      .replace("#include <common>", "#include <common>\nvarying vec2 vZone;")
+      .replace("#include <project_vertex>", `#include <project_vertex>
+#ifdef USE_INSTANCING
+  vZone = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xz;
+#else
+  vZone = (modelMatrix * vec4(transformed, 1.0)).xz;
+#endif`);
+    sh.fragmentShader = sh.fragmentShader
+      .replace("#include <common>", "#include <common>\nvarying vec2 vZone;\nuniform float zoneMin, zoneMax;")
+      .replace("void main() {", "void main() {\n  { float dz = length(vZone); if (dz > zoneMax || dz < zoneMin) discard; }");
+  };
+  mat.customProgramCacheKey = () => (cle ? cle.call(mat) : "") + "|zone";
+  mat.needsUpdate = true;
+}
+
 function grainPlatre(mat, force, contact = "") {
   mat.onBeforeCompile = sh => {
     sh.uniforms.grainForce = { value: force };
@@ -417,6 +446,7 @@ export class Scene3D {
 
   vider() {
     this.swiss?.vider();
+    this.rayonExt = 0;
     this.liberer(this.groupe); this.liberer(this.outils);
     for (const F of Object.values(this.fonds)) F.tex?.dispose();
     this.fonds = {};
@@ -609,7 +639,12 @@ export class Scene3D {
     };
     // swisstopo : seulement le groupe des bâtiments (les arbres 3D du vol, dans le même socle, gardent leurs calques)
     const jeux = { releve: c.bati, swiss: this.swiss?.tuiles?.group, roofer: c.roofer };
-    for (const [j, o] of Object.entries(jeux)) regler(o, j === k.jeu && k.batVoir, j === k.jeu && k.batOmbre);
+    for (const [j, o] of Object.entries(jeux)) {
+      // anneau autour de la maquette fine : les bâtiments swisstopo y sont toujours montrés (au-delà du rayon fin)
+      const anneau = j === "swiss" && this.rayonExt > (this.G?.rayonZone || Infinity);
+      regler(o, (j === k.jeu || anneau) && k.batVoir, (j === k.jeu || anneau) && k.batOmbre);
+    }
+    this.majZone();
     // arbres : les points se montrent ; la canopée (invisible) ou, en repli, les couronnes portent l'ombre
     if (c.arbres) regler(c.canopee, k.arbVoir && k.arbOmbre, k.arbOmbre);
     regler(c.couronnes, k.arbVoir, k.arbOmbre);
@@ -628,10 +663,89 @@ export class Scene3D {
       this.appliquerCoupe();
     }
     if (lieu) this.swiss.lieu = lieu;
-    this.swiss.montrer(!!actif && !!this.G);
+    this.swiss.montrer((!!actif || this.rayonExt > (this.G?.rayonZone || Infinity)) && !!this.G);
     this.appliquerCalques();
     this.majBords();
     this.demander(5);
+  }
+
+  /** Rayons de la zone des tuiles swisstopo : toute la maquette ronde (comparaison), ou seulement l'anneau. */
+  majZone() {
+    const Rf = this.G?.rayonZone;
+    if (!Rf) { ZONE.zoneMin.value = 0; ZONE.zoneMax.value = 1e9; return; }
+    ZONE.zoneMax.value = Math.max(Rf, this.rayonExt || 0) - 0.03;
+    ZONE.zoneMin.value = this.calques.jeu === "swiss" ? 0 : Rf - 0.03;
+    this.demander();
+  }
+
+  /**
+   * Anneau autour de la maquette fine (rayon `Rint`), jusqu'à `Rext` : terrain swissALTI3D à 2 m (`fin`, grille de
+   * terrainAutour), bâtiments et arbres de swisstopo (tuiles chargées selon la vue, arbres en points), paroi du socle
+   * au bord extérieur. `lieu` = { E, N } : centre MN95. Sans `fin` ou si Rext <= Rint : pas d'anneau.
+   */
+  construireAnneau(fin, Rint, Rext, lieu) {
+    const c = this.couches, G = this.G;
+    for (const k of ["anneau", "socleAnneau"]) if (c[k]) { this.groupe.remove(c[k]); c[k].geometry.dispose(); c[k] = null; }
+    this.rayonExt = 0;
+    if (!G || !fin || !(Rext > Rint + 5)) { c.socle && (c.socle.visible = true); this.majZone(); this.appliquerCalques(); return; }
+    this.rayonExt = Rext;
+    const { E, N } = lieu, H = fin.h;
+    const altFin = (x, y) => {
+      const fx = (E + x - fin.e0) / fin.c - 0.5, fy = (fin.n1 - (N + y)) / fin.c - 0.5, i = Math.floor(fx), j = Math.floor(fy), u = fx - i, v = fy - j;
+      if (i < 0 || j < 0 || i >= fin.n - 1 || j >= fin.n - 1) return solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y)));
+      const p = j * fin.n + i, z = (H[p] * (1 - u) + H[p + 1] * u) * (1 - v) + (H[p + fin.n] * (1 - u) + H[p + fin.n + 1] * u) * v;
+      return isNaN(z) ? solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y))) : z;
+    };
+    this.altAnneau = altFin;
+    // maillage polaire : environ 3 m le long du cercle extérieur, 2,5 m en rayon ; le bord intérieur suit le terrain fin
+    const nA = Math.min(4096, Math.max(512, Math.ceil(2 * Math.PI * Rext / 3))), nR = Math.max(2, Math.ceil((Rext - Rint) / 2.5) + 1);
+    const pos = new Float32Array(nA * nR * 3), uv = new Float32Array(nA * nR * 2);
+    for (let a = 0; a < nA; a++) {
+      const t = a / nA * 2 * Math.PI, cx = Math.cos(t), cy = Math.sin(t);
+      for (let k = 0; k < nR; k++) {
+        const r = Rint + (Rext - Rint) * k / (nR - 1), x = cx * r, y = cy * r, q = a * nR + k;
+        // raccord : le bord intérieur prend exactement le terrain de la maquette, puis glisse vers le 2 m sur 6 m
+        const w = Math.min(1, (r - Rint) / 6), z = k === 0 ? solEn(G, x, y) : solEn(G, x * Rint / r, y * Rint / r) * (1 - w) + altFin(x, y) * w;
+        pos.set([x, z - this.zRef, -y], 3 * q);
+        uv.set([(x - G.x0) / (2 * G.R), (y - G.x0) / (2 * G.R)], 2 * q);
+      }
+    }
+    const idx = [];
+    for (let a = 0; a < nA; a++) {
+      const a2 = (a + 1) % nA;
+      for (let k = 0; k < nR - 1; k++) { const p = a * nR + k, q = a2 * nR + k; idx.push(p, p + 1, q, q, p + 1, q + 1); }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    // même matière que le paysage : plan cadastral en tuiles, grain, brume (la maquette fine garde son plan propre)
+    c.anneau = new THREE.Mesh(g, this.loin.mat);
+    c.anneau.receiveShadow = true;
+    this.groupe.add(c.anneau);
+    // la paroi du socle passe au bord extérieur
+    if (c.socle) c.socle.visible = false;
+    c.socleAnneau = new THREE.Mesh(socleRond(Rext, altFin, this.zRef, this.zBas), this.mat.socle);
+    this.groupe.add(c.socleAnneau);
+    // ombres sur tout l'anneau
+    const sc = this.soleil.shadow.camera, Rs = Rext * 1.15;
+    Object.assign(sc, { left: -Rs, right: Rs, top: Rs, bottom: -Rs, far: Math.max(sc.far, 6000) });
+    sc.updateProjectionMatrix();
+    // bâtiments et arbres swisstopo
+    this.comparerSwiss(true, lieu);
+    if (!this.mat.pointsAnneau) {
+      const pts = this.mat.pointsAnneau = materiauPoints(1.1, false);
+      pts.uniforms.relief.value = 0;
+      const v2 = new THREE.Vector2();
+      pts.onBeforeRender = (r, sc2, cam) => { pts.uniforms.echelle.value = r.getDrawingBufferSize(v2).y / (2 * Math.tan(cam.fov * Math.PI / 360)); };
+    }
+    ["c1", "c2", "c3"].forEach((u, i) => this.mat.pointsAnneau.uniforms[u].value.set(this.T.arbres[i]));
+    this.swiss.chargerArbres({ couronne: this.mat.couronne, tronc: this.mat.mur, points: this.mat.pointsAnneau, calqueOmbre: CALQUE_OMBRE, zone: [Rint, Rext] }, 10);
+    this.appliquerCoupe();
+    this.majZone();
+    this.appliquerCalques();
+    this.ombres();
   }
 
   /** Couche de comparaison roofer (maillage préparé par roofer.js), ou null pour l'enlever. */
@@ -662,7 +776,8 @@ export class Scene3D {
       const objets = voir ? [k.jeu === "swiss" ? this.swiss?.socle : null, k.jeu === "roofer" ? this.couches.roofer : null].filter(Boolean) : [];
       const releve = voir && k.jeu === "releve";
       // swisstopo et roofer : géométrie coupée 3 cm en retrait du bord, à leur position calée du moment
-      for (const o of [this.swiss?.socle, this.couches.roofer]) o?.traverse(m => m.isMesh && decouperBord(m, this.G.R - 0.03));
+      if (!this.G.rayonZone) for (const o of [this.swiss?.socle, this.couches.roofer]) o?.traverse(m => m.isMesh && decouperBord(m, this.G.R - 0.03));
+      this.majZone();
       base.geometry.dispose();
       base.geometry = socle(this.G, this.zRef, this.zBas, objets.length ? hauteursBords(this.G, this.zRef, objets) : null, releve);
       this.grilleComp = null; // la coupe relira les bâtiments affichés
@@ -1241,8 +1356,16 @@ export class Scene3D {
         F.theme = this.T;
         if (F.tex) F.tex.needsUpdate = true;
       }
+      if (type === "ortho" && !F.canvas) {
+        // photo aérienne au sol : un peu plus lumineuse et saturée (l'orthophoto brute paraît terne sous l'éclairage)
+        const cv = F.canvas = document.createElement("canvas");
+        cv.width = img.naturalWidth || img.width; cv.height = img.naturalHeight || img.height;
+        const ctx = cv.getContext("2d");
+        ctx.filter = "brightness(1.18) saturate(1.35) contrast(1.04)";
+        ctx.drawImage(img, 0, 0);
+      }
       if (!F.tex) {
-        F.tex = type === "cadastre" ? new THREE.CanvasTexture(F.canvas) : new THREE.Texture(img);
+        F.tex = F.canvas ? new THREE.CanvasTexture(F.canvas) : new THREE.Texture(img);
         F.tex.colorSpace = THREE.SRGBColorSpace; F.tex.anisotropy = 8; F.tex.needsUpdate = true;
       }
       poser(F.tex);
@@ -1421,13 +1544,18 @@ export class Scene3D {
     } else if (this.G) {
       // boîte de l'occlusion 2 cm au-delà du bord : la face du socle est exactement à R, une boîte à R l'effaçait par
       // endroits (arrondis) et l'occlusion y dessinait des stries ; les bâtiments sont de toute façon coupés à R - 3 cm
-      const R = this.G.R, boite = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), R + 0.02));
+      const R = this.G.R, Rb = Math.max(R, this.rayonExt || 0), boite = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), Rb + 0.02));
       const avecBoite = [...boite, ...(plans || [])];
       if (this.ao.normalMaterial) { this.ao.normalMaterial.clippingPlanes = avecBoite; this.ao.normalMaterial.needsUpdate = true; }
       // nos bâtiments (et roofer) : coupés 3 cm en retrait du bord, sinon les murs du bord sont dans le plan de la face
       // du socle et leur partie enterrée apparaît en stries à travers elle
       const dedans = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), R - 0.03));
-      for (const x of [m.toit, m.mur, c.roofer?.material, this.swiss?.materiau]) if (x) { x.clippingPlanes = [...dedans, ...(plans || [])]; x.needsUpdate = true; }
+      for (const x of [m.toit, m.mur]) if (x) { x.clippingPlanes = [...dedans, ...(plans || [])]; x.needsUpdate = true; }
+      // maquette ronde : swisstopo et roofer sont découpés par la zone (cercle ou anneau), pas par la boîte
+      for (const x of [c.roofer?.material, this.swiss?.materiau]) if (x) {
+        if (this.G.rayonZone) decoupeZone(x);
+        x.clippingPlanes = this.G.rayonZone ? plans : [...dedans, ...(plans || [])]; x.needsUpdate = true;
+      }
       // swisstopo et roofer débordent du modèle : la partie coupée ne doit pas non plus porter d'ombre (stries sur la
       // face du socle, ombres de bâtiments invisibles au bord du terrain)
       for (const x of [c.roofer?.material, this.swiss?.materiau]) if (x) x.clipShadows = true;

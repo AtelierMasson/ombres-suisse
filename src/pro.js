@@ -264,7 +264,7 @@ export function brancherPro(o) {
     if (!nom) return;
     const p = {
       id: P.projet?.id || `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, nom,
-      hash: location.hash, jour: S.jour, rayon: $("#rayonPro").value, caches: P.caches, volumes: P.volumes,
+      hash: location.hash, jour: S.jour, rayon: o.rayonZone?.(), caches: P.caches, volumes: P.volumes,
       coupes: (S.coupes || []).map(c => ({ A: c.A, B: c.B })),
     };
     if (!enregistrerProjet(p)) return o.message(t("projet.stockage"));
@@ -278,7 +278,7 @@ export function brancherPro(o) {
     if (!p) { P.projet = null; P.volumes = []; volumesChanges(); listeProjets(); return; }
     P.projet = p;
     // le projet est rouvert sur son lieu : chargement si besoin, puis bâtiments démolis, volumes et coupes
-    if (p.rayon !== undefined && $("#rayonPro").value !== p.rayon) { $("#rayonPro").value = p.rayon; memoire("ombres.rayon", p.rayon); }
+    if (+p.rayon > 0) o.reglerRayon?.(+p.rayon, false);
     if (location.hash !== p.hash) { P.aOuvrir = p; location.hash = p.hash.slice(1); } else ouvrir(p);
   };
   $("#btnSupprimerProjet").onclick = () => {
@@ -301,17 +301,6 @@ export function brancherPro(o) {
     listeProjets();
   }
   listeProjets();
-
-  /* ---------------------------------------------------------------- taille de la maquette */
-  const NOTES_RAYON = { 250: t("pro.noteRayon250"), 400: t("pro.noteRayon400") };
-  $("#rayonPro").value = [...$("#rayonPro").options].some(x => x.value === memoire("ombres.rayon")) ? memoire("ombres.rayon") : "";
-  const noteRayon = () => $("#noteRayon").textContent = NOTES_RAYON[$("#rayonPro").value] || "";
-  $("#rayonPro").addEventListener("change", () => {
-    memoire("ombres.rayon", $("#rayonPro").value);
-    noteRayon();
-    if (S.lat != null) o.recharger();
-  });
-  noteRayon();
 
   /* ---------------------------------------------------------------- export du site */
   const format = () => $("input[name=formatExport]:checked").value;
@@ -390,8 +379,6 @@ export function brancherPro(o) {
   document.body.classList.toggle("pro", actif()); // les réglages « pro » placés ailleurs dans le panneau (.pro-seul)
 
   return {
-    /** Rayon choisi en mode pro (m), ou null : rayon automatique. */
-    rayon: () => actif() && +$("#rayonPro").value || null,
     /** Nouveau lieu : plus de sélection ni de masquage. */
     reinitialiser() {
       P.selection = new Set(); P.masques = new Set(); P.caches = []; P.historique = []; P.volumes = []; P.imports = []; S.volumesProjet = [];

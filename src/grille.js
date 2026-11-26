@@ -24,6 +24,18 @@ export function depuisPoints(nuage, R, c = 0.5) {
     else if (cl === 3 || cl === 4 || cl === 5) { if (!(veg[p] >= z)) veg[p] = z; }
   }
   G.eau = plansEau(eauZ, n, c);
+  // l'eau renvoie peu de points (surtout loin de la verticale, près des rives et des bâtiments) : le plan d'eau s'étend
+  // de proche en proche dans les cellules sans aucun point (ni sol, ni bâtiment, ni arbre, ni pont), jusqu'au bord
+  {
+    const E = G.eau, file = [];
+    for (let p = 0; p < n * n; p++) if (!isNaN(E[p])) file.push(p);
+    const vide = p => isNaN(sol[p]) && isNaN(bat[p]) && isNaN(veg[p]) && isNaN(pont[p]) && isNaN(E[p]);
+    for (let f = 0; f < file.length; f++) {
+      const p = file[f], i = p % n;
+      for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p >= n ? p - n : -1, p + n < n * n ? p + n : -1])
+        if (q >= 0 && vide(q)) { E[q] = E[p]; file.push(q); }
+    }
+  }
   remplir(sol, n);
   // sous l'eau : fond plat un peu sous le niveau (le plan d'eau est dessiné à part)
   for (let p = 0; p < n * n; p++) if (!isNaN(G.eau[p])) sol[p] = Math.min(sol[p], G.eau[p] - 0.3);
@@ -142,6 +154,24 @@ export async function terrainAutour(liste, E0, N0, rayon) {
   };
   await Promise.all([lire(), lire(), lire(), lire()]); // quatre téléchargements à la fois
   return { e0, n1, c, n, h };
+}
+
+/**
+ * Maquette ronde : seul ce qui est dans le cercle de rayon `rayon` est montré. Les bâtiments, la végétation et les ponts
+ * des cellules hors du cercle sont retirés (le terrain reste complet : il sert aux interpolations et au paysage).
+ */
+export function garderCercle(G, rayon) {
+  const { n, c, x0 } = G, r2 = rayon * rayon;
+  G.rayonZone = rayon;
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    const x = x0 + (i + 0.5) * c, y = x0 + (j + 0.5) * c;
+    if (x * x + y * y <= r2) continue;
+    const p = j * n + i;
+    G.bat[p] = G.veg[p] = NaN;
+    if (G.pont) G.pont[p] = NaN;
+    if (G.pontBas) G.pontBas[p] = NaN;
+  }
+  G.surface = surface(G);
 }
 
 /** Recalcule la surface et la base après une modification de G.bat (bâtiments masqués en mode pro). */

@@ -142,12 +142,24 @@ function cles([e0, n0, e1, n1]) {
 
 /** Parcelles (mensuration officielle) qui touchent une boîte MN95 : [{ numero, anneaux }]. */
 export async function parcellesAutour([e0, n0, e1, n1]) {
-  const u = `${API}/all/MapServer/identify?geometry=${e0},${n0},${e1},${n1}&geometryType=esriGeometryEnvelope` +
-    `&layers=all:ch.kantone.cadastralwebmap-farbe&mapExtent=0,0,100,100&imageDisplay=100,100,96&tolerance=0` +
-    `&sr=2056&returnGeometry=true&geometryFormat=geojson&limit=500`;
-  const d = await (await fetch(u)).json();
-  return (d.results || []).filter(r => r.geometry?.type === "Polygon" || r.geometry?.type === "MultiPolygon").map(r => ({
-    numero: r.properties.number,
-    anneaux: r.geometry.type === "Polygon" ? [r.geometry.coordinates[0]] : r.geometry.coordinates.map(p => p[0]),
-  }));
+  // l'API rend un nombre limité de parcelles par requête : la boîte est découpée en morceaux d'au plus 200 m,
+  // demandés en parallèle, puis fusionnés (une parcelle à cheval sur deux morceaux n'est gardée qu'une fois)
+  const pas = 200, ne = Math.max(1, Math.ceil((e1 - e0) / pas)), nn = Math.max(1, Math.ceil((n1 - n0) / pas));
+  const morceaux = [];
+  for (let a = 0; a < ne; a++) for (let b = 0; b < nn; b++)
+    morceaux.push([e0 + (e1 - e0) * a / ne, n0 + (n1 - n0) * b / nn, e0 + (e1 - e0) * (a + 1) / ne, n0 + (n1 - n0) * (b + 1) / nn]);
+  const lire = async ([a0, b0, a1, b1]) => {
+    const u = `${API}/all/MapServer/identify?geometry=${a0},${b0},${a1},${b1}&geometryType=esriGeometryEnvelope` +
+      `&layers=all:ch.kantone.cadastralwebmap-farbe&mapExtent=0,0,100,100&imageDisplay=100,100,96&tolerance=0` +
+      `&sr=2056&returnGeometry=true&geometryFormat=geojson&limit=200`;
+    try { return (await (await fetch(u)).json()).results || []; } catch { return []; }
+  };
+  const vues = new Map();
+  for (const r of (await Promise.all(morceaux.map(lire))).flat()) {
+    if (r.geometry?.type !== "Polygon" && r.geometry?.type !== "MultiPolygon") continue;
+    const anneaux = r.geometry.type === "Polygon" ? [r.geometry.coordinates[0]] : r.geometry.coordinates.map(p => p[0]);
+    const cle = r.properties.egris_egrid || `${r.properties.number}|${anneaux[0][0].join(",")}`;
+    if (!vues.has(cle)) vues.set(cle, { numero: r.properties.number, anneaux });
+  }
+  return [...vues.values()];
 }

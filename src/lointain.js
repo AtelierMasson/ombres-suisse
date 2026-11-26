@@ -11,7 +11,7 @@ const RAYON_TERRE = 6371000, REFRACTION = 0.13;
  * Maillage du relief entre le bord de la maquette (carré de demi-côté R) et `rayonMax`.
  * `hBord(x, y)` : altitude du terrain de la maquette au bord, pour raccorder sans marche.
  */
-export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMax = 50000) {
+export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMax = 50000, rond = false) {
   // anneau intermédiaire : terrain swissALTI3D à 2 m (fin), fondu vers le relief libre sur ses 500 derniers mètres
   const rayonFin = fin ? fin.n * fin.c / 2 - 50 : 0;
   const altFin = (E, N) => {
@@ -50,7 +50,7 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMa
   const sommets = [];
   for (let a = 0; a < nA; a++) {
     const az = a / nA * 2 * Math.PI, sx = Math.sin(az), sy = Math.cos(az);
-    const r0 = R / Math.max(Math.abs(sx), Math.abs(sy)); // bord du carré dans cette direction
+    const r0 = rond ? R : R / Math.max(Math.abs(sx), Math.abs(sy)); // bord du cercle, ou du carré dans cette direction
     for (let k = 0; k < nR; k++) {
       const d = r0 + ecarts[k];
       sommets.push({ e: sx * d, n: sy * d, d, s: ecarts[k], bx: sx * r0 * 0.995, by: sy * r0 * 0.995, z: d < 8000 ? 13 : d < 30000 ? 12 : 11, pas: d < rayonFin ? Math.max(3, d * 0.004) : Math.max(15, d * 0.003) });
@@ -149,7 +149,8 @@ const COULEUR = /* glsl */`
       plan = max(plan, a);
     }
   }
-  base = mix(base, lac, smoothstep(0.3, 0.9, vEau) * (1.0 - plan));
+  // le lac l'emporte sur le plan cadastral peint (sinon il devient gris là où le plan le couvre)
+  base = mix(base, lac, smoothstep(0.3, 0.9, vEau));
   // même grain que le sol de la maquette ; le grain fin s'efface quand il devient plus petit qu'un pixel (scintillement)
   if (plan > 0.01) {
     float g = 0.55 * bruit3(vMonde * 2.7) + 0.3 * bruit3(vMonde * 9.0) + 0.15 * bruit3(vMonde * 0.35);

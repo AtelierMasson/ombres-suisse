@@ -4,7 +4,7 @@ document.documentElement.classList.add("pret"); // styles chargés : la page peu
 import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
 import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, versWgs } from "./geo.js";
 import { chargerNuage } from "./nuage.js";
-import { depuisPoints, depuisRasters, solEn, terrainAutour } from "./grille.js";
+import { depuisPoints, depuisRasters, solEn, terrainAutour, garderCercle } from "./grille.js";
 import { reliefLointain } from "./lointain.js";
 import { Scene3D } from "./scene.js";
 import { essaiRoofer, maillageRoofer } from "./roofer.js";
@@ -203,6 +203,46 @@ function telechargement(source, texte, f = null) {
   for (; allumes < k; allumes++) carres[ordre[allumes]].className = "plein";
 }
 
+/* ------------------------------------------------------------------ rayon de la maquette (curseur) */
+const RAYON_FIN_MAX = 300; // relevé laser complet jusque-là ; au-delà : terrain 2 m et tuiles swisstopo
+function ronde() { try { return localStorage.getItem("ombres.ronde") !== "0"; } catch { return true; } }
+$("#vRonde").checked = ronde();
+$("#vRonde").addEventListener("change", e => {
+  try { localStorage.setItem("ombres.ronde", e.target.checked ? "1" : "0"); } catch { /* stockage indisponible */ }
+  $("#rayonZone").max = e.target.checked ? 1000 : RAYON_FIN_MAX;
+  if (S.G) depuisAdresse();
+});
+function rayonChoisi() { try { return +localStorage.getItem("ombres.rayonZone") || 0; } catch { return 0; } }
+function afficherRayon(Rz) {
+  $("#rayonZone").value = Rz;
+  $("#rayonZoneVal").textContent = `${Rz} m`;
+  $("#noteZone").textContent = Rz > RAYON_FIN_MAX ? t("zone.note", { r: RAYON_FIN_MAX }) : "";
+}
+/** Nouveau rayon : seul l'anneau change si le relevé fin reste le même, sinon le lieu est rechargé. */
+function reglerRayon(Rz, recharger = true) {
+  try { localStorage.setItem("ombres.rayonZone", String(Rz)); } catch { /* stockage indisponible */ }
+  afficherRayon(Rz);
+  if (!recharger || !S.G) return;
+  const finAvant = S.G.rayonZone, finApres = Math.min(Rz, RAYON_FIN_MAX);
+  if (finAvant === finApres && S.fin && Rz + 100 < S.fin.n * S.fin.c / 2) { S.rayonZone = Rz; paysageEtAnneau(tache, scene.idScene); }
+  else depuisAdresse();
+}
+$("#rayonZone").addEventListener("input", e => { $("#rayonZoneVal").textContent = `${e.target.value} m`; });
+$("#rayonZone").addEventListener("change", e => reglerRayon(+e.target.value));
+$("#rayonZone").max = ronde() ? 1000 : RAYON_FIN_MAX;
+afficherRayon(rayonChoisi() || 200);
+/** Anneau (au-delà du relevé fin) et paysage lointain, qui commence au bord du cercle. */
+async function paysageEtAnneau(id, idScene) {
+  const G = S.G, Rz = S.rayonZone, fin = S.fin, E0 = S.E0, N0 = S.N0, rond = !!G?.rayonZone;
+  if (!G || id !== tache) return;
+  if (rond) scene.construireAnneau(fin, G.rayonZone, Rz, { E: E0, N: N0 });
+  const bord = rond && Rz > G.rayonZone && scene.altAnneau ? scene.altAnneau : (x, y) => solEn(G, x, y);
+  const g = await reliefLointain(E0, N0, rond ? Math.max(Rz, G.rayonZone) : G.R, scene.zRef, bord, fin, 50000, rond);
+  if (id !== tache) { g.dispose(); return; }
+  if (scene.loin.maille) { scene.scene.remove(scene.loin.maille); scene.loin.maille.geometry.dispose(); scene.loin.maille = null; }
+  scene.afficherLointain(g, idScene, { E0, N0 });
+}
+
 async function depuisAdresse() {
   const h = new URLSearchParams(location.hash.slice(1));
   if (h.get("vol")) return vol(h.get("vol"));
@@ -230,8 +270,10 @@ async function depuisAdresse() {
       $("#lieu").textContent = (h.get("l") || "").replace(/\s*\(CH.*\)$/, "");
     } else message(t("msg.pasDeParcelle"), 0);
     E0 = Math.round(E0); N0 = Math.round(N0);
-    // rayon automatique, ou celui choisi en mode pro (taille de la maquette)
-    const R = pro.rayon() || Math.min(300, Math.max(150, Math.ceil(demi + 120)));
+    // maquette ronde : rayon choisi (curseur), sinon automatique ; relevé laser jusqu'à 300 m, au-delà un anneau
+    // carrée : pas d'anneau, le rayon s'arrête au relevé fin
+    const Rz = Math.min(ronde() ? 1e9 : RAYON_FIN_MAX, rayonChoisi() || Math.min(300, Math.max(150, Math.ceil(demi + 120)))), R = Math.min(Rz, RAYON_FIN_MAX);
+    afficherRayon(Rz);
     const boite = [E0 - R, N0 - R, E0 + R, N0 + R];
     const rel = parcelle ? { ...parcelle, anneauxRel: parcelle.anneaux.map(a => a.map(([e, n]) => [e - E0, n - N0])) } : { anneauxRel: [] };
 
@@ -258,6 +300,8 @@ async function depuisAdresse() {
       if (id !== tache) return;
       source = t("source.grille", { terrain: [...new Set(g.terrain.map(u => u.annee))].join(", "), surface: [...new Set(g.surface.map(u => u.annee))].join(", ") });
     }
+    if (ronde()) garderCercle(G, R); // ne montrer que le cercle (sinon : maquette carrée, comme avant)
+    S.rayonZone = Rz;
     $("#source").textContent = source;
     [S.lon, S.lat] = versWgs(E0, N0);
     Object.assign(S, { E0, N0, parcelle: rel, G, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
@@ -266,9 +310,8 @@ async function depuisAdresse() {
     etat(0.85, t("etat.scene"));
     await pause();
     scene.controls.autoRotate = false;
-    scene.typeFond = $("#vCadastre").checked ? "cadastre" : "uni";
+    scene.typeFond = typeFond();
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite) });
-    if ($("#vReel").checked) scene.couleursReellesModele(true);
     scene.tuilesPlan.placer(E0, N0, G.R); // plan autour : tuiles en mémoire aussitôt, les autres au fil de l'eau
     pro.reinitialiser();
     // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
@@ -296,11 +339,10 @@ async function depuisAdresse() {
     // paysage jusqu'à 50 km, des mêmes tuiles (déjà en cache), sans bloquer
     const idScene = scene.idScene;
     // anneau intermédiaire : terrain swissALTI3D à 2 m jusqu'à 2 km, puis relief libre jusqu'à 50 km
-    const RAYON_FIN = 2000;
+    const RAYON_FIN = Math.max(2000, Rz + 600);
     tuilesAlti2m([E0 - RAYON_FIN, N0 - RAYON_FIN, E0 + RAYON_FIN, N0 + RAYON_FIN])
       .then(l => terrainAutour(l, E0, N0, RAYON_FIN)).catch(e => { console.warn("swissALTI3D 2 m :", e.message); return null; })
-      .then(fin => id === tache ? reliefLointain(E0, N0, G.R, scene.zRef, (x, y) => solEn(G, x, y), fin) : null)
-      .then(g => g && scene.afficherLointain(g, idScene, { E0, N0 }))
+      .then(fin => { if (id === tache) { S.fin = fin; return paysageEtAnneau(id, idScene); } })
       .catch(e => console.warn("Relief lointain :", e.message));
     etat(1, "");
     $("#commandes").hidden = $("#panneauPro").hidden = $("#panneauAffichage").hidden = false; $("#diagramme").hidden = false;
@@ -500,14 +542,16 @@ $("#vSwiss").addEventListener("change", e => {
 });
 synchroSwiss();
 window.addEventListener("pageshow", synchroSwiss);
-$("#vCadastre").addEventListener("change", e => scene.fond(e.target.checked ? "cadastre" : "uni"));
+// sol : photo aérienne (prioritaire), plan cadastral, ou uni
+function typeFond() { return $("#vReel").checked ? "ortho" : $("#vCadastre").checked ? "cadastre" : "uni"; }
+$("#vCadastre").addEventListener("change", () => scene.fond(typeFond()));
 scene.surFondAbsent = () => message(t("msg.cadastreAbsent"));
 $("#vEffets").addEventListener("change", e => scene.reglerEffets(e.target.checked));
 $("#vCouleursReelles").addEventListener("change", e => {
   scene.couleursPoints(e.target.checked);
   if (e.target.checked && !$("#vPoints").checked && !$("#vPoints").disabled) { $("#vPoints").checked = true; appliquerAffichage(); }
 });
-$("#vReel").addEventListener("change", e => scene.couleursReellesModele(e.target.checked));
+$("#vReel").addEventListener("change", () => scene.fond(typeFond()));
 $("#vLointain").addEventListener("change", e => scene.reglerLointain({ voir: e.target.checked }));
 $("#vBrume").addEventListener("change", e => scene.reglerLointain({ brume: e.target.checked }));
 $("#vDegrade").addEventListener("change", e => scene.degradeHauteur(e.target.checked));
@@ -814,7 +858,7 @@ function choisirParcelle(p) {
 
 // mode pro : sélection et masquage de bâtiments, taille de la maquette, exports (pro.js)
 const pro = brancherPro({ scene, S, message, etat, recharger: depuisAdresse, calculerHeures, annulerCalcul, majCoupe, soleilActuel, compte, compter,
-  relancerHeures, ouvrirCoupes, parcelleEn: (x, y) => S.toutes?.find(q => dansParcelle(x, y, q.anneauxRel)), changerJour: j => { $("#jour").value = j; $("#jour").dispatchEvent(new Event("change")); } });
+  relancerHeures, ouvrirCoupes, rayonZone: () => S.rayonZone, reglerRayon, parcelleEn: (x, y) => S.toutes?.find(q => dansParcelle(x, y, q.anneauxRel)), changerJour: j => { $("#jour").value = j; $("#jour").dispatchEvent(new Event("change")); } });
 // coupes d'un projet rouvert : toutes recréées, la dernière active
 function ouvrirCoupes(liste) {
   if (!$("#vCoupe").checked) { $("#vCoupe").checked = true; $("#outilsCoupe").hidden = $("#coupe").hidden = false; }
