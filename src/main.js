@@ -232,6 +232,7 @@ async function depuisAdresse() {
     scene.controls.autoRotate = false;
     scene.typeFond = $("#vCadastre").checked ? "cadastre" : "uni";
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite) });
+    scene.tuilesPlan.placer(E0, N0, G.R); // plan autour : tuiles en mémoire aussitôt, les autres au fil de l'eau
     pro.reinitialiser();
     // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
     scene.surligner(rel, h.get("t") === "Adresse" ? [E - E0, N - N0] : null);

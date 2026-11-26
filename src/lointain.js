@@ -121,8 +121,9 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMa
 // la couleur vient du plan cadastral drapé (deux finesses), des lacs et du même grain de papier.
 const DECLARATIONS = /* glsl */`
 uniform vec3 sol, lac;
-uniform float fondActif, fondDemi, procheDemi; // plan cadastral drapé autour de la maquette (demi-côtés en m)
-uniform sampler2D tFond, tProche; // large (environ 1 m par pixel) et proche (environ 0,4 m par pixel)
+uniform float planActif; // plan cadastral en tuiles, peint dans deux images centrées sur la vue (plan.js)
+uniform sampler2D tPlanP, tPlanL; // proche (fine) et large
+uniform vec3 cPlanP, cPlanL;      // centre (x, y nord) et demi-côté de chaque image (0 : vide)
 varying vec3 vMonde;
 varying float vEau;
 float hachage(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
@@ -134,18 +135,23 @@ float bruit3(vec3 x) {
 const COULEUR = /* glsl */`
   vec3 base = sol;
   float plan = 0.0; // part du plan cadastral (qui dessine déjà les lacs, à leur vraie rive)
-  if (fondActif > 0.5) {
-    vec2 uv = vec2(vMonde.x, -vMonde.z) / (2.0 * fondDemi) + 0.5;
-    float bord = max(abs(uv.x - 0.5), abs(uv.y - 0.5)) * 2.0; // 0 au centre, 1 au bord de l'image
-    plan = 1.0 - smoothstep(0.85, 1.0, bord);
-    base = mix(sol, texture2D(tFond, uv).rgb, plan);
-    vec2 uvP = vec2(vMonde.x, -vMonde.z) / (2.0 * procheDemi) + 0.5;
-    float bordP = max(abs(uvP.x - 0.5), abs(uvP.y - 0.5)) * 2.0;
-    if (bordP < 1.0) base = mix(texture2D(tProche, uvP).rgb, base, smoothstep(0.9, 1.0, bordP));
+  if (planActif > 0.5) {
+    vec2 p = vec2(vMonde.x, -vMonde.z);
+    for (int k = 0; k < 2; k++) {
+      vec3 c = k == 0 ? cPlanL : cPlanP;
+      if (c.z <= 0.0) continue;
+      vec2 uv = (p - c.xy) / (2.0 * c.z) + 0.5;
+      float bord = max(abs(uv.x - 0.5), abs(uv.y - 0.5)) * 2.0;
+      if (bord >= 1.0) continue;
+      vec4 t = k == 0 ? texture2D(tPlanL, uv) : texture2D(tPlanP, uv);
+      float a = t.a * (1.0 - smoothstep(0.92, 1.0, bord));
+      base = mix(base, t.rgb / max(t.a, 1e-3), a);
+      plan = max(plan, a);
+    }
   }
   base = mix(base, lac, smoothstep(0.3, 0.9, vEau) * (1.0 - plan));
   // même grain que le sol de la maquette ; le grain fin s'efface quand il devient plus petit qu'un pixel (scintillement)
-  if (fondActif > 0.5 && max(abs(vMonde.x), abs(vMonde.z)) < fondDemi) {
+  if (plan > 0.01) {
     float g = 0.55 * bruit3(vMonde * 2.7) + 0.3 * bruit3(vMonde * 9.0) + 0.15 * bruit3(vMonde * 0.35);
     float pixel = hachage(floor(vMonde * 2.0 + 0.001) + 0.37);
     vec2 taille = fwidth(vMonde.xz);
@@ -157,7 +163,7 @@ const COULEUR = /* glsl */`
 export function materiauLointain() {
   const uniforms = {
     sol: { value: new THREE.Color() }, lac: { value: new THREE.Color() },
-    tFond: { value: null }, tProche: { value: null }, fondActif: { value: 0 }, fondDemi: { value: 2000 }, procheDemi: { value: 800 },
+    tPlanP: { value: null }, tPlanL: { value: null }, cPlanP: { value: new THREE.Vector3() }, cPlanL: { value: new THREE.Vector3() }, planActif: { value: 0 },
   };
   const mat = new THREE.MeshStandardMaterial({ roughness: 1 });
   mat.uniforms = uniforms; // réglés par la scène (couleurs du thème, plans drapés)

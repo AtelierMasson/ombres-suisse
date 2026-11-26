@@ -156,8 +156,11 @@ export class Scene3D {
     // lointain de la caméra s'étend alors à 150 km (la précision de profondeur dépend surtout du plan proche)
     this.loin = { mat: materiauLointain(), maille: null, voir: true, brume: true };
     // plan cadastral en tuiles autour de la maquette, chargées au fil des déplacements
-    this.tuilesPlan = new TuilesPlan(this, m => grainPlatre(m, 0.07));
-    this.scene.add(this.tuilesPlan.groupe);
+    this.tuilesPlan = new TuilesPlan(this);
+    {
+      const u = this.loin.mat.uniforms, [p, l] = this.tuilesPlan.textures, [cp, cl] = this.tuilesPlan.centres;
+      u.tPlanP.value = p; u.tPlanL.value = l; u.cPlanP.value = cp; u.cPlanL.value = cl;
+    }
     this.controls.addEventListener("change", () => this.tuilesPlan.demander());
     this.groupe = new THREE.Group();
     this.outils = new THREE.Group(); // tranche de coupe et poignées
@@ -255,7 +258,6 @@ export class Scene3D {
   /** Relief lointain calculé (géométrie de reliefLointain) ; ignoré si la scène a changé entre-temps. */
   afficherLointain(g, idScene, origine) {
     if (idScene !== this.idScene) { g.dispose(); return; }
-    if (origine) this.tuilesPlan.placer(origine.E0, origine.N0, this.G.R, g.userData.altitude);
     const L = this.loin;
     L.maille = new THREE.Mesh(g, L.mat);
     L.maille.frustumCulled = false;
@@ -297,8 +299,10 @@ export class Scene3D {
     const L = this.loin, enPlan = this.modeVue === "plan";
     if (L.maille) L.maille.visible = L.voir && (!this.modeVue || enPlan);
     // plan en tuiles : avec le plan cadastral, en 3D avec le paysage, et toujours en vue plan
-    const tuiles = this.typeFond === "cadastre" && (enPlan || (!this.modeVue && L.voir));
-    if (tuiles !== this.tuilesPlan.groupe.visible) { this.tuilesPlan.groupe.visible = tuiles; if (tuiles) this.tuilesPlan.demander(); }
+    const tuiles = this.typeFond === "cadastre" && !!L.maille && L.maille.visible;
+    if (tuiles !== this.tuilesPlan.actif) { this.tuilesPlan.actif = tuiles; if (tuiles) this.tuilesPlan.demander(); }
+    L.mat.uniforms.planActif.value = tuiles ? 1 : 0;
+    if (tuiles) this.tuilesPlan.peindre(this.renderer);
     if (!this.modeVue) {
       // avec le paysage : plan lointain à 150 km, plan proche reculé avec la distance (précision au loin), ciel centré
       // sur la caméra (la voûte de 9 km ne doit pas être quittée en dézoomant)
@@ -648,9 +652,21 @@ export class Scene3D {
 
   /** Point (x est, y nord, relatifs) visé hors de la maquette : plan en tuiles ou paysage. */
   pointLointain(e) {
-    const cibles = [...(this.tuilesPlan.groupe.visible ? this.tuilesPlan.groupe.children : []), this.loin.maille?.visible ? this.loin.maille : null].filter(Boolean);
+    const cibles = [this.loin.maille?.visible ? this.loin.maille : null].filter(Boolean);
     const t = this.viser(e).intersectObjects(cibles, false)[0];
     return t ? [t.point.x, -t.point.z] : null;
+  }
+
+  /**
+   * Sortie de la vue plan ou d'une élévation vers la 3D, sur place : même point visé, même direction de regard, même
+   * largeur vue (Maj + glisser, comme dans la plupart des logiciels 3D) ; la rotation continue avec le même geste.
+   */
+  libererVue() {
+    if (!this.modeVue) return;
+    const cam = this.camera, ctl = this.controls, dir = cam.position.clone().sub(ctl.target), d = dir.length();
+    const large = 2 * d * Math.tan(cam.fov * Math.PI / 360), d3 = Math.min(30000, Math.max(30, large / (2 * Math.tan(22.5 * Math.PI / 180))));
+    this.avant3D = { pos: ctl.target.clone().add(dir.normalize().multiplyScalar(d3)), cible: ctl.target.clone(), fov: 45 };
+    this.vueOrtho(null);
   }
 
   /** Recentre la vue sur l'adresse (vue plan : même zoom, maquette au centre ; 3D : vue de départ). */
@@ -897,6 +913,8 @@ export class Scene3D {
       cam.fov = fov;
       // zoom jusqu'à ~8 m de large à l'écran ; les plans proche et lointain suivent la distance (plansCamera)
       ctl.enableRotate = false; ctl.screenSpacePanning = true; ctl.minDistance = 150; ctl.maxDistance = h * 2;
+      // comme une carte : glisser déplace (Maj + glisser revient en 3D, voir interactions)
+      ctl.mouseButtons.LEFT = THREE.MOUSE.PAN; ctl.touches.ONE = THREE.TOUCH.PAN;
       if (mode === "plan") {
         ctl.target.set(ctl.target.x, 0, ctl.target.z);
         cam.position.set(ctl.target.x, h, ctl.target.z + 0.001);
@@ -915,6 +933,7 @@ export class Scene3D {
       this.voute.position.set(0, 0, 0); this.voute.scale.setScalar(1);
       ctl.enableRotate = true; ctl.minPolarAngle = 0; ctl.maxPolarAngle = Math.PI * 0.495;
       ctl.minDistance = 0; ctl.maxDistance = Infinity;
+      ctl.mouseButtons.LEFT = THREE.MOUSE.ROTATE; ctl.touches.ONE = THREE.TOUCH.ROTATE;
       this.scene.fog.density = this.densiteBrume();
       if (a) { cam.position.copy(a.pos); ctl.target.copy(a.cible); } else this.vueDepart();
     }
@@ -1189,6 +1208,14 @@ export class Scene3D {
     this.rayon = new THREE.Raycaster();
     let prise = null, appui = null;
     const borne = x => Math.max(-this.G.R + 2, Math.min(this.G.R - 2, x));
+    // vue plan ou élévation : Maj + glisser repasse en 3D sur place, et le même geste fait tourner la vue
+    // (OrbitControls : avec Maj, le bouton « déplacer » fait tourner ; le réglage normal revient au relâchement)
+    el.addEventListener("pointerdown", e => {
+      if (!this.modeVue || !e.shiftKey || e.button !== 0) return;
+      this.libererVue();
+      this.controls.mouseButtons.LEFT = THREE.MOUSE.PAN;
+      addEventListener("pointerup", () => { if (!this.modeVue) this.controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE; }, { once: true });
+    }, true);
     el.addEventListener("pointerdown", e => {
       appui = [e.clientX, e.clientY];
       if (!this.coupe || this.trace) return;

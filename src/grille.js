@@ -99,6 +99,22 @@ async function lireFenetre(url, fenetre, essais = 3) {
  * Terrain swissALTI3D à 2 m autour de (E0, N0), jusqu'à `rayon` : une grille unique { e0, n1, c, n, h } (lignes depuis
  * le nord, NaN hors couverture). Sert d'anneau intermédiaire entre la maquette et le paysage lointain.
  */
+// tuiles swissALTI3D 2 m déjà lues, gardées d'un lieu à l'autre (environ 1 Mo chacune, au plus 80)
+const ALTI = new Map();
+function lireAlti(url) {
+  if (!ALTI.has(url)) {
+    const p = (async () => {
+      const img = await (await fromUrl(url, { maxRanges: 1 })).getImage();
+      const [bx0, , , by1] = img.getBoundingBox();
+      return { bx0, by1, w: img.getWidth(), h: img.getHeight(), ras: (await img.readRasters({ samples: [0] }))[0] };
+    })();
+    p.catch(() => ALTI.delete(url));
+    ALTI.set(url, p);
+    if (ALTI.size > 80) ALTI.delete(ALTI.keys().next().value);
+  }
+  return ALTI.get(url);
+}
+
 export async function terrainAutour(liste, E0, N0, rayon) {
   const c = 2, n = Math.ceil(2 * rayon / c), e0 = Math.floor((E0 - rayon) / c) * c, n1 = Math.ceil((N0 + rayon) / c) * c;
   const h = new Float32Array(n * n).fill(NaN);
@@ -107,9 +123,7 @@ export async function terrainAutour(liste, E0, N0, rayon) {
     while (i < liste.length) {
       const t = liste[i++];
       try {
-        const img = await (await fromUrl(t.url, { maxRanges: 1 })).getImage();
-        const [bx0, , , by1] = img.getBoundingBox(), w = img.getWidth(), hh = img.getHeight();
-        const ras = (await img.readRasters({ samples: [0] }))[0];
+        const { bx0, by1, w, h: hh, ras } = await lireAlti(t.url);
         for (let l = 0; l < hh; l++) {
           const j = Math.round((n1 - (by1 - l * c)) / c);
           if (j < 0 || j >= n) continue;
