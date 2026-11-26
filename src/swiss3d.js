@@ -36,7 +36,7 @@ function limiterZone(mesh, groupe, [rmin, rmax]) {
   mesh.instanceMatrix.needsUpdate = true;
 }
 
-function nuageArbres(mesh, materiau) {
+function nuageArbres(mesh, materiau, groupe = null) {
   const g = mesh.geometry;
   g.computeBoundingBox();
   const b = g.boundingBox, t = new THREE.Vector3(), centre = new THREE.Vector3();
@@ -45,6 +45,10 @@ function nuageArbres(mesh, materiau) {
   const haut = t.y >= t.x && t.y >= t.z ? 1 : t.z >= t.x ? 2 : 0, l1 = (haut + 1) % 3, l2 = (haut + 2) % 3;
   const bas = b.min.getComponent(haut), H = t.getComponent(haut), r1 = t.getComponent(l1) / 2, r2 = t.getComponent(l2) / 2;
   const M = new THREE.Matrix4(), I = new THREE.Matrix4(), v = new THREE.Vector3(), echelle = new THREE.Vector3();
+  // position dans la scène de chaque arbre (pour une densité qui baisse doucement avec la distance au centre)
+  let Mw = null;
+  if (groupe) { mesh.updateWorldMatrix(true, false); Mw = new THREE.Matrix4().multiplyMatrices(groupe.matrix, mesh.matrixWorld); }
+  const w = new THREE.Vector3();
   const pos = [], rel = [], va = [];
   let graine = 1;
   const alea = () => { graine = (graine * 16807) % 2147483647; return graine / 2147483647; };
@@ -54,8 +58,11 @@ function nuageArbres(mesh, materiau) {
     echelle.setFromMatrixScale(M);
     if (echelle.x === 0) continue; // instance hors de la zone (limiterZone)
     const hm = H * echelle.getComponent(haut), rm = Math.max(r1, r2) * echelle.getComponent(l1);
-    // nombre de points selon la taille de la couronne (de 14 à 55)
-    const nb = Math.round(Math.min(55, Math.max(14, rm * rm * 1.6 + hm)));
+    // nombre de points selon la taille de la couronne (de 24 à 110), puis en douceur moins nombreux en s'éloignant
+    // (plein jusqu'à 400 m du centre, environ 40 % à 2,5 km) : pas de saut net avec les arbres du relevé
+    let f = 1;
+    if (Mw) { w.setFromMatrixPosition(I).applyMatrix4(Mw); const d = Math.hypot(w.x, w.z); f = d < 400 ? 1 : Math.max(0.4, 1 - 0.6 * ((d - 400) / 2100) ** 0.8); }
+    const nb = Math.max(8, Math.round(f * Math.min(110, Math.max(24, rm * rm * 3 + hm * 2))));
     graine = 1 + ((k * 7919) % 2147483646);
     const teinte = alea();
     for (let q = 0; q < nb; q++) {
@@ -232,7 +239,7 @@ export class Swiss3D {
         // zone [min, max] : les instances hors de l'anneau sont réduites à rien (ni dessinées ni portant d'ombre)
         if (materiaux.zone && o.isInstancedMesh) limiterZone(o, t.group, materiaux.zone);
         if (materiaux.points && o.isInstancedMesh && !tronc) {
-          const p = nuageArbres(o, materiaux.points);
+          const p = nuageArbres(o, materiaux.points, t.group);
           if (p) nuages.push([o.parent, p]);
           o.layers.set(materiaux.calqueOmbre);
         } else if (materiaux.points) o.layers.set(materiaux.calqueOmbre);

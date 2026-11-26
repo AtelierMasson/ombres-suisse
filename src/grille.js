@@ -39,8 +39,26 @@ export function depuisPoints(nuage, R, c = 0.5) {
     }
   }
   remplir(sol, n);
-  // sous l'eau : fond plat un peu sous le niveau (le plan d'eau est dessiné à part)
-  for (let p = 0; p < n * n; p++) if (!isNaN(G.eau[p])) sol[p] = Math.min(sol[p], G.eau[p] - 0.3);
+  // sous l'eau : le fond descend depuis la rive (estimé : pente de 12 %, au plus 40 m de profondeur ; le relevé ne
+  // voit pas le fond), l'eau reste plate au-dessus
+  {
+    const E = G.eau, dist = new Float32Array(n * n).fill(Infinity), file = [];
+    for (let p = 0; p < n * n; p++) {
+      if (isNaN(E[p])) continue;
+      const i = p % n;
+      // cellule de rive : une voisine hors de l'eau
+      if ([i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n].some(q => q >= 0 && q < n * n && isNaN(E[q]))) { dist[p] = 0; file.push(p); }
+    }
+    for (let f = 0; f < file.length; f++) {
+      const p = file[f], i = p % n;
+      for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n])
+        if (q >= 0 && q < n * n && !isNaN(E[q]) && dist[q] > dist[p] + c) { dist[q] = dist[p] + c; file.push(q); }
+    }
+    for (let p = 0; p < n * n; p++) if (!isNaN(E[p])) {
+      const d = dist[p] === Infinity ? 200 : dist[p];
+      sol[p] = Math.min(sol[p], E[p] - 0.3 - Math.min(40, d * 0.12));
+    }
+  }
   fermer(bat, n, 2); fermer(veg, n, 1); fermer(pont, n, 2);
   for (let p = 0; p < n * n; p++) {
     if (bat[p] < sol[p] + 1.5) bat[p] = NaN;

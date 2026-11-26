@@ -77,6 +77,8 @@ const CONTACT = { tSol: { value: null }, tDist: { value: null }, grille: { value
 export const ZONE = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
 /** Zone de nos propres bâtiments, ponts et volumes : le disque de la maquette fine. */
 const ZONE_FINE = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
+/** Zone vue par l'occlusion ambiante et le rebond : tout ce qui est hors du cercle (ou de l'anneau) en est retiré. */
+const ZONE_AO = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
 function decoupeZone(mat, zone = ZONE) {
   if (mat.userData.zone) return;
   mat.userData.zone = true;
@@ -708,6 +710,7 @@ export class Scene3D {
   majZone() {
     const Rf = this.G?.rayonZone;
     ZONE_FINE.zoneMax.value = Rf ? Rf - 0.03 : 1e9;
+    ZONE_AO.zoneMax.value = Rf ? Math.max(Rf, this.rayonExt || 0) + 0.5 : 1e9;
     if (!Rf) { ZONE.zoneMin.value = 0; ZONE.zoneMax.value = 1e9; return; }
     ZONE.zoneMax.value = Math.max(Rf, this.rayonExt || 0) - 0.03;
     ZONE.zoneMin.value = this.calques.jeu === "swiss" ? 0 : Rf - 0.03;
@@ -1602,7 +1605,12 @@ export class Scene3D {
       // endroits (arrondis) et l'occlusion y dessinait des stries ; les bâtiments sont de toute façon coupés à R - 3 cm
       const R = this.G.R, Rb = Math.max(R, this.rayonExt || 0), boite = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), Rb + 0.02));
       const avecBoite = [...boite, ...(plans || [])];
-      if (this.ao.normalMaterial) { this.ao.normalMaterial.clippingPlanes = avecBoite; this.ao.normalMaterial.needsUpdate = true; }
+      if (this.ao.normalMaterial) {
+        // maquette ronde : l'occlusion ne voit rien hors du cercle (sinon des bâtiments « fantômes » pâles apparaissaient
+        // contre le ciel, au-delà de la paroi)
+        if (this.G.rayonZone) decoupeZone(this.ao.normalMaterial, ZONE_AO);
+        this.ao.normalMaterial.clippingPlanes = avecBoite; this.ao.normalMaterial.needsUpdate = true;
+      }
       // nos bâtiments (et roofer) : coupés 3 cm en retrait du bord, sinon les murs du bord sont dans le plan de la face
       // du socle et leur partie enterrée apparaît en stries à travers elle
       const dedans = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), R - 0.03));
@@ -1644,9 +1652,10 @@ export class Scene3D {
    * au point visé (lent de près, rapide de loin) ; la caméra et le point visé bougent ensemble.
    */
   deplacerClavier(t) {
-    const k = this.touches, avant = this.dernierClavier ?? t;
+    const k = this.touches, avant = this.dernierClavier ?? t, v = (this.vitesseClavier ||= new THREE.Vector3());
     this.dernierClavier = t;
-    if (!k?.size || this.vol || !this.G) { this.dernierClavier = null; return false; }
+    // élan : on accélère et on ralentit en douceur (comme dans un jeu), même après avoir lâché la touche
+    if ((!k?.size && v.lengthSq() < 1e-4) || this.vol || !this.G) { this.dernierClavier = null; v.set(0, 0, 0); return false; }
     const dt = Math.min(0.1, (t - avant) / 1000);
     if (!dt) return true;
     const cam = this.camera, cible = this.controls.target, e = cam.matrixWorld.elements;
@@ -1662,10 +1671,13 @@ export class Scene3D {
     if (k.has("KeyA") || k.has("ArrowLeft")) d.sub(droite);
     if (k.has("KeyE")) d.y += 1;
     if (k.has("KeyQ")) d.y -= 1;
-    if (!d.lengthSq()) return false;
     const vitesse = Math.max(4, cam.position.distanceTo(cible) * 0.35) * (k.has("ShiftLeft") || k.has("ShiftRight") ? 3 : 1);
-    d.normalize().multiplyScalar(vitesse * dt);
-    cam.position.add(d); cible.add(d);
+    if (d.lengthSq()) d.normalize().multiplyScalar(vitesse);
+    // la vitesse rejoint la vitesse voulue : vite à l'appui (~0,15 s), un peu plus lentement au lâcher (~0,3 s)
+    v.lerp(d, 1 - Math.exp(-dt * (d.lengthSq() ? 9 : 6)));
+    if (!k.size && v.lengthSq() < 0.01) { v.set(0, 0, 0); return false; }
+    const pas = v.clone().multiplyScalar(dt);
+    cam.position.add(pas); cible.add(pas);
     return true;
   }
 
