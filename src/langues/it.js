@@ -87,7 +87,7 @@ export default {
   "accueil.exBerne": "Berna",
   "accueil.exZermatt": "Zermatt",
   "accueil.exGruyeres": "Gruyères",
-  "accueil.atoutSoleil": "<b>Sole e ombre</b>Ombre a qualsiasi data e ora, ore di sole sul suolo e sulle facciate: per collocare un giardino, finestre, pannelli solari.",
+  "accueil.atoutSoleil": "<b>Sole e ombre</b>Ombre a qualsiasi data e ora, ore di sole sul suolo e sulle facciate: per cercare il fresco d'estate, il sole e la vitamina D d'inverno, collocare un giardino, finestre, pannelli solari.",
   "accueil.atoutExport": "<b>Riprendere il modello</b>Esportazione DXF, OBJ, glTF o STL per CAD, visualizzazione o stampa 3D.",
 
   /* en-tête du panneau, chargement */

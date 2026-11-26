@@ -87,7 +87,7 @@ export default {
   "accueil.exBerne": "Bern",
   "accueil.exZermatt": "Zermatt",
   "accueil.exGruyeres": "Gruyères",
-  "accueil.atoutSoleil": "<b>Sonne und Schatten</b>Schatten zu jedem Datum und jeder Uhrzeit, Sonnenstunden auf Boden und Fassaden: für Garten, Fenster oder Solaranlage.",
+  "accueil.atoutSoleil": "<b>Sonne und Schatten</b>Schatten zu jedem Datum und jeder Uhrzeit, Sonnenstunden auf Boden und Fassaden: um im Sommer Kühle und im Winter Sonne und Vitamin D zu finden, für Garten, Fenster oder Solaranlage.",
   "accueil.atoutExport": "<b>Modell weiterverwenden</b>Export als DXF, OBJ, glTF oder STL für CAD, Visualisierung oder 3D-Druck.",
 
   /* en-tête du panneau, chargement */
