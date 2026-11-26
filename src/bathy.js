@@ -22,12 +22,13 @@ export async function fondLacs(G, E0, N0) {
   if (!G.eau || !G.eau.some(v => !isNaN(v))) return 0;
   const I = await lireIndex();
   if (!I) return 0;
-  const { n, c, x0, sol, eau } = G, dispo = new Set(I.tuiles), cases = I.cases, pas = I.pas;
+  const { n, c, x0, sol, eau } = G, dispo = decalages(I), cases = I.cases, pas = I.pas;
   const cles = new Set();
   for (let e = Math.floor((E0 + x0) / 1000); e <= Math.floor((E0 - x0) / 1000); e++)
     for (let m = Math.floor((N0 + x0) / 1000); m <= Math.floor((N0 - x0) / 1000); m++) if (dispo.has(`${e}-${m}`)) cles.add(`${e}-${m}`);
   if (!cles.size) return 0;
   const T = new Map(await Promise.all([...cles].map(async k => [k, await lireTuile(k)])));
+  const dec = k => dispo.get(k) || 0;
   // altitude du fond en (E, N), interpolée entre les quatre cases voisines (décimètres -> mètres ; 0 = pas de donnée)
   const fond = (E, N) => {
     const fe = Math.floor(E / 1000), fn = Math.floor(N / 1000), t = T.get(`${fe}-${fn}`);
@@ -40,7 +41,7 @@ export async function fondLacs(G, E0, N0) {
       const z = t[(j + dj) * cases + i + di];
       if (z && p > 0) { s += z * p; w += p; }
     }
-    return w > 0.2 ? s / w / 10 : NaN;
+    return w > 0.2 ? s / w / 10 - dec(`${fe}-${fn}`) : NaN;
   };
   let nb = 0;
   for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
@@ -59,7 +60,7 @@ export async function fondLacs(G, E0, N0) {
 export async function fondAutour(E0, N0, rayon) {
   const I = await lireIndex();
   if (!I) return null;
-  const dispo = new Set(I.tuiles), cases = I.cases, pas = I.pas, cles = [];
+  const dispo = decalages(I), cases = I.cases, pas = I.pas, cles = [];
   for (let e = Math.floor((E0 - rayon) / 1000); e <= Math.floor((E0 + rayon) / 1000); e++)
     for (let m = Math.floor((N0 - rayon) / 1000); m <= Math.floor((N0 + rayon) / 1000); m++) if (dispo.has(`${e}-${m}`)) cles.push(`${e}-${m}`);
   if (!cles.length) return null;
@@ -69,6 +70,13 @@ export async function fondAutour(E0, N0, rayon) {
     if (!t) return NaN;
     const i = Math.min(cases - 1, Math.max(0, Math.floor((E - fe * 1000) / pas))), j = Math.min(cases - 1, Math.max(0, Math.floor(((fn + 1) * 1000 - N) / pas)));
     const z = t[j * cases + i];
-    return z ? z / 10 : NaN;
+    return z ? z / 10 - (dispo.get(`${fe}-${fn}`) || 0) : NaN;
   };
+}
+
+/** Tuiles de l'index → Map « E-N » → décalage en m (0, ou la valeur après « @ » pour les fonds sous le niveau de la mer). */
+function decalages(I) {
+  const m = new Map();
+  for (const t of I.tuiles) { const [k, d] = t.split("@"); m.set(k, +(d || 0)); }
+  return m;
 }

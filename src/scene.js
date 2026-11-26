@@ -770,7 +770,8 @@ export class Scene3D {
       let z = (H[p] * (1 - u) + H[p + 1] * u) * (1 - v) + (H[p + fin.n] * (1 - u) + H[p + fin.n + 1] * u) * v;
       if (isNaN(z)) return solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y)));
       // lac : le terrain à 2 m donne la surface de l'eau ; le fond mesuré (ou 3 m plus bas) la remplace
-      if (lac && z <= lac.niveau + 0.8) { // la surface du lac du terrain à 2 m est un peu plus haute que le niveau mesuré const f = lac.fond?.(E + x, N + y); z = f < lac.niveau - 0.1 ? f : lac.niveau - 3; }
+      // la surface du lac du terrain à 2 m est un peu plus haute que le niveau mesuré par le laser (~0,5 m)
+      if (lac && z <= lac.niveau + 0.8) { const f = lac.fond?.(E + x, N + y); z = f < lac.niveau - 0.1 ? f : lac.niveau - 3; }
       return z;
     };
     this.altAnneau = altFin;
