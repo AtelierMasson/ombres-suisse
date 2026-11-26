@@ -5,7 +5,7 @@ Hébergement web Infomaniak (PHP 8, MySQL/MariaDB, e-mail), domaine `topograph.c
 ## 1. Base de données
 
 1. Manager → Hébergement web → **Bases de données** → Créer une base (ex. `xxxx_ombres`) et un utilisateur avec tous les droits sur cette base. Noter l'hôte (`xxxx.myd.infomaniak.com`).
-2. Ouvrir **phpMyAdmin** → base → Importer → `api/schema.sql`. Cinq tables : `comptes`, `jetons`, `sessions`, `achats`, `demandes`.
+2. Ouvrir **phpMyAdmin** → base → Importer → `api/schema.sql`. Six tables : `comptes`, `jetons`, `sessions`, `achats`, `demandes`, `compteurs` (usage anonyme pour le tableau d'administration).
 
 ## 2. Adresse d'envoi (SMTP)
 
@@ -88,3 +88,10 @@ Vérifier ensuite : `https://topograph.ch/api/moi.php` doit répondre `{"erreur"
 - Les deux ports sont sur le même site (`localhost`), le cookie SameSite=Lax passe. Chrome et Firefox acceptent le cookie Secure sur `http://localhost` ; pour Safari, mettre `COOKIE_SECURE = false` en local.
 - Webhook en local : Stripe CLI, `stripe listen --forward-to localhost:8080/webhook.php`, qui affiche le secret `whsec_…` à utiliser.
 - E-mail en local : le SMTP Infomaniak fonctionne aussi depuis chez soi (mêmes réglages) ; seul le haché du jeton est en base, le lien ne peut donc se lire que dans l'e-mail.
+
+## Tableau d'administration
+
+`https://topograph.ch/admin` : comptes (offrir ou retirer le Pro), ventes et chiffre d'affaires, inscriptions et ventes
+par jour, compteurs d'usage anonymes. Accès : se connecter sur le site (bouton « Compte ») avec une adresse listée dans
+`ADMIN_EMAILS` (`api/config.php`).
+
