@@ -1,6 +1,6 @@
 // Relief lointain visible : le paysage jusqu'à 50 km autour de la maquette (collines, montagnes, lacs), tiré des mêmes
-// tuiles « Terrarium » que l'horizon. Il est dessiné à part, comme un fond (voir Scene3D.rendre) : sa profondeur
-// (des dizaines de km) ne se mêle pas à celle de la maquette, qui garde toute sa précision.
+// tuiles « Terrarium » que l'horizon (et, jusqu'à 2 km, du terrain swissALTI3D à 2 m). Il est dans la scène avec la
+// maquette ; la caméra étend alors son plan lointain (voir Scene3D.rendre).
 import * as THREE from "three";
 import { tuile, versTuile } from "./horizon.js";
 import { versWgs } from "./geo.js";
@@ -20,10 +20,10 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMa
     const u = x - i, v = y - j, p = j * fin.n + i, H = fin.h;
     return (H[p] * (1 - u) + H[p + 1] * u) * (1 - v) + (H[p + fin.n] * (1 - u) + H[p + fin.n + 1] * u) * v;
   };
-  const nA = 1440;
+  const nA = 2048;
   // anneaux : écart au bord de la maquette, de plus en plus espacés avec la distance
   const ecarts = [0];
-  while (ecarts.at(-1) < rayonMax) ecarts.push(ecarts.at(-1) * 1.025 + 6);
+  while (ecarts.at(-1) < rayonMax) ecarts.push(ecarts.at(-1) * 1.015 + 4);
   const nR = ecarts.length;
   // altitude en un point (E, N) : tuile la plus fine jusqu'à 6 km (mêmes niveaux que l'horizon, tuiles en cache)
   const tuiles = new Map();
@@ -53,7 +53,7 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMa
     const r0 = R / Math.max(Math.abs(sx), Math.abs(sy)); // bord du carré dans cette direction
     for (let k = 0; k < nR; k++) {
       const d = r0 + ecarts[k];
-      sommets.push({ e: sx * d, n: sy * d, d, s: ecarts[k], bx: sx * r0 * 0.995, by: sy * r0 * 0.995, z: d < 25000 ? 12 : 11, pas: d < rayonFin ? Math.max(3, d * 0.004) : Math.max(15, d * 0.003) });
+      sommets.push({ e: sx * d, n: sy * d, d, s: ecarts[k], bx: sx * r0 * 0.995, by: sy * r0 * 0.995, z: d < 8000 ? 13 : d < 30000 ? 12 : 11, pas: d < rayonFin ? Math.max(3, d * 0.004) : Math.max(15, d * 0.003) });
     }
   }
   // tuiles nécessaires (sommets et voisins servant aux pentes)
@@ -67,6 +67,7 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMa
 
   const pos = new Float32Array(nA * nR * 3), nor = new Float32Array(nA * nR * 3), eau = new Float32Array(nA * nR);
   for (let q = 0; q < sommets.length; q++) {
+    if (q % 40000 === 0 && q) await new Promise(r => setTimeout(r)); // par morceaux : la page reste réactive
     const P = sommets[q], E = E0 + P.e, N = N0 + P.n, h = P.pas;
     let alt = altEn(E, N, P.z);
     // pente mesurée sur le terrain lui-même (et non sur les facettes du maillage polaire, qui dessinaient des rayons)
@@ -108,6 +109,11 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMa
   g.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
   g.setIndex(idx);
   g.computeBoundingSphere();
+  // altitude (repère de la scène) en un point relatif (x est, y nord), pour poser le plan cadastral en tuiles
+  g.userData.altitude = (x, y) => {
+    const d = Math.hypot(x, y), a = altEn(E0 + x, N0 + y, d < 8000 ? 13 : d < 30000 ? 12 : 11);
+    return isNaN(a) ? NaN : a - d * d / (2 * RAYON_TERRE) * (1 - REFRACTION) - zRef;
+  };
   return g;
 }
 

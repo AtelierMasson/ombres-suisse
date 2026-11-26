@@ -231,10 +231,7 @@ async function depuisAdresse() {
     await pause();
     scene.controls.autoRotate = false;
     scene.typeFond = $("#vCadastre").checked ? "cadastre" : "uni";
-    scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite),
-      // autour de la maquette, en deux finesses : 0,4 m par pixel jusqu'à 800 m, 1 m par pixel jusqu'à 2 km
-      cadastreProche: urlFond(COUCHES.cadastre, [E0 - 800, N0 - 800, E0 + 800, N0 + 800], 4096), demiProche: 800,
-      cadastreLarge: urlFond(COUCHES.cadastre, [E0 - 2000, N0 - 2000, E0 + 2000, N0 + 2000], 4096), demiLarge: 2000 });
+    scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite) });
     pro.reinitialiser();
     // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
     scene.surligner(rel, h.get("t") === "Adresse" ? [E - E0, N - N0] : null);
@@ -265,7 +262,7 @@ async function depuisAdresse() {
     tuilesAlti2m([E0 - RAYON_FIN, N0 - RAYON_FIN, E0 + RAYON_FIN, N0 + RAYON_FIN])
       .then(l => terrainAutour(l, E0, N0, RAYON_FIN)).catch(e => { console.warn("swissALTI3D 2 m :", e.message); return null; })
       .then(fin => id === tache ? reliefLointain(E0, N0, G.R, scene.zRef, (x, y) => solEn(G, x, y), fin) : null)
-      .then(g => g && scene.afficherLointain(g, idScene))
+      .then(g => g && scene.afficherLointain(g, idScene, { E0, N0 }))
       .catch(e => console.warn("Relief lointain :", e.message));
     etat(1, "");
     $("#commandes").hidden = false; $("#diagramme").hidden = false;

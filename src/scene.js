@@ -16,6 +16,7 @@ import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contou
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
 import { materiauLointain } from "./lointain.js";
+import { TuilesPlan } from "./plan.js";
 
 const CIEL_SOMMETS = /* glsl */`
 varying vec3 vDir;
@@ -154,6 +155,10 @@ export class Scene3D {
     // paysage (relief jusqu'à 50 km) : dans la scène, pour que paysage et maquette se cachent l'un l'autre ; le plan
     // lointain de la caméra s'étend alors à 150 km (la précision de profondeur dépend surtout du plan proche)
     this.loin = { mat: materiauLointain(), maille: null, voir: true, brume: true };
+    // plan cadastral en tuiles autour de la maquette, chargées au fil des déplacements
+    this.tuilesPlan = new TuilesPlan(this, m => grainPlatre(m, 0.07));
+    this.scene.add(this.tuilesPlan.groupe);
+    this.controls.addEventListener("change", () => this.tuilesPlan.demander());
     this.groupe = new THREE.Group();
     this.outils = new THREE.Group(); // tranche de coupe et poignées
     this.scene.add(this.voute, this.disque, this.groupe, this.outils);
@@ -248,8 +253,9 @@ export class Scene3D {
   }
 
   /** Relief lointain calculé (géométrie de reliefLointain) ; ignoré si la scène a changé entre-temps. */
-  afficherLointain(g, idScene) {
+  afficherLointain(g, idScene, origine) {
     if (idScene !== this.idScene) { g.dispose(); return; }
+    if (origine) this.tuilesPlan.placer(origine.E0, origine.N0, this.G.R, g.userData.altitude);
     const L = this.loin;
     L.maille = new THREE.Mesh(g, L.mat);
     L.maille.frustumCulled = false;
@@ -267,26 +273,6 @@ export class Scene3D {
     this.majLointain();
     if (this.etatSoleil) this.placerSoleil(...this.etatSoleil);
     this.demander();
-  }
-
-  /** Plan cadastral sur 4 × 4 km, reteinté comme celui de la maquette, drapé sur le paysage proche : raccord continu. */
-  async fondLointain() {
-    const u = this.loin.mat.uniforms, id = this.idScene;
-    if (this.typeFond !== "cadastre" || !this.urls?.cadastreLarge) { u.fondActif.value = 0; this.demander(); return; }
-    try {
-      const charger = async cle => {
-        const F = this.fonds[cle] ||= { image: chargerImage(this.urls[cle]) };
-        const img = await F.image;
-        if (F.theme !== this.T) { F.canvas = teinterCadastre(img, this.T.plan, F.canvas); F.theme = this.T; if (F.tex) F.tex.needsUpdate = true; }
-        if (!F.tex) { F.tex = new THREE.CanvasTexture(F.canvas); F.tex.colorSpace = THREE.SRGBColorSpace; F.tex.anisotropy = 8; }
-        return F.tex;
-      };
-      const [large, proche] = await Promise.all([charger("cadastreLarge"), charger("cadastreProche")]);
-      if (id !== this.idScene || this.typeFond !== "cadastre") return;
-      Object.assign(u.tFond, { value: large }); u.tProche.value = proche;
-      u.fondDemi.value = this.urls.demiLarge; u.procheDemi.value = this.urls.demiProche; u.fondActif.value = 1;
-      this.demander();
-    } catch (e) { console.warn("Plan cadastral autour :", e.message); u.fondActif.value = 0; }
   }
 
   /**
@@ -308,8 +294,11 @@ export class Scene3D {
 
   rendre() {
     if (this.coupe) this.orienterCoupe();
-    const L = this.loin;
-    if (L.maille) L.maille.visible = L.voir && !this.modeVue;
+    const L = this.loin, enPlan = this.modeVue === "plan";
+    if (L.maille) L.maille.visible = L.voir && (!this.modeVue || enPlan);
+    // plan en tuiles : avec le plan cadastral, en 3D avec le paysage, et toujours en vue plan
+    const tuiles = this.typeFond === "cadastre" && (enPlan || (!this.modeVue && L.voir));
+    if (tuiles !== this.tuilesPlan.groupe.visible) { this.tuilesPlan.groupe.visible = tuiles; if (tuiles) this.tuilesPlan.demander(); }
     if (!this.modeVue) {
       // avec le paysage : plan lointain à 150 km, plan proche reculé avec la distance (précision au loin), ciel centré
       // sur la caméra (la voûte de 9 km ne doit pas être quittée en dézoomant)
@@ -391,11 +380,11 @@ export class Scene3D {
     this.couches = {};
     this.poignees = [];
     this.coupe = this.contours = this.urls = null;
-    this.loin.mat.uniforms.fondActif.value = 0;
     // la teinte de sélection du lieu précédent (grille d'une autre taille) ne doit pas déteindre sur le suivant, ni sur l'accueil
     CONTACT.tSel.value?.dispose(); CONTACT.tSel.value = null;
     this.contoursTous = this.volumes = this.batOrigine = this.nuage = this.grilleComp = null;
     if (this.loin.maille) { this.scene.remove(this.loin.maille); this.loin.maille.geometry.dispose(); this.loin.maille = null; }
+    this.tuilesPlan.vider();
     this.idScene++;
   }
 
@@ -872,7 +861,9 @@ export class Scene3D {
    */
   /** Vues plan et élévation : la caméra est loin, les plans proche et lointain encadrent juste la maquette. */
   plansCamera() {
-    const cam = this.camera, d = cam.position.distanceTo(this.controls.target), marge = 2 * (this.G?.R || 150) + 200;
+    // en vue plan, le paysage et le plan en tuiles autour (relief compris) restent dans le champ
+    const autour = this.modeVue === "plan" && (this.loin.maille || this.tuilesPlan.lieu) ? 6000 : 0;
+    const cam = this.camera, d = cam.position.distanceTo(this.controls.target), marge = 2 * (this.G?.R || 150) + 200 + autour;
     const near = Math.max(0.5, d - marge), far = d + marge;
     if (Math.abs(cam.near - near) > 0.01 * near || Math.abs(cam.far - far) > 1) { cam.near = near; cam.far = far; cam.updateProjectionMatrix(); }
     // le ciel suit la caméra et tient dans le champ (la caméra est loin, la voûte de 9 km serait coupée)
@@ -973,7 +964,7 @@ export class Scene3D {
       mat.color.set(tex ? "#ffffff" : this.T.sol);
       this.demander();
     };
-    if (type === "uni" || !this.urls) { this.fondLointain(); return poser(null); }
+    if (type === "uni" || !this.urls) return poser(null);
     try {
       const F = this.fonds[type] ||= { image: chargerImage(this.urls[type]) };
       if (!F.tex) poser(null);
@@ -989,7 +980,7 @@ export class Scene3D {
         F.tex.colorSpace = THREE.SRGBColorSpace; F.tex.anisotropy = 8; F.tex.needsUpdate = true;
       }
       poser(F.tex);
-      if (type === "cadastre") this.fondLointain();
+      if (type === "cadastre") this.tuilesPlan.reteindre();
     } catch (e) {
       console.warn(e.message);
       if (id === this.idScene) delete this.fonds[type];
