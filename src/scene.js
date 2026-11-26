@@ -706,7 +706,9 @@ export class Scene3D {
     for (const t of this.viser(e).intersectObjects([this.couches.terrain, ...b.children])) {
       if (this.coupe && this.plan.distanceToPoint(t.point) < 0) continue; // partie masquée par la coupe
       if (Math.max(Math.abs(t.point.x), Math.abs(t.point.z)) > this.G.R) continue;
-      return t.object === this.couches.terrain ? -1 : t.object.geometry.userData.volumes[t.faceIndex >> 1];
+      if (t.object === this.couches.terrain) return -1;
+      const u = t.object.geometry.userData; // géométrie découpée au bord : un volume par triangle
+      return u.volumesTri ? u.volumesTri[t.faceIndex] : u.volumes[t.faceIndex >> 1];
     }
     return -1;
   }
@@ -719,7 +721,7 @@ export class Scene3D {
     if (ids?.size && this.couches.bati) {
       const pos = [];
       for (const m of this.couches.bati.children) {
-        const g = m.geometry, P = g.attributes.position.array, I = g.index?.array, V = g.userData.volumes;
+        const g = m.userData.geomOrig || m.geometry, P = g.attributes.position.array, I = g.index?.array, V = g.userData.volumes;
         for (let q = 0; q < V.length; q++) {
           if (!ids.has(V[q])) continue;
           for (let k = 6 * q; k < 6 * q + 6; k++) { const v = 3 * (I ? I[k] : k); pos.push(P[v], P[v + 1], P[v + 2]); }

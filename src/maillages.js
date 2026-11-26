@@ -720,7 +720,7 @@ export function decouperBord(m, lim) {
   const cle = e.map(v => v.toFixed(4)).join(",");
   if (m.userData.cleDecoupe === cle) return;
   const pos = orig.attributes.position, nor = orig.attributes.normal, idx = orig.index;
-  const nt = (idx ? idx.count : pos.count) / 3, outP = [], outN = [];
+  const nt = (idx ? idx.count : pos.count) / 3, outP = [], outN = [], source = [];
   // sommet : [lx, ly, lz, nx, ny, nz, wx, wz]
   const sommet = i => {
     const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
@@ -744,15 +744,20 @@ export function decouperBord(m, lim) {
       }
       poly = nv;
     }
-    for (let k = 1; k + 1 < poly.length; k++) for (const v of [poly[0], poly[k], poly[k + 1]]) {
-      outP.push(v[0], v[1], v[2]);
-      if (nor) outN.push(v[3], v[4], v[5]);
+    for (let k = 1; k + 1 < poly.length; k++) {
+      source.push(t); // triangle d'origine (désignation des volumes au clic, mode pro)
+      for (const v of [poly[0], poly[k], poly[k + 1]]) {
+        outP.push(v[0], v[1], v[2]);
+        if (nor) outN.push(v[3], v[4], v[5]);
+      }
     }
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(outP, 3));
   if (nor) g.setAttribute("normal", new THREE.Float32BufferAttribute(outN, 3));
   else g.computeVertexNormals();
+  // volumes (bâtiments) : ceux des triangles d'origine, un par triangle découpé
+  if (orig.userData.volumes) { const V = orig.userData.volumes; g.userData.volumesTri = Int32Array.from(source, t => V[t >> 1] ?? -1); }
   if (m.userData.geomOrig) m.geometry.dispose(); else m.userData.geomOrig = orig;
   m.geometry = g;
   m.userData.cleDecoupe = cle;
