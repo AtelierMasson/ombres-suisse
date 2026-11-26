@@ -35,28 +35,31 @@ def traiter(nom):
         if mots[0][0].isdigit() or mots[0][0] in "-.": premiere = ligne; break
         try: tete[mots[0].lower()] = float(mots[-1])
         except ValueError: pass
+    if not all(k in tete for k in ("ncols", "nrows", "cellsize")):
+        print(f"  {nom} : en-tête illisible {sorted(tete)}, ignorée", flush=True); return
     ncols, nrows, c = int(tete["ncols"]), int(tete["nrows"]), tete["cellsize"]
     x0 = tete["xllcorner"] if "xllcorner" in tete else tete["xllcenter"] - c / 2
     y0 = tete["yllcorner"] if "yllcorner" in tete else tete["yllcenter"] - c / 2
     vide = tete.get("nodata_value", -9999)
-    k = max(1, int(round(pas / c)))
-    pas_sortie = k * c
-    if abs(pas_sortie - pas) > 1e-6: raise SystemExit(f"maille {c} m : {pas} m n'est pas un multiple, choisir un autre pas")
-    if cases is None: cases = int(round(1000 / pas)); print(f"maille {c} m, regroupée par {k} -> {pas_sortie} m, {cases} cases par tuile", flush=True)
+    if cases is None: cases = int(round(1000 / pas)); print(f"maille {c} m -> {pas} m, {cases} cases par tuile", flush=True)
     donnees = np.loadtxt(io.StringIO(premiere + f.read()), dtype=np.float32, ndmin=2)[:nrows, :ncols]
     haut = y0 + nrows * c
-    lr, lc = nrows // k, ncols // k
-    b = donnees[: lr * k, : lc * k].reshape(lr, k, lc, k)
-    valide = b != vide
-    n = valide.sum(axis=(1, 3))
-    moy = np.where(valide, b, 0).sum(axis=(1, 3)) / np.maximum(n, 1)
-    for r, q in zip(*np.nonzero(n > 0)):
-        xc, yc = x0 + (q + 0.5) * pas_sortie, haut - (r + 0.5) * pas_sortie
+    # chaque case de la grille tombe dans la case de sortie qui contient son centre (maille quelconque : 1, 2, 3 m…)
+    lig, col = np.nonzero(donnees != vide)
+    if not len(lig): return
+    zz = donnees[lig, col].astype(np.float64)
+    X = x0 + (col + 0.5) * c; Y = haut - (lig + 0.5) * c
+    gx = np.floor(X / pas).astype(np.int64); gy = np.floor(Y / pas).astype(np.int64)
+    cle, inv = np.unique(gx * 10_000_000 + gy, return_inverse=True)
+    somme = np.bincount(inv, weights=zz); nb = np.bincount(inv)
+    for kk, sm, n in zip(cle, somme, nb):
+        qx, qy = int(kk // 10_000_000), int(kk % 10_000_000)
+        xc, yc = (qx + 0.5) * pas, (qy + 0.5) * pas
         E, N = int(xc // 1000), int(yc // 1000)
         T = tuiles.get((E, N))
         if T is None: T = tuiles[(E, N)] = np.zeros((cases, cases), dtype=np.uint16)
-        col, lig = int((xc - E * 1000) // pas_sortie), int(((N + 1) * 1000 - yc) // pas_sortie)
-        if 0 <= col < cases and 0 <= lig < cases: T[lig, col] = int(round((moy[r, q] + DECALAGE) * 10))
+        cl, li = int((xc - E * 1000) // pas), int(((N + 1) * 1000 - yc) // pas)
+        if 0 <= cl < cases and 0 <= li < cases: T[li, cl] = int(round((sm / n + DECALAGE) * 10))
 
 pas_sortie = pas
 for i, nom in enumerate(membres):

@@ -60,8 +60,8 @@ function nuageArbres(mesh, materiau, groupe = null) {
     const hm = H * echelle.getComponent(haut), rm = Math.max(r1, r2) * echelle.getComponent(l1);
     // nombre de points selon la taille de la couronne (de 24 à 110), puis en douceur moins nombreux en s'éloignant
     // (plein jusqu'à 400 m du centre, environ 40 % à 2,5 km) : pas de saut net avec les arbres du relevé
-    let f = 1;
-    if (Mw) { w.setFromMatrixPosition(I).applyMatrix4(Mw); const d = Math.hypot(w.x, w.z); f = d < 400 ? 1 : Math.max(0.4, 1 - 0.6 * ((d - 400) / 2100) ** 0.8); }
+    // (la densité baisse ensuite selon la distance à la caméra, dans le shader : materiauPoints, « allege »)
+    const f = 1;
     const nb = Math.max(8, Math.round(f * Math.min(110, Math.max(24, rm * rm * 3 + hm * 2))));
     graine = 1 + ((k * 7919) % 2147483646);
     const teinte = alea();

@@ -28,17 +28,18 @@ export default {
   "themes.versNuit": "Switch to night mode",
 
   /* accueil */
-  "accueil.surtitre": "All of Switzerland · swisstopo data",
   "accueil.titre": "A 3D model of your plot",
-  "accueil.chapeau": "Terrain, buildings and trees reconstructed from the swisstopo laser survey. Shadows, sunlight, sections and model export.",
+  "accueil.chapeau": "Type an address or plot number: the terrain, neighbouring buildings and trees appear in 3D, laser-measured to within a few centimetres. Useful before buying land, when preparing a project or a planning application, or to understand the effect of a neighbouring building.",
+  "accueil.atoutSite": "<b>See the site</b>Orbit the plot, measure slopes and the heights of neighbouring buildings, with the landscape out to the horizon.",
+  "accueil.atoutCoupe": "<b>Sections and levels</b>Draw a section through the terrain and read the altitudes: to set out a house and estimate earthworks.",
+  "accueil.atoutProjet": "<b>Sketch a volume</b>Draw a house, an extension or an extra storey, hide an existing building, and see the result on site.",
   "accueil.essayer": "Try:",
-  "accueil.exLutry": "Lutry, vineyards",
-  "accueil.exBerne": "Bern, city centre",
-  "accueil.exZermatt": "Zermatt, among the peaks",
-  "accueil.exGruyeres": "Gruyères, the old town",
-  "accueil.atoutTerrain": "<b>Terrain and buildings</b>Laser survey, horizon up to 50 km.",
-  "accueil.atoutSoleil": "<b>Sun and sections</b>Shadows, sunlight hours, profiles.",
-  "accueil.atoutExport": "<b>Export</b>DXF, OBJ, glTF, STL.",
+  "accueil.exLutry": "Lutry",
+  "accueil.exBerne": "Bern",
+  "accueil.exZermatt": "Zermatt",
+  "accueil.exGruyeres": "Gruyères",
+  "accueil.atoutSoleil": "<b>Sun and shadows</b>Shadows at any date and time, sunlight hours on the ground and façades: to place a garden, windows or solar panels.",
+  "accueil.atoutExport": "<b>Reuse the model</b>Export to DXF, OBJ, glTF or STL for CAD, visualisation or 3D printing.",
 
   /* en-tête du panneau, chargement */
   "panneau.lienTitre": "Copy the link",

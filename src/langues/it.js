@@ -28,17 +28,18 @@ export default {
   "themes.versNuit": "Passa alla modalità notte",
 
   /* accueil */
-  "accueil.surtitre": "Tutta la Svizzera · dati swisstopo",
   "accueil.titre": "Modello 3D della vostra particella",
-  "accueil.chapeau": "Terreno, edifici e alberi ricostruiti a partire dal rilievo laser di swisstopo. Ombre, soleggiamento, sezioni ed esportazione del modello.",
+  "accueil.chapeau": "Digitate un indirizzo o un numero di particella: il terreno, gli edifici vicini e gli alberi del luogo appaiono in 3D, misurati al laser con precisione di pochi centimetri. Utile prima di acquistare un terreno, per preparare un progetto o una domanda di costruzione, o per capire l'effetto di un edificio vicino.",
+  "accueil.atoutSite": "<b>Vedere il luogo</b>Girare attorno alla particella, misurare pendenze e altezze dei vicini, con il rilievo fino all'orizzonte.",
+  "accueil.atoutCoupe": "<b>Sezioni e quote</b>Tracciare una sezione nel terreno, leggere le quote: per impiantare una casa e stimare gli scavi.",
+  "accueil.atoutProjet": "<b>Abbozzare un volume</b>Disegnare una casa, un annesso o una sopraelevazione, nascondere un edificio esistente e vedere il risultato sul posto.",
   "accueil.essayer": "Esempi:",
-  "accueil.exLutry": "Lutry, vigneti",
-  "accueil.exBerne": "Berna, centro città",
-  "accueil.exZermatt": "Zermatt, tra le vette",
-  "accueil.exGruyeres": "Gruyères, il borgo",
-  "accueil.atoutTerrain": "<b>Terreno ed edifici</b>Rilievo laser, orizzonte fino a 50 km.",
-  "accueil.atoutSoleil": "<b>Sole e sezioni</b>Ombre, ore di sole, profili.",
-  "accueil.atoutExport": "<b>Esportazione</b>DXF, OBJ, glTF, STL.",
+  "accueil.exLutry": "Lutry",
+  "accueil.exBerne": "Berna",
+  "accueil.exZermatt": "Zermatt",
+  "accueil.exGruyeres": "Gruyères",
+  "accueil.atoutSoleil": "<b>Sole e ombre</b>Ombre a qualsiasi data e ora, ore di sole sul suolo e sulle facciate: per collocare un giardino, finestre, pannelli solari.",
+  "accueil.atoutExport": "<b>Riprendere il modello</b>Esportazione DXF, OBJ, glTF o STL per CAD, visualizzazione o stampa 3D.",
 
   /* en-tête du panneau, chargement */
   "panneau.lienTitre": "Copia il link",

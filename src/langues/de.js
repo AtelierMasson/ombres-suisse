@@ -28,17 +28,18 @@ export default {
   "themes.versNuit": "Zum Nachtmodus wechseln",
 
   /* accueil */
-  "accueil.surtitre": "Ganze Schweiz · Daten von swisstopo",
   "accueil.titre": "3D-Modell Ihrer Parzelle",
-  "accueil.chapeau": "Gelände, Gebäude und Bäume, rekonstruiert aus dem Laserscan von swisstopo. Schatten, Besonnung, Schnitte und Export des Modells.",
+  "accueil.chapeau": "Adresse oder Parzellennummer eingeben: Gelände, Nachbargebäude und Bäume des Orts erscheinen in 3D, per Laser auf wenige Zentimeter genau vermessen. Nützlich vor einem Grundstückskauf, zur Vorbereitung eines Projekts oder Baugesuchs, oder um die Wirkung eines Nachbarbaus zu verstehen.",
+  "accueil.atoutSite": "<b>Den Ort sehen</b>Um die Parzelle kreisen, Gefälle und Höhen der Nachbarn messen, mit dem Relief bis zum Horizont.",
+  "accueil.atoutCoupe": "<b>Schnitte und Höhen</b>Einen Schnitt durch das Gelände ziehen, Höhen ablesen: um ein Haus zu setzen und den Aushub abzuschätzen.",
+  "accueil.atoutProjet": "<b>Volumen skizzieren</b>Haus, Anbau oder Aufstockung zeichnen, ein bestehendes Gebäude ausblenden und das Ergebnis vor Ort sehen.",
   "accueil.essayer": "Beispiele:",
-  "accueil.exLutry": "Lutry, Rebberge",
-  "accueil.exBerne": "Bern, Stadtzentrum",
-  "accueil.exZermatt": "Zermatt, zwischen den Gipfeln",
-  "accueil.exGruyeres": "Gruyères, das Städtchen",
-  "accueil.atoutTerrain": "<b>Gelände und Gebäude</b>Laserscan, Horizont bis 50 km.",
-  "accueil.atoutSoleil": "<b>Sonne und Schnitte</b>Schatten, Sonnenstunden, Profile.",
-  "accueil.atoutExport": "<b>Export</b>DXF, OBJ, glTF, STL.",
+  "accueil.exLutry": "Lutry",
+  "accueil.exBerne": "Bern",
+  "accueil.exZermatt": "Zermatt",
+  "accueil.exGruyeres": "Gruyères",
+  "accueil.atoutSoleil": "<b>Sonne und Schatten</b>Schatten zu jedem Datum und jeder Uhrzeit, Sonnenstunden auf Boden und Fassaden: für Garten, Fenster oder Solaranlage.",
+  "accueil.atoutExport": "<b>Modell weiterverwenden</b>Export als DXF, OBJ, glTF oder STL für CAD, Visualisierung oder 3D-Druck.",
 
   /* en-tête du panneau, chargement */
   "panneau.lienTitre": "Link kopieren",

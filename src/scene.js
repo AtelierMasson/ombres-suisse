@@ -97,8 +97,8 @@ function decoupeZone(mat, zone = ZONE) {
   vZone = (modelMatrix * vec4(transformed, 1.0)).xz;
 #endif`);
     sh.fragmentShader = sh.fragmentShader
-      .replace("#include <common>", "#include <common>\nvarying vec2 vZone;\nuniform float zoneMin, zoneMax;")
-      .replace("void main() {", "void main() {\n  { float dz = length(vZone); if (dz > zoneMax || dz < zoneMin) discard; }");
+      // déclarations juste avant main : certains shaders (MeshNormalMaterial de l'occlusion) n'incluent pas <common>
+      .replace("void main() {", "varying vec2 vZone;\nuniform float zoneMin, zoneMax;\nvoid main() {\n  { float dz = length(vZone); if (dz > zoneMax || dz < zoneMin) discard; }");
   };
   mat.customProgramCacheKey = () => (cle ? cle.call(mat) : "") + "|zone";
   mat.needsUpdate = true;
@@ -663,6 +663,7 @@ export class Scene3D {
     if (!this.G) return;
     if (c.arbres) {
       c.arbres.visible = visibles;
+      if (c.releveAnneau) c.releveAnneau.visible = visibles;
       c.arbres.material.uniforms.relief.value = 0; // plus d'effet de petites boules
       c.arbres.material.uniforms.taille.value = 0.7;
       c.canopee.visible = visibles;
@@ -758,7 +759,8 @@ export class Scene3D {
    */
   construireAnneau(fin, Rint, Rext, lieu, lac = null) {
     const c = this.couches, G = this.G;
-    for (const k of ["anneau", "socleAnneau", "eauAnneau"]) if (c[k]) { this.groupe.remove(c[k]); c[k].geometry.dispose(); c[k] = null; }
+    for (const k of ["anneau", "socleAnneau", "eauAnneau", "releveAnneau"]) if (c[k]) { this.groupe.remove(c[k]); c[k].geometry.dispose(); c[k] = null; }
+    if (this.mat.pointsAnneau) this.mat.pointsAnneau.visible = true;
     this.rayonExt = 0;
     if (!G || !fin || !(Rext > Rint + 5)) { c.socle && (c.socle.visible = true); this.majZone(); this.appliquerCalques(); return; }
     this.rayonExt = Rext;
@@ -845,6 +847,58 @@ export class Scene3D {
     this.majZone();
     this.appliquerCalques();
     this.ombres();
+  }
+
+  /**
+   * Arbres de l'anneau tirés du relevé laser (points de végétation mesurés, moins denses que dans la maquette fine) :
+   * ils remplacent les arbres générés de swisstopo, qui ne gardent que leur ombre. `nuage` null : retour aux arbres
+   * swisstopo. Coordonnées du nuage relatives au centre ; altitudes absolues.
+   */
+  arbresReleveAnneau(nuage, Rint, Rext) {
+    const c = this.couches;
+    if (c.releveAnneau) { this.groupe.remove(c.releveAnneau); c.releveAnneau.geometry.dispose(); c.releveAnneau = null; }
+    if (this.mat.pointsAnneau) this.mat.pointsAnneau.visible = !nuage;
+    if (!nuage || !this.altAnneau || !(Rext > Rint)) return;
+    const { X, Y, Z, C } = nuage, veg = cl => cl === 3 || cl === 4 || cl === 5, r0 = Rint * Rint, r1 = Rext * Rext;
+    // sommet de la végétation par case de 4 m : hauteur relative de chaque point dans sa couronne (teinte)
+    const pas = 4, nc = Math.ceil(2 * Rext / pas) + 1, haut = new Float32Array(nc * nc).fill(-Infinity), cle = (x, y) => Math.floor((y + Rext) / pas) * nc + Math.floor((x + Rext) / pas);
+    const garde = [], sols = [];
+    for (let k = 0; k < nuage.n; k++) {
+      if (!veg(C[k])) continue;
+      const x = X[k], y = Y[k], d = x * x + y * y;
+      if (d < r0 || d > r1) continue;
+      const sol = this.altAnneau(x, y);
+      if (!(Z[k] - sol > 1.5)) continue; // herbe, buissons bas, et la végétation posée sur l'eau du lac
+      garde.push(k); sols.push(sol);
+      const q = cle(x, y); if (Z[k] > haut[q]) haut[q] = Z[k];
+    }
+    if (!garde.length) { this.mat.pointsAnneau && (this.mat.pointsAnneau.visible = true); return; }
+    const n = garde.length, pos = new Float32Array(3 * n), rel = new Float32Array(n), va = new Float32Array(n);
+    for (let q = 0; q < n; q++) {
+      const k = garde[q], x = X[k], y = Y[k], z = Z[k], h = haut[cle(x, y)] - sols[q];
+      rel[q] = h > 1 ? Math.min(1, Math.max(0, (z - sols[q]) / h)) : 0.5;
+      const a = Math.sin(Math.floor(x / 6) * 127.1 + Math.floor(y / 6) * 311.7) * 43758.5453, b = Math.sin(k * 12.9898) * 43758.5453;
+      va[q] = Math.min(0.999, 0.75 * (a - Math.floor(a)) + 0.25 * (b - Math.floor(b)));
+      pos[3 * q] = x; pos[3 * q + 1] = z - this.zRef; pos[3 * q + 2] = -y;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    g.setAttribute("aRel", new THREE.BufferAttribute(rel, 1));
+    g.setAttribute("aVar", new THREE.BufferAttribute(va, 1));
+    if (!this.mat.releveAnneau) {
+      const m = this.mat.releveAnneau = materiauPoints(1.4, false), v2 = new THREE.Vector2();
+      m.uniforms.relief.value = 0;
+      m.onBeforeRender = (r, sc, cam) => { m.uniforms.echelle.value = r.getDrawingBufferSize(v2).y / (2 * Math.tan(cam.fov * Math.PI / 360)); };
+    }
+    ["c1", "c2", "c3"].forEach((u, i) => this.mat.releveAnneau.uniforms[u].value.set(this.T.arbres[i]));
+    c.releveAnneau = new THREE.Points(g, this.mat.releveAnneau);
+    c.releveAnneau.receiveShadow = true;
+    c.releveAnneau.frustumCulled = false;
+    c.releveAnneau.visible = this.arbresVisibles ?? true;
+    this.groupe.add(c.releveAnneau);
+    this.appliquerCoupe();
+    if (this.etatSoleil) this.placerSoleil(...this.etatSoleil);
+    this.demander(2);
   }
 
   /** Couche de comparaison roofer (maillage préparé par roofer.js), ou null pour l'enlever. */
@@ -1527,7 +1581,7 @@ export class Scene3D {
     // à celle d'un jour clair, comme pour les surfaces ; à l'ombre, ils ne gardent que la part du ciel
     const k = 0.55, jourClair = 1.1 + 2.6 * k, total = this.ciel.intensity + this.soleil.intensity * k;
     // nuages de points : arbres et nuage brut du relevé, et arbres swisstopo de l'anneau (même lumière du soir)
-    for (const mat of [this.couches.arbres?.material, this.couches.tous?.material, this.mat.pointsAnneau]) {
+    for (const mat of [this.couches.arbres?.material, this.couches.tous?.material, this.mat.pointsAnneau, this.mat.releveAnneau]) {
       const u = mat?.uniforms;
       const f = Math.min(1, total / jourClair);
       if (u) {
@@ -1695,7 +1749,7 @@ export class Scene3D {
       // face du socle, ombres de bâtiments invisibles au bord du terrain)
       for (const x of [c.roofer?.material, this.swiss?.materiau]) if (x) x.clipShadows = true;
     }
-    const cibles = [m.terrain, m.socle, m.canopee, m.couronne, m.parcelle, m.eau, m.anneau, m.pointsAnneau].filter(Boolean);
+    const cibles = [m.terrain, m.socle, m.canopee, m.couronne, m.parcelle, m.eau, m.anneau, m.pointsAnneau, m.releveAnneau].filter(Boolean);
     for (const k of ["arbres", "tous"]) if (c[k]) cibles.push(c[k].material);
     c.heures?.traverse(o => o.material && cibles.push(o.material));
     c.voisines?.traverse(o => o.material && cibles.push(o.material)); // limites et numéros des parcelles voisines

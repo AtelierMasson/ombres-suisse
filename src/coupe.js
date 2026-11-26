@@ -114,7 +114,7 @@ export function profilCoupe(G, contours, A, B, parcelle, pas = 0.25, voisines = 
  * - `face` / `faceD` : toit du premier bâtiment rencontré et sa profondeur (élévation) ; `solMax` : terrain le plus haut ;
  * - `veg` : cime la plus haute des arbres dans les 30 premiers mètres.
  */
-export const BORDS = [0, 10, 30, 80, 400];
+export const BORDS = [0, 5, 10, 18, 30, 45, 65, 90, 130, 200, 400];
 function audela(G, P, toitEn, lim) {
   const { A, ux, uy, L } = P, nx = -uy, ny = ux, pasC = 0.5, nc = Math.max(2, Math.floor(L / pasC) + 1);
   const s = new Float32Array(nc), plans = BORDS.slice(1).map(() => new Float32Array(nc).fill(NaN));
@@ -142,7 +142,8 @@ function audela(G, P, toitEn, lim) {
 /**
  * Dessin de ce qu'on voit au-delà de la coupe, sous la masse coupée. Plusieurs manières (`vue`) :
  * - « silhouette » : un seul trait fin, le profil le plus haut derrière la coupe ;
- * - « plans » : plans successifs (0–10, 10–30, 30–80 m, au-delà), du plus pâle au loin au plus soutenu devant ;
+ * - « plans » : plans successifs (tranches de BORDS, de 5 m devant à 200 m au loin), aplats sans contour, du plus pâle
+ *   au loin au plus soutenu devant ;
  * - « elevation » : façades et toits du premier bâtiment rencontré, arêtes verticales là où il change, terrain
  *   derrière en trait fin et arbres proches en contour pointillé ;
  * - « traits » : élévation au trait seul, sans aplat, comme un dessin d'architecte.
@@ -168,7 +169,11 @@ function dessinAudela(V, vue, X, Y, H, f) {
     // du lointain au proche : chaque plan cumule ce qui est devant lui pour ne pas laisser de trou
     for (let b = V.plans.length - 1; b >= 0; b--) {
       const a = max(...V.plans.slice(0, b + 1));
-      t += `<path d="${aplat(a)}" class="audela-plan p${b}"/><path d="${ligne(a)}" class="audela-bord p${b}"/>`;
+      // aplats seuls, sans contour : de plus en plus pâles avec la profondeur. Les aplats se superposent (chacun cumule
+      // ce qui est devant lui) : l'opacité de chacun est choisie pour que la teinte vue du plan b soit visible(b)
+      const N = V.plans.length, visible = k => k >= N ? 0 : 0.035 + 0.165 * Math.pow(1 - k / Math.max(1, N - 1), 1.5);
+      const op = 1 - (1 - visible(b)) / (1 - visible(b + 1));
+      t += `<path d="${aplat(a)}" class="audela-plan" fill-opacity="${op.toFixed(3)}"/>`;
     }
     return t;
   }
@@ -454,7 +459,7 @@ export function dessinerCoupe(svg, P, soleil, o = {}) {
     zmax = Math.max(zmax, P.sol[k], P.bat[k] || -Infinity, P.veg[k] || -Infinity);
   }
   // au-delà de la coupe : ce qui est proche (< 30 m) entre dans le cadre ; le lointain peut en sortir
-  if (vue) for (const a of P.audela.plans.slice(0, 2)) for (const z of a) if (z > zmax) zmax = z;
+  if (vue) for (const a of P.audela.plans.slice(0, 4)) for (const z of a) if (z > zmax) zmax = z;
   const long = P.s[k1] - P.s[k0], bas = zmin - Math.max(2, long * 0.03), haut = Math.max(zmax + Math.max(3, long * 0.05), bas + long * 0.22);
   // largeur de la carte (pixels de l'écran, textes à leur taille), hauteur limitée ; échelle identique en x et en z
   const m = { g: 46, d: 12, h: 8, b: 20 }, largeDispo = Math.max(360, (svg.parentElement?.clientWidth || 736) - 16), Hmax = Math.max(250, Math.round(innerHeight * 0.32));

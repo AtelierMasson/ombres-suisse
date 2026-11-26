@@ -248,11 +248,28 @@ async function paysageEtAnneau(id, idScene) {
     if (id !== tache) return;
   }
   if (rond) scene.construireAnneau(fin, G.rayonZone, Rz, { E: E0, N: N0 }, lac);
+  if (rond && Rz > G.rayonZone + 5) arbresAnneau(id, G.rayonZone, Rz, E0, N0);
   const bord = rond && Rz > G.rayonZone && scene.altAnneau ? scene.altAnneau : (x, y) => solEn(G, x, y);
   const g = await reliefLointain(E0, N0, rond ? Math.max(Rz, G.rayonZone) : G.R, scene.zRef, bord, fin, 50000, rond);
   if (id !== tache) { g.dispose(); return; }
   if (scene.loin.maille) { scene.scene.remove(scene.loin.maille); scene.loin.maille.geometry.dispose(); scene.loin.maille = null; }
   scene.afficherLointain(g, idScene, { E0, N0 });
+}
+
+/** Vrais arbres de l'anneau : points de végétation du relevé laser, chargés moins denses (en arrière-plan). */
+let chargementAnneau = null;
+async function arbresAnneau(id, Rint, Rext, E0, N0) {
+  chargementAnneau?.abort();
+  const ctrl = chargementAnneau = new AbortController();
+  try {
+    const boite = [E0 - Rext, N0 - Rext, E0 + Rext, N0 + Rext];
+    const copc = await tuilesNuage(boite);
+    if (!copc || id !== tache || ctrl.signal.aborted) return;
+    // finesse selon la taille de l'anneau : ~1 m jusqu'à 500 m, ~2 m au-delà (le nombre de points reste raisonnable)
+    const nuage = await chargerNuage(copc, boite, [E0, N0], Rext <= 500 ? 1 : 2, () => {}, ctrl.signal);
+    if (id !== tache || ctrl.signal.aborted) return;
+    scene.arbresReleveAnneau(nuage, Rint, Rext);
+  } catch (e) { if (e?.name !== "AbortError") console.warn("arbres de l'anneau", e); }
 }
 
 async function depuisAdresse() {
@@ -406,10 +423,22 @@ function changerJour(jour) {
   relancerHeures();
 }
 $("#jour").addEventListener("change", e => { if (e.target.value) changerJour(e.target.value); });
-$("#btnJour").addEventListener("click", () => {
+{
+  // le bouton ouvre et referme le calendrier (un second clic le rouvrait aussitôt : il ne se refermait plus)
   const champ = $("#jour");
-  try { champ.showPicker(); } catch { champ.focus(); champ.click(); } // showPicker : Chrome, Edge, Firefox, Safari récents
-});
+  let ouvert = false, ferme = 0;
+  const fermer = () => { if (ouvert) { ouvert = false; ferme = performance.now(); } };
+  champ.addEventListener("change", fermer);
+  champ.addEventListener("blur", fermer);
+  document.addEventListener("pointerdown", e => { if (!e.target.closest?.("#btnJour")) ouvert = false; }, true);
+  $("#btnJour").addEventListener("pointerdown", () => { if (ouvert) { fermer(); champ.blur(); } });
+  $("#btnJour").addEventListener("click", () => {
+    if (performance.now() - ferme < 400) return; // ce clic vient de refermer le calendrier
+    if (ouvert) { fermer(); champ.blur(); return; }
+    ouvert = true;
+    try { champ.showPicker(); } catch { champ.focus(); champ.click(); } // showPicker : Chrome, Edge, Firefox, Safari récents
+  });
+}
 $("#heure").addEventListener("input", e => { S.minutes = +e.target.value; majSoleil(); });
 $$("[data-jour]").forEach(b => b.onclick = () => changerJour(b.dataset.jour === "auj" ? aujourdhui() : `${S.jour.slice(0, 4)}-${b.dataset.jour}`));
 // clic ou glissé sur le diagramme : le soleil va au point le plus proche de sa course du jour

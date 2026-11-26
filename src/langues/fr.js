@@ -29,17 +29,18 @@ export default {
   "themes.versNuit": "Passer en mode nuit",
 
   /* accueil */
-  "accueil.surtitre": "Toute la Suisse · données swisstopo",
   "accueil.titre": "Maquette 3D de votre parcelle",
-  "accueil.chapeau": "Terrain, bâtiments et arbres reconstruits à partir du relevé laser de swisstopo. Ombres, ensoleillement, coupes et export de la maquette.",
+  "accueil.chapeau": "Tapez une adresse ou un numéro de parcelle : le terrain, les bâtiments voisins et les arbres du lieu apparaissent en 3D, mesurés au laser à quelques centimètres près. Utile avant d'acheter un terrain, pour préparer un projet ou une demande de permis, ou pour comprendre l'effet d'une construction voisine.",
+  "accueil.atoutSite": "<b>Voir le site</b>Tourner autour de la parcelle, mesurer les pentes et les hauteurs des voisins, avec le relief jusqu'à l'horizon.",
+  "accueil.atoutCoupe": "<b>Coupes et niveaux</b>Tirer une coupe à travers le terrain, lire les altitudes : pour implanter une maison et estimer les terrassements.",
+  "accueil.atoutProjet": "<b>Esquisser un volume</b>Dessiner une maison, une annexe ou une surélévation, masquer un bâtiment existant, et voir le résultat dans le site.",
   "accueil.essayer": "Essayer :",
-  "accueil.exLutry": "Lutry, vignoble",
-  "accueil.exBerne": "Berne, centre-ville",
-  "accueil.exZermatt": "Zermatt, entre les sommets",
-  "accueil.exGruyeres": "Gruyères, le bourg",
-  "accueil.atoutTerrain": "<b>Terrain et bâti</b>Relevé laser, horizon sur 50 km.",
-  "accueil.atoutSoleil": "<b>Soleil et coupes</b>Ombres, heures de soleil, profils.",
-  "accueil.atoutExport": "<b>Export</b>DXF, OBJ, glTF, STL.",
+  "accueil.exLutry": "Lutry",
+  "accueil.exBerne": "Berne",
+  "accueil.exZermatt": "Zermatt",
+  "accueil.exGruyeres": "Gruyères",
+  "accueil.atoutSoleil": "<b>Soleil et ombres</b>Ombres à n'importe quelle date et heure, heures de soleil sur le sol et les façades : pour placer un jardin, des fenêtres, des panneaux solaires.",
+  "accueil.atoutExport": "<b>Reprendre la maquette</b>Export DXF, OBJ, glTF ou STL pour la CAO, la visualisation ou l'impression 3D.",
 
   /* en-tête du panneau, chargement */
   "panneau.lienTitre": "Copier le lien",
