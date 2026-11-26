@@ -122,8 +122,8 @@ void main() {
 }`;
 const FRAGMENTS = /* glsl */`
 uniform vec3 sol, lac, ciel, terreCiel, soleilCouleur, soleilDir, horizon;
-uniform float densite, fondActif, fondDemi; // plan cadastral drapé autour de la maquette (demi-côté en m)
-uniform sampler2D tFond;
+uniform float densite, fondActif, fondDemi, procheDemi; // plan cadastral drapé autour de la maquette (demi-côtés en m)
+uniform sampler2D tFond, tProche; // large (environ 1 m par pixel) et proche (environ 0,4 m par pixel)
 varying vec3 vMonde, vN;
 varying float vEau;
 void main() {
@@ -132,6 +132,9 @@ void main() {
     vec2 uv = vec2(vMonde.x, -vMonde.z) / (2.0 * fondDemi) + 0.5;
     float bord = max(abs(uv.x - 0.5), abs(uv.y - 0.5)) * 2.0; // 0 au centre, 1 au bord de l'image
     base = mix(texture2D(tFond, uv).rgb, sol, smoothstep(0.85, 1.0, bord));
+    vec2 uvP = vec2(vMonde.x, -vMonde.z) / (2.0 * procheDemi) + 0.5;
+    float bordP = max(abs(uvP.x - 0.5), abs(uvP.y - 0.5)) * 2.0;
+    if (bordP < 1.0) base = mix(texture2D(tProche, uvP).rgb, base, smoothstep(0.9, 1.0, bordP));
   }
   base = mix(base, lac, smoothstep(0.3, 0.9, vEau));
   // même éclairage que la maquette (ciel en hémisphère + soleil), sans ombres portées
@@ -150,7 +153,7 @@ export function materiauLointain() {
       sol: { value: new THREE.Color() }, lac: { value: new THREE.Color() }, ciel: { value: new THREE.Color() },
       terreCiel: { value: new THREE.Color() }, soleilCouleur: { value: new THREE.Color() }, soleilDir: { value: new THREE.Vector3(0, 1, 0) },
       horizon: { value: new THREE.Color() }, densite: { value: 0 },
-      tFond: { value: null }, fondActif: { value: 0 }, fondDemi: { value: 2000 },
+      tFond: { value: null }, tProche: { value: null }, fondActif: { value: 0 }, fondDemi: { value: 2000 }, procheDemi: { value: 800 },
     },
     vertexShader: SOMMETS, fragmentShader: FRAGMENTS,
   });

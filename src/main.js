@@ -232,7 +232,9 @@ async function depuisAdresse() {
     scene.controls.autoRotate = false;
     scene.typeFond = $("#vCadastre").checked ? "cadastre" : "uni";
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite),
-      cadastreLarge: urlFond(COUCHES.cadastre, [E0 - 2000, N0 - 2000, E0 + 2000, N0 + 2000]), demiLarge: 2000 });
+      // autour de la maquette, en deux finesses : 0,4 m par pixel jusqu'à 800 m, 1 m par pixel jusqu'à 2 km
+      cadastreProche: urlFond(COUCHES.cadastre, [E0 - 800, N0 - 800, E0 + 800, N0 + 800], 4096), demiProche: 800,
+      cadastreLarge: urlFond(COUCHES.cadastre, [E0 - 2000, N0 - 2000, E0 + 2000, N0 + 2000], 4096), demiLarge: 2000 });
     pro.reinitialiser();
     // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
     scene.surligner(rel, h.get("t") === "Adresse" ? [E - E0, N - N0] : null);

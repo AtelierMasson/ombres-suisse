@@ -273,12 +273,17 @@ export class Scene3D {
     const u = this.loin.mat.uniforms, id = this.idScene;
     if (this.typeFond !== "cadastre" || !this.urls?.cadastreLarge) { u.fondActif.value = 0; this.demander(); return; }
     try {
-      const F = this.fonds.cadastreLarge ||= { image: chargerImage(this.urls.cadastreLarge) };
-      const img = await F.image;
+      const charger = async cle => {
+        const F = this.fonds[cle] ||= { image: chargerImage(this.urls[cle]) };
+        const img = await F.image;
+        if (F.theme !== this.T) { F.canvas = teinterCadastre(img, this.T.plan, F.canvas); F.theme = this.T; if (F.tex) F.tex.needsUpdate = true; }
+        if (!F.tex) { F.tex = new THREE.CanvasTexture(F.canvas); F.tex.colorSpace = THREE.SRGBColorSpace; F.tex.anisotropy = 8; }
+        return F.tex;
+      };
+      const [large, proche] = await Promise.all([charger("cadastreLarge"), charger("cadastreProche")]);
       if (id !== this.idScene || this.typeFond !== "cadastre") return;
-      if (F.theme !== this.T) { F.canvas = teinterCadastre(img, this.T.plan, F.canvas); F.theme = this.T; if (F.tex) F.tex.needsUpdate = true; }
-      if (!F.tex) { F.tex = new THREE.CanvasTexture(F.canvas); F.tex.colorSpace = THREE.SRGBColorSpace; F.tex.anisotropy = 8; }
-      u.tFond.value = F.tex; u.fondDemi.value = this.urls.demiLarge; u.fondActif.value = 1;
+      Object.assign(u.tFond, { value: large }); u.tProche.value = proche;
+      u.fondDemi.value = this.urls.demiLarge; u.procheDemi.value = this.urls.demiProche; u.fondActif.value = 1;
       this.demander();
     } catch (e) { console.warn("Plan cadastral autour :", e.message); u.fondActif.value = 0; }
   }
