@@ -1574,12 +1574,15 @@ void main() {
         ctx.globalAlpha = 1;
       }
       if (type === "ortho" && !F.canvas) {
-        // photo aérienne au sol : un peu plus lumineuse et saturée (l'orthophoto brute paraît terne sous l'éclairage)
+        // photo aérienne au sol, estompée : plus claire, moins saturée, et fondue d'un bon tiers dans la teinte du sol
+        // de la maquette (elle reste lisible sans dominer les volumes)
         const cv = F.canvas = document.createElement("canvas");
         cv.width = img.naturalWidth || img.width; cv.height = img.naturalHeight || img.height;
         const ctx = cv.getContext("2d");
-        ctx.filter = "brightness(1.18) saturate(1.35) contrast(1.04)";
+        ctx.filter = "brightness(1.15) saturate(0.95) contrast(0.95)";
         ctx.drawImage(img, 0, 0);
+        ctx.filter = "none";
+        ctx.globalAlpha = 0.38; ctx.fillStyle = this.T.sol; ctx.fillRect(0, 0, cv.width, cv.height); ctx.globalAlpha = 1;
       }
       if (!F.tex) {
         F.tex = F.canvas ? new THREE.CanvasTexture(F.canvas) : new THREE.Texture(img);
