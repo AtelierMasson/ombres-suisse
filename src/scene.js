@@ -242,6 +242,33 @@ export class Scene3D {
     // rendu à la demande : tout mouvement de la caméra (molette comprise, avec son amorti) redessine
     this.controls.addEventListener("change", () => { if (this.modeVue) this.plansCamera(); this.demander(3); });
     r.domElement.addEventListener("wheel", () => this.demander(40), { passive: true });
+    // regarder autour de soi : Alt (Option) + glisser, ou bouton du milieu — la caméra tourne sur elle-même (la cible
+    // tourne autour d'elle), au lieu de tourner autour de la cible
+    {
+      const el = r.domElement;
+      let tete = null;
+      el.addEventListener("pointerdown", e => {
+        if (this.modeVue || !(e.altKey && e.button === 0) && e.button !== 1) return;
+        e.preventDefault(); e.stopImmediatePropagation();
+        tete = { x: e.clientX, y: e.clientY, id: e.pointerId };
+        this.controls.enabled = false;
+        el.setPointerCapture?.(e.pointerId);
+      }, true);
+      el.addEventListener("pointermove", e => {
+        if (!tete || e.pointerId !== tete.id) return;
+        const dx = e.clientX - tete.x, dy = e.clientY - tete.y;
+        tete.x = e.clientX; tete.y = e.clientY;
+        const cam = this.camera, c = this.controls.target, d = c.clone().sub(cam.position), L = d.length();
+        const s = new THREE.Spherical().setFromVector3(d);
+        s.theta -= dx * 0.004; s.phi = Math.max(0.05, Math.min(Math.PI - 0.05, s.phi + dy * 0.004));
+        c.copy(cam.position).add(new THREE.Vector3().setFromSpherical(s).setLength(L));
+        cam.lookAt(c);
+        this.demander(2);
+      });
+      const fin = e => { if (!tete || e.pointerId !== tete.id) return; tete = null; this.controls.enabled = true; this.controls.update(); };
+      el.addEventListener("pointerup", fin); el.addEventListener("pointercancel", fin);
+      el.addEventListener("auxclick", e => { if (e.button === 1) e.preventDefault(); });
+    }
 
     // lumières : ciel (hémisphère) et soleil (ombres portées)
     this.ciel = new THREE.HemisphereLight("#ffffff", "#8a8f7a", 1.1);
