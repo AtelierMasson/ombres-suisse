@@ -14,6 +14,9 @@ export function versWgs(E, N) {
 
 /** Adresses et parcelles de toute la Suisse. */
 export async function chercher(texte, signal) {
+  // coordonnées tapées (GPS en degrés décimaux ou degrés-minutes-secondes, MN95, MN03) : le lieu directement
+  const c = lireCoordonnees(texte);
+  if (c) return [{ label: c.label, type: "Coordonnées", E: c.E, N: c.N }];
   const u = `${API}/api/SearchServer?type=locations&origins=address,parcel&sr=2056&limit=8&searchText=${encodeURIComponent(texte)}`;
   const d = await (await fetch(u, { signal })).json();
   return (d.results || []).map(r => ({
@@ -21,6 +24,47 @@ export async function chercher(texte, signal) {
     type: r.attrs.origin === "parcel" ? "Parcelle" : "Adresse",
     E: r.attrs.y, N: r.attrs.x,
   }));
+}
+
+/** WGS84 (degrés) -> MN95, formules approchées de swisstopo (précision ~1 m). */
+export function versMn95(lon, lat) {
+  const p = (lat * 3600 - 169028.66) / 10000, l = (lon * 3600 - 26782.5) / 10000;
+  return [2600072.37 + 211455.93 * l - 10938.51 * l * p - 0.36 * l * p * p - 44.54 * l ** 3,
+    1200147.07 + 308807.95 * p + 3745.25 * l * l + 76.63 * p * p - 194.56 * l * l * p + 119.79 * p ** 3];
+}
+
+/**
+ * Coordonnées dans un texte de recherche, ou null :
+ * « 46.5197, 6.6323 », « 46.5197 N 6.6323 E », « 46°31'11"N 6°37'56"E », « 2'572'794 / 1'159'319 » (MN95),
+ * « 572794 159319 » (MN03). L'ordre latitude / longitude est déduit des valeurs (la Suisse : 45,8–47,9 N, 5,9–10,5 E).
+ */
+export function lireCoordonnees(texte) {
+  const t = texte.trim().replace(/[’`´]/g, "'").replace(/″|''/g, '"').replace(/′/g, "'");
+  const dansSuisse = (E, N) => E > 2480000 && E < 2840000 && N > 1070000 && N < 1300000;
+  // MN95 / MN03 : deux grands nombres (séparateurs de milliers ' ou espace fine admis)
+  const g = t.replace(/(\d)['\u2009\u202f](?=\d{3})/g, "$1").match(/^(\d{6,7}(?:\.\d+)?)\s*[,;/ ]\s*(\d{6,7}(?:\.\d+)?)$/);
+  if (g) {
+    let [a, b] = [+g[1], +g[2]];
+    if (a < 2e6 && b < 2e6) { a += a > 400000 ? 2e6 : 1e6; b += b > 400000 ? 2e6 : 1e6; } // MN03 -> MN95
+    const [E, N] = a > b ? [a, b] : [b, a];
+    return dansSuisse(E, N) ? { E: Math.round(E), N: Math.round(N), label: `MN95 ${Math.round(E)} / ${Math.round(N)}` } : null;
+  }
+  // degrés, avec minutes et secondes facultatives, et la lettre N/S/E/O/W avant ou après (facultative)
+  const nb = String.raw`(\d{1,2}(?:[.,]\d+)?)`, dms = String.raw`${nb}\s*°?\s*(?:${nb}\s*'\s*)?(?:${nb}\s*"\s*)?`;
+  const avant = /^[NSEOW]/i.test(t);
+  const re = new RegExp(avant ? String.raw`([NSEOW])\s*${dms}` : String.raw`${dms}([NSEOW](?![a-z]))?`, "gi");
+  const m = [...t.matchAll(re)].filter(r => r[0].trim());
+  if (m.length !== 2 || t.replace(re, "").replace(/[\s,;/]/g, "")) return null; // rien d'autre que deux coordonnées
+  const deg = x => x ? +x.replace(",", ".") : 0;
+  const [a, b] = m.map(r => avant
+    ? { v: deg(r[2]) + deg(r[3]) / 60 + deg(r[4]) / 3600, axe: r[1].toUpperCase() }
+    : { v: deg(r[1]) + deg(r[2]) / 60 + deg(r[3]) / 3600, axe: (r[4] || "").toUpperCase() });
+  let lat, lon;
+  if (a.axe === "N" || b.axe === "E" || b.axe === "O" || b.axe === "W") [lat, lon] = [a.v, b.v];
+  else if (a.axe === "E" || a.axe === "O" || a.axe === "W" || b.axe === "N") [lat, lon] = [b.v, a.v];
+  else [lat, lon] = a.v > b.v ? [a.v, b.v] : [b.v, a.v]; // en Suisse, la latitude (~46–47) dépasse la longitude (~6–10)
+  const [E, N] = versMn95(lon, lat);
+  return dansSuisse(E, N) ? { E: Math.round(E), N: Math.round(N), label: `${lat.toFixed(5)}° N, ${lon.toFixed(5)}° E` } : null;
 }
 
 /** Parcelle (cadastre de la mensuration officielle) qui contient le point. */

@@ -127,7 +127,8 @@ export async function terrainAutour(liste, E0, N0, rayon) {
     while (i < liste.length) {
       const t = liste[i++];
       try {
-        const { bx0, by1, w, h: hh, ras } = await lireAlti(t.url);
+        // une seconde tentative : sous charge, une lecture par plages échoue parfois
+        const { bx0, by1, w, h: hh, ras } = await lireAlti(t.url).catch(() => lireAlti(t.url));
         for (let l = 0; l < hh; l++) {
           const j = Math.round((n1 - (by1 - l * c)) / c);
           if (j < 0 || j >= n) continue;
@@ -249,7 +250,7 @@ function separerArbres(G) {
 }
 
 /** Bouche les trous du terrain (sous les bâtiments, les arbres) par une pyramide de moyennes. */
-function remplir(a, n) {
+export function remplir(a, n) {
   if (n <= 1) { if (isNaN(a[0])) a[0] = 0; return; }
   const m = Math.ceil(n / 2), b = new Float32Array(m * m).fill(NaN);
   for (let j = 0; j < m; j++) for (let i = 0; i < m; i++) {

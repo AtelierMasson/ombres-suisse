@@ -18,6 +18,7 @@ import { zoneHeures, soleilsPeriode, carreauxFacades, maillagesHeures } from "./
 import { contoursBatiments } from "./contours.js";
 import { profilCoupe, dessinerCoupe } from "./coupe.js";
 import { hameau } from "./demo.js";
+import { lancerVol } from "./vol.js";
 import { brancherPro } from "./pro.js";
 import { brancherCompte } from "./compte.js";
 import "./compte.css";
@@ -111,6 +112,7 @@ window.addEventListener("hashchange", depuisAdresse);
 // décor animé : un hameau inventé, le soleil qui passe, la vue qui tourne lentement
 function accueil() {
   tache++;
+  arreterVol?.(); arreterVol = null;
   chargement?.abort();
   annulerCalcul();
   document.body.classList.add("accueil");
@@ -133,7 +135,27 @@ function accueil() {
     scene.placerSoleil([Math.sin(az) * Math.cos(h), Math.sin(h), -Math.cos(az) * Math.cos(h)], true);
   };
 }
+// vol de démonstration (#vol=gruyeres) : plan drone lent, rendu en direct (vol.js) ; à terme, le décor de l'accueil
+let arreterVol = null;
+async function vol(cle) {
+  const id = ++tache;
+  chargement?.abort();
+  annulerCalcul();
+  arreterVol?.(); arreterVol = null;
+  scene.animation = null;
+  document.body.classList.add("accueil");
+  $("#panneau").hidden = $("#panneauPro").hidden = $("#panneauAffichage").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
+  message("");
+  Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
+  pro.reinitialiser();
+  scene.decalage = 0.17; scene.taille();
+  try {
+    const arret = await lancerVol(scene, cle, { etat, actif: () => id === tache });
+    if (id === tache) arreterVol = arret; else arret();
+  } catch (e) { console.warn("Vol :", e); etat(1, ""); }
+}
 function quitterAccueil() {
+  arreterVol?.(); arreterVol = null;
   document.body.classList.remove("accueil");
   scene.animation = null;
   scene.decalage = 0; scene.taille();
@@ -183,6 +205,7 @@ function telechargement(source, texte, f = null) {
 
 async function depuisAdresse() {
   const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get("vol")) return vol(h.get("vol"));
   if (!h.get("e")) return accueil();
   const E = +h.get("e"), N = +h.get("n"), id = ++tache;
   chargement?.abort();
@@ -442,7 +465,7 @@ async function comparerRoofer() {
     if (lieu === S.E0 && choixBatiments() === "roofer") scene.afficherRoofer(m);
   } finally { telechargement("roofer", null); }
 }
-scene.surTuilesSwiss = n => telechargement("swiss", n > 0 ? t("etat.swiss", { n }) : null);
+scene.surTuilesSwiss = n => telechargement("swiss", n > 0 && !scene.vol ? t("etat.swiss", { n }) : null); // le vol charge sans bandeau
 // bâtiments affichés : un seul jeu à la fois (relevé, swisstopo, roofer là où il a été calculé, ou aucun)
 function choixBatiments() { return $("input[name=batiments]:checked")?.value || "releve"; }
 const NOTES = {

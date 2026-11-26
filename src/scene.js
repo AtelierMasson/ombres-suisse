@@ -314,6 +314,7 @@ export class Scene3D {
    */
   densiteBrume() {
     if (this.modeVue || !this.loin.brume) return 0;
+    if (this.vol) return 1.5e-4; // vol de l'accueil : vraie brume d'été, les sommets s'estompent au loin
     return this.loin.maille && this.loin.voir ? 2.2e-5 : this.T.lumiere.brume;
   }
 
@@ -599,7 +600,8 @@ export class Scene3D {
       o.visible = voir || ombre;
       o.traverse(m => { m.layers.set(voir ? 0 : CALQUE_OMBRE); if (m.isMesh) m.castShadow = ombre; });
     };
-    const jeux = { releve: c.bati, swiss: this.swiss?.socle, roofer: c.roofer };
+    // swisstopo : seulement le groupe des bâtiments (les arbres 3D du vol, dans le même socle, gardent leurs calques)
+    const jeux = { releve: c.bati, swiss: this.swiss?.tuiles?.group, roofer: c.roofer };
     for (const [j, o] of Object.entries(jeux)) regler(o, j === k.jeu && k.batVoir, j === k.jeu && k.batOmbre);
     // arbres : les points se montrent ; la canopée (invisible) ou, en repli, les couronnes portent l'ombre
     if (c.arbres) regler(c.canopee, k.arbVoir && k.arbOmbre, k.arbOmbre);
@@ -1405,8 +1407,11 @@ export class Scene3D {
   appliquerCoupe() {
     const plans = this.coupe && this.couperModele !== false ? [this.plan] : null, c = this.couches, m = this.mat;
     // bâtiments swisstopo : chargés par tuiles bien au-delà du modèle, on les coupe aux bords du terrain
-    // (et l'occlusion ambiante ne doit pas voir la partie coupée)
-    if (this.G) {
+    // (et l'occlusion ambiante ne doit pas voir la partie coupée) ; pendant le vol de l'accueil, rien n'est coupé
+    if (this.G && this.vol) {
+      if (this.ao.normalMaterial) { this.ao.normalMaterial.clippingPlanes = null; this.ao.normalMaterial.needsUpdate = true; }
+      for (const x of [m.toit, m.mur, this.swiss?.materiau]) if (x?.clippingPlanes) { x.clippingPlanes = null; x.needsUpdate = true; }
+    } else if (this.G) {
       // boîte de l'occlusion 2 cm au-delà du bord : la face du socle est exactement à R, une boîte à R l'effaçait par
       // endroits (arrondis) et l'occlusion y dessinait des stries ; les bâtiments sont de toute façon coupés à R - 3 cm
       const R = this.G.R, boite = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), R + 0.02));
