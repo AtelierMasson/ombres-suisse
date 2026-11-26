@@ -4,6 +4,7 @@ document.documentElement.classList.add("pret"); // styles chargés : la page peu
 import { textureHeures } from "./heures.js";
 import { pontsAutour } from "./pontsModeles.js";
 import { brancherLieux } from "./lieux.js";
+import { brancherCalendrier } from "./calendrier.js";
 import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
 import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, versWgs } from "./geo.js";
 import { chargerNuage } from "./nuage.js";
@@ -431,22 +432,8 @@ function changerJour(jour) {
   relancerHeures();
 }
 $("#jour").addEventListener("change", e => { if (e.target.value) changerJour(e.target.value); });
-{
-  // le bouton ouvre et referme le calendrier (un second clic le rouvrait aussitôt : il ne se refermait plus)
-  const champ = $("#jour");
-  let ouvert = false, ferme = 0;
-  const fermer = () => { if (ouvert) { ouvert = false; ferme = performance.now(); } };
-  champ.addEventListener("change", fermer);
-  champ.addEventListener("blur", fermer);
-  document.addEventListener("pointerdown", e => { if (!e.target.closest?.("#btnJour")) ouvert = false; }, true);
-  $("#btnJour").addEventListener("pointerdown", () => { if (ouvert) { fermer(); champ.blur(); } });
-  $("#btnJour").addEventListener("click", () => {
-    if (performance.now() - ferme < 400) return; // ce clic vient de refermer le calendrier
-    if (ouvert) { fermer(); champ.blur(); return; }
-    ouvert = true;
-    try { champ.showPicker(); } catch { champ.focus(); champ.click(); } // showPicker : Chrome, Edge, Firefox, Safari récents
-  });
-}
+// calendrier du jour : le nôtre (se ferme au choix d'une date, au clic à côté, avec Échap)
+brancherCalendrier($("#btnJour"), $("#jour"));
 $("#heure").addEventListener("input", e => { S.minutes = +e.target.value; majSoleil(); });
 $$("[data-jour]").forEach(b => b.onclick = () => changerJour(b.dataset.jour === "auj" ? aujourdhui() : `${S.jour.slice(0, 4)}-${b.dataset.jour}`));
 // clic ou glissé sur le diagramme : le soleil va au point le plus proche de sa course du jour
