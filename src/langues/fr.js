@@ -215,7 +215,7 @@ export default {
   "heures.jour": "Jour",
   "heures.mois": "Mois",
   "heures.annee": "Année",
-  "heures.calculer": "Calculer les heures de soleil",
+  "heures.calculer": "Calculer",
   "heures.recalculer": "Recalculer",
   "heures.zero": "0 h",
   "heures.carte": "Afficher la carte",

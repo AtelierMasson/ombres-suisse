@@ -20,6 +20,12 @@
     <input id="q" class="form-control" type="search" data-i18n-placeholder="recherche.placeholder" placeholder="Adresse, parcelle ou coordonnées GPS (ex. « Lutry 3947 »)" autocomplete="off">
     <div class="suggestions list-group position-absolute w-100 shadow" hidden></div>
   </div>
+  <!-- lieu affiché : une ligne, à côté de la recherche (la source du relevé en info-bulle) -->
+  <div id="infos">
+    <div class="infos-texte"><span class="text-secondary" id="lieuType"></span> <b id="lieu"></b><span id="source" hidden></span></div>
+    <button class="btn btn-sm btn-outline-secondary" id="btnLieu" type="button">☆</button>
+    <button class="btn btn-sm btn-outline-secondary" id="btnPartager" data-i18n="panneau.lien" data-i18n-title="panneau.lienTitre" title="Copier le lien">Lien</button>
+  </div>
   <!-- suggestion : un message libre pour Atelier Masson -->
   <div class="position-relative" id="boiteSuggestion">
     <button type="button" class="btn btn-sm btn-outline-secondary" id="btnSuggestion" aria-expanded="false" aria-controls="suggestion" data-i18n="suggestion.bouton">Suggestion</button>
@@ -74,15 +80,6 @@
 <div id="colonne">
 <aside id="panneau" class="card" hidden>
   <div class="card-body">
-    <div id="infos">
-      <div class="d-flex justify-content-between align-items-start gap-2">
-        <div><div class="small text-secondary" id="lieuType"></div><h5 class="mb-0" id="lieu"></h5></div>
-        <button class="btn btn-sm btn-outline-secondary" id="btnLieu" type="button">☆</button>
-        <button class="btn btn-sm btn-outline-secondary" id="btnPartager" data-i18n="panneau.lien" data-i18n-title="panneau.lienTitre" title="Copier le lien">Lien</button>
-      </div>
-      <div class="small text-secondary mt-1" id="source"></div>
-    </div>
-
     <div id="commandes" hidden>
       <section id="temps">
         <div class="titre"><span data-i18n="soleil.titre">Soleil</span> <span class="text-secondary fw-normal" style="text-transform: none" id="horizonTexte"></span></div>
@@ -102,12 +99,14 @@
       </section>
       <section id="ensoleillement">
         <div class="titre" data-i18n="heures.titre">Heures de soleil</div>
-        <div class="btn-group btn-group-sm w-100 mb-2" role="group" data-i18n-aria-label="heures.periode" aria-label="Période">
+        <div class="d-flex gap-1 align-items-stretch">
+        <div class="btn-group btn-group-sm flex-fill" role="group" data-i18n-aria-label="heures.periode" aria-label="Période">
           <input type="radio" class="btn-check" name="periode" id="pJour" value="jour" checked><label class="btn btn-outline-secondary" for="pJour" data-i18n="heures.jour">Jour</label>
           <input type="radio" class="btn-check" name="periode" id="pMois" value="mois"><label class="btn btn-outline-secondary" for="pMois" data-i18n="heures.mois">Mois</label>
           <input type="radio" class="btn-check" name="periode" id="pAnnee" value="annee"><label class="btn btn-outline-secondary" for="pAnnee" data-i18n="heures.annee">Année</label>
         </div>
-        <button class="btn btn-sm btn-outline-primary w-100" id="btnHeures" data-i18n="heures.calculer">Calculer les heures de soleil</button>
+        <button class="btn btn-sm btn-primary" id="btnHeures" data-i18n="heures.calculer">Calculer</button>
+        </div>
         <div id="heures" class="small mt-2" hidden>
           <div class="degrade"></div>
           <div class="d-flex justify-content-between text-secondary"><span data-i18n="heures.zero">0 h</span><span id="heuresMax"></span></div>

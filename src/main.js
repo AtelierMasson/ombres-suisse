@@ -340,7 +340,7 @@ async function depuisAdresse() {
     if (id !== tache) return;
     if (ronde()) garderCercle(G, R); // ne montrer que le cercle (sinon : maquette carrée, comme avant)
     S.rayonZone = Rz;
-    $("#source").textContent = source;
+    $("#source").textContent = source; $("#infos").title = source;
     [S.lon, S.lat] = versWgs(E0, N0);
     Object.assign(S, { E0, N0, parcelle: rel, G, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
     $("#vCoupe").checked = false; $("#outilsCoupe").hidden = true;

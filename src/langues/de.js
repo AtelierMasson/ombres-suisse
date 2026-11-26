@@ -214,7 +214,7 @@ export default {
   "heures.jour": "Tag",
   "heures.mois": "Monat",
   "heures.annee": "Jahr",
-  "heures.calculer": "Sonnenstunden berechnen",
+  "heures.calculer": "Berechnen",
   "heures.recalculer": "Neu berechnen",
   "heures.zero": "0 h",
   "heures.carte": "Karte anzeigen",

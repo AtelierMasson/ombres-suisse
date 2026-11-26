@@ -160,7 +160,7 @@ vec2 tailleCase = fwidth(vec2(vMonde.x, vMonde.z));
 float visibleCase = smoothstep(0.008, 0.035, max(tailleCase.x, tailleCase.y));
 float pixel = mix(0.5, hachage(floor(vMonde * 2.0 + 0.001) + 0.37), visibleCase);
 diffuseColor.rgb *= 1.0 + grainForce * ((g - 0.5) * 1.4 + (pixel - 0.5) * 0.9);
-${contact && `if (contactActif > 0.5) {
+${contact && contact !== "swiss" && `if (contactActif > 0.5) {
   vec2 uvG = (vec2(vMonde.x, -vMonde.z) - grille.x) / grille.y;
   if (reelActif > 0.5) {
     // couleurs de la photo adoucies : en bonne partie désaturées, éclaircies et fondues dans un beige lumineux (maquette)
@@ -177,11 +177,13 @@ ${contact && `if (contactActif > 0.5) {
   diffuseColor.rgb = mix(diffuseColor.rgb, teinteSel * 1.15, ${contact === "sol" ? "0.13 * sel.r" : "0.22 * sel.g"});
 }`}`);
   };
-  if (contact === "sol" || contact === "toit" || contact === "mur") {
+  if (contact === "sol" || contact === "toit" || contact === "mur" || contact === "swiss") {
     const avant = mat.onBeforeCompile;
-    // murs : la couleur de la cellule juste devant la façade (fond sous les carreaux : aucun recoin ne reste beige)
+    // murs : la couleur de la cellule juste devant la façade (fond sous les carreaux : aucun recoin ne reste beige) ;
+    // bâtiments swisstopo (toits et murs dans le même maillage) : selon la face, toit (vers le haut) ou mur
     const decale = contact === "mur" ? `vec3 nM = normalize(cross(dFdx(vMonde), dFdy(vMonde)));
-  vec2 posH = vec2(vMonde.x, -vMonde.z) + vec2(nM.x, -nM.z) * 0.7;` : `vec2 posH = vec2(vMonde.x, -vMonde.z);`;
+  vec2 posH = vec2(vMonde.x, -vMonde.z) + vec2(nM.x, -nM.z) * 0.7;` : contact === "swiss" ? `vec3 nM = normalize(cross(dFdx(vMonde), dFdy(vMonde)));
+  vec2 posH = vec2(vMonde.x, -vMonde.z) + (abs(nM.y) > 0.45 ? vec2(0.0) : normalize(vec2(nM.x, -nM.z)) * 0.7);` : `vec2 posH = vec2(vMonde.x, -vMonde.z);`;
     mat.onBeforeCompile = (sh, r) => {
       avant(sh, r);
       sh.fragmentShader = sh.fragmentShader.replace("#include <opaque_fragment>", `if (heuresActif > 0.5) {
@@ -773,7 +775,7 @@ void main() {
     if (!this.swiss) {
       // même matière que nos bâtiments (couleur du terrain) ; coupés au bord du modèle et par la coupe A–B
       this.swiss = new Swiss3D(this, new THREE.MeshStandardMaterial({ color: this.T.sol, roughness: 0.92, side: THREE.DoubleSide }));
-      grainPlatre(this.swiss.materiau, 0.07);
+      grainPlatre(this.swiss.materiau, 0.07, "swiss");
       this.appliquerCoupe();
     }
     if (lieu) this.swiss.lieu = lieu;

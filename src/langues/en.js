@@ -214,7 +214,7 @@ export default {
   "heures.jour": "Day",
   "heures.mois": "Month",
   "heures.annee": "Year",
-  "heures.calculer": "Calculate sunlight hours",
+  "heures.calculer": "Calculate",
   "heures.recalculer": "Recalculate",
   "heures.zero": "0 h",
   "heures.carte": "Show the map",

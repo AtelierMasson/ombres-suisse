@@ -316,3 +316,18 @@ body.accueil #orientation { display: none; }
 /* export de la coupe (Pro) : boutons à l'encre rouge dans la carte de la coupe */
 .export-coupe-pro { --accent: var(--pro); --accent-fonce: var(--pro-fonce); --accent-clair: var(--pro-clair); align-items: center; }
 .export-coupe-pro .badge-pro { font-size: 10px; font-weight: 700; color: var(--pro); letter-spacing: .04em; }
+
+/* lieu dans l'en-tête : une ligne, coupée si trop longue */
+#infos { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 0 1 auto; }
+#infos .infos-texte { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+#infos .infos-texte b { font-weight: 600; }
+#infos .btn { padding: 1px 8px; }
+body.accueil #infos { display: none; }
+@media (max-width: 760px) { #infos .infos-texte #lieuType { display: none; } }
+
+/* panneau : une carte par partie (heure, ensoleillement, coupe) au lieu d'une seule grande carte */
+#panneau.card { --bs-card-bg: transparent; --bs-card-border-color: transparent; box-shadow: none; background: none; border: 0; }
+#panneau > .card-body { padding: 0; }
+#panneau #commandes > section { background: var(--carte); border: 1px solid var(--bord); border-radius: var(--rayon); box-shadow: var(--ombre); padding: 10px 12px; margin: 0 0 10px; }
+#panneau #commandes > section.mt-2 { margin-top: 0 !important; }
+#btnHeures { white-space: nowrap; }

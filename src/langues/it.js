@@ -214,7 +214,7 @@ export default {
   "heures.jour": "Giorno",
   "heures.mois": "Mese",
   "heures.annee": "Anno",
-  "heures.calculer": "Calcolare le ore di sole",
+  "heures.calculer": "Calcola",
   "heures.recalculer": "Ricalcolare",
   "heures.zero": "0 h",
   "heures.carte": "Mostrare la mappa",
