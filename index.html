@@ -111,28 +111,31 @@
     </div>
     <div class="small text-secondary mb-1" id="noteBatiments" hidden></div>
     <table class="table-calques">
-      <thead><tr><th></th><th></th><th data-i18n="aff.ombre">Ombre</th></tr></thead>
       <tbody>
         <tr><th scope="row"><label for="vBatVoir" data-i18n="aff.batiments">Bâtiments</label> <span class="choix-swiss">(<input class="form-check-input" type="checkbox" id="vSwiss" data-i18n-title="aff.swissCase" title="Modèles 3D swisstopo (swissBUILDINGS3D) au lieu des bâtiments reconstruits" data-i18n-aria-label="aff.swissCase" aria-label="Modèles 3D swisstopo (swissBUILDINGS3D) au lieu des bâtiments reconstruits"><label for="vSwiss">Swiss3D</label>)</span></th>
           <td><input class="form-check-input oeil" type="checkbox" id="vBatVoir" checked data-i18n-aria-label="aff.batVoir" aria-label="Voir les bâtiments"></td>
-          <td><input class="form-check-input" type="checkbox" id="vBatOmbre" checked data-i18n-aria-label="aff.batOmbre" aria-label="Ombre des bâtiments"></td></tr>
+</tr>
+        <tr><th scope="row"><label for="vBatOmbre" data-i18n="aff.batOmbre">Ombre des bâtiments</label></th>
+          <td><input class="form-check-input oeil" type="checkbox" id="vBatOmbre" checked></td></tr>
         <tr><th scope="row"><label for="vArbres" data-i18n="aff.arbres">Arbres</label></th>
           <td><input class="form-check-input oeil" type="checkbox" id="vArbres" checked data-i18n-aria-label="aff.arbresVoir" aria-label="Voir les arbres"></td>
-          <td><input class="form-check-input" type="checkbox" id="vArbresOmbre" checked data-i18n-aria-label="aff.arbresOmbre" aria-label="Ombre des arbres"></td></tr>
+</tr>
+        <tr><th scope="row"><label for="vArbresOmbre" data-i18n="aff.arbresOmbre">Ombre des arbres</label></th>
+          <td><input class="form-check-input oeil" type="checkbox" id="vArbresOmbre" checked></td></tr>
         <tr><th scope="row"><label for="vPoints" data-i18n="aff.points">Nuage de points brut</label> <span class="choix-swiss">(<input class="form-check-input" type="checkbox" id="vCouleursReelles" data-i18n-title="aff.couleursTitre" title="Couleur de chaque point prise sur l'orthophoto SWISSIMAGE, à la verticale (les façades prennent la couleur du toit ou du sol voisin)" data-i18n-aria-label="aff.couleursTitre" aria-label="Couleur de chaque point prise sur l'orthophoto SWISSIMAGE, à la verticale (les façades prennent la couleur du toit ou du sol voisin)"><label for="vCouleursReelles" data-i18n="aff.couleurs">couleurs réelles</label>)</span></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vPoints"></td><td></td></tr>
+          <td><input class="form-check-input oeil" type="checkbox" id="vPoints"></td></tr>
         <tr><th scope="row"><label for="vDegrade" data-i18n="aff.degrade">Couleur selon la hauteur</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vDegrade"></td><td></td></tr>
+          <td><input class="form-check-input oeil" type="checkbox" id="vDegrade"></td></tr>
         <tr><th scope="row"><label for="vCadastre" data-i18n="aff.cadastre">Plan cadastral au sol</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vCadastre" checked></td><td></td></tr>
+          <td><input class="form-check-input oeil" type="checkbox" id="vCadastre" checked></td></tr>
         <tr><th scope="row"><label for="vParcelles" data-i18n="aff.parcelles">Parcelles voisines</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vParcelles" checked></td><td></td></tr>
+          <td><input class="form-check-input oeil" type="checkbox" id="vParcelles" checked></td></tr>
         <tr><th scope="row"><label for="vLointain" data-i18n="aff.lointain" data-i18n-title="aff.lointainTitre" title="Collines, montagnes et lacs jusqu'à 50 km autour, d'après le relief libre Terrain Tiles">Paysage</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vLointain" checked></td><td></td></tr>
+          <td><input class="form-check-input oeil" type="checkbox" id="vLointain" checked></td></tr>
         <tr><th scope="row"><label for="vBrume" data-i18n="aff.brume" data-i18n-title="aff.brumeTitre" title="Le paysage s'estompe avec la distance">Brume</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vBrume" checked></td><td></td></tr>
+          <td><input class="form-check-input oeil" type="checkbox" id="vBrume" checked></td></tr>
         <tr><th scope="row"><label for="vEffets" data-i18n="aff.effets" data-i18n-title="aff.effetsTitre" title="Occlusion ambiante et rebond de lumière ; à couper si l'affichage est lent">High quality lighting</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vEffets" checked></td><td></td></tr>
+          <td><input class="form-check-input oeil" type="checkbox" id="vEffets" checked></td></tr>
       </tbody>
     </table>
       </section>
