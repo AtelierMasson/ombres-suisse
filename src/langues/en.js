@@ -132,6 +132,7 @@ export default {
   "aff.lointainTitre": "Hills, mountains and lakes up to 50 km around, from the open Terrain Tiles relief",
   "aff.brume": "Haze",
   "aff.brumeTitre": "The landscape fades with distance",
+  "ailleurs.centrer": "Centre the 3D here",
   "ailleurs.construire": "Build 3D here",
   "ailleurs.recherche": "Finding the plot…",
   "retour.adresse": "Back to address",

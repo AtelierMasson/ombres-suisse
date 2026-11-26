@@ -133,6 +133,7 @@ export default {
   "aff.lointainTitre": "Collines, montagnes et lacs jusqu'à 50 km autour, d'après le relief libre Terrain Tiles",
   "aff.brume": "Brume",
   "aff.brumeTitre": "Le paysage s'estompe avec la distance",
+  "ailleurs.centrer": "Centrer la 3D ici",
   "ailleurs.construire": "Construire la 3D ici",
   "ailleurs.recherche": "Recherche de la parcelle…",
   "retour.adresse": "Retour à l'adresse",

@@ -132,6 +132,7 @@ export default {
   "aff.lointainTitre": "Colline, montagne e laghi fino a 50 km intorno, dal rilievo libero Terrain Tiles",
   "aff.brume": "Foschia",
   "aff.brumeTitre": "Il paesaggio sfuma con la distanza",
+  "ailleurs.centrer": "Centrare il 3D qui",
   "ailleurs.construire": "Costruire il 3D qui",
   "ailleurs.recherche": "Ricerca della particella…",
   "retour.adresse": "Torna all'indirizzo",

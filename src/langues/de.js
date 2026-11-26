@@ -132,6 +132,7 @@ export default {
   "aff.lointainTitre": "Hügel, Berge und Seen bis 50 km im Umkreis, nach dem freien Relief Terrain Tiles",
   "aff.brume": "Dunst",
   "aff.brumeTitre": "Die Landschaft verblasst mit der Entfernung",
+  "ailleurs.centrer": "3D hier zentrieren",
   "ailleurs.construire": "3D hier erstellen",
   "ailleurs.recherche": "Parzelle wird gesucht…",
   "retour.adresse": "Zurück zur Adresse",

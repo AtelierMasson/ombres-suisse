@@ -809,12 +809,15 @@ marquerTheme();
     if ($("#vPro")?.checked) return; // mode pro : le clic sélectionne un bâtiment, ou ceux de la parcelle (pro.js)
     const choisie = S.toutes.find(q => dansParcelle(p[0], p[1], q.anneauxRel));
     if (choisie && choisie.numero !== S.parcelle?.numero) choisirParcelle(choisie);
+    // loin du centre : on propose aussi d'y recentrer la maquette (comme un clic sur le plan au-delà)
+    if (Math.hypot(p[0], p[1]) > 40) proposerAilleurs(S.E0 + p[0], S.N0 + p[1], e.clientX, e.clientY, true);
   });
 }
 // petite bulle « Parcelle n · Construire la 3D ici » à l'endroit du clic
 let demandeAilleurs = 0;
-async function proposerAilleurs(E, N, x, y) {
+async function proposerAilleurs(E, N, x, y, interieur = false) {
   const b = $("#ailleurs"), id = ++demandeAilleurs;
+  $("#btnAilleurs").textContent = t(interieur ? "ailleurs.centrer" : "ailleurs.construire");
   b.style.left = `${x}px`; b.style.top = `${y}px`;
   $("#ailleursNom").textContent = t("ailleurs.recherche");
   $("#btnAilleurs").disabled = true;
