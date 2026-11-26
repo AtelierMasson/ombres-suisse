@@ -914,7 +914,11 @@ export class Scene3D {
     for (const c of ["arbres", "tous"]) {
       const u = this.couches[c]?.material.uniforms;
       const f = Math.min(1, total / jourClair);
-      if (u) { u.lum.value = Math.max(0.04, f ** 1.5); u.gris.value = 0.7 * (1 - f) ** 2; u.ombre.value = visible ? this.ciel.intensity / total : 1; }
+      if (u) {
+        u.lum.value = Math.max(0.04, f ** 1.5); u.gris.value = 0.7 * (1 - f) ** 2; u.ombre.value = visible ? this.ciel.intensity / total : 1;
+        const s = this.soleil.color, mx = Math.max(s.r, s.g, s.b, 1e-3);
+        if (u.teinteSoleil) u.teinteSoleil.value.setRGB(s.r / mx, s.g / mx, s.b / mx);
+      }
     }
     this.ombres();
   }
