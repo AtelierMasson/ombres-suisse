@@ -18,6 +18,7 @@
     <input id="q" class="form-control" type="search" data-i18n-placeholder="recherche.placeholder" placeholder="Adresse ou parcelle en Suisse (ex. « Lutry 3947 »)" autocomplete="off">
     <div class="suggestions list-group position-absolute w-100 shadow" hidden></div>
   </div>
+  <div id="langues"></div>
   <div id="themes" role="group" data-i18n-aria-label="themes.aria" aria-label="Mode jour ou nuit"></div>
 </nav>
 
@@ -110,6 +111,10 @@
           <td><input class="form-check-input" type="checkbox" id="vCadastre" checked></td><td></td></tr>
         <tr><th scope="row"><label for="vParcelles" data-i18n="aff.parcelles">Parcelles voisines</label></th>
           <td><input class="form-check-input" type="checkbox" id="vParcelles" checked></td><td></td></tr>
+        <tr><th scope="row"><label for="vLointain" data-i18n="aff.lointain" data-i18n-title="aff.lointainTitre" title="Collines, montagnes et lacs jusqu'à 50 km autour, d'après le relief libre Terrain Tiles">Relief jusqu'à 50 km</label></th>
+          <td><input class="form-check-input" type="checkbox" id="vLointain" checked></td><td></td></tr>
+        <tr><th scope="row"><label for="vBrume" data-i18n="aff.brume" data-i18n-title="aff.brumeTitre" title="Le paysage s'estompe avec la distance">Brume</label></th>
+          <td><input class="form-check-input" type="checkbox" id="vBrume" checked></td><td></td></tr>
         <tr><th scope="row"><label for="vEffets" data-i18n="aff.effets" data-i18n-title="aff.effetsTitre" title="Occlusion ambiante et rebond de lumière ; à couper si l'affichage est lent">High quality lighting</label></th>
           <td><input class="form-check-input" type="checkbox" id="vEffets" checked></td><td></td></tr>
       </tbody>

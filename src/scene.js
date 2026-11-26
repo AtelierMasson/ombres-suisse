@@ -15,13 +15,16 @@ import { indexVolumes } from "./volumes.js";
 import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord } from "./maillages.js";
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
+import { materiauLointain } from "./lointain.js";
 
 const CIEL_SOMMETS = /* glsl */`
 varying vec3 vDir;
 void main() { vDir = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
 const CIEL_FRAGMENTS = /* glsl */`
 uniform vec3 zenith, horizon, lueur, soleil;
-uniform float force;
+uniform float force, aLoin;
+uniform sampler2D tLoin; // relief lointain, dessiné à part dans une image de la taille de l'écran
+uniform vec2 resolution;
 varying vec3 vDir;
 void main() {
   vec3 d = normalize(vDir);
@@ -29,6 +32,8 @@ void main() {
   c = mix(c, horizon * 0.94, smoothstep(0.0, -0.3, d.y)); // sous l'horizon : brume
   float s = max(dot(d, soleil), 0.0);
   c += lueur * (pow(s, 12.0) * 0.18 + pow(s, 180.0) * 0.5) * force; // halo autour du soleil
+  vec4 L = texture2D(tLoin, gl_FragCoord.xy / resolution);
+  c = mix(c, L.rgb, L.a * aLoin);
   gl_FragColor = vec4(c, 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -144,12 +149,18 @@ export class Scene3D {
       uniforms: {
         zenith: { value: new THREE.Color() }, horizon: { value: new THREE.Color() }, lueur: { value: new THREE.Color("#fff1c9") },
         soleil: { value: new THREE.Vector3(0, 1, 0) }, force: { value: 1 },
+        tLoin: { value: null }, aLoin: { value: 0 }, resolution: { value: new THREE.Vector2(1, 1) },
       },
       vertexShader: CIEL_SOMMETS, fragmentShader: CIEL_FRAGMENTS, side: THREE.BackSide, depthWrite: false, fog: false,
     }));
     this.voute.renderOrder = -1;
     this.disque = new THREE.Mesh(new THREE.SphereGeometry(8, 16, 8), new THREE.MeshBasicMaterial({ color: "#ffcc33", fog: false }));
     this.disque.visible = false; // affiché dès qu'un lieu est chargé
+    // relief lointain (jusqu'à 50 km) : sa propre scène et sa propre caméra (plans proche et lointain larges), rendu dans
+    // une image que la voûte du ciel reprend comme fond ; la maquette garde ainsi toute la précision de profondeur
+    this.loin = { scene: new THREE.Scene(), cam: new THREE.PerspectiveCamera(), mat: materiauLointain(), maille: null, voir: true, brume: true,
+      cible: new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 }) };
+    this.voute.material.uniforms.tLoin.value = this.loin.cible.texture;
     this.groupe = new THREE.Group();
     this.outils = new THREE.Group(); // tranche de coupe et poignées
     this.scene.add(this.voute, this.disque, this.groupe, this.outils);
@@ -236,6 +247,9 @@ export class Scene3D {
     this.composeur.setPixelRatio(this.ratio);
     this.composeur.setSize(w, h);
     this.mat.trait.resolution.set(w, h);
+    const r = this.renderer.getPixelRatio();
+    this.loin.cible.setSize(Math.round(w * r), Math.round(h * r));
+    this.voute.material.uniforms.resolution.value.set(Math.round(w * r), Math.round(h * r));
     this.camera.aspect = w / h;
     // `decalage` pousse le modèle vers la droite (écran d'accueil, à côté du texte)
     if (this.decalage && w > 900) this.camera.setViewOffset(w, h, -this.decalage * w, 0, w, h); else this.camera.clearViewOffset();
@@ -243,8 +257,49 @@ export class Scene3D {
     this.demander();
   }
 
+  /** Relief lointain calculé (géométrie de reliefLointain) ; ignoré si la scène a changé entre-temps. */
+  afficherLointain(g, idScene) {
+    if (idScene !== this.idScene) { g.dispose(); return; }
+    const L = this.loin;
+    L.maille = new THREE.Mesh(g, L.mat);
+    L.scene.add(L.maille);
+    this.majLointain();
+    this.demander();
+  }
+
+  /** Relief lointain visible ou non, brume avec la distance ou non (maquette et paysage). */
+  reglerLointain({ voir = this.loin.voir, brume = this.loin.brume } = {}) {
+    Object.assign(this.loin, { voir, brume });
+    this.scene.fog.density = this.modeVue || !brume ? 0 : this.T.lumiere.brume;
+    this.majLointain();
+    if (this.etatSoleil) this.placerSoleil(...this.etatSoleil);
+    this.demander();
+  }
+
+  /** Couleurs et lumière du relief lointain, celles de la maquette (thème, soleil, ciel). */
+  majLointain() {
+    const u = this.loin.mat.uniforms, v = this.voute.material.uniforms;
+    u.sol.value.copy(this.mat.terrain.color);
+    u.lac.value.copy(this.mat.terrain.color).lerp(new THREE.Color(this.T.sombre ? "#3d5f86" : "#7fa8d4"), 0.5); // lacs légèrement bleus
+    u.ciel.value.copy(this.ciel.color).multiplyScalar(this.ciel.intensity);
+    u.terreCiel.value.copy(this.ciel.groundColor).multiplyScalar(this.ciel.intensity);
+    u.soleilCouleur.value.copy(this.soleil.color).multiplyScalar(this.soleil.intensity);
+    u.soleilDir.value.copy(this.soleil.position).normalize();
+    u.horizon.value.copy(v.horizon.value);
+    u.brume.value = this.loin.brume ? 22000 : 250000;
+  }
+
   rendre() {
     if (this.coupe) this.orienterCoupe();
+    const L = this.loin, voirLoin = !!(L.maille && L.voir && !this.modeVue);
+    this.voute.material.uniforms.aLoin.value = voirLoin ? 1 : 0;
+    if (voirLoin) {
+      const r = this.renderer, fond = r.getClearColor(new THREE.Color()), alpha = r.getClearAlpha();
+      L.cam.copy(this.camera); L.cam.near = 20; L.cam.far = 150000; L.cam.updateProjectionMatrix();
+      r.setRenderTarget(L.cible); r.setClearColor(0x000000, 0); r.clear();
+      r.render(L.scene, L.cam);
+      r.setRenderTarget(null); r.setClearColor(fond, alpha);
+    }
     this.swiss?.mettreAJour();
     if (this.effets && this.qualite < 2) this.composeur.render(); else this.renderer.render(this.scene, this.camera);
   }
@@ -287,7 +342,7 @@ export class Scene3D {
     const rebond = new THREE.Color(T.lumiere.ciel).lerp(new THREE.Color(T.lumiere.sol), 0.35), lum = c => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
     this.ciel.groundColor.copy(rebond.multiplyScalar(lum(this.ciel.color) / Math.max(1e-3, lum(rebond))));
     this.renderer.toneMappingExposure = T.lumiere.exposition;
-    this.scene.fog.density = this.modeVue ? 0 : T.lumiere.brume;
+    this.scene.fog.density = this.modeVue || !this.loin.brume ? 0 : T.lumiere.brume;
     this.couleursPoints();
     if (this.G && this.arbresTeinte && this.T.arbres !== this.arbresTeinte) this.refaireCouronnes();
     if (this.etatSoleil) this.placerSoleil(...this.etatSoleil);
@@ -321,6 +376,7 @@ export class Scene3D {
     // la teinte de sélection du lieu précédent (grille d'une autre taille) ne doit pas déteindre sur le suivant, ni sur l'accueil
     CONTACT.tSel.value?.dispose(); CONTACT.tSel.value = null;
     this.contoursTous = this.volumes = this.batOrigine = this.nuage = this.grilleComp = null;
+    if (this.loin.maille) { this.loin.scene.remove(this.loin.maille); this.loin.maille.geometry.dispose(); this.loin.maille = null; }
     this.idScene++;
   }
 
@@ -699,12 +755,15 @@ export class Scene3D {
         sel[2 * p + 1] = entiers.has(s) || (partiels.has(s) && sel[2 * p]) ? 1 : 0;
       }
     }
-    // un peu élargi : les murs, posés au bord des cellules, doivent lire la sélection
-    const bord = sel.slice();
-    for (let j = 1; j < n - 1; j++) for (let i = 1; i < n - 1; i++) {
-      const p = j * n + i;
-      if (bord[2 * p + 1]) continue;
-      if (bord[2 * (p - 1) + 1] || bord[2 * (p + 1) + 1] || bord[2 * (p - n) + 1] || bord[2 * (p + n) + 1]) sel[2 * p + 1] = 1;
+    // élargi de 1,5 m, seulement hors des bâtiments : les murs (posés au bord des cellules) et les façades en retrait
+    // (loggias, retraits, avant-toits) lisent la sélection en entier, sans taches ; les bâtiments voisins ne sont pas teints
+    for (let passe = 0; passe < 3; passe++) {
+      const bord = sel.slice();
+      for (let j = 1; j < n - 1; j++) for (let i = 1; i < n - 1; i++) {
+        const p = j * n + i;
+        if (bord[2 * p + 1] || !isNaN(bat[p])) continue;
+        if (bord[2 * (p - 1) + 1] || bord[2 * (p + 1) + 1] || bord[2 * (p - n) + 1] || bord[2 * (p + n) + 1]) sel[2 * p + 1] = 1;
+      }
     }
     const h = new Uint16Array(sel.length);
     for (let k = 0; k < sel.length; k++) h[k] = THREE.DataUtils.toHalfFloat(sel[k]);
@@ -795,7 +854,7 @@ export class Scene3D {
       this.voute.position.set(0, 0, 0); this.voute.scale.setScalar(1);
       ctl.enableRotate = true; ctl.minPolarAngle = 0; ctl.maxPolarAngle = Math.PI * 0.495;
       ctl.minDistance = 0; ctl.maxDistance = Infinity;
-      this.scene.fog.density = this.T.lumiere.brume;
+      this.scene.fog.density = this.loin.brume ? this.T.lumiere.brume : 0;
       if (a) { cam.position.copy(a.pos); ctl.target.copy(a.cible); } else this.vueDepart();
     }
     cam.updateProjectionMatrix();
@@ -900,7 +959,8 @@ export class Scene3D {
     this.ciel.color.set(T.lumiere.ciel).lerp(new THREE.Color("#a99ce6"), 0.5 * bas);
     this.disque.material.color.copy(couleurSoleil(h + 2)).multiplyScalar(1.1);
     this.disque.position.copy(d.clone().multiplyScalar(1200));
-    this.disque.visible = dir[1] > -0.02 && !!this.G;
+    // derrière une montagne du relief lointain affiché, le disque est caché
+    this.disque.visible = dir[1] > -0.02 && !!this.G && (visible || !this.loin.maille || !this.loin.voir);
     // ciel : jour, soleil caché par le relief (plus terne), nuit
     const jour = visible ? 1 : dir[1] > 0 ? 0.72 : Math.max(0, Math.min(0.5, 0.5 + dir[1] * 4));
     // lueur de l'aube et du crépuscule : ciel rose orangé à l'horizon, violacé plus haut, jusqu'à 6° sous l'horizon
@@ -910,6 +970,7 @@ export class Scene3D {
     u.soleil.value.copy(d).normalize();
     u.force.value = visible ? 1 : 0;
     this.scene.fog.color.copy(u.horizon.value);
+    this.majLointain();
     // les points ne sont pas éclairés par three.js : leur luminosité suit la lumière présente (ciel + soleil), rapportée
     // à celle d'un jour clair, comme pour les surfaces ; à l'ombre, ils ne gardent que la part du ciel
     const k = 0.55, jourClair = 1.1 + 2.6 * k, total = this.ciel.intensity + this.soleil.intensity * k;

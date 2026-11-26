@@ -6,7 +6,7 @@ import { t } from "./i18n.js";
 const TUILE = (z, x, y) => `https://elevation-tiles-prod.s3.amazonaws.com/terrarium/${z}/${x}/${y}.png`;
 const cache = new Map();
 
-function tuile(z, x, y) {
+export function tuile(z, x, y) {
   const k = `${z}/${x}/${y}`;
   if (!cache.has(k)) cache.set(k, new Promise((ok, ko) => {
     const img = new Image();
@@ -16,6 +16,15 @@ function tuile(z, x, y) {
       ctx.drawImage(img, 0, 0);
       const d = ctx.getImageData(0, 0, 256, 256).data, h = new Float32Array(256 * 256);
       for (let p = 0; p < h.length; p++) h[p] = d[4 * p] * 256 + d[4 * p + 1] + d[4 * p + 2] / 256 - 32768;
+      // lacs : surfaces parfaitement plates (le relief y porte la cote du plan d'eau), au moins 5 × 5 pixels égaux
+      const eau = new Uint8Array(256 * 256);
+      for (let y = 2; y < 254; y++) for (let x = 2; x < 254; x++) {
+        const p = y * 256 + x, v = h[p];
+        let plat = true;
+        for (let b = -2; b <= 2 && plat; b++) for (let a = -2; a <= 2; a++) if (Math.abs(h[p + b * 256 + a] - v) > 0.02) { plat = false; break; }
+        if (plat) for (let b = -2; b <= 2; b++) for (let a = -2; a <= 2; a++) eau[p + b * 256 + a] = 1;
+      }
+      h.eau = eau;
       ok(h);
     };
     img.onerror = () => ko(new Error(t("erreur.tuileRelief", { k })));
@@ -24,7 +33,7 @@ function tuile(z, x, y) {
   return cache.get(k);
 }
 
-const versTuile = (lon, lat, z) => {
+export const versTuile = (lon, lat, z) => {
   const s = 2 ** z, r = lat * Math.PI / 180;
   return [(lon + 180) / 360 * s, (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * s];
 };

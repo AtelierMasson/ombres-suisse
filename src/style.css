@@ -41,7 +41,11 @@ body {
 body.accueil #haut .recherche { visibility: hidden; }
 .suggestions { top: calc(100% + 4px); z-index: 20; max-height: 360px; overflow: auto; text-align: left; }
 .suggestions .list-group-item { cursor: pointer; }
-#themes { display: flex; gap: 5px; margin-left: auto; }
+#langues { margin-left: auto; font-size: 12px; letter-spacing: .04em; white-space: nowrap; }
+#langues a { color: var(--doux); text-decoration: none; padding: 2px 3px; }
+#langues a:hover { color: var(--texte); }
+#langues a.actif { color: var(--texte); font-weight: 600; }
+#themes { display: flex; gap: 5px; }
 #themes button { display: flex; align-items: center; gap: 6px; padding: 3px 10px 3px 4px; border: 1px solid var(--bord-fort); border-radius: 999px; background: transparent; color: var(--texte); font-size: 12.5px; line-height: 1; white-space: nowrap; }
 #themes button i { width: 18px; height: 18px; border-radius: 50%; border: 2px solid; flex: none; }
 #themes button:hover { border-color: var(--accent); }
@@ -214,7 +218,5 @@ body.accueil #orientation { display: none; }
 #legal .legal-onglets a { color: var(--doux); text-decoration: none; }
 #legal .legal-onglets a.actif { color: var(--texte); font-weight: 600; }
 @media (max-width: 700px) { #pied .sources { display: none; } }
-#pied .langues a { text-decoration: none; }
-#pied .langues a.actif { font-weight: 600; text-decoration: underline; }
 .table-calques .choix-swiss { font-weight: normal; white-space: nowrap; }
 .table-calques .choix-swiss .form-check-input { margin: 0 .25em 0 .1em; vertical-align: -.15em; }

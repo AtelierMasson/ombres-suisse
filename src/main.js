@@ -3,7 +3,8 @@ import "./style.css";
 import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
 import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, versWgs } from "./geo.js";
 import { chargerNuage } from "./nuage.js";
-import { depuisPoints, depuisRasters } from "./grille.js";
+import { depuisPoints, depuisRasters, solEn } from "./grille.js";
+import { reliefLointain } from "./lointain.js";
 import { Scene3D } from "./scene.js";
 import { essaiRoofer, maillageRoofer } from "./roofer.js";
 import * as THREE from "three";
@@ -20,7 +21,7 @@ import { brancherPro } from "./pro.js";
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 // textes de la page dans la langue choisie, et sélecteur de langue au pied de page
 traduirePage();
-brancherSelecteur($("#pied .liens"));
+brancherSelecteur($("#langues"));
 // ouverture : aujourd'hui à 14 h, pour qu'il y ait du soleil
 const S = { jour: aujourdhui(), minutes: 14 * 60 };
 let T = appliquerTheme(themeInitial());
@@ -252,6 +253,10 @@ async function depuisAdresse() {
     if (horizonFini < 1) etat(0.9 + 0.1 * horizonFini, t("etat.relief"));
     S.horizon = await horizon;
     if (id !== tache) return;
+    // paysage jusqu'à 50 km, des mêmes tuiles (déjà en cache), sans bloquer
+    const idScene = scene.idScene;
+    reliefLointain(E0, N0, G.R, scene.zRef, (x, y) => solEn(G, x, y)).then(g => scene.afficherLointain(g, idScene))
+      .catch(e => console.warn("Relief lointain :", e.message));
     etat(1, "");
     $("#commandes").hidden = false; $("#diagramme").hidden = false;
     majSoleil();
@@ -463,6 +468,8 @@ window.addEventListener("pageshow", synchroSwiss);
 $("#vCadastre").addEventListener("change", e => scene.fond(e.target.checked ? "cadastre" : "uni"));
 scene.surFondAbsent = () => message(t("msg.cadastreAbsent"));
 $("#vEffets").addEventListener("change", e => scene.reglerEffets(e.target.checked));
+$("#vLointain").addEventListener("change", e => scene.reglerLointain({ voir: e.target.checked }));
+$("#vBrume").addEventListener("change", e => scene.reglerLointain({ brume: e.target.checked }));
 $("#vDegrade").addEventListener("change", e => scene.degradeHauteur(e.target.checked));
 scene.surQualite = q => {
   if (q < 2) return;

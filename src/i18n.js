@@ -67,7 +67,6 @@ export function traduirePage(racine = document) {
 export function brancherSelecteur(conteneur) {
   const bloc = document.createElement("span");
   bloc.className = "langues";
-  bloc.append(" · ");
   for (const l of LANGUES) {
     const a = document.createElement("a");
     const u = new URL(location.href);
