@@ -52,9 +52,11 @@ export function teinterCadastre(img, plan, canvas = document.createElement("canv
     const u = v > 0.86 ? (v - 0.86) / 0.14 : v / 0.86, c0 = v > 0.86 ? route : trait, c1 = v > 0.86 ? sol : route;
     // couleur : la composante dominante dit l'objet
     const obj = r >= g && r >= b ? bati : g >= b ? foret : eau;
+    // transparence (zones sans plan, en montagne surtout ; traits adoucis) : mêlée à la teinte du sol, pas au noir
+    const a = d[p + 3] / 255;
     for (let k = 0; k < 3; k++) {
       const gris = c0[k] + (c1[k] - c0[k]) * u, coul = trait[k] + (obj[k] - trait[k]) * v;
-      d[p + k] = gris + (coul - gris) * sat;
+      d[p + k] = sol[k] + (gris + (coul - gris) * sat - sol[k]) * a;
     }
     d[p + 3] = 255;
   }
