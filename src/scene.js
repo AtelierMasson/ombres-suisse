@@ -236,7 +236,7 @@ export class Scene3D {
     this.disque.visible = false; // affiché dès qu'un lieu est chargé
     // paysage (relief jusqu'à 50 km) : dans la scène, pour que paysage et maquette se cachent l'un l'autre ; le plan
     // lointain de la caméra s'étend alors à 150 km (la précision de profondeur dépend surtout du plan proche)
-    this.loin = { mat: materiauLointain(), maille: null, voir: false, brume: true }; // paysage : coupé par défaut (case Affichage)
+    this.loin = { mat: materiauLointain(), maille: null, voir: false, brume: false }; // paysage et brume : coupés par défaut (cases Affichage)
     // plan cadastral en tuiles autour de la maquette, chargées au fil des déplacements
     this.tuilesPlan = new TuilesPlan(this);
     {
@@ -366,8 +366,8 @@ export class Scene3D {
    * montagnes lointaines sans blanchir la maquette ; sans paysage, celle du thème (la maquette se fond dans le ciel).
    */
   densiteBrume() {
+    if (this.vol && !this.modeVue) return 1.5e-4; // vol de l'accueil : toujours sa brume d'été
     if (this.modeVue || !this.loin.brume) return 0;
-    if (this.vol) return 1.5e-4; // vol de l'accueil : vraie brume d'été, les sommets s'estompent au loin
     return this.loin.maille && this.loin.voir ? 2.2e-5 : this.T.lumiere.brume;
   }
 
