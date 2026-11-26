@@ -301,6 +301,8 @@ async function depuisAdresse(o = null) {
   if (!ACC && !h.get("e")) return accueil();
   const et = ACC ? () => {} : etat;
   const E = +h.get("e"), N = +h.get("n"), id = ++tache;
+  // voyage au clavier : le lieu se recentre sur la caméra sans chercher de parcelle, et la vue est gardée telle quelle
+  const voyage = !ACC && h.get("t") === "Voyage", E0avant = S.E0, N0avant = S.N0;
   chargement?.abort();
   annulerCalcul();
   if (!ACC) {
@@ -313,7 +315,7 @@ async function depuisAdresse(o = null) {
   message("");
   try {
     et(0.02, t("etat.parcelle"));
-    const parcelle = ACC ? null : await parcelleEn(E, N);
+    const parcelle = ACC || voyage ? null : await parcelleEn(E, N);
     if (id !== tache) return;
     // centre et rayon : la parcelle et ~120 m autour (bâtiments voisins, arbres)
     let E0 = E, N0 = N, demi = 20;
@@ -323,7 +325,7 @@ async function depuisAdresse(o = null) {
       demi = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) / 2;
       $("#lieuType").textContent = `${t("lieu.parcelle", { n: parcelle.numero })} · ${parcelle.canton}${h.get("t") === "Adresse" ? " · " + h.get("l") : ""}`;
       $("#lieu").textContent = (h.get("l") || "").replace(/\s*\(CH.*\)$/, "");
-    } else if (!ACC) message(t("msg.pasDeParcelle"), 0);
+    } else if (!ACC && !voyage) message(t("msg.pasDeParcelle"), 0);
     E0 = Math.round(E0); N0 = Math.round(N0);
     // maquette ronde : rayon choisi (curseur), sinon automatique ; relevé laser jusqu'à 300 m, au-delà un anneau
     // carrée : pas d'anneau, le rayon s'arrête au relevé fin
@@ -379,7 +381,15 @@ async function depuisAdresse(o = null) {
     if (ACC) { scene.loin.facteurBrume = 0.6; scene.loin.brume = true; }
     scene.pontsModeles = await pontsAutour(E0, N0, R).catch(() => []); scene.lieuPonts = { E: E0, N: N0 };
     if (id !== tache) return;
+    const vueAvant = voyage ? { p: scene.camera.position.clone(), c: scene.controls.target.clone(), z: scene.zRef } : null;
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite), bruit: urlFond(COUCHES.bruit, boite) });
+    if (vueAvant && E0avant != null) {
+      // même vue qu'avant le rechargement : la caméra est décalée du déplacement du centre (et de l'altitude de référence)
+      const dx = E0 - E0avant, dn = N0 - N0avant, dz = scene.zRef - vueAvant.z;
+      for (const v of [vueAvant.p, vueAvant.c]) { v.x -= dx; v.z += dn; v.y -= dz; }
+      scene.camera.position.copy(vueAvant.p); scene.controls.target.copy(vueAvant.c); scene.controls.update();
+    }
+    S.voyage = false;
     scene.animerConstruction(); // les bâtiments montent du sol, puis les arbres apparaissent
     // vue enregistrée (lieu du compte) : la caméra reprend sa place
     const cam = (h.get("cam") || "").split(",").map(Number);
@@ -432,6 +442,16 @@ async function depuisAdresse(o = null) {
   }
 }
 const pause = () => new Promise(r => setTimeout(r, 30));
+
+// voyage au clavier dans toute la Suisse : arrivé près du bord, le lieu se recharge centré sous la caméra
+scene.surVoyage = cible => {
+  if (S.voyage || !S.G || document.body.classList.contains("accueil") || S.E0 == null) return;
+  const E = Math.round(S.E0 + cible.x), N = Math.round(S.N0 - cible.z);
+  if (E < 2480000 || E > 2840000 || N < 1070000 || N > 1300000) return; // hors de Suisse
+  S.voyage = true;
+  history.replaceState(null, "", `#e=${E}&n=${N}&l=${encodeURIComponent(`${E}, ${N}`)}&t=Voyage`);
+  depuisAdresse().finally(() => { S.voyage = false; });
+};
 
 /**
  * Accueil sur Gruyères : la caméra avance lentement depuis le bas du bourg vers le château, puis revient, en boucle.

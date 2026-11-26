@@ -1929,6 +1929,9 @@ void main() {
     if (!k.size && v.lengthSq() < 0.01) { v.set(0, 0, 0); return false; }
     const pas = v.clone().multiplyScalar(dt);
     cam.position.add(pas); cible.add(pas);
+    // voyage : près du bord de la maquette, le lieu se recharge sous la caméra (main.js, surVoyage)
+    const Rv = Math.max(this.G.R, this.rayonExt || 0);
+    if (Math.hypot(cible.x, cible.z) > Rv * 0.75) this.surVoyage?.(cible);
     return true;
   }
 
