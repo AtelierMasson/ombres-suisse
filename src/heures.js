@@ -1,6 +1,7 @@
 // Carte des heures de soleil : zone arrondie autour de la parcelle, positions du soleil par période
 // (jour, moyenne du mois, moyenne de l'année), points d'échantillonnage sur les façades et maillages colorés.
 import * as THREE from "three";
+import { simplifierProfil, lireCote } from "./maillages.js";
 import { solEn } from "./grille.js";
 import { hauteurTerrain } from "./maillages.js";
 import { positionSoleil, dateA } from "./soleil.js";
@@ -143,6 +144,9 @@ export function carreauxFacades(G, C, zone) {
       }
       const long = L[L.length - 1];
       if (long < 0.6) continue;
+      // haut des carreaux = haut du mur tel qu'il est dessiné (bord du toit simplifié, jamais plus bas que le toit :
+      // maillages.js, batiments) ; sinon une bande en escalier du mur restait sans couleur sous le toit
+      const Hmur = simplifierProfil(P.map((pt, i) => [L[i], pt[2]]), 0.12, 1);
       const dx = (P[P.length - 1][0] - P[0][0]), dy = (P[P.length - 1][1] - P[0][1]), dl = Math.hypot(dx, dy) || 1;
       const nx = dy / dl, ny = -dx / dl; // bâtiment à gauche : l'extérieur est à droite
       let r = 0;
@@ -151,7 +155,7 @@ export function carreauxFacades(G, C, zone) {
         while (r > 0 && L[r] > u) r--;
         const t = L[r + 1] > L[r] ? (u - L[r]) / (L[r + 1] - L[r]) : 0, a = P[r], b = P[r + 1];
         const x = a[0] + (b[0] - a[0]) * t, y = a[1] + (b[1] - a[1]) * t;
-        return [x, y, a[2] + (b[2] - a[2]) * t, solEn(G, x, y)];
+        return [x, y, Math.max(a[2] + (b[2] - a[2]) * t, lireCote(Hmur, u, 1)), solEn(G, x, y)];
       };
       // grille régulière : colonnes de même largeur (environ 1 m) sur tout le côté, rangées de 1 m comptées depuis le
       // sol, la dernière arrêtée au toit ; les rangées s'alignent d'une colonne à l'autre, quelle que soit l'orientation

@@ -279,7 +279,7 @@ export function batiments(G, zRef, pans = false, contours = contoursBatiments(G)
  * Profil [[s, z], …] (abscisse croissante) simplifié par Douglas-Peucker à `tol` près, puis décalé pour rester d'un
  * côté de l'original : `sens` = 1, jamais en dessous (haut des murs) ; −1, jamais au-dessus (pied des murs).
  */
-function simplifierProfil(pts, tol, sens) {
+export function simplifierProfil(pts, tol, sens) {
   // points identiques consécutifs retirés
   const p = pts.filter((v, i) => i === 0 || Math.abs(v[0] - pts[i - 1][0]) > 1e-6 || Math.abs(v[1] - pts[i - 1][1]) > 1e-6);
   if (p.length <= 2) return p.length === 1 ? [p[0], p[0]] : p;
@@ -327,7 +327,7 @@ function simplifierLigne(pts, tol) {
 }
 
 /** Hauteur d'un profil simplifié en `x`, du côté `cote` (1 : juste après, −1 : juste avant) d'une marche verticale. */
-function lireCote(Pf, x, cote) {
+export function lireCote(Pf, x, cote) {
   for (let i = 0; i < Pf.length - 1; i++) {
     const [s1, z1] = Pf[i], [s2, z2] = Pf[i + 1];
     if (s2 - s1 < 1e-6) continue;
