@@ -74,9 +74,24 @@
             <span id="jourTexte"></span>
             <input type="date" id="jour" data-i18n-aria-label="soleil.date" aria-label="Date">
           </label>
-          <div class="legende small text-secondary" data-i18n-html="soleil.legende"><span class="l-relief"></span>Relief jusqu'à 50 km <span class="l-course"></span>Ce jour <span class="l-saison"></span>21 juin / 21 déc.</div>
+          <div class="legende small text-secondary" data-i18n-html="soleil.legende"><span><i class="l-course"></i>Ce jour</span><span><i class="l-saison"></i>21 juin · 21 déc.</span></div>
           <input type="range" id="heure" min="0" max="1439" step="5" data-i18n-aria-label="soleil.heure" aria-label="Heure" hidden>
           <span id="heureTexte" hidden></span><span id="soleilTexte" hidden></span>
+        </div>
+      </section>
+      <section id="ensoleillement">
+        <div class="titre" data-i18n="heures.titre">Heures de soleil</div>
+        <div class="btn-group btn-group-sm w-100 mb-2" role="group" data-i18n-aria-label="heures.periode" aria-label="Période">
+          <input type="radio" class="btn-check" name="periode" id="pJour" value="jour" checked><label class="btn btn-outline-secondary" for="pJour" data-i18n="heures.jour">Jour</label>
+          <input type="radio" class="btn-check" name="periode" id="pMois" value="mois"><label class="btn btn-outline-secondary" for="pMois" data-i18n="heures.mois">Mois</label>
+          <input type="radio" class="btn-check" name="periode" id="pAnnee" value="annee"><label class="btn btn-outline-secondary" for="pAnnee" data-i18n="heures.annee">Année</label>
+        </div>
+        <button class="btn btn-sm btn-outline-primary w-100" id="btnHeures" data-i18n="heures.calculer">Calculer les heures de soleil</button>
+        <div id="heures" class="small mt-2" hidden>
+          <div class="degrade"></div>
+          <div class="d-flex justify-content-between text-secondary"><span data-i18n="heures.zero">0 h</span><span id="heuresMax"></span></div>
+          <div id="heuresStats" class="mt-1"></div>
+          <div class="form-check form-switch mt-1"><input class="form-check-input" type="checkbox" id="vHeures" checked><label class="form-check-label small" for="vHeures" data-i18n="heures.carte">Afficher la carte</label></div>
         </div>
       </section>
 
@@ -84,7 +99,6 @@
       <ul class="nav nav-tabs nav-fill small" id="onglets" role="tablist">
         <li class="nav-item" role="presentation"><button class="nav-link active" type="button" role="tab" data-onglet="affichage" data-i18n="onglet.affichage">Affichage</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" type="button" role="tab" data-onglet="coupe" data-i18n="onglet.coupe">Coupe</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" type="button" role="tab" data-onglet="heures" data-i18n="onglet.heures">Heures</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" type="button" role="tab" data-onglet="pro" data-i18n="onglet.pro">Pro</button></li>
       </ul>
       <section data-onglet="affichage" role="tabpanel">
@@ -95,30 +109,30 @@
       <input type="radio" class="btn-check" name="batiments" id="bRoofer" value="roofer"><label class="btn btn-outline-secondary" for="bRoofer" id="etiquetteRoofer" data-i18n-title="aff.rooferTitre" title="roofer (TU Delft), LoD2.2, calculé hors ligne pour quelques lieux d'essai">Advanced</label>
       <input type="radio" class="btn-check" name="batiments" id="bAucun" value="aucun"><label class="btn btn-outline-secondary" for="bAucun" data-i18n="aff.aucun">None</label>
     </div>
-    <div class="small text-secondary mb-1" id="noteBatiments"></div>
+    <div class="small text-secondary mb-1" id="noteBatiments" hidden></div>
     <table class="table-calques">
-      <thead><tr><th></th><th data-i18n="aff.voir">Voir</th><th data-i18n="aff.ombre">Ombre</th></tr></thead>
+      <thead><tr><th></th><th></th><th data-i18n="aff.ombre">Ombre</th></tr></thead>
       <tbody>
         <tr><th scope="row"><label for="vBatVoir" data-i18n="aff.batiments">Bâtiments</label> <span class="choix-swiss">(<input class="form-check-input" type="checkbox" id="vSwiss" data-i18n-title="aff.swissCase" title="Modèles 3D swisstopo (swissBUILDINGS3D) au lieu des bâtiments reconstruits" data-i18n-aria-label="aff.swissCase" aria-label="Modèles 3D swisstopo (swissBUILDINGS3D) au lieu des bâtiments reconstruits"><label for="vSwiss">Swiss3D</label>)</span></th>
-          <td><input class="form-check-input" type="checkbox" id="vBatVoir" checked data-i18n-aria-label="aff.batVoir" aria-label="Voir les bâtiments"></td>
+          <td><input class="form-check-input oeil" type="checkbox" id="vBatVoir" checked data-i18n-aria-label="aff.batVoir" aria-label="Voir les bâtiments"></td>
           <td><input class="form-check-input" type="checkbox" id="vBatOmbre" checked data-i18n-aria-label="aff.batOmbre" aria-label="Ombre des bâtiments"></td></tr>
         <tr><th scope="row"><label for="vArbres" data-i18n="aff.arbres">Arbres</label></th>
-          <td><input class="form-check-input" type="checkbox" id="vArbres" checked data-i18n-aria-label="aff.arbresVoir" aria-label="Voir les arbres"></td>
+          <td><input class="form-check-input oeil" type="checkbox" id="vArbres" checked data-i18n-aria-label="aff.arbresVoir" aria-label="Voir les arbres"></td>
           <td><input class="form-check-input" type="checkbox" id="vArbresOmbre" checked data-i18n-aria-label="aff.arbresOmbre" aria-label="Ombre des arbres"></td></tr>
         <tr><th scope="row"><label for="vPoints" data-i18n="aff.points">Nuage de points brut</label> <span class="choix-swiss">(<input class="form-check-input" type="checkbox" id="vCouleursReelles" data-i18n-title="aff.couleursTitre" title="Couleur de chaque point prise sur l'orthophoto SWISSIMAGE, à la verticale (les façades prennent la couleur du toit ou du sol voisin)" data-i18n-aria-label="aff.couleursTitre" aria-label="Couleur de chaque point prise sur l'orthophoto SWISSIMAGE, à la verticale (les façades prennent la couleur du toit ou du sol voisin)"><label for="vCouleursReelles" data-i18n="aff.couleurs">couleurs réelles</label>)</span></th>
-          <td><input class="form-check-input" type="checkbox" id="vPoints"></td><td></td></tr>
+          <td><input class="form-check-input oeil" type="checkbox" id="vPoints"></td><td></td></tr>
         <tr><th scope="row"><label for="vDegrade" data-i18n="aff.degrade">Couleur selon la hauteur</label></th>
-          <td><input class="form-check-input" type="checkbox" id="vDegrade"></td><td></td></tr>
+          <td><input class="form-check-input oeil" type="checkbox" id="vDegrade"></td><td></td></tr>
         <tr><th scope="row"><label for="vCadastre" data-i18n="aff.cadastre">Plan cadastral au sol</label></th>
-          <td><input class="form-check-input" type="checkbox" id="vCadastre" checked></td><td></td></tr>
+          <td><input class="form-check-input oeil" type="checkbox" id="vCadastre" checked></td><td></td></tr>
         <tr><th scope="row"><label for="vParcelles" data-i18n="aff.parcelles">Parcelles voisines</label></th>
-          <td><input class="form-check-input" type="checkbox" id="vParcelles" checked></td><td></td></tr>
+          <td><input class="form-check-input oeil" type="checkbox" id="vParcelles" checked></td><td></td></tr>
         <tr><th scope="row"><label for="vLointain" data-i18n="aff.lointain" data-i18n-title="aff.lointainTitre" title="Collines, montagnes et lacs jusqu'à 50 km autour, d'après le relief libre Terrain Tiles">Paysage</label></th>
-          <td><input class="form-check-input" type="checkbox" id="vLointain" checked></td><td></td></tr>
+          <td><input class="form-check-input oeil" type="checkbox" id="vLointain" checked></td><td></td></tr>
         <tr><th scope="row"><label for="vBrume" data-i18n="aff.brume" data-i18n-title="aff.brumeTitre" title="Le paysage s'estompe avec la distance">Brume</label></th>
-          <td><input class="form-check-input" type="checkbox" id="vBrume" checked></td><td></td></tr>
+          <td><input class="form-check-input oeil" type="checkbox" id="vBrume" checked></td><td></td></tr>
         <tr><th scope="row"><label for="vEffets" data-i18n="aff.effets" data-i18n-title="aff.effetsTitre" title="Occlusion ambiante et rebond de lumière ; à couper si l'affichage est lent">High quality lighting</label></th>
-          <td><input class="form-check-input" type="checkbox" id="vEffets" checked></td><td></td></tr>
+          <td><input class="form-check-input oeil" type="checkbox" id="vEffets" checked></td><td></td></tr>
       </tbody>
     </table>
       </section>
@@ -140,21 +154,6 @@
         </div>
       </section>
 
-      <section data-onglet="heures" role="tabpanel" hidden>
-        <div class="titre" data-i18n="heures.titre">Heures de soleil</div>
-        <div class="btn-group btn-group-sm w-100 mb-2" role="group" data-i18n-aria-label="heures.periode" aria-label="Période">
-          <input type="radio" class="btn-check" name="periode" id="pJour" value="jour" checked><label class="btn btn-outline-secondary" for="pJour" data-i18n="heures.jour">Jour</label>
-          <input type="radio" class="btn-check" name="periode" id="pMois" value="mois"><label class="btn btn-outline-secondary" for="pMois" data-i18n="heures.mois">Mois</label>
-          <input type="radio" class="btn-check" name="periode" id="pAnnee" value="annee"><label class="btn btn-outline-secondary" for="pAnnee" data-i18n="heures.annee">Année</label>
-        </div>
-        <button class="btn btn-sm btn-outline-primary w-100" id="btnHeures" data-i18n="heures.calculer">Calculer les heures de soleil</button>
-        <div id="heures" class="small mt-2" hidden>
-          <div class="degrade"></div>
-          <div class="d-flex justify-content-between text-secondary"><span data-i18n="heures.zero">0 h</span><span id="heuresMax"></span></div>
-          <div id="heuresStats" class="mt-1"></div>
-          <div class="form-check form-switch mt-1"><input class="form-check-input" type="checkbox" id="vHeures" checked><label class="form-check-label small" for="vHeures" data-i18n="heures.carte">Afficher la carte</label></div>
-        </div>
-      </section>
 
       <section id="pro" data-onglet="pro" role="tabpanel" hidden>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPro"><label class="form-check-label small" for="vPro" data-i18n-html="pro.mode"><b>Mode pro</b> <span class="text-secondary">(enlever des bâtiments, exporter)</span></label></div>

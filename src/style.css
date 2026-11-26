@@ -105,6 +105,11 @@ body:not(.pro) .pro-seul { display: none !important; }
 .legende span { display: inline-block; width: 14px; height: 8px; margin: 0 4px 0 8px; vertical-align: 0; }
 .legende .l-relief { background: var(--relief); }
 .legende .l-course { border-top: 2px solid var(--course); height: 0; }
+#diagramme .legende { display: flex; justify-content: center; gap: 14px; margin-top: 2px; }
+#diagramme .legende span { display: inline-flex; align-items: center; gap: 5px; width: auto; height: auto; margin: 0; }
+#diagramme .legende i { display: inline-block; width: 16px; height: 0; }
+#diagramme .legende i.l-course { border-top: 2px solid var(--course); }
+#diagramme .legende i.l-saison { border-top: 1.5px dashed var(--course); }
 .legende .l-saison { border-top: 1px dashed var(--course); height: 0; }
 .legende .l-bati { background: var(--coupe-bati); }
 .legende .l-terrain { background: var(--coupe-terrain); border-top: 1px solid var(--coupe-trait); }
@@ -220,3 +225,16 @@ body.accueil #orientation { display: none; }
 @media (max-width: 700px) { #pied .sources { display: none; } }
 .table-calques .choix-swiss { font-weight: normal; white-space: nowrap; }
 .table-calques .choix-swiss .form-check-input { margin: 0 .25em 0 .1em; vertical-align: -.15em; }
+
+/* ensoleillement : directement sous la course du soleil */
+#ensoleillement { margin: 4px 0 10px; padding-top: 8px; border-top: 1px solid var(--bord); }
+/* « Voir » : un petit œil, ouvert ou barré, à la place de la case */
+.table-calques .form-check-input.oeil { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; border: 0; border-radius: 0; background: var(--doux);
+  -webkit-mask: var(--oeil-ferme) center / contain no-repeat; mask: var(--oeil-ferme) center / contain no-repeat; opacity: .55; box-shadow: none; }
+.table-calques .form-check-input.oeil:checked { background: var(--accent); -webkit-mask-image: var(--oeil); mask-image: var(--oeil); opacity: 1; }
+.table-calques .form-check-input.oeil:disabled { opacity: .25; cursor: default; }
+.table-calques .form-check-input.oeil:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+:root {
+  --oeil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+  --oeil-ferme: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.6-7 10-7c2 0 3.7.7 5.1 1.6M22 12s-3.6 7-10 7c-2 0-3.7-.7-5.1-1.6'/%3E%3Cpath d='M3 3l18 18'/%3E%3C/svg%3E");
+}

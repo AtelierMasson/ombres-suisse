@@ -67,7 +67,7 @@ export default {
   "soleil.choisirJour": "Choisir le jour",
   "soleil.date": "Date",
   "soleil.heure": "Heure",
-  "soleil.legende": "<span class=\"l-relief\"></span>Relief jusqu'à 50 km <span class=\"l-course\"></span>Ce jour <span class=\"l-saison\"></span>21 juin / 21 déc.",
+  "soleil.legende": "<span><i class=\"l-course\"></i>Ce jour</span><span><i class=\"l-saison\"></i>21 juin · 21 déc.</span>",
   "soleil.couche": "couché",
   "soleil.visible": "visible",
   "soleil.cacheRelief": "caché par le relief lointain (horizon à {h}°)",
@@ -114,7 +114,7 @@ export default {
   "aff.lointainTitre": "Collines, montagnes et lacs jusqu'à 50 km autour, d'après le relief libre Terrain Tiles",
   "aff.brume": "Brume",
   "aff.brumeTitre": "Le paysage s'estompe avec la distance",
-  "aff.effets": "High quality lighting",
+  "aff.effets": "Render quality",
   "aff.effetsTitre": "Occlusion ambiante et rebond de lumière ; à couper si l'affichage est lent",
   "aff.noteSwiss": "Swiss3D (swissBUILDINGS3D) : ils portent les ombres affichées ; les heures de soleil restent calculées avec le relevé.",
   "aff.noteRoofer": "Advanced (roofer, TU Delft) : ils portent les ombres affichées ; les heures de soleil restent calculées avec le relevé.",
@@ -158,7 +158,7 @@ export default {
   "coupe.bas": "bas {z}",
 
   /* heures de soleil */
-  "heures.titre": "Heures de soleil",
+  "heures.titre": "Ensoleillement",
   "heures.periode": "Période",
   "heures.jour": "Jour",
   "heures.mois": "Mois",

@@ -66,7 +66,7 @@ export default {
   "soleil.choisirJour": "Choose the day",
   "soleil.date": "Date",
   "soleil.heure": "Time",
-  "soleil.legende": "<span class=\"l-relief\"></span>Terrain up to 50 km <span class=\"l-course\"></span>This day <span class=\"l-saison\"></span>21 June / 21 Dec.",
+  "soleil.legende": "<span><i class=\"l-course\"></i>This day</span><span><i class=\"l-saison\"></i>21 June · 21 Dec.</span>",
   "soleil.couche": "set",
   "soleil.visible": "visible",
   "soleil.cacheRelief": "hidden by distant terrain (horizon at {h}°)",
@@ -113,7 +113,7 @@ export default {
   "aff.lointainTitre": "Hills, mountains and lakes up to 50 km around, from the open Terrain Tiles relief",
   "aff.brume": "Haze",
   "aff.brumeTitre": "The landscape fades with distance",
-  "aff.effets": "High quality lighting",
+  "aff.effets": "Render quality",
   "aff.effetsTitre": "Ambient occlusion and bounced light; turn off if the display is slow",
   "aff.noteSwiss": "Swiss3D (swissBUILDINGS3D): these buildings cast the shadows shown; sunlight hours are still computed from the survey.",
   "aff.noteRoofer": "Advanced (roofer, TU Delft): these buildings cast the shadows shown; sunlight hours are still computed from the survey.",
@@ -157,7 +157,7 @@ export default {
   "coupe.bas": "ground {z}",
 
   /* heures de soleil */
-  "heures.titre": "Sunlight hours",
+  "heures.titre": "Sunlight",
   "heures.periode": "Period",
   "heures.jour": "Day",
   "heures.mois": "Month",

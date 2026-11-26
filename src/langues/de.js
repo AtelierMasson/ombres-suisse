@@ -66,7 +66,7 @@ export default {
   "soleil.choisirJour": "Tag wählen",
   "soleil.date": "Datum",
   "soleil.heure": "Uhrzeit",
-  "soleil.legende": "<span class=\"l-relief\"></span>Relief bis 50 km <span class=\"l-course\"></span>Dieser Tag <span class=\"l-saison\"></span>21. Juni / 21. Dez.",
+  "soleil.legende": "<span><i class=\"l-course\"></i>Dieser Tag</span><span><i class=\"l-saison\"></i>21. Juni · 21. Dez.</span>",
   "soleil.couche": "untergegangen",
   "soleil.visible": "sichtbar",
   "soleil.cacheRelief": "vom fernen Relief verdeckt (Horizont bei {h}°)",
@@ -113,7 +113,7 @@ export default {
   "aff.lointainTitre": "Hügel, Berge und Seen bis 50 km im Umkreis, nach dem freien Relief Terrain Tiles",
   "aff.brume": "Dunst",
   "aff.brumeTitre": "Die Landschaft verblasst mit der Entfernung",
-  "aff.effets": "High quality lighting",
+  "aff.effets": "Render quality",
   "aff.effetsTitre": "Umgebungsverdeckung und indirektes Licht; ausschalten, wenn die Darstellung langsam ist",
   "aff.noteSwiss": "Swiss3D (swissBUILDINGS3D): Sie werfen die angezeigten Schatten; die Sonnenstunden werden weiterhin mit dem Laserscan berechnet.",
   "aff.noteRoofer": "Advanced (roofer, TU Delft): Sie werfen die angezeigten Schatten; die Sonnenstunden werden weiterhin mit dem Laserscan berechnet.",
@@ -157,7 +157,7 @@ export default {
   "coupe.bas": "Terrain {z}",
 
   /* heures de soleil */
-  "heures.titre": "Sonnenstunden",
+  "heures.titre": "Besonnung",
   "heures.periode": "Zeitraum",
   "heures.jour": "Tag",
   "heures.mois": "Monat",
