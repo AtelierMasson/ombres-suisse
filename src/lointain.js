@@ -53,7 +53,7 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMa
     const r0 = rond ? R : R / Math.max(Math.abs(sx), Math.abs(sy)); // bord du cercle, ou du carré dans cette direction
     for (let k = 0; k < nR; k++) {
       const d = r0 + ecarts[k];
-      sommets.push({ e: sx * d, n: sy * d, d, s: ecarts[k], bx: sx * r0 * 0.995, by: sy * r0 * 0.995, z: d < 8000 ? 13 : d < 30000 ? 12 : 11, pas: d < rayonFin ? Math.max(3, d * 0.004) : Math.max(15, d * 0.003) });
+      sommets.push({ e: sx * d, n: sy * d, d, s: ecarts[k], bx: sx * r0 * 0.995, by: sy * r0 * 0.995, z: d < 3000 ? 13 : d < 12000 ? 12 : 11, pas: d < rayonFin ? Math.max(3, d * 0.004) : Math.max(15, d * 0.003) });
     }
   }
   // tuiles nécessaires (sommets et voisins servant aux pentes)
@@ -111,7 +111,7 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMa
   g.computeBoundingSphere();
   // altitude (repère de la scène) en un point relatif (x est, y nord), pour poser le plan cadastral en tuiles
   g.userData.altitude = (x, y) => {
-    const d = Math.hypot(x, y), a = altEn(E0 + x, N0 + y, d < 8000 ? 13 : d < 30000 ? 12 : 11);
+    const d = Math.hypot(x, y), a = altEn(E0 + x, N0 + y, d < 3000 ? 13 : d < 12000 ? 12 : 11);
     return isNaN(a) ? NaN : a - d * d / (2 * RAYON_TERRE) * (1 - REFRACTION) - zRef;
   };
   return g;
