@@ -253,6 +253,7 @@ export class Scene3D {
     const L = this.loin;
     L.maille = new THREE.Mesh(g, L.mat);
     L.maille.frustumCulled = false;
+    L.maille.receiveShadow = true; // l'ombre de la maquette déborde sur le paysage
     this.scene.add(L.maille);
     this.scene.fog.density = this.densiteBrume();
     this.majLointain();
@@ -299,16 +300,11 @@ export class Scene3D {
 
   /** Couleurs et lumière du relief lointain, celles de la maquette (thème, soleil, ciel). */
   majLointain() {
-    const u = this.loin.mat.uniforms, v = this.voute.material.uniforms;
+    const u = this.loin.mat.uniforms;
     u.sol.value.set(this.T.sol);
-    u.lac.value.set(this.T.sol).lerp(new THREE.Color(this.T.sombre ? "#3d5f86" : "#7fa8d4"), 0.5); // lacs légèrement bleus
-    u.ciel.value.copy(this.ciel.color).multiplyScalar(this.ciel.intensity);
-    u.terreCiel.value.copy(this.ciel.groundColor).multiplyScalar(this.ciel.intensity);
-    u.soleilCouleur.value.copy(this.soleil.color).multiplyScalar(this.soleil.intensity);
-    u.soleilDir.value.copy(this.soleil.position).normalize();
-    u.horizon.value.copy(v.horizon.value);
-    u.densite.value = this.densiteBrume();
+    u.lac.value.set(this.T.plan.eau); // lacs légèrement bleus, du même bleu que l'eau du plan cadastral
   }
+
 
   rendre() {
     if (this.coupe) this.orienterCoupe();

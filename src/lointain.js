@@ -53,7 +53,7 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMa
     const r0 = R / Math.max(Math.abs(sx), Math.abs(sy)); // bord du carré dans cette direction
     for (let k = 0; k < nR; k++) {
       const d = r0 + ecarts[k];
-      sommets.push({ e: sx * d, n: sy * d, d, s: ecarts[k], bx: sx * r0 * 0.995, by: sy * r0 * 0.995, z: d < 10000 ? 12 : d < 25000 ? 11 : 10, pas: d < rayonFin ? Math.max(3, d * 0.004) : Math.max(20, d * 0.006) });
+      sommets.push({ e: sx * d, n: sy * d, d, s: ecarts[k], bx: sx * r0 * 0.995, by: sy * r0 * 0.995, z: d < 25000 ? 12 : 11, pas: d < rayonFin ? Math.max(3, d * 0.004) : Math.max(15, d * 0.003) });
     }
   }
   // tuiles nécessaires (sommets et voisins servant aux pentes)
@@ -111,41 +111,34 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMa
   return g;
 }
 
-const SOMMETS = /* glsl */`
-attribute float eau;
-varying vec3 vMonde, vN;
-varying float vEau;
-void main() {
-  vec4 m = modelMatrix * vec4(position, 1.0);
-  vMonde = m.xyz; vN = normalize(mat3(modelMatrix) * normal); vEau = eau;
-  gl_Position = projectionMatrix * viewMatrix * m;
-}`;
-const FRAGMENTS = /* glsl */`
-uniform vec3 sol, lac, ciel, terreCiel, soleilCouleur, soleilDir, horizon;
-uniform float densite, fondActif, fondDemi, procheDemi; // plan cadastral drapé autour de la maquette (demi-côtés en m)
+// Matériau : celui du sol de la maquette (MeshStandardMaterial : mêmes lumières, ombres portées, brume, rendu), dont
+// la couleur vient du plan cadastral drapé (deux finesses), des lacs et du même grain de papier.
+const DECLARATIONS = /* glsl */`
+uniform vec3 sol, lac;
+uniform float fondActif, fondDemi, procheDemi; // plan cadastral drapé autour de la maquette (demi-côtés en m)
 uniform sampler2D tFond, tProche; // large (environ 1 m par pixel) et proche (environ 0,4 m par pixel)
-// grain de papier (le même que la maquette : voir grainPlatre dans scene.js)
+varying vec3 vMonde;
+varying float vEau;
 float hachage(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
 float bruit3(vec3 x) {
   vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
   return mix(mix(mix(hachage(i), hachage(i + vec3(1, 0, 0)), f.x), mix(hachage(i + vec3(0, 1, 0)), hachage(i + vec3(1, 1, 0)), f.x), f.y),
              mix(mix(hachage(i + vec3(0, 0, 1)), hachage(i + vec3(1, 0, 1)), f.x), mix(hachage(i + vec3(0, 1, 1)), hachage(i + vec3(1, 1, 1)), f.x), f.y), f.z);
-}
-varying vec3 vMonde, vN;
-varying float vEau;
-void main() {
-  vec3 n = normalize(vN), base = sol;
+}`;
+const COULEUR = /* glsl */`
+  vec3 base = sol;
+  float plan = 0.0; // part du plan cadastral (qui dessine déjà les lacs, à leur vraie rive)
   if (fondActif > 0.5) {
     vec2 uv = vec2(vMonde.x, -vMonde.z) / (2.0 * fondDemi) + 0.5;
     float bord = max(abs(uv.x - 0.5), abs(uv.y - 0.5)) * 2.0; // 0 au centre, 1 au bord de l'image
-    base = mix(texture2D(tFond, uv).rgb, sol, smoothstep(0.85, 1.0, bord));
+    plan = 1.0 - smoothstep(0.85, 1.0, bord);
+    base = mix(sol, texture2D(tFond, uv).rgb, plan);
     vec2 uvP = vec2(vMonde.x, -vMonde.z) / (2.0 * procheDemi) + 0.5;
     float bordP = max(abs(uvP.x - 0.5), abs(uvP.y - 0.5)) * 2.0;
     if (bordP < 1.0) base = mix(texture2D(tProche, uvP).rgb, base, smoothstep(0.9, 1.0, bordP));
   }
-  base = mix(base, lac, smoothstep(0.3, 0.9, vEau));
-  // même grain que le sol de la maquette sur les 4 × 4 km du plan ; le grain fin s'efface quand il devient plus
-  // petit qu'un pixel (sinon il scintille au loin)
+  base = mix(base, lac, smoothstep(0.3, 0.9, vEau) * (1.0 - plan));
+  // même grain que le sol de la maquette ; le grain fin s'efface quand il devient plus petit qu'un pixel (scintillement)
   if (fondActif > 0.5 && max(abs(vMonde.x), abs(vMonde.z)) < fondDemi) {
     float g = 0.55 * bruit3(vMonde * 2.7) + 0.3 * bruit3(vMonde * 9.0) + 0.15 * bruit3(vMonde * 0.35);
     float pixel = hachage(floor(vMonde * 2.0 + 0.001) + 0.37);
@@ -153,24 +146,24 @@ void main() {
     float fin = 1.0 - smoothstep(0.15, 0.6, max(taille.x, taille.y));
     base *= 1.0 + 0.07 * ((g - 0.5) * 1.4 * mix(0.5, 1.0, fin) + (pixel - 0.5) * 0.9 * fin);
   }
-  // même éclairage que la maquette (ciel en hémisphère + soleil), sans ombres portées
-  vec3 lum = mix(terreCiel, ciel, n.y * 0.5 + 0.5) + soleilCouleur * max(dot(n, soleilDir), 0.0);
-  vec3 c = base * lum / 3.14159;
-  // perspective aérienne : le paysage se fond dans la couleur de l'horizon avec la distance
-  float d = length(vMonde - cameraPosition);
-  float k = d * densite;
-  c = mix(c, horizon, 1.0 - exp(-k * k)); // même brume que la maquette (FogExp2)
-  gl_FragColor = vec4(c, 1.0);
-}`;
+  diffuseColor.rgb *= base;`;
 
 export function materiauLointain() {
-  return new THREE.ShaderMaterial({
-    uniforms: {
-      sol: { value: new THREE.Color() }, lac: { value: new THREE.Color() }, ciel: { value: new THREE.Color() },
-      terreCiel: { value: new THREE.Color() }, soleilCouleur: { value: new THREE.Color() }, soleilDir: { value: new THREE.Vector3(0, 1, 0) },
-      horizon: { value: new THREE.Color() }, densite: { value: 0 },
-      tFond: { value: null }, tProche: { value: null }, fondActif: { value: 0 }, fondDemi: { value: 2000 }, procheDemi: { value: 800 },
-    },
-    vertexShader: SOMMETS, fragmentShader: FRAGMENTS,
-  });
+  const uniforms = {
+    sol: { value: new THREE.Color() }, lac: { value: new THREE.Color() },
+    tFond: { value: null }, tProche: { value: null }, fondActif: { value: 0 }, fondDemi: { value: 2000 }, procheDemi: { value: 800 },
+  };
+  const mat = new THREE.MeshStandardMaterial({ roughness: 1 });
+  mat.uniforms = uniforms; // réglés par la scène (couleurs du thème, plans drapés)
+  mat.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, uniforms);
+    sh.vertexShader = sh.vertexShader
+      .replace("#include <common>", "#include <common>\nattribute float eau;\nvarying vec3 vMonde;\nvarying float vEau;")
+      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvMonde = (modelMatrix * vec4(transformed, 1.0)).xyz; vEau = eau;");
+    sh.fragmentShader = sh.fragmentShader
+      .replace("#include <common>", "#include <common>\n" + DECLARATIONS)
+      .replace("#include <map_fragment>", "#include <map_fragment>\n" + COULEUR);
+  };
+  mat.customProgramCacheKey = () => "paysage";
+  return mat;
 }
