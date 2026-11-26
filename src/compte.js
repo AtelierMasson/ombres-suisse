@@ -14,6 +14,7 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
   let e = { connecte: false, email: null, pro: false, admin: false, profil: {} };
   let disponible = false;
   let bouton = null, dlg = null, raison = "", message = "", annonce = false;
+  const sections = []; // parties ajoutées à la boîte d'un compte connecté (ex. « Mes lieux », lieux.js)
 
   const appel = (chemin, options = {}) =>
     fetch(api + chemin, { credentials: "include", headers: { Accept: "application/json", ...(options.body ? { "Content-Type": "application/json" } : {}) }, ...options });
@@ -135,6 +136,7 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
         offre.append(note);
         contenu.push(offre);
       }
+      for (const f of sections) { const n = f(); if (n) contenu.push(n); }
       // informations du compte (facultatives) : repliées, un seul formulaire
       const P = e.profil || {}, det = el("details", "compte-profil"), resume = el("summary", null, t("compte.mesInfos"));
       const f = el("form", "compte-profil-form");
@@ -225,6 +227,16 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
     occupe(false);
   }
 
+  /** Fonction réservée aux comptes connectés : true si connecté, sinon ouvre la boîte de connexion avec la raison. */
+  function exigerConnexion(texte = "") {
+    if (e.connecte) return true;
+    if (!disponible) return false;
+    raison = texte;
+    message = "";
+    ouvrir();
+    return false;
+  }
+
   /**
    * À appeler avant une fonction pro. Renvoie true si le compte est pro ; sinon ouvre la boîte sur l'achat
    * (ou sur la connexion) avec la raison donnée, et renvoie false. Sans API joignable, renvoie false sans rien ouvrir.
@@ -278,7 +290,10 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
   const pret = demarrer();
 
   return {
-    monter, ouvrir, exigerPro, relire, etat, pret,
+    monter, ouvrir, exigerPro, exigerConnexion, relire, etat, pret, appel,
+    /** Ajoute une partie à la boîte d'un compte connecté : `f()` renvoie un élément (ou null). Redessine si ouverte. */
+    ajouterSection: f => { sections.push(f); if (dlg?.open) dessiner(); },
+    redessiner: () => { if (dlg?.open) dessiner(); },
     /** true si l'API répond (sinon le site reste en mode statique, sans compte). */
     disponible: () => disponible,
     addEventListener: bus.addEventListener.bind(bus),

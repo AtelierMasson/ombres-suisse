@@ -3,6 +3,7 @@ import "./style.css";
 document.documentElement.classList.add("pret"); // styles chargés : la page peut s'afficher
 import { textureHeures } from "./heures.js";
 import { pontsAutour } from "./pontsModeles.js";
+import { brancherLieux } from "./lieux.js";
 import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
 import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, versWgs } from "./geo.js";
 import { chargerNuage } from "./nuage.js";
@@ -319,7 +320,7 @@ async function depuisAdresse() {
     if (id !== tache) return;
     if (copc) {
       // densité : 0 légère, 1 équilibrée, 2 complète ; la parcelle et 40 m autour gardent toujours toute la finesse
-      const niv = +$("#densite").value, coeur = parcelle ? [Math.min(...parcelle.anneaux.flat().map(p => p[0])) - 40, Math.min(...parcelle.anneaux.flat().map(p => p[1])) - 40,
+      const niv = 1, coeur = parcelle ? [Math.min(...parcelle.anneaux.flat().map(p => p[0])) - 40, Math.min(...parcelle.anneaux.flat().map(p => p[1])) - 40,
         Math.max(...parcelle.anneaux.flat().map(p => p[0])) + 40, Math.max(...parcelle.anneaux.flat().map(p => p[1])) + 40] : [E0 - 60, N0 - 60, E0 + 60, N0 + 60];
       nuage = await chargerNuage(copc, boite, [E0, N0], 0.5, (f, t) => id === tache && etat(0.05 + 0.7 * f, t), (chargement = new AbortController()).signal,
         { interieur: coeur, niveau: niv === 2 ? 0 : niv === 1 ? 1 : 2 });
@@ -351,6 +352,10 @@ async function depuisAdresse() {
     scene.pontsModeles = await pontsAutour(E0, N0, R).catch(() => []); scene.lieuPonts = { E: E0, N: N0 };
     if (id !== tache) return;
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite), bruit: urlFond(COUCHES.bruit, boite) });
+    // vue enregistrée (lieu du compte) : la caméra reprend sa place
+    const cam = (h.get("cam") || "").split(",").map(Number);
+    if (cam.length === 6 && cam.every(Number.isFinite)) { scene.camera.position.set(cam[0], cam[1], cam[2]); scene.controls.target.set(cam[3], cam[4], cam[5]); scene.controls.update(); scene.demander?.(3); }
+    lieux.majBouton();
     scene.tuilesPlan.placer(E0, N0, G.R); // plan autour : tuiles en mémoire aussitôt, les autres au fil de l'eau
     pro.reinitialiser();
     // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
@@ -606,20 +611,16 @@ scene.surFondAbsent = () => message(t("msg.cadastreAbsent"));
 const memo = (cle, defaut) => { try { const v = localStorage.getItem(cle); return v === null ? defaut : +v; } catch { return defaut; } };
 const garder = (cle, v) => { try { localStorage.setItem(cle, String(v)); } catch { /* stockage indisponible */ } };
 const NOMS_QUALITE = () => [t("aff.qualite0"), t("aff.qualite1"), t("aff.qualite2"), t("aff.qualite3")];
-const NOMS_DENSITE = () => [t("aff.densite0"), t("aff.densite1"), t("aff.densite2")];
 function curseurs() {
   $("#qualiteVal").textContent = NOMS_QUALITE()[+$("#qualite").value];
   $("#brumeVal").textContent = `${$("#brume").value} %`;
-  $("#densiteVal").textContent = NOMS_DENSITE()[+$("#densite").value];
 }
-$("#qualite").value = memo("ombres.qualite", 2); $("#brume").value = memo("ombres.brume", 0); $("#densite").value = memo("ombres.densite", 1);
+$("#qualite").value = memo("ombres.qualite", 2); $("#brume").value = memo("ombres.brume", 0);
 scene.reglerQualite(+$("#qualite").value);
 scene.loin.facteurBrume = $("#brume").value / 100; scene.loin.brume = +$("#brume").value > 0;
 curseurs();
 $("#qualite").addEventListener("input", e => { scene.reglerQualite(+e.target.value); garder("ombres.qualite", e.target.value); curseurs(); });
 $("#brume").addEventListener("input", e => { scene.loin.facteurBrume = e.target.value / 100; scene.reglerLointain({ brume: +e.target.value > 0 }); garder("ombres.brume", e.target.value); curseurs(); });
-$("#densite").addEventListener("input", curseurs);
-$("#densite").addEventListener("change", e => { garder("ombres.densite", e.target.value); if (S.G) depuisAdresse(); });
 $("#vCouleursReelles").addEventListener("change", e => {
   scene.couleursPoints(e.target.checked);
   if (e.target.checked && !$("#vPoints").checked && !$("#vPoints").disabled) { $("#vPoints").checked = true; appliquerAffichage(); }
@@ -632,6 +633,11 @@ scene.surQualite = q => {
   $("#qualite").value = 0; curseurs();
   if (S.G && S.lat != null) message(t("msg.effetsCoupes"));
 };
+// lieux enregistrés au compte : le lien garde la vue de la caméra (cam=position,cible)
+const vueCamera = () => { const p = scene.camera.position, c = scene.controls.target; return [p.x, p.y, p.z, c.x, c.y, c.z].map(v => v.toFixed(1)).join(","); };
+const lieux = brancherLieux({ compte, bouton: $("#btnLieu"), t,
+  nomActuel: () => $("#lieu").textContent.trim() || location.hash,
+  lienActuel: () => { const h = new URLSearchParams(location.hash.slice(1)); h.set("cam", vueCamera()); return "#" + h.toString(); } });
 $("#btnPartager").onclick = async () => { await navigator.clipboard.writeText(location.href); $("#btnPartager").textContent = t("panneau.copie"); setTimeout(() => $("#btnPartager").textContent = t("panneau.lien"), 1500); };
 
 /* ------------------------------------------------------------------ coupe */

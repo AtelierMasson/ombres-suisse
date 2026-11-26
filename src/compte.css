@@ -32,3 +32,12 @@
 #compte .compte-offre-titre { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
 #compte .compte-offre-texte { margin: 0 0 10px; font-size: 13px; }
 #compte .compte-offre .compte-note { margin: 6px 0 0; }
+
+/* lieux enregistrés */
+#compte .compte-lieux { margin: 10px 0; }
+#compte .compte-lieux summary { font-weight: 600; font-size: 13px; cursor: pointer; }
+#compte .compte-lieux ul { list-style: none; padding: 0; margin: 6px 0 0; max-height: 220px; overflow: auto; }
+#compte .compte-lieux li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 3px 0; border-bottom: 1px solid var(--bord, #e2e5e9); font-size: 13px; }
+#compte .compte-lieux li a { color: var(--texte, inherit); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#compte .compte-lieux li a:hover { text-decoration: underline; }
+#compte .compte-lieux .btn-close { width: .6em; height: .6em; flex: none; }

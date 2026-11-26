@@ -67,3 +67,14 @@ CREATE TABLE IF NOT EXISTS compteurs (
   n          INT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (jour, evenement)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Lieux enregistrés par un compte : nom, lien (fragment #… de l'adresse, vue de la caméra comprise)
+CREATE TABLE IF NOT EXISTS lieux (
+  id         INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  compte_id  INT UNSIGNED NOT NULL,
+  nom        VARCHAR(160) NOT NULL,
+  lien       VARCHAR(1000) NOT NULL,
+  cree_le    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY compte_idx (compte_id),
+  CONSTRAINT lieux_compte FOREIGN KEY (compte_id) REFERENCES comptes (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
