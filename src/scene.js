@@ -318,6 +318,8 @@ export class Scene3D {
     this.couches = {};
     this.poignees = [];
     this.coupe = this.contours = this.urls = null;
+    // la teinte de sélection du lieu précédent (grille d'une autre taille) ne doit pas déteindre sur le suivant, ni sur l'accueil
+    CONTACT.tSel.value?.dispose(); CONTACT.tSel.value = null;
     this.contoursTous = this.volumes = this.batOrigine = this.nuage = this.grilleComp = null;
     this.idScene++;
   }
