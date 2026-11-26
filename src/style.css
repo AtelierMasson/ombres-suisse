@@ -271,3 +271,7 @@ body.accueil #orientation { display: none; }
 #listeVolumes .volume select { width: auto; }
 #listeVolumes .volume button { border: 0; background: none; color: var(--doux); padding: 0 4px; }
 #listeVolumes .volume button:hover { color: var(--texte); }
+
+/* mention « beta » à côté du nom */
+.marque .beta { margin-left: 6px; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--bord-fort); font-size: 10px; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--doux); vertical-align: 2px; }
