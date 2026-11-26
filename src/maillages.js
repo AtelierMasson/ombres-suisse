@@ -455,9 +455,9 @@ void main() {
     base = teinteNeutre * (0.85 + 0.6 * (dot(vCouleur, vec3(0.2126, 0.7152, 0.0722)) - 0.25));
   }
   // éclairage : exactement les lumières du reste de la maquette (ciel en hémisphère, soleil, ombres portées), comme
-  // pour un matériau mat ; chaque point est une petite boule tournée vers la caméra (normale tirée de sa place dans
-  // le disque, un peu aplatie). Le matin, le soir et la nuit suivent donc d'eux-mêmes, sans réglage à part.
-  vec3 N = normalize(vec3(p.x, -p.y, sqrt(max(0.0, 1.0 - r2)) + 0.4));
+  // pour un matériau mat ; chaque point est un disque plat, d'une seule teinte (pas de relief de boule) : sa normale
+  // regarde vers le ciel et un peu vers la caméra. Le matin, le soir et la nuit suivent d'eux-mêmes, sans réglage à part.
+  vec3 N = normalize(normalize((viewMatrix * vec4(0.0, 1.0, 0.0, 0.0)).xyz) + vec3(0.0, 0.0, 0.7));
   vec3 eclairage = vec3(0.0);
   #if NUM_HEMI_LIGHTS > 0
     for (int i = 0; i < NUM_HEMI_LIGHTS; i++) eclairage += getHemisphereLightIrradiance(hemisphereLights[i], N);
