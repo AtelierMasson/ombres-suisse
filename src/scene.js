@@ -646,6 +646,22 @@ export class Scene3D {
     return t ? [t.point.x, -t.point.z] : null;
   }
 
+  /** Point (x est, y nord, relatifs) visé hors de la maquette : plan en tuiles ou paysage. */
+  pointLointain(e) {
+    const cibles = [...(this.tuilesPlan.groupe.visible ? this.tuilesPlan.groupe.children : []), this.loin.maille?.visible ? this.loin.maille : null].filter(Boolean);
+    const t = this.viser(e).intersectObjects(cibles, false)[0];
+    return t ? [t.point.x, -t.point.z] : null;
+  }
+
+  /** Recentre la vue sur l'adresse (vue plan : même zoom, maquette au centre ; 3D : vue de départ). */
+  revenir() {
+    const ctl = this.controls, cam = this.camera;
+    if (this.modeVue) { cam.position.x -= ctl.target.x; cam.position.z -= ctl.target.z; ctl.target.x = ctl.target.z = 0; }
+    else { ctl.target.set(0, 0, 0); this.vueDepart(); }
+    ctl.update();
+    this.demander(5);
+  }
+
   afficherParcelles(voisines, visibles = true) {
     const vieux = this.couches.voisines;
     if (vieux) { this.groupe.remove(vieux); this.liberer(vieux); }

@@ -630,13 +630,49 @@ marquerTheme();
     if (!appui || Math.hypot(e.clientX - appui[0], e.clientY - appui[1]) > 5 || e.button !== 0) return;
     appui = null;
     if (!S.G || !S.toutes?.length || scene.trace || scene.modeVue === "N" || scene.modeVue === "S" || scene.modeVue === "E" || scene.modeVue === "O") return;
+    let p = scene.pointSol(e);
+    // hors de la maquette : la parcelle visée sur le plan autour, à construire en 3D d'un clic
+    if (!p || Math.max(Math.abs(p[0]), Math.abs(p[1])) > S.G.R) {
+      const q = scene.pointLointain(e);
+      if (q) proposerAilleurs(S.E0 + q[0], S.N0 + q[1], e.clientX, e.clientY);
+      return;
+    }
+    $("#ailleurs").hidden = true;
     if ($("#vPro")?.checked && $("#btnSelection")?.classList.contains("active")) return;
-    const p = scene.pointSol(e);
-    if (!p) return;
     const choisie = S.toutes.find(q => dansParcelle(p[0], p[1], q.anneauxRel));
     if (choisie && choisie.numero !== S.parcelle?.numero) choisirParcelle(choisie);
   });
 }
+// petite bulle « Parcelle n · Construire la 3D ici » à l'endroit du clic
+let demandeAilleurs = 0;
+async function proposerAilleurs(E, N, x, y) {
+  const b = $("#ailleurs"), id = ++demandeAilleurs;
+  b.style.left = `${x}px`; b.style.top = `${y}px`;
+  $("#ailleursNom").textContent = t("ailleurs.recherche");
+  $("#btnAilleurs").disabled = true;
+  b.hidden = false;
+  let p = null;
+  try { p = await parcelleEn(E, N); } catch { /* service indisponible : on construit au point cliqué */ }
+  if (id !== demandeAilleurs) return;
+  const nom = p ? t("lieu.parcelle", { n: p.numero }) : `${Math.round(E)}, ${Math.round(N)}`;
+  $("#ailleursNom").textContent = nom;
+  $("#btnAilleurs").disabled = false;
+  $("#btnAilleurs").onclick = () => {
+    b.hidden = true;
+    location.hash = `e=${Math.round(E)}&n=${Math.round(N)}&l=${encodeURIComponent(nom)}&t=${p ? "Parcelle" : "Adresse"}`;
+  };
+}
+document.addEventListener("pointerdown", e => { if (!e.target.closest("#ailleurs") && e.target !== scene.renderer.domElement) $("#ailleurs").hidden = true; });
+scene.controls.addEventListener("start", () => { $("#ailleurs").hidden = true; });
+
+// bouton « Retour à l'adresse » : dès que la vue s'éloigne de la maquette
+function majRetour() {
+  const c = scene.controls.target, R = S.G?.R || 0;
+  $("#retour").hidden = !S.G || Math.hypot(c.x, c.z) < R * 1.2 + 30;
+}
+scene.controls.addEventListener("change", majRetour);
+$("#retour").addEventListener("click", () => { scene.revenir(); majRetour(); });
+
 function dansParcelle(x, y, anneaux) {
   let ok = false;
   for (const a of anneaux) for (let i = 0, j = a.length - 1; i < a.length; j = i++) {

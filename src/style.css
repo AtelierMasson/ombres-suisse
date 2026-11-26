@@ -245,3 +245,12 @@ body.accueil #orientation { display: none; }
 #diagramme .coin { top: 2px; height: 24px; padding: 0 9px; }
 #diagramme .coin-gauche { left: 4px; width: 32px; justify-content: center; padding: 0; font-size: 11px; }
 #diagramme .coin-droit { right: 4px; }
+
+/* bulle « construire la 3D ici » et bouton de retour à l'adresse */
+#ailleurs { position: fixed; z-index: 30; transform: translate(-50%, calc(-100% - 12px)); display: flex; align-items: center; gap: 10px;
+  padding: 6px 6px 6px 12px; border-radius: 10px; border: 1px solid var(--bord); background: var(--carte); color: var(--texte); font-size: 12.5px; white-space: nowrap; }
+#ailleurs::after { content: ""; position: absolute; left: 50%; bottom: -6px; width: 10px; height: 10px; background: var(--carte);
+  border-right: 1px solid var(--bord); border-bottom: 1px solid var(--bord); transform: translateX(-50%) rotate(45deg); }
+#retour { position: absolute; z-index: 6; left: 50%; top: 56px; transform: translateX(-50%); border-radius: 999px; padding: 4px 14px;
+  border: 1px solid var(--bord-fort); background: var(--carte); color: var(--texte); }
+#retour:hover { border-color: var(--accent); }
