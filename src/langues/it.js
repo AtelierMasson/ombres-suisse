@@ -28,7 +28,7 @@ export default {
   "themes.versNuit": "Passa alla modalità notte",
 
   /* accueil */
-  "accueil.titre": "Modello 3D della vostra particella",
+  "accueil.titre": "Da dove cominciare?",
   "accueil.chapeau": "Digitate un indirizzo o un numero di particella: il terreno, gli edifici vicini e gli alberi del luogo appaiono in 3D, misurati al laser con precisione di pochi centimetri. Utile prima di acquistare un terreno, per preparare un progetto o una domanda di costruzione, o per capire l'effetto di un edificio vicino.",
   "accueil.atoutSite": "<b>Vedere il luogo</b>Girare attorno alla particella, misurare pendenze e altezze dei vicini, con il rilievo fino all'orizzonte.",
   "accueil.atoutCoupe": "<b>Sezioni e quote</b>Tracciare una sezione nel terreno, leggere le quote: per impiantare una casa e stimare gli scavi.",

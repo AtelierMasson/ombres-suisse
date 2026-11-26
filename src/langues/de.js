@@ -28,7 +28,7 @@ export default {
   "themes.versNuit": "Zum Nachtmodus wechseln",
 
   /* accueil */
-  "accueil.titre": "3D-Modell Ihrer Parzelle",
+  "accueil.titre": "Wo möchten Sie beginnen?",
   "accueil.chapeau": "Adresse oder Parzellennummer eingeben: Gelände, Nachbargebäude und Bäume des Orts erscheinen in 3D, per Laser auf wenige Zentimeter genau vermessen. Nützlich vor einem Grundstückskauf, zur Vorbereitung eines Projekts oder Baugesuchs, oder um die Wirkung eines Nachbarbaus zu verstehen.",
   "accueil.atoutSite": "<b>Den Ort sehen</b>Um die Parzelle kreisen, Gefälle und Höhen der Nachbarn messen, mit dem Relief bis zum Horizont.",
   "accueil.atoutCoupe": "<b>Schnitte und Höhen</b>Einen Schnitt durch das Gelände ziehen, Höhen ablesen: um ein Haus zu setzen und den Aushub abzuschätzen.",

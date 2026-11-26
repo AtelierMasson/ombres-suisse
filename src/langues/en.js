@@ -28,7 +28,7 @@ export default {
   "themes.versNuit": "Switch to night mode",
 
   /* accueil */
-  "accueil.titre": "A 3D model of your plot",
+  "accueil.titre": "Where would you like to start?",
   "accueil.chapeau": "Type an address or plot number: the terrain, neighbouring buildings and trees appear in 3D, laser-measured to within a few centimetres. Useful before buying land, when preparing a project or a planning application, or to understand the effect of a neighbouring building.",
   "accueil.atoutSite": "<b>See the site</b>Orbit the plot, measure slopes and the heights of neighbouring buildings, with the landscape out to the horizon.",
   "accueil.atoutCoupe": "<b>Sections and levels</b>Draw a section through the terrain and read the altitudes: to set out a house and estimate earthworks.",

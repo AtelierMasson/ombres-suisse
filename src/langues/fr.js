@@ -29,7 +29,7 @@ export default {
   "themes.versNuit": "Passer en mode nuit",
 
   /* accueil */
-  "accueil.titre": "Maquette 3D de votre parcelle",
+  "accueil.titre": "Par où commencer ?",
   "accueil.chapeau": "Tapez une adresse ou un numéro de parcelle : le terrain, les bâtiments voisins et les arbres du lieu apparaissent en 3D, mesurés au laser à quelques centimètres près. Utile avant d'acheter un terrain, pour préparer un projet ou une demande de permis, ou pour comprendre l'effet d'une construction voisine.",
   "accueil.atoutSite": "<b>Voir le site</b>Tourner autour de la parcelle, mesurer les pentes et les hauteurs des voisins, avec le relief jusqu'à l'horizon.",
   "accueil.atoutCoupe": "<b>Coupes et niveaux</b>Tirer une coupe à travers le terrain, lire les altitudes : pour implanter une maison et estimer les terrassements.",
