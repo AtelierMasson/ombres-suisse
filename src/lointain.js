@@ -12,10 +12,10 @@ const RAYON_TERRE = 6371000, REFRACTION = 0.13;
  * `hBord(x, y)` : altitude du terrain de la maquette au bord, pour raccorder sans marche.
  */
 export async function reliefLointain(E0, N0, R, zRef, hBord, rayonMax = 50000) {
-  const nA = 720;
+  const nA = 1440;
   // anneaux : écart au bord de la maquette, de plus en plus espacés avec la distance
   const ecarts = [0];
-  while (ecarts.at(-1) < rayonMax) ecarts.push(ecarts.at(-1) * 1.045 + 8);
+  while (ecarts.at(-1) < rayonMax) ecarts.push(ecarts.at(-1) * 1.025 + 6);
   const nR = ecarts.length;
   // altitude en un point (E, N) : tuile la plus fine jusqu'à 6 km (mêmes niveaux que l'horizon, tuiles en cache)
   const tuiles = new Map();
@@ -38,7 +38,7 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, rayonMax = 50000) {
     const r0 = R / Math.max(Math.abs(sx), Math.abs(sy)); // bord du carré dans cette direction
     for (let k = 0; k < nR; k++) {
       const d = r0 + ecarts[k];
-      sommets.push({ e: sx * d, n: sy * d, d, s: ecarts[k], bx: sx * r0 * 0.995, by: sy * r0 * 0.995, z: d < 6000 ? 12 : 10, pas: Math.max(30, d * 0.012) });
+      sommets.push({ e: sx * d, n: sy * d, d, s: ecarts[k], bx: sx * r0 * 0.995, by: sy * r0 * 0.995, z: d < 10000 ? 12 : d < 25000 ? 11 : 10, pas: Math.max(20, d * 0.006) });
     }
   }
   // tuiles nécessaires (sommets et voisins servant aux pentes)
@@ -59,7 +59,15 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, rayonMax = 50000) {
     let nx = 0, nz = 0;
     if (![hE, hO, hN, hS].some(isNaN)) { nx = -(hE - hO) / (2 * h); nz = (hN - hS) / (2 * h); }
     const [cle, fx, fy] = cleEn(E, N, P.z), T = tuiles.get(cle);
-    const lac = T ? T.eau[Math.min(255, Math.round(fy - 0.5)) * 256 + Math.min(255, Math.round(fx - 0.5))] : 0;
+    // lac : plan d'eau voisin (pixels plats), puis rive suivie par l'altitude elle-même (et non par les pixels, en escalier)
+    let lac = 0;
+    if (T && !isNaN(alt)) {
+      const i0 = Math.floor(fx - 0.5), j0 = Math.floor(fy - 0.5);
+      let niveau = NaN;
+      for (let j = Math.max(0, j0 - 1); j <= Math.min(255, j0 + 2) && isNaN(niveau); j++)
+        for (let i = Math.max(0, i0 - 1); i <= Math.min(255, i0 + 2); i++) if (T.eau[j * 256 + i]) { niveau = T[j * 256 + i]; break; }
+      if (!isNaN(niveau)) { const u = Math.min(1, Math.max(0, (niveau + 1.2 - alt) / 1.0)); lac = u * u * (3 - 2 * u); }
+    }
     // raccord au bord de la maquette sur les 300 premiers mètres
     const b = hBord(P.bx, P.by);
     const m = Math.min(1, P.s / 300), t = m * m * (3 - 2 * m);
@@ -99,7 +107,7 @@ void main() {
 }`;
 const FRAGMENTS = /* glsl */`
 uniform vec3 sol, lac, ciel, terreCiel, soleilCouleur, soleilDir, horizon;
-uniform float brume;
+uniform float densite;
 varying vec3 vMonde, vN;
 varying float vEau;
 void main() {
@@ -109,7 +117,8 @@ void main() {
   vec3 c = base * lum / 3.14159;
   // perspective aérienne : le paysage se fond dans la couleur de l'horizon avec la distance
   float d = length(vMonde - cameraPosition);
-  c = mix(c, horizon, 1.0 - exp(-d / brume));
+  float k = d * densite;
+  c = mix(c, horizon, 1.0 - exp(-k * k)); // même brume que la maquette (FogExp2)
   gl_FragColor = vec4(c, 1.0);
 }`;
 
@@ -118,7 +127,7 @@ export function materiauLointain() {
     uniforms: {
       sol: { value: new THREE.Color() }, lac: { value: new THREE.Color() }, ciel: { value: new THREE.Color() },
       terreCiel: { value: new THREE.Color() }, soleilCouleur: { value: new THREE.Color() }, soleilDir: { value: new THREE.Vector3(0, 1, 0) },
-      horizon: { value: new THREE.Color() }, brume: { value: 30000 },
+      horizon: { value: new THREE.Color() }, densite: { value: 0 },
     },
     vertexShader: SOMMETS, fragmentShader: FRAGMENTS,
   });

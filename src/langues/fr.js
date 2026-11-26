@@ -110,7 +110,7 @@ export default {
   "aff.degrade": "Couleur selon la hauteur",
   "aff.cadastre": "Plan cadastral au sol",
   "aff.parcelles": "Parcelles voisines",
-  "aff.lointain": "Relief jusqu'à 50 km",
+  "aff.lointain": "Paysage",
   "aff.lointainTitre": "Collines, montagnes et lacs jusqu'à 50 km autour, d'après le relief libre Terrain Tiles",
   "aff.brume": "Brume",
   "aff.brumeTitre": "Le paysage s'estompe avec la distance",

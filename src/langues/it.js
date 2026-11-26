@@ -109,7 +109,7 @@ export default {
   "aff.degrade": "Colore secondo l'altezza",
   "aff.cadastre": "Piano catastale al suolo",
   "aff.parcelles": "Particelle vicine",
-  "aff.lointain": "Rilievo fino a 50 km",
+  "aff.lointain": "Paesaggio",
   "aff.lointainTitre": "Colline, montagne e laghi fino a 50 km intorno, dal rilievo libero Terrain Tiles",
   "aff.brume": "Foschia",
   "aff.brumeTitre": "Il paesaggio sfuma con la distanza",

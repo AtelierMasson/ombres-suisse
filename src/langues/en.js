@@ -109,7 +109,7 @@ export default {
   "aff.degrade": "Colour by height",
   "aff.cadastre": "Cadastral plan on the ground",
   "aff.parcelles": "Neighbouring plots",
-  "aff.lointain": "Terrain up to 50 km",
+  "aff.lointain": "Landscape",
   "aff.lointainTitre": "Hills, mountains and lakes up to 50 km around, from the open Terrain Tiles relief",
   "aff.brume": "Haze",
   "aff.brumeTitre": "The landscape fades with distance",

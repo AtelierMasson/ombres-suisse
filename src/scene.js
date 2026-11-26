@@ -22,9 +22,7 @@ varying vec3 vDir;
 void main() { vDir = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
 const CIEL_FRAGMENTS = /* glsl */`
 uniform vec3 zenith, horizon, lueur, soleil;
-uniform float force, aLoin;
-uniform sampler2D tLoin; // relief lointain, dessiné à part dans une image de la taille de l'écran
-uniform vec2 resolution;
+uniform float force;
 varying vec3 vDir;
 void main() {
   vec3 d = normalize(vDir);
@@ -32,8 +30,6 @@ void main() {
   c = mix(c, horizon * 0.94, smoothstep(0.0, -0.3, d.y)); // sous l'horizon : brume
   float s = max(dot(d, soleil), 0.0);
   c += lueur * (pow(s, 12.0) * 0.18 + pow(s, 180.0) * 0.5) * force; // halo autour du soleil
-  vec4 L = texture2D(tLoin, gl_FragCoord.xy / resolution);
-  c = mix(c, L.rgb, L.a * aLoin);
   gl_FragColor = vec4(c, 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -149,18 +145,15 @@ export class Scene3D {
       uniforms: {
         zenith: { value: new THREE.Color() }, horizon: { value: new THREE.Color() }, lueur: { value: new THREE.Color("#fff1c9") },
         soleil: { value: new THREE.Vector3(0, 1, 0) }, force: { value: 1 },
-        tLoin: { value: null }, aLoin: { value: 0 }, resolution: { value: new THREE.Vector2(1, 1) },
       },
       vertexShader: CIEL_SOMMETS, fragmentShader: CIEL_FRAGMENTS, side: THREE.BackSide, depthWrite: false, fog: false,
     }));
     this.voute.renderOrder = -1;
     this.disque = new THREE.Mesh(new THREE.SphereGeometry(8, 16, 8), new THREE.MeshBasicMaterial({ color: "#ffcc33", fog: false }));
     this.disque.visible = false; // affiché dès qu'un lieu est chargé
-    // relief lointain (jusqu'à 50 km) : sa propre scène et sa propre caméra (plans proche et lointain larges), rendu dans
-    // une image que la voûte du ciel reprend comme fond ; la maquette garde ainsi toute la précision de profondeur
-    this.loin = { scene: new THREE.Scene(), cam: new THREE.PerspectiveCamera(), mat: materiauLointain(), maille: null, voir: true, brume: true,
-      cible: new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 }) };
-    this.voute.material.uniforms.tLoin.value = this.loin.cible.texture;
+    // paysage (relief jusqu'à 50 km) : dans la scène, pour que paysage et maquette se cachent l'un l'autre ; le plan
+    // lointain de la caméra s'étend alors à 150 km (la précision de profondeur dépend surtout du plan proche)
+    this.loin = { mat: materiauLointain(), maille: null, voir: true, brume: true };
     this.groupe = new THREE.Group();
     this.outils = new THREE.Group(); // tranche de coupe et poignées
     this.scene.add(this.voute, this.disque, this.groupe, this.outils);
@@ -247,9 +240,6 @@ export class Scene3D {
     this.composeur.setPixelRatio(this.ratio);
     this.composeur.setSize(w, h);
     this.mat.trait.resolution.set(w, h);
-    const r = this.renderer.getPixelRatio();
-    this.loin.cible.setSize(Math.round(w * r), Math.round(h * r));
-    this.voute.material.uniforms.resolution.value.set(Math.round(w * r), Math.round(h * r));
     this.camera.aspect = w / h;
     // `decalage` pousse le modèle vers la droite (écran d'accueil, à côté du texte)
     if (this.decalage && w > 900) this.camera.setViewOffset(w, h, -this.decalage * w, 0, w, h); else this.camera.clearViewOffset();
@@ -262,7 +252,9 @@ export class Scene3D {
     if (idScene !== this.idScene) { g.dispose(); return; }
     const L = this.loin;
     L.maille = new THREE.Mesh(g, L.mat);
-    L.scene.add(L.maille);
+    L.maille.frustumCulled = false;
+    this.scene.add(L.maille);
+    this.scene.fog.density = this.densiteBrume();
     this.majLointain();
     this.demander();
   }
@@ -270,10 +262,19 @@ export class Scene3D {
   /** Relief lointain visible ou non, brume avec la distance ou non (maquette et paysage). */
   reglerLointain({ voir = this.loin.voir, brume = this.loin.brume } = {}) {
     Object.assign(this.loin, { voir, brume });
-    this.scene.fog.density = this.modeVue || !brume ? 0 : this.T.lumiere.brume;
+    this.scene.fog.density = this.densiteBrume();
     this.majLointain();
     if (this.etatSoleil) this.placerSoleil(...this.etatSoleil);
     this.demander();
+  }
+
+  /**
+   * Densité de la brume, la même pour la maquette et le paysage : avec le paysage, une brume légère qui estompe les
+   * montagnes lointaines sans blanchir la maquette ; sans paysage, celle du thème (la maquette se fond dans le ciel).
+   */
+  densiteBrume() {
+    if (this.modeVue || !this.loin.brume) return 0;
+    return this.loin.maille && this.loin.voir ? 2.2e-5 : this.T.lumiere.brume;
   }
 
   /** Couleurs et lumière du relief lointain, celles de la maquette (thème, soleil, ciel). */
@@ -286,21 +287,20 @@ export class Scene3D {
     u.soleilCouleur.value.copy(this.soleil.color).multiplyScalar(this.soleil.intensity);
     u.soleilDir.value.copy(this.soleil.position).normalize();
     u.horizon.value.copy(v.horizon.value);
-    u.brume.value = this.loin.brume ? 22000 : 250000;
+    u.densite.value = this.densiteBrume();
   }
 
   rendre() {
     if (this.coupe) this.orienterCoupe();
-    const L = this.loin, voirLoin = !!(L.maille && L.voir && !this.modeVue);
-    this.voute.material.uniforms.aLoin.value = voirLoin ? 1 : 0;
-    // dans le paysage, la maquette n'est plus un bloc posé : son socle disparaît, le relief lointain prend le relais
-    if (this.couches.socle) this.couches.socle.visible = !voirLoin;
-    if (voirLoin) {
-      const r = this.renderer, fond = r.getClearColor(new THREE.Color()), alpha = r.getClearAlpha();
-      L.cam.copy(this.camera); L.cam.near = 20; L.cam.far = 150000; L.cam.updateProjectionMatrix();
-      r.setRenderTarget(L.cible); r.setClearColor(0x000000, 0); r.clear();
-      r.render(L.scene, L.cam);
-      r.setRenderTarget(null); r.setClearColor(fond, alpha);
+    const L = this.loin;
+    if (L.maille) L.maille.visible = L.voir && !this.modeVue;
+    if (!this.modeVue) {
+      // avec le paysage : plan lointain à 150 km, plan proche reculé avec la distance (précision au loin), ciel centré
+      // sur la caméra (la voûte de 9 km ne doit pas être quittée en dézoomant)
+      const cam = this.camera, avecLoin = !!(L.maille && L.voir);
+      const far = avecLoin ? 150000 : 20000, near = avecLoin ? Math.min(20, Math.max(0.5, cam.position.distanceTo(this.controls.target) * 0.003)) : 0.5;
+      if (cam.far !== far || Math.abs(cam.near - near) > 0.05 * near) { cam.far = far; cam.near = near; cam.updateProjectionMatrix(); }
+      this.voute.position.copy(avecLoin ? cam.position : new THREE.Vector3());
     }
     this.swiss?.mettreAJour();
     if (this.effets && this.qualite < 2) this.composeur.render(); else this.renderer.render(this.scene, this.camera);
@@ -344,7 +344,7 @@ export class Scene3D {
     const rebond = new THREE.Color(T.lumiere.ciel).lerp(new THREE.Color(T.lumiere.sol), 0.35), lum = c => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
     this.ciel.groundColor.copy(rebond.multiplyScalar(lum(this.ciel.color) / Math.max(1e-3, lum(rebond))));
     this.renderer.toneMappingExposure = T.lumiere.exposition;
-    this.scene.fog.density = this.modeVue || !this.loin.brume ? 0 : T.lumiere.brume;
+    this.scene.fog.density = this.densiteBrume();
     this.couleursPoints();
     if (this.G && this.arbresTeinte && this.T.arbres !== this.arbresTeinte) this.refaireCouronnes();
     if (this.etatSoleil) this.placerSoleil(...this.etatSoleil);
@@ -378,7 +378,7 @@ export class Scene3D {
     // la teinte de sélection du lieu précédent (grille d'une autre taille) ne doit pas déteindre sur le suivant, ni sur l'accueil
     CONTACT.tSel.value?.dispose(); CONTACT.tSel.value = null;
     this.contoursTous = this.volumes = this.batOrigine = this.nuage = this.grilleComp = null;
-    if (this.loin.maille) { this.loin.scene.remove(this.loin.maille); this.loin.maille.geometry.dispose(); this.loin.maille = null; }
+    if (this.loin.maille) { this.scene.remove(this.loin.maille); this.loin.maille.geometry.dispose(); this.loin.maille = null; }
     this.idScene++;
   }
 
@@ -891,7 +891,7 @@ export class Scene3D {
       this.voute.position.set(0, 0, 0); this.voute.scale.setScalar(1);
       ctl.enableRotate = true; ctl.minPolarAngle = 0; ctl.maxPolarAngle = Math.PI * 0.495;
       ctl.minDistance = 0; ctl.maxDistance = Infinity;
-      this.scene.fog.density = this.loin.brume ? this.T.lumiere.brume : 0;
+      this.scene.fog.density = this.densiteBrume();
       if (a) { cam.position.copy(a.pos); ctl.target.copy(a.cible); } else this.vueDepart();
     }
     cam.updateProjectionMatrix();

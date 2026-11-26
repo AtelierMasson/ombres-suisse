@@ -109,7 +109,7 @@ export default {
   "aff.degrade": "Einfärbung nach Höhe",
   "aff.cadastre": "Katasterplan auf dem Boden",
   "aff.parcelles": "Nachbarparzellen",
-  "aff.lointain": "Relief bis 50 km",
+  "aff.lointain": "Landschaft",
   "aff.lointainTitre": "Hügel, Berge und Seen bis 50 km im Umkreis, nach dem freien Relief Terrain Tiles",
   "aff.brume": "Dunst",
   "aff.brumeTitre": "Die Landschaft verblasst mit der Entfernung",
