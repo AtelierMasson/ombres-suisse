@@ -106,7 +106,7 @@ body:not(.pro) .pro-seul { display: none !important; }
 .legende .l-arbres { background: repeating-linear-gradient(-45deg, transparent 0 2.4px, var(--coupe-arbres) 2.4px 3px); }
 .legende .l-limite { border-top: 1px dashed var(--coupe-trait); height: 0; }
 #message { position: absolute; top: calc(var(--haut) + 12px); left: 50%; transform: translateX(-50%); z-index: 6; box-shadow: var(--ombre); }
-#pied { position: absolute; left: 12px; bottom: 8px; z-index: 5; max-width: calc(100% - 24px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--doux); background: color-mix(in srgb, var(--carte) 82%, transparent); padding: 2px 8px; border-radius: 6px; }
+#pied { position: absolute; left: 12px; bottom: 8px; z-index: 5; max-width: calc(100% - 24px); display: flex; gap: 12px; white-space: nowrap; overflow: hidden; color: var(--doux); background: color-mix(in srgb, var(--carte) 82%, transparent); padding: 2px 8px; border-radius: 6px; }
 .degrade { height: 10px; border-radius: 5px; background: var(--degrade-heures, linear-gradient(90deg, #264dbf, #f2e533, #f2331a)); }
 
 /* écran d'accueil */
@@ -201,3 +201,15 @@ body.accueil #orientation { display: none; }
 #boussole .bout.actif circle { stroke: var(--texte); stroke-width: 2.4; }
 
 #svgSoleil .heure-astre { font-size: 11px; font-weight: 700; fill: var(--texte); paint-order: stroke; stroke: var(--carte); stroke-width: 3px; }
+
+#pied .sources { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+#pied .liens { flex: none; }
+#pied a { color: inherit; }
+#legal { width: min(620px, calc(100% - 32px)); max-height: min(80vh, 720px); border: 1px solid var(--bord); border-radius: calc(var(--rayon) * 1.4); padding: 22px 26px; background: var(--carte); color: var(--texte); font-size: 14px; line-height: 1.5; }
+#legal::backdrop { background: rgb(0 0 0 / .35); }
+#legal .btn-close { position: absolute; top: 14px; right: 14px; }
+#legal h2 { font-size: 1.3rem; font-weight: 700; margin: 4px 0 12px; }
+#legal .legal-onglets { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; border-bottom: 1px solid var(--bord); padding-bottom: 8px; margin-right: 28px; }
+#legal .legal-onglets a { color: var(--doux); text-decoration: none; }
+#legal .legal-onglets a.actif { color: var(--texte); font-weight: 600; }
+@media (max-width: 700px) { #pied .sources { display: none; } }

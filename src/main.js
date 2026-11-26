@@ -627,3 +627,18 @@ const pro = brancherPro({ scene, S, message, etat, recharger: depuisAdresse, cal
 majSoleil();
 depuisAdresse();
 if (import.meta.env.DEV) window.ombres = { scene, S }; // pour l'inspection pendant le développement
+
+// pages légales (mentions, confidentialité, conditions, contact) dans une boîte de dialogue
+{
+  const dlg = document.getElementById("legal");
+  const ouvrir = page => {
+    dlg.querySelectorAll("section[data-page]").forEach(s => { s.hidden = s.dataset.page !== page; });
+    dlg.querySelectorAll(".legal-onglets a").forEach(a => a.classList.toggle("actif", a.dataset.legal === page));
+    if (!dlg.open) dlg.showModal();
+  };
+  document.addEventListener("click", e => {
+    const a = e.target.closest("[data-legal]");
+    if (a) { e.preventDefault(); ouvrir(a.dataset.legal); return; }
+    if (e.target.closest("[data-fermer]") || e.target === dlg) dlg.close();
+  });
+}
