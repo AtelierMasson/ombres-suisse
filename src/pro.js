@@ -125,7 +125,7 @@ export function brancherPro(o) {
     dessin.push(p);
     if (dessin.length === 3) {
       const coins = rectangle(...dessin);
-      if (coins) { P.volumes.push(volumeDe(coins)); volumesChanges(); }
+      if (coins) { P.volumes.push(volumeDe(coins)); volumesChanges(); o.compter?.("volume"); }
       return finDessin();
     }
     aide();
@@ -191,6 +191,7 @@ export function brancherPro(o) {
       const r = await importerModele(f, contexteImport());
       const pl = r.placement, note = [t(`import.methode.${pl.methode}`), pl.ecartMax != null ? t("import.ajuste", { cm: Math.max(1, Math.round(pl.ecartMax * 100)) }) : ""].filter(Boolean).join(" · ");
       P.imports.push({ nom: f.name, objet: r.objet, note });
+      o.compter?.("import");
       importsChanges();
       if (r.coupes?.length) o.ouvrirCoupes?.([...(S.coupes || []).map(c => ({ A: c.A, B: c.B })), ...r.coupes]);
       o.message([note, ...r.avertissements, t("import.nonEnregistre")].filter(Boolean).join(" · "), 9000);
@@ -225,6 +226,7 @@ export function brancherPro(o) {
     if (!enregistrerProjet(p)) return o.message(t("projet.stockage"));
     P.projet = p;
     listeProjets();
+    o.compter?.("projet");
     o.message(t("projet.enregistre", { nom }), 3000);
   };
   $("#listeProjets").onchange = () => {
@@ -299,6 +301,7 @@ export function brancherPro(o) {
         source: $("#source").textContent, progres: o.etat,
       });
       telecharger(r.blob, r.nom);
+      o.compter?.("export");
       $("#resultatExport").innerHTML = t("pro.telecharge", { nom: r.nom, zip: mo(r.octetsZip), fichier: r.fichier, taille: mo(r.octets), triangles: entier(r.triangles), s: fr(r.ms / 1000) });
       if (import.meta.env.DEV) S.dernierExport = r; // pour la relecture pendant le développement
     } catch (e) {
@@ -333,6 +336,7 @@ export function brancherPro(o) {
   const autorise = () => !o.compte?.disponible() || o.compte.etat().pro;
   $("#vPro").addEventListener("change", () => { if (actif() && !autorise() && !o.compte.exigerPro(t("compte.raisonPro"))) $("#vPro").checked = false; }, true);
   o.compte?.addEventListener("compte", () => { if (actif() && !autorise()) { $("#vPro").checked = false; basculer(); } });
+  $("#vPro").addEventListener("change", () => { if (actif()) o.compter?.("pro_ouvert"); });
   const basculer = () => { $("#outilsPro").hidden = !actif(); document.body.classList.toggle("pro", actif()); memoire("ombres.pro", actif() ? "1" : "0"); maj(); };
   $("#vPro").addEventListener("change", basculer);
   $("#outilsPro").hidden = !actif();

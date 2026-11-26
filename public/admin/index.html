@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Topograph — administration</title>
+<style>
+  :root { --fond: #f6f3ee; --carte: #fffdf9; --bord: #e4ddd2; --texte: #2a2723; --doux: #7a736a; --accent: #c8741a; --vert: #3f7d4e; --rayon: 10px; }
+  @media (prefers-color-scheme: dark) { :root { --fond: #171a20; --carte: #1f232b; --bord: #323845; --texte: #e8e6e1; --doux: #9aa0ab; --accent: #e6a04a; --vert: #7fbf8e; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fond); color: var(--texte); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { display: flex; align-items: baseline; gap: 12px; padding: 18px 24px; border-bottom: 1px solid var(--bord); }
+  header h1 { font-size: 18px; margin: 0; } header a { color: var(--doux); font-size: 13px; margin-left: auto; }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+  .tuiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .tuile { background: var(--carte); border: 1px solid var(--bord); border-radius: var(--rayon); padding: 12px 14px; }
+  .tuile .lib { font-size: 12px; color: var(--doux); } .tuile .val { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  section { background: var(--carte); border: 1px solid var(--bord); border-radius: var(--rayon); padding: 14px 16px; margin-bottom: 16px; }
+  section h2 { font-size: 14px; margin: 0 0 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 6px 8px; border-top: 1px solid var(--bord); } th { color: var(--doux); font-weight: 500; border-top: 0; }
+  .pastille { display: inline-block; padding: 0 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--bord); }
+  .pastille.pro { border-color: var(--vert); color: var(--vert); }
+  button, input { font: inherit; } input { padding: 5px 8px; border: 1px solid var(--bord); border-radius: 6px; background: var(--fond); color: var(--texte); }
+  button { padding: 4px 10px; border: 1px solid var(--bord); border-radius: 6px; background: transparent; color: var(--texte); cursor: pointer; } button:hover { border-color: var(--accent); }
+  .ligne { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+  .graphe svg { width: 100%; height: 140px; } .graphe text { fill: var(--doux); font-size: 10px; }
+  .message { padding: 40px 16px; text-align: center; color: var(--doux); } .message a { color: var(--accent); }
+  .defile { max-height: 420px; overflow: auto; }
+</style>
+</head>
+<body>
+<header><h1>Topograph · administration</h1><span id="maj" style="color:var(--doux);font-size:12px"></span><a href="/">← retour au site</a></header>
+<main id="contenu"><p class="message">Chargement…</p></main>
+<script>
+const $ = s => document.querySelector(s), api = "/api/admin.php";
+const chf = c => `CHF ${(c / 100).toLocaleString("fr-CH", { minimumFractionDigits: 2 })}`;
+const date = s => s ? new Date(s.replace(" ", "T") + "Z").toLocaleDateString("fr-CH", { day: "numeric", month: "short", year: "numeric" }) : "—";
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const NOMS = { lieu: "Lieux ouverts", heures: "Calculs d'ensoleillement", coupe: "Coupes", export: "Exports", import: "Imports de modèles", volume: "Volumes dessinés", projet: "Projets enregistrés", pro_ouvert: "Mode pro ouvert" };
+
+/** Barres des 90 derniers jours (une série). */
+function barres(lignes, cle, couleur) {
+  const jours = [...Array(90)].map((_, k) => { const d = new Date(Date.now() - (89 - k) * 864e5); return d.toISOString().slice(0, 10); });
+  const v = Object.fromEntries(lignes.map(l => [l.jour, +l[cle]])), max = Math.max(1, ...jours.map(j => v[j] || 0)), W = 900, H = 120;
+  const b = jours.map((j, k) => { const h = (v[j] || 0) / max * (H - 16); return `<rect x="${k * W / 90 + 1}" y="${H - h}" width="${W / 90 - 2}" height="${h}" fill="${couleur}"><title>${j} : ${v[j] || 0}</title></rect>`; }).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${b}</svg>`
+    + `<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--doux)"><span>il y a 90 jours</span><span>aujourd'hui · max ${max} par jour</span></div>`;
+}
+
+async function charger() {
+  let r;
+  try { r = await fetch(api, { credentials: "include" }); } catch { return message("L'API ne répond pas."); }
+  if (r.status === 401) return message(`Connectez-vous d'abord sur <a href="/">topograph.ch</a> (bouton « Compte ») avec une adresse administrateur, puis revenez ici.`);
+  if (r.status === 403) return message("Ce compte n'est pas administrateur (voir ADMIN_EMAILS dans api/config.php).");
+  if (!r.ok) return message(`Erreur ${r.status} de l'API.`);
+  afficher(await r.json());
+}
+function message(html) { $("#contenu").innerHTML = `<p class="message">${html}</p>`; }
+
+function afficher(d) {
+  const R = d.resume, usage = {};
+  for (const u of d.usage) {
+    const k = u.evenement, age = (Date.now() - Date.parse(u.jour)) / 864e5;
+    usage[k] ||= { j7: 0, j30: 0, j90: 0 };
+    usage[k].j90 += +u.n; if (age < 30) usage[k].j30 += +u.n; if (age < 7) usage[k].j7 += +u.n;
+  }
+  $("#maj").textContent = "mis à jour " + new Date().toLocaleTimeString("fr-CH", { hour: "2-digit", minute: "2-digit" });
+  $("#contenu").innerHTML = `
+  <div class="tuiles">
+    <div class="tuile"><div class="lib">Comptes</div><div class="val">${R.comptes}</div></div>
+    <div class="tuile"><div class="lib">Comptes Pro</div><div class="val">${R.pro}</div></div>
+    <div class="tuile"><div class="lib">Inscrits (30 jours)</div><div class="val">${R.inscrits30}</div></div>
+    <div class="tuile"><div class="lib">Ventes</div><div class="val">${R.ventes}</div></div>
+    <div class="tuile"><div class="lib">Chiffre d'affaires</div><div class="val">${chf(R.chiffre)}</div></div>
+    <div class="tuile"><div class="lib">Chiffre (30 jours)</div><div class="val">${chf(R.chiffre30)}</div></div>
+  </div>
+  <section class="graphe"><h2>Inscriptions par jour</h2>${barres(d.inscriptions, "n", "var(--accent)")}</section>
+  <section class="graphe"><h2>Ventes par jour</h2>${barres(d.ventesJour, "n", "var(--vert)")}</section>
+  <section><h2>Utilisation (compteurs anonymes)</h2>
+    <table><tr><th>Événement</th><th>7 jours</th><th>30 jours</th><th>90 jours</th></tr>
+    ${Object.keys(NOMS).map(k => `<tr><td>${NOMS[k]}</td><td>${usage[k]?.j7 || 0}</td><td>${usage[k]?.j30 || 0}</td><td>${usage[k]?.j90 || 0}</td></tr>`).join("")}</table></section>
+  <section><h2>Ventes</h2><div class="defile"><table><tr><th>Date</th><th>Compte</th><th>Montant</th><th>État</th><th>Référence Stripe</th></tr>
+    ${d.ventes.map(v => `<tr><td>${date(v.cree_le)}</td><td>${esc(v.email)}</td><td>${chf(v.montant)}</td><td>${esc(v.etat)}</td><td style="font-size:11px;color:var(--doux)">${esc(v.id)}</td></tr>`).join("") || `<tr><td colspan="5" style="color:var(--doux)">Aucune vente pour l'instant.</td></tr>`}
+  </table></div></section>
+  <section><h2>Comptes</h2>
+    <div class="ligne"><input id="filtre" type="search" placeholder="Filtrer par e-mail" style="flex:1;min-width:180px">
+      <input id="nouveauPro" type="email" placeholder="email@exemple.ch"><button id="offrir">Offrir le Pro</button></div>
+    <div class="defile"><table id="comptes"><tr><th>E-mail</th><th>Statut</th><th>Inscrit le</th><th>Pro depuis</th><th></th></tr>
+    ${d.comptes.map(c => `<tr data-email="${esc(c.email)}"><td>${esc(c.email)}</td><td><span class="pastille ${+c.pro ? "pro" : ""}">${+c.pro ? "Pro" : "Gratuit"}</span></td><td>${date(c.cree_le)}</td><td>${date(c.achete_le)}</td>
+      <td><button data-pro="${+c.pro ? 0 : 1}">${+c.pro ? "Retirer le Pro" : "Offrir le Pro"}</button></td></tr>`).join("") || `<tr><td colspan="5" style="color:var(--doux)">Aucun compte pour l'instant.</td></tr>`}
+    </table></div></section>`;
+  $("#filtre").oninput = e => { const q = e.target.value.toLowerCase(); document.querySelectorAll("#comptes tr[data-email]").forEach(tr => tr.hidden = !tr.dataset.email.includes(q)); };
+  $("#offrir").onclick = () => changerPro($("#nouveauPro").value, true);
+  document.querySelectorAll("button[data-pro]").forEach(b => b.onclick = () => changerPro(b.closest("tr").dataset.email, b.dataset.pro === "1"));
+}
+
+async function changerPro(email, pro) {
+  email = (email || "").trim();
+  if (!email || !confirm(`${pro ? "Offrir" : "Retirer"} le statut Pro à ${email} ?`)) return;
+  const r = await fetch(api, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "pro", email, pro }) });
+  if (!r.ok) alert(`Échec (${r.status}).`);
+  charger();
+}
+charger();
+</script>
+</body>
+</html>

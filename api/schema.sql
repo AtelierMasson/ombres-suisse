@@ -48,3 +48,11 @@ CREATE TABLE IF NOT EXISTS demandes (
   cree_le  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY cle_date (cle, cree_le)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Compteurs d'usage anonymes (tableau d'administration) : un total par jour et par événement, aucune donnée personnelle
+CREATE TABLE IF NOT EXISTS compteurs (
+  jour       DATE NOT NULL,
+  evenement  VARCHAR(32) NOT NULL,
+  n          INT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (jour, evenement)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

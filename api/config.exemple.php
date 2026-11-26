@@ -18,9 +18,9 @@ const DEVISE = 'chf';
 const NOM_PRODUIT = 'Topograph — licence pro';
 
 // Adresse publique du site, sans barre finale (pages de retour, liens de connexion)
-const SITE_URL = 'https://exemple.ch';
+const SITE_URL = 'https://topograph.ch';
 // Adresse de l'API (dossier api/), sans barre finale
-const API_URL = 'https://exemple.ch/api';
+const API_URL = 'https://topograph.ch/api';
 // Origine de développement autorisée en CORS avec cookies ('' pour aucune)
 const ORIGINE_DEV = 'http://localhost:5199';
 // Cookie Secure : true en production ; false seulement pour un test local en http hors Chrome/Firefox
@@ -29,11 +29,14 @@ const COOKIE_SECURE = true;
 // E-mail : SMTP Infomaniak (Manager → Service Mail → adresse → Configurer un client)
 const SMTP_HOTE = 'mail.infomaniak.com';   // '' : repli sur mail() de PHP
 const SMTP_PORT = 465;                      // SSL/TLS
-const SMTP_UTILISATEUR = 'compte@exemple.ch';
+const SMTP_UTILISATEUR = 'contact@topograph.ch';
 const SMTP_MOT_DE_PASSE = '';
-const EXPEDITEUR_EMAIL = 'compte@exemple.ch';
+const EXPEDITEUR_EMAIL = 'contact@topograph.ch';
 const EXPEDITEUR_NOM = 'Topograph — Atelier Masson';
 
 // Limites des demandes de lien (par heure)
 const LIMITE_PAR_EMAIL = 5;
 const LIMITE_PAR_IP = 20;
+
+// Tableau d'administration (topograph.ch/admin) : adresses des comptes administrateurs
+const ADMIN_EMAILS = ['contact@topograph.ch', 'contact@ateliermasson.ch'];

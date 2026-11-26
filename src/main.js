@@ -29,6 +29,12 @@ brancherSelecteur($("#langues"));
 // et tout reste ouvert
 const compte = brancherCompte({ api: "/api", t });
 compte.monter($("#langues"));
+// compteurs d'usage anonymes (tableau d'administration) : un simple total par jour et par action, envoyé seulement
+// quand l'API du site est en service ; aucune adresse, aucun lieu, aucun compte
+function compter(type) {
+  if (!compte.disponible()) return;
+  try { navigator.sendBeacon("/api/evenement.php", new Blob([JSON.stringify({ type })], { type: "application/json" })); } catch { /* sans importance */ }
+}
 // ouverture : aujourd'hui à 14 h, pour qu'il y ait du soleil
 const S = { jour: aujourdhui(), minutes: 14 * 60 };
 let T = appliquerTheme(themeInitial());
@@ -276,6 +282,7 @@ async function depuisAdresse() {
     $("#commandes").hidden = false; $("#diagramme").hidden = false;
     majSoleil();
     pro.apresChargement(); // projet rouvert depuis la liste : démolitions, volumes, coupes
+    compter("lieu");
   } catch (e) {
     if (id !== tache) return; // lieu changé entre-temps : le chargement abandonné n'affiche rien
     console.error(e);
@@ -583,6 +590,7 @@ $("#vCoupe").addEventListener("change", e => {
   if (!e.target.checked) { S.coupe = null; S.coupes = []; scene.definirCoupe(null); return; }
   S.coupe = null; S.coupes = [];
   majCoupe(...coupeParDefaut());
+  compter("coupe");
 });
 $("#btnTracer").onclick = () => {
   const actif = !$("#btnTracer").classList.contains("active");
@@ -655,6 +663,7 @@ function calculerHeures() {
     calcul = null;
     etat(1, "");
     S.resultat = { heures, heuresF, P, cle, ms: performance.now() - debut };
+    compter("heures");
     $("#btnHeures").textContent = t("heures.recalculer");
     afficherResultat();
   };
@@ -779,7 +788,7 @@ function choisirParcelle(p) {
 }
 
 // mode pro : sélection et masquage de bâtiments, taille de la maquette, exports (pro.js)
-const pro = brancherPro({ scene, S, message, etat, recharger: depuisAdresse, calculerHeures, annulerCalcul, majCoupe, soleilActuel, compte,
+const pro = brancherPro({ scene, S, message, etat, recharger: depuisAdresse, calculerHeures, annulerCalcul, majCoupe, soleilActuel, compte, compter,
   relancerHeures, ouvrirCoupes, changerJour: j => { $("#jour").value = j; $("#jour").dispatchEvent(new Event("change")); } });
 // coupes d'un projet rouvert : toutes recréées, la dernière active
 function ouvrirCoupes(liste) {
