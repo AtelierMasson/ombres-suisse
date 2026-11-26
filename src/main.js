@@ -15,6 +15,7 @@ import { dessinerDiagramme, soleilVisible, heureSousPointeur } from "./diagramme
 import { themeInitial, appliquerTheme } from "./themes.js";
 import { urlFond, COUCHES } from "./fond.js";
 import { zoneHeures, soleilsPeriode, carreauxFacades, maillagesHeures } from "./heures.js";
+import { contoursBatiments } from "./contours.js";
 import { profilCoupe, dessinerCoupe } from "./coupe.js";
 import { hameau } from "./demo.js";
 import { brancherPro } from "./pro.js";
@@ -624,6 +625,12 @@ const nomJeuHeures = () => {
  * Bâtiments du calcul des heures : ceux qui sont affichés. Relevé : grilles de la maquette ; Swiss3D : leurs toits vus de
  * dessus remplacent les bâtiments du relevé (sol et arbres inchangés). Tant que ses tuiles manquent, le relevé.
  */
+function contoursHeures() {
+  if (nomJeuHeures() !== "swiss") return scene.contours;
+  const h = scene.grilleComparaison("swiss");
+  if (S.contoursSwiss?.h !== h) S.contoursSwiss = { h, C: contoursBatiments(S.G, h) };
+  return S.contoursSwiss.C;
+}
 function jeuHeures() {
   const G = S.G, nom = nomJeuHeures(), hv = scene.hauteursVolumes(); // volumes du projet (mode pro), ajoutés aux bâtiments
   if (nom === "releve" && !hv) return { nom, surface: G?.surface, base: G?.base };
@@ -656,7 +663,12 @@ function calculerHeures() {
   annulerCalcul();
   const G = S.G;
   if (!G || !S.horizon) return;
-  const zone = S.zone ||= zoneHeures(G, S.parcelle.anneauxRel), facades = S.facades ||= carreauxFacades(G, scene.contours, zone);
+  const zone = S.zone ||= zoneHeures(G, S.parcelle.anneauxRel);
+  // bâtiments de la carte : ceux du relevé, ou les Swiss3D (contours tirés de leurs toits vus de dessus) : toits et
+  // façades colorés épousent alors les bâtiments affichés
+  const C = contoursHeures();
+  if (S.facades?.contours !== C) S.facades = { ...carreauxFacades(G, C, zone), contours: C };
+  const facades = S.facades;
   const P = soleilsPeriode(periode(), S.jour, S.lat, S.lon, S.horizon), cle = clePeriode(), debut = performance.now(), jeu = jeuHeures();
   const heures = new Float32Array(zone.w * zone.h), heuresF = new Float32Array(facades.carreaux.length);
   const fin = () => {
@@ -692,7 +704,7 @@ function calculerHeures() {
 function afficherResultat() {
   const { heures, heuresF, P, ms } = S.resultat, zone = S.zone, max = Math.max(0.5, P.max), parJour = P.nbJours > 1 ? t("heures.parJour") : "";
   scene.zoneArbres(zone);
-  scene.afficherHeures(maillagesHeures(S.G, scene.contours, zone, S.facades, { heures, heuresF }, max, T.heures, scene.zRef));
+  scene.afficherHeures(maillagesHeures(S.G, S.facades.contours, zone, S.facades, { heures, heuresF }, max, T.heures, scene.zRef));
   // statistiques sur les cellules de la parcelle (à défaut : le cœur de la zone)
   const sans = !S.parcelle.anneauxRel.length;
   let s = 0, k = 0, mn = Infinity, mx = 0;
