@@ -171,7 +171,7 @@ export function batiments(G, zRef, pans = false, contours = contoursBatiments(G)
   const C0 = contours.base || contours, P = pans ? (C0.pansCalcules ||= pansToits(G, C0)) : null, { n } = G, m = n + 1, pos = new Tampon(), vols = new Tampon(Int32Array, 1024);
   const entre = (a, b, t) => t === 0 ? a : t === 1 ? b : a + (b - a) * t; // les bouts exacts : murs du relevé inchangés
   const boucles = C0.boucles.map(B => {
-    const q = B.coins.length, hauts = P ? new Float32Array(q) : B.hauts;
+    const q = B.coins.length, hauts = P ? new Float32Array(q) : B.hauts, aretes = new Array(q);
     for (let k = 0; k < q; k++) {
       const a = B.coins[k], b = B.coins[(k + 1) % q];
       const xa = C0.px[a], ya = C0.py[a], xb = C0.px[b], yb = C0.py[b];
@@ -187,16 +187,44 @@ export function batiments(G, zRef, pans = false, contours = contoursBatiments(G)
         hauts[k] = profil.reduce((h, S) => S[0] === 0 ? Math.max(h, S[1]) : h, -Infinity);
         if (hauts[k] === -Infinity) hauts[k] = B.hauts[k];
       }
-      if (Math.abs(xa - xb) + Math.abs(ya - yb) < 1e-4) continue;
-      // murs prolongés de 2,5 m sous le sol mesuré aux angles : sur une pente, le terrain entre deux angles peut
-      // descendre plus bas, ce qui laissait un jour sous le mur (bâtiment qui semble flotter)
-      const sa = solEn(G, xa, ya) - 2.5, sb = solEn(G, xb, yb) - 2.5;
-      for (const [t1, z1, t2, z2] of profil) {
-        const x1 = entre(xa, xb, t1), y1 = entre(ya, yb, t1), x2 = entre(xa, xb, t2), y2 = entre(ya, yb, t2);
-        const b1 = entre(sa, sb, t1) - zRef, b2 = entre(sa, sb, t2) - zRef;
-        pos.ajouter(x1, z1 - zRef, -y1, x1, b1, -y1, x2, b2, -y2, x1, z1 - zRef, -y1, x2, b2, -y2, x2, z2 - zRef, -y2);
+      aretes[k] = { xa, ya, xb, yb, profil };
+    }
+    // murs : un seul tenant par côté droit du contour (entre deux sommets du polygone simplifié), au lieu d'un morceau
+    // par cellule ; le haut (bord du toit) et le pied sont simplifiés, avec peu de triangles (export plus propre)
+    const S = B.sommets?.length >= 3 ? B.sommets : [...Array(q).keys()];
+    for (let c = 0; c < S.length; c++) {
+      const k0 = S[c], k1 = S[(c + 1) % S.length], ox = C0.px[B.coins[k0]], oy = C0.py[B.coins[k0]];
+      const ex = C0.px[B.coins[k1]] - ox, ey = C0.py[B.coins[k1]] - oy, L = Math.hypot(ex, ey);
+      if (L < 1e-4) continue;
+      const ux = ex / L, uy = ey / L, haut = [], pied = [];
+      for (let k = k0; k !== k1; k = (k + 1) % q) {
+        const A = aretes[k];
+        if (!A) continue;
+        const sa = (A.xa - ox) * ux + (A.ya - oy) * uy, sb = (A.xb - ox) * ux + (A.yb - oy) * uy;
+        for (const [t1, z1, t2, z2] of A.profil) haut.push([entre(sa, sb, t1), z1], [entre(sa, sb, t2), z2]);
+        // murs prolongés de 2,5 m sous le sol : sur une pente, le terrain entre deux angles peut descendre plus bas
+        pied.push([sa, solEn(G, A.xa, A.ya) - 2.5], [sb, solEn(G, A.xb, A.yb) - 2.5]);
+      }
+      if (haut.length < 2) continue;
+      // haut : jamais sous le bord du toit (pas de jour entre mur et toit) ; pied : jamais au-dessus du sol
+      const H = simplifierProfil(haut, 0.12, 1), Bas = simplifierProfil(pied, 0.6, -1);
+      const lire = (Pf, x) => {
+        for (let i = 0; i < Pf.length - 1; i++) if (x <= Pf[i + 1][0] + 1e-6) { const [s1, z1] = Pf[i], [s2, z2] = Pf[i + 1]; return s2 - s1 < 1e-6 ? z2 : z1 + (z2 - z1) * (x - s1) / (s2 - s1); }
+        return Pf.at(-1)[1];
+      };
+      // tranches verticales entre les points du haut et du pied
+      const bornes = [...new Set([...H, ...Bas].map(v => +v[0].toFixed(4)))].sort((a, b) => a - b);
+      for (let i = 0; i < bornes.length - 1; i++) {
+        const s1 = bornes[i], s2 = bornes[i + 1];
+        if (s2 - s1 < 1e-4) continue;
+        const x1 = ox + ux * s1, y1 = oy + uy * s1, x2 = ox + ux * s2, y2 = oy + uy * s2;
+        // haut aux deux bords de la tranche (une marche verticale du toit tombe sur une borne : valeur de chaque côté)
+        const h1 = lireCote(H, s1, 1), h2 = lireCote(H, s2, -1), b1 = lire(Bas, s1) - zRef, b2 = lire(Bas, s2) - zRef;
+        pos.ajouter(x1, h1 - zRef, -y1, x1, b1, -y1, x2, b2, -y2, x1, h1 - zRef, -y1, x2, b2, -y2, x2, h2 - zRef, -y2);
         vols.ajouter(B.seg);
       }
+      // marches verticales du haut (deux points à la même abscisse) : le petit pan entre les deux hauteurs est déjà
+      // couvert par la tranche la plus haute ; rien à ajouter
     }
     return P ? { ...B, hauts } : B;
   });
@@ -206,6 +234,53 @@ export function batiments(G, zRef, pans = false, contours = contoursBatiments(G)
   murs.userData.volumes = vols.fin();
   const C = P ? { ...C0, boucles, pans: P, base: C0 } : C0;
   return { toits: P ? toitsPans(G, zRef, C0, P) : nappe(G, G.bat, zRef, C0), murs, contours: C };
+}
+
+/**
+ * Profil [[s, z], …] (abscisse croissante) simplifié par Douglas-Peucker à `tol` près, puis décalé pour rester d'un
+ * côté de l'original : `sens` = 1, jamais en dessous (haut des murs) ; −1, jamais au-dessus (pied des murs).
+ */
+function simplifierProfil(pts, tol, sens) {
+  // points identiques consécutifs retirés
+  const p = pts.filter((v, i) => i === 0 || Math.abs(v[0] - pts[i - 1][0]) > 1e-6 || Math.abs(v[1] - pts[i - 1][1]) > 1e-6);
+  if (p.length <= 2) return p.length === 1 ? [p[0], p[0]] : p;
+  const garde = new Uint8Array(p.length);
+  garde[0] = garde[p.length - 1] = 1;
+  const pile = [[0, p.length - 1]];
+  while (pile.length) {
+    const [a, b] = pile.pop(), [sa, za] = p[a], [sb, zb] = p[b];
+    let pire = -1, dmax = tol;
+    for (let i = a + 1; i < b; i++) {
+      // écart vertical à la corde (les murs sont verticaux : seule la hauteur compte) ; marche verticale : écart plein
+      const z = sb - sa < 1e-6 ? (za + zb) / 2 : za + (zb - za) * (p[i][0] - sa) / (sb - sa), d = Math.abs(p[i][1] - z);
+      if (d > dmax) { dmax = d; pire = i; }
+    }
+    if (pire > 0) { garde[pire] = 1; pile.push([a, pire], [pire, b]); }
+  }
+  const r = p.filter((_, i) => garde[i]).map(v => [...v]);
+  // chaque segment gardé est décalé du plus grand écart (du bon côté) des points qu'il remplace
+  for (let i = 0, j = 0; i < r.length - 1; i++) {
+    const [sa, za] = r[i], [sb, zb] = r[i + 1];
+    let ecart = 0;
+    for (; j < p.length && p[j][0] <= sb + 1e-6; j++) {
+      if (p[j][0] < sa - 1e-6 || sb - sa < 1e-6) continue;
+      const z = za + (zb - za) * (p[j][0] - sa) / (sb - sa), d = sens * (p[j][1] - z);
+      if (d > ecart) ecart = d;
+    }
+    if (ecart > 0) { r[i][1] += sens * ecart; r[i + 1][1] += sens * ecart; }
+    j = Math.max(0, j - 1);
+  }
+  return r;
+}
+
+/** Hauteur d'un profil simplifié en `x`, du côté `cote` (1 : juste après, −1 : juste avant) d'une marche verticale. */
+function lireCote(Pf, x, cote) {
+  for (let i = 0; i < Pf.length - 1; i++) {
+    const [s1, z1] = Pf[i], [s2, z2] = Pf[i + 1];
+    if (s2 - s1 < 1e-6) continue;
+    if (cote > 0 ? x >= s1 - 1e-6 && x < s2 - 1e-6 : x > s1 + 1e-6 && x <= s2 + 1e-6) return z1 + (z2 - z1) * (x - s1) / (s2 - s1);
+  }
+  return cote > 0 ? Pf.at(-1)[1] : Pf[0][1];
 }
 
 /** Toits en pans : triangles plans par cellule (coupés le long des arêtes de toit), grille pour les volumes restants. */

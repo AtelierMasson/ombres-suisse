@@ -9,7 +9,7 @@ import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import { STLExporter } from "three/addons/exporters/STLExporter.js";
 import { zipSync, strToU8 } from "three/addons/libs/fflate.module.js";
 import { solEn } from "./grille.js";
-import { couronnes } from "./maillages.js";
+import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import { t, nombre as decimal, entier, locale } from "./i18n.js";
 
 export const FORMATS = {
@@ -21,7 +21,7 @@ export const FORMATS = {
 // calques (noms sans accent : le DXF ancien ne les garantit pas), couleur AutoCAD et couleur du glTF
 const CALQUES = {
   TERRAIN: [253, "#d9d2c5"], SOCLE: [252, "#bdb5a6"], BATIMENTS: [7, "#f1ede6"], ARBRES: [3, "#6f9a4d"],
-  PARCELLE: [1, "#e0262b"], COURBES: [30, "#a8773a"], INFO: [2, "#f5b301"],
+  PARCELLE: [1, "#e0262b"], PARCELLE_0: [1, "#e0262b"], COURBES: [30, "#a8773a"], INFO: [2, "#f5b301"],
 };
 
 /* ------------------------------------------------------------------ géométrie */
@@ -175,6 +175,66 @@ function orienter({ pos, idx }) {
   return { pos, idx };
 }
 
+/**
+ * Arbres un par un, pour l'export : sommets de la végétation (maximum local de hauteur au-dessus du sol, à distance
+ * suffisante les uns des autres), rayon de la couronne lu autour de chaque sommet ; chaque arbre est une couronne
+ * ellipsoïdale (80 triangles) sur un tronc à six pans. Bien plus léger et lisible qu'une nappe de canopée.
+ */
+function arbresUnParUn(G) {
+  const { n, c, x0, sol, veg } = G, H = new Float32Array(n * n);
+  for (let p = 0; p < n * n; p++) { const h = veg[p] - sol[p]; H[p] = h > 2.5 ? h : 0; }
+  // sommets : maximum dans un rayon de 1,5 m, puis tri par hauteur et écart minimal selon la taille
+  const w = Math.max(1, Math.round(1.5 / c)), candidats = [];
+  for (let j = w; j < n - w; j++) for (let i = w; i < n - w; i++) {
+    const h = H[j * n + i];
+    if (h < 3) continue;
+    let max = true;
+    for (let dj = -w; dj <= w && max; dj++) for (let di = -w; di <= w; di++) if (H[(j + dj) * n + i + di] > h) { max = false; break; }
+    if (max) candidats.push([i, j, h]);
+  }
+  candidats.sort((a, b) => b[2] - a[2]);
+  const gardes = [];
+  for (const [i, j, h] of candidats) {
+    const ecart = Math.max(2, 0.22 * h) / c;
+    if (gardes.some(([a, b]) => (a - i) ** 2 + (b - j) ** 2 < ecart * ecart)) continue;
+    gardes.push([i, j, h]);
+  }
+  // couronne de référence : icosaèdre subdivisé, indexé
+  const base = mergeVertices(new THREE.IcosahedronGeometry(1, 1).deleteAttribute("normal").deleteAttribute("uv"));
+  const bp = base.attributes.position, bi = base.index.array, nb = bp.count;
+  const pos = [], idx = [];
+  for (const [i, j, h] of gardes) {
+    const x = x0 + (i + 0.5) * c, y = x0 + (j + 0.5) * c, z0 = sol[j * n + i];
+    // rayon : distance moyenne, sur 8 directions, où la couronne tombe sous la moitié de la hauteur du sommet
+    let somme = 0;
+    for (let d = 0; d < 8; d++) {
+      const a = d * Math.PI / 4, dx = Math.cos(a), dy = Math.sin(a);
+      let r = 0;
+      for (let pas = 1; pas * c < 0.45 * h + 2; pas++) {
+        const ii = Math.round(i + dx * pas), jj = Math.round(j + dy * pas);
+        if (ii < 0 || jj < 0 || ii >= n || jj >= n || H[jj * n + ii] < 0.5 * h) break;
+        r = pas * c;
+      }
+      somme += r;
+    }
+    const r = Math.min(8, Math.max(1.2, somme / 8 + c / 2)), rv = Math.min(0.42 * h, Math.max(1.2, r * 1.1)), cz = z0 + h - rv;
+    // couronne (repère de l'export : x est, y nord, z haut ; le modèle three.js a y en haut : on permute, donc on
+    // inverse l'ordre des sommets des triangles pour garder les faces vers l'extérieur)
+    const o = pos.length / 3;
+    for (let v = 0; v < nb; v++) pos.push(x + bp.getX(v) * r, y + bp.getZ(v) * r, cz + bp.getY(v) * rv);
+    for (let t = 0; t < bi.length; t += 3) idx.push(o + bi[t], o + bi[t + 2], o + bi[t + 1]);
+    // tronc à six pans, du sol (un peu enterré) jusque dans la couronne
+    const rt = Math.min(0.45, 0.1 + 0.05 * r), bas = z0 - 0.3, haut = cz - rv * 0.4, ot = pos.length / 3;
+    for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; pos.push(x + Math.cos(a) * rt, y + Math.sin(a) * rt, bas, x + Math.cos(a) * rt, y + Math.sin(a) * rt, haut); }
+    for (let k = 0; k < 6; k++) {
+      const a0 = ot + 2 * k, a1 = ot + 2 * ((k + 1) % 6);
+      idx.push(a0, a1, a1 + 1, a0, a1 + 1, a0 + 1);
+    }
+  }
+  base.dispose();
+  return { pos: Float64Array.from(pos), idx: Uint32Array.from(idx), nbArbres: gardes.length };
+}
+
 /** Limite de parcelle posée sur le terrain : sommets du cadastre, plus un point par mètre pour suivre la pente. */
 function limites(G, anneaux) {
   const lignes = [];
@@ -260,10 +320,20 @@ export function preparer(scene, parcelle, quoi, jeu = "releve") {
     if (M.idx.length) cats.push({ nom: "BATIMENTS", maillage: M });
   }
   if (quoi.arbres) {
-    const g = couronnes(G, zRef, scene.T.arbres);
-    if (g) { cats.push({ nom: "ARBRES", maillage: souder(trianglesDe([new THREE.Mesh(g)], zRef, G.R)) }); g.dispose(); }
+    // un arbre par sommet de la végétation : couronne et tronc simples (pas de nappe de canopée)
+    const M = arbresUnParUn(G);
+    if (M.idx.length) cats.push({ nom: "ARBRES", maillage: M });
   }
-  if (quoi.parcelle) { const l = limites(G, parcelle?.anneauxRel || []); if (l.length) cats.push({ nom: "PARCELLE", lignes: l }); }
+  if (quoi.parcelle) {
+    const l = limites(G, parcelle?.anneauxRel || []);
+    if (l.length) cats.push({ nom: "PARCELLE", lignes: l });
+    // la même limite à plat, sommets exacts du cadastre seulement (altitude mise à 0 à l'écriture, exporterSite)
+    const plan = (parcelle?.anneauxRel || []).filter(a => a.length >= 3).map(a => {
+      const pts = a.slice(0, a.at(-1)[0] === a[0][0] && a.at(-1)[1] === a[0][1] ? -1 : undefined);
+      return { pts: Float64Array.from(pts.flatMap(([x, y]) => [x, y, 0])), ferme: true, niveau0: true };
+    });
+    if (plan.length) cats.push({ nom: "PARCELLE_0", lignes: plan });
+  }
   if (quoi.courbes) { const l = courbesNiveau(G); if (l.length) cats.push({ nom: "COURBES", lignes: l }); }
   return cats;
 }
@@ -413,6 +483,8 @@ export async function exporterSite(o) {
   const O = { absolu, E0: o.E0, N0: o.N0, Z0, decalage: absolu ? [o.E0, o.N0, 0] : [0, 0, -Z0] };
   o.progres?.(0.1, t("export.preparation")); await souffle();
   const cats = preparer(scene, o.parcelle, quoi, o.jeu).filter(c => c.maillage || F.lignes);
+  // parcelle à plat : altitude 0 dans le fichier, quel que soit le repère (local ou MN95)
+  for (const c of cats) for (const l of c.lignes || []) if (l.niveau0) for (let k = 2; k < l.pts.length; k += 3) l.pts[k] = -O.decalage[2];
   if (!cats.length) throw new Error(t("export.rien"));
   const triangles = cats.reduce((s, c) => s + (c.maillage ? c.maillage.idx.length / 3 : 0), 0);
   const origine = t("export.origine", { E: o.E0, N: o.N0, Z: Z0 });
@@ -437,7 +509,7 @@ function texteLisezMoi({ lieu, format, quoi, jeu, source, O, F, fichier, cats, t
   const jeux = { releve: t("lisez.jeuReleve"), swiss: t("lisez.jeuSwiss"), roofer: t("lisez.jeuRoofer") };
   const contenu = { TERRAIN: t("lisez.TERRAIN", { maille: decimal(quoi.maille, Number.isInteger(quoi.maille) ? 0 : 1) }), SOCLE: t("lisez.SOCLE"),
     BATIMENTS: t("lisez.BATIMENTS", { jeu: jeux[jeu] || jeux.releve }) + (jeu === "releve" || !jeu ? t("lisez.sansMasques") : ""),
-    ARBRES: t("lisez.ARBRES"), PARCELLE: t("lisez.PARCELLE"), COURBES: t("lisez.COURBES") };
+    ARBRES: t("lisez.ARBRES"), PARCELLE: t("lisez.PARCELLE"), PARCELLE_0: t("lisez.PARCELLE_0"), COURBES: t("lisez.COURBES") };
   return [
     t("lisez.titre"),
     ``,
