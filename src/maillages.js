@@ -20,9 +20,9 @@ class Tampon {
 }
 
 /** Après l'envoi à la carte graphique, la copie en mémoire vive ne sert plus (couches jamais relues ni exportées). */
-function jetable(g) {
+function jetable(g, garder = []) {
   g.computeBoundingSphere();
-  for (const a of [...Object.values(g.attributes), g.index]) a?.onUpload(function () { this.array = null; });
+  for (const [nom, a] of [...Object.entries(g.attributes), ["index", g.index]]) if (!garder.includes(nom)) a?.onUpload(function () { this.array = null; });
   return g;
 }
 
@@ -424,7 +424,8 @@ export function nuagePoints(nuage, G, zRef, mode, part, taille) {
     g.userData.autres = na;
   }
   g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  const pts = new THREE.Points(jetable(g), materiauPoints(taille, !arbres));
+  // nuage brut : positions et couleurs gardées (couleurs réelles calculées après coup, voir Scene3D.couleursPoints)
+  const pts = new THREE.Points(jetable(g, arbres ? [] : ["position", "aCouleur"]), materiauPoints(taille, !arbres));
   pts.receiveShadow = true;
   const v = new THREE.Vector2();
   pts.onBeforeRender = (r, s, cam) => { pts.material.uniforms.echelle.value = r.getDrawingBufferSize(v).y / (2 * Math.tan(cam.fov * Math.PI / 360)); };

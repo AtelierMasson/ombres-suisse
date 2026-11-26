@@ -126,6 +126,7 @@ export class Scene3D {
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.12;
     this.controls.zoomToCursor = true;
+    this.controls.maxDistance = 60000; // au-delà, le paysage (50 km) n'est plus qu'un point
     // rendu à la demande : tout mouvement de la caméra (molette comprise, avec son amorti) redessine
     this.controls.addEventListener("change", () => { if (this.modeVue) this.plansCamera(); this.demander(3); });
     r.domElement.addEventListener("wheel", () => this.demander(40), { passive: true });
@@ -307,7 +308,11 @@ export class Scene3D {
       // avec le paysage : plan lointain à 150 km, plan proche reculé avec la distance (précision au loin), ciel centré
       // sur la caméra (la voûte de 9 km ne doit pas être quittée en dézoomant)
       const cam = this.camera, avecLoin = !!(L.maille && L.voir);
-      const far = avecLoin ? 150000 : 20000, near = avecLoin ? Math.min(20, Math.max(0.5, cam.position.distanceTo(this.controls.target) * 0.003)) : 0.5;
+      // le plan proche suit ce qui est le plus près : la maquette ou le point visé (après un grand dézoom, le point
+      // visé peut être à des kilomètres alors que la caméra revient près de la maquette)
+      const R = this.G?.R || 150, versMaquette = Math.max(0, cam.position.length() - R * 1.5);
+      const proche = Math.min(cam.position.distanceTo(this.controls.target), versMaquette, Math.max(0, cam.position.y - (this.zBas || 0)));
+      const far = avecLoin ? 150000 : 20000, near = avecLoin ? Math.min(20, Math.max(0.5, proche * 0.003)) : 0.5;
       if (cam.far !== far || Math.abs(cam.near - near) > 0.05 * near) { cam.far = far; cam.near = near; cam.updateProjectionMatrix(); }
       this.voute.position.copy(avecLoin ? cam.position : new THREE.Vector3());
     }
@@ -932,7 +937,7 @@ export class Scene3D {
       cam.fov = a?.fov || 45; cam.near = 0.5; cam.far = 20000;
       this.voute.position.set(0, 0, 0); this.voute.scale.setScalar(1);
       ctl.enableRotate = true; ctl.minPolarAngle = 0; ctl.maxPolarAngle = Math.PI * 0.495;
-      ctl.minDistance = 0; ctl.maxDistance = Infinity;
+      ctl.minDistance = 0; ctl.maxDistance = 60000;
       ctl.mouseButtons.LEFT = THREE.MOUSE.ROTATE; ctl.touches.ONE = THREE.TOUCH.ROTATE;
       this.scene.fog.density = this.densiteBrume();
       if (a) { cam.position.copy(a.pos); ctl.target.copy(a.cible); } else this.vueDepart();
