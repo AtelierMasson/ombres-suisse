@@ -2,6 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./style.css";
 document.documentElement.classList.add("pret"); // styles chargés : la page peut s'afficher
 import { textureHeures } from "./heures.js";
+import { pontsAutour } from "./pontsModeles.js";
 import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
 import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, versWgs } from "./geo.js";
 import { chargerNuage } from "./nuage.js";
@@ -347,6 +348,8 @@ async function depuisAdresse() {
     await pause();
     scene.controls.autoRotate = false;
     scene.typeFond = typeFond();
+    scene.pontsModeles = await pontsAutour(E0, N0, R).catch(() => []); scene.lieuPonts = { E: E0, N: N0 };
+    if (id !== tache) return;
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite), bruit: urlFond(COUCHES.bruit, boite) });
     scene.tuilesPlan.placer(E0, N0, G.R); // plan autour : tuiles en mémoire aussitôt, les autres au fil de l'eau
     pro.reinitialiser();

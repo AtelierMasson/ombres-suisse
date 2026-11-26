@@ -13,6 +13,7 @@ import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { solEn, majSurface } from "./grille.js";
 import { indexVolumes } from "./volumes.js";
 import { socleRond, materiauPoints } from "./maillages.js";
+import { dansPont, maillagePont } from "./pontsModeles.js";
 import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord, tabliersPonts, pontsLegers } from "./maillages.js";
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
@@ -575,11 +576,23 @@ export class Scene3D {
     // ponts : tablier (dalle et rives) avec le vide dessous, du même plâtre que les murs
     // la chaussée prend la matière du terrain (le plan, le grain, les couleurs réelles continuent sur le pont)
     // ponts allégés (par défaut : quelques centaines de triangles par pont) ou tels que relevés (cellule par cellule)
-    const gp = this.pontsDetailles ? tabliersPonts(G, this.zRef) : pontsLegers(G, this.zRef, nuage) || tabliersPonts(G, this.zRef);
+    // ponts modélisés à part (pontsModeles.js) : le pont reconstruit automatiquement est effacé à leur place
+    const modeles = this.pontsModeles || [], { E: Ep, N: Np } = this.lieuPonts || { E: 0, N: 0 };
+    let Gp = G;
+    if (modeles.length && G.pont) {
+      const pont = G.pont.slice();
+      for (let j = 0; j < G.n; j++) for (let i = 0; i < G.n; i++) {
+        const p = j * G.n + i;
+        if (!isNaN(pont[p]) && modeles.some(P => dansPont(P, Ep, Np, G.x0 + (i + 0.5) * G.c, G.x0 + (j + 0.5) * G.c))) pont[p] = NaN;
+      }
+      Gp = { ...G, pont };
+    }
+    const gp = this.pontsDetailles ? tabliersPonts(Gp, this.zRef) : pontsLegers(Gp, this.zRef, nuage) || tabliersPonts(Gp, this.zRef);
     let ponts = null;
-    if (gp) {
+    if (gp || modeles.length) {
       ponts = new THREE.Group();
-      ponts.add(maille(gp.dessus, m.terrain, true, true), maille(gp.cotes, m.mur, true, true));
+      if (gp) ponts.add(maille(gp.dessus, m.terrain, true, true), maille(gp.cotes, m.mur, true, true));
+      for (const P of modeles) ponts.add(maille(maillagePont(P, Ep, Np, this.zRef, (x, y) => solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y)))), m.mur, true, true));
       ponts.children.forEach(o => decouperBord(o, G.R - 0.03));
     }
     this.couches = { terrain: sol, socle: base, bati, canopee, arbres, limite, eau, ponts };

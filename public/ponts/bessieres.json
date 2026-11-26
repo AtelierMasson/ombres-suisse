@@ -1,0 +1,20 @@
+{
+  "nom": "Pont Bessières, Lausanne",
+  "axe": [[2538420.0, 1152550.4, 516.0], [2538447.4, 1152521.2, 516.7], [2538480.9, 1152485.4, 515.6]],
+  "largeur": 15.5,
+  "epaisseur": 1.2,
+  "appuis": [
+    {"type": "culee", "s": 0},
+    {"type": "culee", "s": 89.0}
+  ],
+  "arches": [
+    {"s0": 4.0, "s1": 79.0, "z_naissance": 505.5, "z_cle": 513.5, "epaisseur": 1.5, "larg": 13.0, "plein": false}
+  ],
+  "sources": [
+    "https://www.lausanne.ch/portrait/carte-identite/architecture-et-monuments/patrimoine-architectural/lausanne-1900/pont-bessieres.html",
+    "https://structurae.net/structures/pont-bessieres",
+    "https://commons.wikimedia.org/wiki/File:Ponts_Bessi%C3%A8res_et_Saint-Martin_(1).jpg"
+  ],
+  "confiance": "moyenne",
+  "notes": "Arc métallique surbaissé à plusieurs nervures (portée ~80 m, flèche ~7 m) avec montants treillis, naissant sur des culées en maçonnerie ; altitudes de naissance et clé déduites des points laser sur les culées (s 4 et 76-84) et de la flèche publiée. Les points à 495-497 m sous le tablier sont le pont Saint-Martin (2007), pas le pont Bessières ; les arches en pierre d'approche sont hors du tronçon mesuré."
+}
