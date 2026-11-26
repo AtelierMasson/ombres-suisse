@@ -815,6 +815,98 @@ export function plansEau(G, zRef) {
 }
 
 /**
+ * Ponts allégés : chaque pont (cellules de tablier connexes) devient un solide balayé le long de son axe principal.
+ * On relève, tous les mètres le long de l'axe, les deux rives (écart à l'axe), le dessus du tablier et le dessous
+ * relevé (intrados des arches, pied des piles) ; ces quatre profils sont simplifiés (Douglas-Peucker), puis reliés
+ * par des faces planes : quelques centaines de triangles par pont au lieu de dizaines de milliers.
+ * Pour les ponts droits ou peu courbes. Retourne { dessus (avec coordonnées de texture du terrain), cotes } ou null.
+ */
+export function pontsLegers(G, zRef) {
+  const { n, c, x0, pont, pontBas } = G;
+  if (!pont || !pont.some(v => !isNaN(v))) return null;
+  const sous = pontBas || pont.map(z => z - 1.5), vu = new Uint8Array(n * n), haut = [], uv = [], bas = [];
+  const UV = (x, y) => [(x - x0) / (2 * G.R), (y - x0) / (2 * G.R)];
+  for (let p0 = 0; p0 < n * n; p0++) {
+    if (vu[p0] || isNaN(pont[p0])) continue;
+    // un pont : cellules connexes
+    const cel = [], pile = [p0];
+    vu[p0] = 1;
+    while (pile.length) {
+      const p = pile.pop(), i = p % n;
+      cel.push(p);
+      for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n])
+        if (q >= 0 && q < n * n && !vu[q] && !isNaN(pont[q])) { vu[q] = 1; pile.push(q); }
+    }
+    if (cel.length * c * c < 20) continue;
+    // axe principal (analyse en composantes principales des centres de cellules)
+    let mx = 0, my = 0;
+    const X = cel.map(p => x0 + (p % n + 0.5) * c), Y = cel.map(p => x0 + (Math.floor(p / n) + 0.5) * c);
+    for (let k = 0; k < cel.length; k++) { mx += X[k]; my += Y[k]; }
+    mx /= cel.length; my /= cel.length;
+    let sxx = 0, syy = 0, sxy = 0;
+    for (let k = 0; k < cel.length; k++) { const dx = X[k] - mx, dy = Y[k] - my; sxx += dx * dx; syy += dy * dy; sxy += dx * dy; }
+    const a = 0.5 * Math.atan2(2 * sxy, sxx - syy), ux = Math.cos(a), uy = Math.sin(a), vx = -uy, vy = ux;
+    // stations d'un mètre le long de l'axe
+    let s0 = Infinity, s1 = -Infinity;
+    const S = cel.map((p, k) => { const v = (X[k] - mx) * ux + (Y[k] - my) * uy; if (v < s0) s0 = v; if (v > s1) s1 = v; return v; });
+    const pas = 1, nb = Math.max(2, Math.ceil((s1 - s0) / pas) + 1), st = Array.from({ length: nb }, () => ({ g: Infinity, d: -Infinity, h: [], b: [] }));
+    for (let k = 0; k < cel.length; k++) {
+      const q = Math.min(nb - 1, Math.round((S[k] - s0) / pas)), t = (X[k] - mx) * vx + (Y[k] - my) * vy, T = st[q];
+      if (t - c / 2 < T.g) T.g = t - c / 2;
+      if (t + c / 2 > T.d) T.d = t + c / 2;
+      T.h.push(pont[cel[k]]); if (!isNaN(sous[cel[k]])) T.b.push(sous[cel[k]]);
+    }
+    const med = a => { if (!a.length) return NaN; a.sort((u, v) => u - v); return a[a.length >> 1]; };
+    const profils = { g: [], d: [], h: [], b: [] };
+    for (let q = 0; q < nb; q++) {
+      const T = st[q], x = s0 + q * pas;
+      if (T.g === Infinity) continue;
+      const h = med(T.h), b = med(T.b);
+      profils.g.push([x, T.g]); profils.d.push([x, T.d]); profils.h.push([x, h]); profils.b.push([x, isNaN(b) ? h - 1.5 : Math.min(b, h - 0.4)]);
+    }
+    if (profils.h.length < 2) continue;
+    // simplification : rives à 25 cm (vers l'extérieur), dessus à 10 cm (jamais sous la chaussée), dessous à 30 cm
+    const Pg = simplifierProfil(profils.g, 0.25, -1), Pd = simplifierProfil(profils.d, 0.25, 1);
+    const Ph = simplifierProfil(profils.h, 0.1, 1), Pb = simplifierProfil(profils.b, 0.3, -1);
+    const lire = (Pf, x) => {
+      for (let i = 0; i < Pf.length - 1; i++) if (x <= Pf[i + 1][0] + 1e-6) { const [a1, z1] = Pf[i], [a2, z2] = Pf[i + 1]; return a2 - a1 < 1e-6 ? z2 : z1 + (z2 - z1) * (x - a1) / (a2 - a1); }
+      return Pf.at(-1)[1];
+    };
+    const bornes = [...new Set([Pg, Pd, Ph, Pb].flatMap(P => P.map(v => +v[0].toFixed(3))))].sort((u, v) => u - v);
+    // sections : coins gauche / droite, en haut et en bas (repère de la scène)
+    const sec = bornes.map(x => {
+      const g = lire(Pg, x), d = lire(Pd, x), h = lire(Ph, x) - zRef, b = lire(Pb, x) - zRef;
+      const G2 = [mx + ux * x + vx * g, my + uy * x + vy * g], D2 = [mx + ux * x + vx * d, my + uy * x + vy * d];
+      return { G2, D2, h, b };
+    });
+    const P = ([x, y], z) => [x, z, -y];
+    const quad = (o, A, B, C, D) => o.push(...A, ...B, ...C, ...A, ...C, ...D);
+    for (let i = 0; i < sec.length - 1; i++) {
+      const A = sec[i], B = sec[i + 1];
+      // dessus (chaussée, texture du terrain), dessous, rives gauche et droite
+      quad(haut, P(A.G2, A.h), P(A.D2, A.h), P(B.D2, B.h), P(B.G2, B.h));
+      uv.push(...UV(...A.G2), ...UV(...A.D2), ...UV(...B.D2), ...UV(...A.G2), ...UV(...B.D2), ...UV(...B.G2));
+      quad(bas, P(A.G2, A.b), P(B.G2, B.b), P(B.D2, B.b), P(A.D2, A.b));
+      quad(bas, P(A.G2, A.b), P(A.G2, A.h), P(B.G2, B.h), P(B.G2, B.b));
+      quad(bas, P(A.D2, A.b), P(B.D2, B.b), P(B.D2, B.h), P(A.D2, A.h));
+    }
+    // bouts (culées)
+    const A = sec[0], B = sec.at(-1);
+    quad(bas, P(A.G2, A.b), P(A.D2, A.b), P(A.D2, A.h), P(A.G2, A.h));
+    quad(bas, P(B.G2, B.b), P(B.G2, B.h), P(B.D2, B.h), P(B.D2, B.b));
+  }
+  if (!haut.length) return null;
+  const dessus = new THREE.BufferGeometry();
+  dessus.setAttribute("position", new THREE.Float32BufferAttribute(haut, 3));
+  dessus.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+  dessus.computeVertexNormals();
+  const cotes = new THREE.BufferGeometry();
+  cotes.setAttribute("position", new THREE.Float32BufferAttribute(bas, 3));
+  cotes.computeVertexNormals();
+  return { dessus, cotes };
+}
+
+/**
  * Coupe réellement la géométrie d'un maillage au bord du modèle (|x|, |z| ≤ lim, en coordonnées de scène), au lieu
  * de la masquer par des plans de découpe : sinon le bout des murs coupés tombe dans le plan de la face du socle et
  * l'occlusion ambiante (qui voit la géométrie jusqu'au bord) y dessine des stries. La géométrie d'origine est gardée

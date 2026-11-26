@@ -391,6 +391,7 @@ export default {
   "lisez.SOCLE": "base: sides and bottom, closed with the terrain",
   "lisez.BATIMENTS": "buildings: {jeu}",
   "lisez.sansMasques": ", excluding those hidden in pro mode",
+  "lisez.PONTS": "simplified bridges (deck, arches and piers from the survey, a few hundred triangles per bridge)",
   "lisez.ARBRES": "trees one by one (simple crown and trunk, at the surveyed position and height)",
   "lisez.PARCELLE": "plot boundary (cadastre), draped on the terrain",
   "lisez.PARCELLE_0": "plot boundary flat (elevation 0), exact cadastral vertices",

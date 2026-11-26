@@ -391,6 +391,7 @@ export default {
   "lisez.SOCLE": "Sockel: Seiten und Boden, mit dem Gelände geschlossen",
   "lisez.BATIMENTS": "Gebäude: {jeu}",
   "lisez.sansMasques": ", ohne die im Pro-Modus ausgeblendeten",
+  "lisez.PONTS": "vereinfachte Brücken (Fahrbahn, Bögen und Pfeiler nach der Vermessung, einige hundert Dreiecke pro Brücke)",
   "lisez.ARBRES": "Bäume einzeln (einfache Krone und Stamm, an gemessener Position und Höhe)",
   "lisez.PARCELLE": "Parzellengrenze (Kataster), auf das Gelände gelegt",
   "lisez.PARCELLE_0": "Parzellengrenze flach (Höhe 0), exakte Eckpunkte des Katasters",

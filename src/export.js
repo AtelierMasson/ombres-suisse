@@ -9,6 +9,7 @@ import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import { STLExporter } from "three/addons/exporters/STLExporter.js";
 import { zipSync, strToU8 } from "three/addons/libs/fflate.module.js";
 import { solEn } from "./grille.js";
+import { pontsLegers } from "./maillages.js";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import { t, nombre as decimal, entier, locale } from "./i18n.js";
 
@@ -318,6 +319,14 @@ export function preparer(scene, parcelle, quoi, jeu = "releve") {
     const M = souder(trianglesDe(objets, zRef, G.R));
     if (jeu !== "releve") orienter(M);
     if (M.idx.length) cats.push({ nom: "BATIMENTS", maillage: M });
+    // ponts : modèle allégé (solide le long de l'axe, arches et piles), en coordonnées du site
+    const P = pontsLegers(G, zRef);
+    if (P) {
+      const objets = [new THREE.Mesh(P.dessus), new THREE.Mesh(P.cotes)];
+      const MP = souder(trianglesDe(objets, zRef, G.R));
+      if (MP.idx.length) cats.push({ nom: "PONTS", maillage: MP });
+      P.dessus.dispose(); P.cotes.dispose();
+    }
   }
   if (quoi.arbres) {
     // un arbre par sommet de la végétation : couronne et tronc simples (pas de nappe de canopée)
@@ -509,7 +518,7 @@ function texteLisezMoi({ lieu, format, quoi, jeu, source, O, F, fichier, cats, t
   const jeux = { releve: t("lisez.jeuReleve"), swiss: t("lisez.jeuSwiss"), roofer: t("lisez.jeuRoofer") };
   const contenu = { TERRAIN: t("lisez.TERRAIN", { maille: decimal(quoi.maille, Number.isInteger(quoi.maille) ? 0 : 1) }), SOCLE: t("lisez.SOCLE"),
     BATIMENTS: t("lisez.BATIMENTS", { jeu: jeux[jeu] || jeux.releve }) + (jeu === "releve" || !jeu ? t("lisez.sansMasques") : ""),
-    ARBRES: t("lisez.ARBRES"), PARCELLE: t("lisez.PARCELLE"), PARCELLE_0: t("lisez.PARCELLE_0"), COURBES: t("lisez.COURBES") };
+    ARBRES: t("lisez.ARBRES"), PONTS: t("lisez.PONTS"), PARCELLE: t("lisez.PARCELLE"), PARCELLE_0: t("lisez.PARCELLE_0"), COURBES: t("lisez.COURBES") };
   return [
     t("lisez.titre"),
     ``,

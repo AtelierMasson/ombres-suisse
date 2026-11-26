@@ -392,6 +392,7 @@ export default {
   "lisez.SOCLE": "socle : côtés et fond, fermé avec le terrain",
   "lisez.BATIMENTS": "bâtiments {jeu}",
   "lisez.sansMasques": ", sans ceux masqués en mode pro",
+  "lisez.PONTS": "ponts allégés (tablier, arches et piles d'après le relevé, quelques centaines de triangles par pont)",
   "lisez.ARBRES": "arbres un par un (couronne et tronc simples, à la position et à la hauteur relevées)",
   "lisez.PARCELLE": "limite de la parcelle (cadastre), posée sur le terrain",
   "lisez.PARCELLE_0": "limite de la parcelle à plat (altitude 0), sommets exacts du cadastre",

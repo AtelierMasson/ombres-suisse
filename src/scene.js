@@ -13,7 +13,7 @@ import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { solEn, majSurface } from "./grille.js";
 import { indexVolumes } from "./volumes.js";
 import { socleRond, materiauPoints } from "./maillages.js";
-import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord, tabliersPonts } from "./maillages.js";
+import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord, tabliersPonts, pontsLegers } from "./maillages.js";
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
 
@@ -356,7 +356,17 @@ export class Scene3D {
   }
 
 
+  /** Trait de coupe : 3 px de près, plus fin en s'éloignant (jusqu'à 1,2 px), pour ne pas écraser la maquette. */
+  epaisseurTrait() {
+    const d = this.camera.position.distanceTo(this.controls.target), e = Math.max(1.2, Math.min(3, 3 * 160 / Math.max(1, d)));
+    if (Math.abs(this.mat.trait.linewidth - e) > 0.05) {
+      this.mat.trait.linewidth = e;
+      this.mat.trait.jonction.uniforms.taille.value = e * this.ratio;
+    }
+  }
+
   rendre() {
+    if (this.coupe) this.epaisseurTrait();
     if (this.coupe) this.orienterCoupe();
     const L = this.loin, enPlan = this.modeVue === "plan";
     // maquette coupée : posée seule, comme une maquette d'atelier (le paysage autour laisserait un vide à la place de la
@@ -504,7 +514,8 @@ export class Scene3D {
     const ge = plansEau(G, this.zRef), eau = ge ? maille(ge, m.eau, false, true) : null;
     // ponts : tablier (dalle et rives) avec le vide dessous, du même plâtre que les murs
     // la chaussée prend la matière du terrain (le plan, le grain, les couleurs réelles continuent sur le pont)
-    const gp = tabliersPonts(G, this.zRef);
+    // ponts allégés (par défaut : quelques centaines de triangles par pont) ou tels que relevés (cellule par cellule)
+    const gp = this.pontsDetailles ? tabliersPonts(G, this.zRef) : pontsLegers(G, this.zRef) || tabliersPonts(G, this.zRef);
     let ponts = null;
     if (gp) {
       ponts = new THREE.Group();

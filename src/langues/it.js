@@ -391,6 +391,7 @@ export default {
   "lisez.SOCLE": "zoccolo: lati e fondo, chiuso con il terreno",
   "lisez.BATIMENTS": "edifici: {jeu}",
   "lisez.sansMasques": ", senza quelli nascosti in modalità pro",
+  "lisez.PONTS": "ponti semplificati (impalcato, archi e pile secondo il rilievo, qualche centinaio di triangoli per ponte)",
   "lisez.ARBRES": "alberi uno per uno (chioma e tronco semplici, nella posizione e all'altezza rilevate)",
   "lisez.PARCELLE": "limite della particella (catasto), posata sul terreno",
   "lisez.PARCELLE_0": "limite della particella in piano (quota 0), vertici esatti del catasto",
