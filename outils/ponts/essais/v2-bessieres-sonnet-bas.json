@@ -1,0 +1,17 @@
+{
+  "nom": "Pont Bessières, Lausanne",
+  "axe": [[2538420.0,1152550.4,516.0],[2538480.9,1152485.4,515.6]],
+  "largeur": 15.5,
+  "epaisseur": 0.6,
+  "appuis": [
+    {"type":"culee","s":0},
+    {"type":"culee","s":89.0}
+  ],
+  "arches": [
+    {"s0":6.0,"s1":83.0,"z_naissance":496.0,"z_cle":512.5,"epaisseur":1.2,"larg":13.0,"plein":false}
+  ],
+  "sources": ["https://commons.wikimedia.org/wiki/File:Pont_Bessieres_Lausanne.JPG","https://commons.wikimedia.org/wiki/File:Pont_Bessi%C3%A8res_M2.jpg"],
+  "confiance": "moyenne",
+  "notes": "Un seul grand arc métallique à montants et croix de Saint-André, appuyé sur des culées en pierre ; naissances (~496) tirées du laser, clé estimée sur photo.",
+  "photos_vues": 2
+}

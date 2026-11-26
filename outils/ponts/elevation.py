@@ -1,6 +1,6 @@
 """Élévations SVG des essais de ponts (outils/ponts/essais/*.json), côte à côte : python3 outils/ponts/elevation.py sortie.svg"""
 import json, glob, math, os, sys
-fichiers = sorted(glob.glob(os.path.join(os.path.dirname(__file__), "essais", "*.json")))
+fichiers = sorted(glob.glob(os.path.join(os.path.dirname(__file__), "essais", sys.argv[2] if len(sys.argv) > 2 else "*.json")))
 W, H, marge = 520, 240, 20
 blocs = []
 for k, f in enumerate(fichiers):

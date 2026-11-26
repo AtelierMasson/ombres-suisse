@@ -78,23 +78,23 @@ const f1 = v => v.toFixed(1), q = (a, f) => { if (!a.length) return NaN; a.sort(
 // ---------------------------------------------------------------- tranches de 4 m le long de l'axe
 const pas = 4, nb = Math.ceil(L / pas), lignes = [];
 const demi = (w1 - w0) / 2 + 3, centre = (w0 + w1) / 2;
-const tr0 = Array.from({ length: nb }, () => ({ deck: [], sol: [], dessous: [], veg: 0 }));
+const tr0 = Array.from({ length: nb }, () => ({ deck: [], sol: [], dessous: [], eau: [], veg: 0 }));
 for (const p of P) {
   const s = long(p) - s0, t = trav(p) - centre;
   if (s < 0 || s >= L || Math.abs(t) > demi) continue;
   const b = tr0[Math.floor(s / pas)];
-  if (p[3] === 17) b.deck.push(p[2]); else if (p[3] === 2) b.sol.push(p[2]); else if (p[3] === 3 || p[3] === 4 || p[3] === 5) b.veg++; else b.dessous.push(p[2]);
+  if (p[3] === 17) b.deck.push(p[2]); else if (p[3] === 2) b.sol.push(p[2]); else if (p[3] === 9) b.eau.push(p[2]); else if (p[3] === 3 || p[3] === 4 || p[3] === 5) b.veg++; else b.dessous.push(p[2]);
 }
 console.log(`# Pont autour de ${E} ${N} : relevé swissSURFACE3D (${[...parTuile.values()].map(t => t.an).join(", ")}), ${P.length} points lus`);
 console.log(`axe (bouts du tablier mesuré) : [${pt(s0).map(f1)}] -> [${pt(s1).map(f1)}], longueur ${f1(L)} m, largeur mesurée ${f1(w1 - w0)} m`);
 console.log("s = distance depuis le premier bout (m) ; chaussee = dessus du tablier ; terrain = sol mesuré sous le pont (absent = eau, ou caché) ;");
 console.log("dessous = autres points entre terrain + 2,5 m et le tablier (piles, arcs, murs) : nombre, altitudes bas..haut ; veg = arbres\n(le laser vole au-dessus : sous un tablier large, les arcs et piles fines sont souvent peu ou pas touchés)");
-console.log("s\tchaussee\tdessous_tablier\tterrain\tdessous(n bas..haut)\tveg");
+console.log("s\tchaussee\tdessous_tablier\tterrain\teau\tdessous(n bas..haut)\tveg");
 tr0.forEach((b, i) => {
-  const ch = q(b.deck, 0.9), dt = q(b.deck, 0.05), so = q(b.sol, 0.5);
+  const ch = q(b.deck, 0.9), dt = q(b.deck, 0.05), eau = q(b.eau, 0.5), so = isNaN(q(b.sol, 0.5)) ? eau : q(b.sol, 0.5);
     // au-dessus du terrain de 2,5 m au moins : ni voitures ni mobilier de la rue dessous
   const d = b.dessous.filter(z => !(z > ch - 0.5) && !(z < (isNaN(so) ? -1e9 : so + 2.5)));
   const txt = d.length >= 3 ? `${d.length} ${f1(q(d, 0.02))}..${f1(q(d, 0.98))}` : "-";
-  lignes.push(`${i * pas}\t${f1(ch)}\t${f1(dt)}\t${isNaN(so) ? "-" : f1(so)}\t${txt}\t${b.veg || "-"}`);
+  lignes.push(`${i * pas}\t${f1(ch)}\t${f1(dt)}\t${isNaN(q(b.sol, 0.5)) ? "-" : f1(q(b.sol, 0.5))}\t${isNaN(eau) ? "-" : f1(eau)}\t${txt}\t${b.veg || "-"}`);
 });
 console.log(lignes.join("\n"));

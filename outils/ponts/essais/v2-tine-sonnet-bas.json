@@ -1,0 +1,4 @@
+{"nom":"Pont de la Tine, Ormont-Dessous","axe":[[2569466.5,1132575.6,804.8],[2569470.5,1132571.65,804.5],[2569474.5,1132567.7,804.0]],"largeur":2.7,"epaisseur":0.8,
+"appuis":[{"type":"culee","s":0},{"type":"culee","s":11.2}],
+"arches":[{"s0":1.0,"s1":10.2,"z_naissance":800.0,"z_cle":803.7,"epaisseur":0.7,"larg":2.7,"plein":true}],
+"sources":["https://structurae.net/fr/ouvrages/pont-des-planches"],"confiance":"faible","notes":"Pont en pierre (selon Structurae) ; aucune photo vue, arche unique deduite du releve (dessous 804.1 au milieu, eau ~796.4) ; naissance et fleche estimees."}

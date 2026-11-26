@@ -1,0 +1,21 @@
+{
+  "nom": "Pont de Corbières, lac de la Gruyère (FR)",
+  "axe": [[2573677.0, 1167163.8, 689.3], [2573735.4, 1167177.2, 689.7], [2573796.1, 1167191.1, 689.3]],
+  "largeur": 11.4,
+  "epaisseur": 1.5,
+  "appuis": [
+    {"type": "culee", "s": 0},
+    {"type": "pile", "s": 9.0, "forme": "rect", "long": 2.0, "larg": 9.0, "z_bas": 675.0, "fruit": 0},
+    {"type": "pile", "s": 28.0, "forme": "rect", "long": 2.0, "larg": 9.0, "z_bas": 672.5, "fruit": 0},
+    {"type": "pile", "s": 46.5, "forme": "rect", "long": 2.0, "larg": 9.0, "z_bas": 672.5, "fruit": 0},
+    {"type": "pile", "s": 66.0, "forme": "rect", "long": 2.0, "larg": 9.0, "z_bas": 672.5, "fruit": 0},
+    {"type": "pile", "s": 85.5, "forme": "rect", "long": 2.0, "larg": 9.0, "z_bas": 672.5, "fruit": 0},
+    {"type": "pile", "s": 105.0, "forme": "rect", "long": 2.0, "larg": 9.0, "z_bas": 678.0, "fruit": 0},
+    {"type": "culee", "s": 122.3}
+  ],
+  "arches": [],
+  "sources": ["https://commons.wikimedia.org/wiki/File:Corbi%C3%A8res-Br%C3%BCcke_%C3%BCber_den_Greyerzersee_(Saane),_Echarlens_FR_%E2%80%93_Corbi%C3%A8res_FR_20220417-jag9889.jpg", "relevé swissSURFACE3D 2024 (résumé corbieres.txt)"],
+  "confiance": "moyenne",
+  "photos_vues": 1,
+  "notes": "Seule photo trouvée prise depuis la chaussée (piles invisibles) : type poutre sur 6 piles régulières (~19 m) déduit du laser. Forme/dimensions des piles et épaisseur du tablier estimées ; z_bas des piles en eau = niveau du lac relevé (672.5)."
+}

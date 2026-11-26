@@ -1,0 +1,21 @@
+{
+  "nom": "Pont de la Tine, Ormont-Dessous (Grande Eau)",
+  "axe": [[2569466.5, 1132575.6, 804.8], [2569474.5, 1132567.7, 804.0]],
+  "largeur": 2.7,
+  "epaisseur": 0.5,
+  "appuis": [
+    {"type": "culee", "s": 0},
+    {"type": "culee", "s": 11.2}
+  ],
+  "arches": [
+    {"s0": 1.5, "s1": 9.0, "z_naissance": 801.5, "z_cle": 803.8, "epaisseur": 0.6, "larg": 2.7, "plein": true}
+  ],
+  "sources": [
+    "https://commons.wikimedia.org/wiki/File:Pont_de_la_Tine,_VD.jpg",
+    "https://structurae.net/fr/ouvrages/pont-des-planches",
+    "swissSURFACE3D 2024 (resumes/tine.txt)"
+  ],
+  "confiance": "moyenne",
+  "notes": "Petit pont en maçonnerie à une seule voûte en plein cintre surbaissé, tympans pleins, appuyée directement sur le rocher des gorges (photo) ; une béquille béton sous la naissance aval est ignorée. Portée et naissances estimées depuis la photo et les quelques points laser sous le tablier (802.4-804.3), à ±1 m.",
+  "photos_vues": 1
+}
