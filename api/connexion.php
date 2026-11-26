@@ -39,14 +39,14 @@ $pdo->prepare('INSERT INTO jetons (jeton, email, expire) VALUES (?, ?, UTC_TIMES
 
 $lien = API_URL . '/session.php?' . http_build_query(['jeton' => $jeton, 'langue' => $l]);
 $textes = [
-    'fr' => ['Votre lien de connexion — Ombres',
-        "Bonjour,\n\nPour vous connecter à Ombres, ouvrez ce lien (valable 15 minutes, une seule fois) :\n\n%s\n\nSi vous n'avez rien demandé, ignorez ce message.\n\nAtelier Masson"],
-    'de' => ['Ihr Anmeldelink — Ombres',
-        "Guten Tag\n\nUm sich bei Ombres anzumelden, öffnen Sie diesen Link (15 Minuten gültig, nur einmal verwendbar):\n\n%s\n\nFalls Sie nichts angefordert haben, ignorieren Sie diese Nachricht.\n\nAtelier Masson"],
-    'it' => ['Il suo link di accesso — Ombres',
-        "Buongiorno,\n\nper accedere a Ombres apra questo link (valido 15 minuti, utilizzabile una sola volta):\n\n%s\n\nSe non ha richiesto nulla, ignori questo messaggio.\n\nAtelier Masson"],
-    'en' => ['Your sign-in link — Ombres',
-        "Hello,\n\nTo sign in to Ombres, open this link (valid for 15 minutes, single use):\n\n%s\n\nIf you did not request this, please ignore this message.\n\nAtelier Masson"],
+    'fr' => ['Votre lien de connexion — Topograph',
+        "Bonjour,\n\nPour vous connecter à Topograph, ouvrez ce lien (valable 15 minutes, une seule fois) :\n\n%s\n\nSi vous n'avez rien demandé, ignorez ce message.\n\nAtelier Masson"],
+    'de' => ['Ihr Anmeldelink — Topograph',
+        "Guten Tag\n\nUm sich bei Topograph anzumelden, öffnen Sie diesen Link (15 Minuten gültig, nur einmal verwendbar):\n\n%s\n\nFalls Sie nichts angefordert haben, ignorieren Sie diese Nachricht.\n\nAtelier Masson"],
+    'it' => ['Il suo link di accesso — Topograph',
+        "Buongiorno,\n\nper accedere a Topograph apra questo link (valido 15 minuti, utilizzabile una sola volta):\n\n%s\n\nSe non ha richiesto nulla, ignori questo messaggio.\n\nAtelier Masson"],
+    'en' => ['Your sign-in link — Topograph',
+        "Hello,\n\nTo sign in to Topograph, open this link (valid for 15 minutes, single use):\n\n%s\n\nIf you did not request this, please ignore this message.\n\nAtelier Masson"],
 ];
 [$sujet, $modele] = $textes[$l];
 if (!envoyer_email($email, $sujet, sprintf($modele, $lien))) json(502, ['erreur' => 'envoi']);

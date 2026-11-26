@@ -1,4 +1,4 @@
--- Comptes « Ombres » — MySQL 8 / MariaDB 10.4+, utf8mb4.
+-- Comptes « Topograph » — MySQL 8 / MariaDB 10.4+, utf8mb4.
 -- Import : phpMyAdmin (Manager Infomaniak) → base → Importer, ou mysql < schema.sql
 
 CREATE TABLE IF NOT EXISTS comptes (

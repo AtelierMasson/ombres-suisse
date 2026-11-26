@@ -15,7 +15,7 @@ const STRIPE_SECRET_WEBHOOK = '';
 // Vente unique
 const PRIX_CENTIMES = 3900;            // CHF 39.–
 const DEVISE = 'chf';
-const NOM_PRODUIT = 'Ombres — licence pro';
+const NOM_PRODUIT = 'Topograph — licence pro';
 
 // Adresse publique du site, sans barre finale (pages de retour, liens de connexion)
 const SITE_URL = 'https://exemple.ch';
@@ -32,7 +32,7 @@ const SMTP_PORT = 465;                      // SSL/TLS
 const SMTP_UTILISATEUR = 'compte@exemple.ch';
 const SMTP_MOT_DE_PASSE = '';
 const EXPEDITEUR_EMAIL = 'compte@exemple.ch';
-const EXPEDITEUR_NOM = 'Ombres — Atelier Masson';
+const EXPEDITEUR_NOM = 'Topograph — Atelier Masson';
 
 // Limites des demandes de lien (par heure)
 const LIMITE_PAR_EMAIL = 5;

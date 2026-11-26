@@ -27,7 +27,7 @@ if ($m !== 'POST') {
     header('Cache-Control: no-store');
     header("Content-Security-Policy: default-src 'none'; script-src 'sha256-" . base64_encode(hash('sha256', 'document.forms[0].submit()', true)) . "'; style-src 'unsafe-inline'; form-action 'self'");
     echo '<!doctype html><html lang="' . $l . '"><meta charset="utf-8"><meta name="viewport" content="width=device-width">'
-        . '<meta name="robots" content="noindex"><title>Ombres</title>'
+        . '<meta name="robots" content="noindex"><title>Topograph</title>'
         . '<body style="font:16px system-ui,sans-serif;display:grid;place-items:center;min-height:90vh;color:#1f2933">'
         . '<form method="post" action="session.php"><p>' . $h($textes[0]) . '</p>'
         . '<input type="hidden" name="jeton" value="' . $h($jeton) . '"><input type="hidden" name="langue" value="' . $l . '">'

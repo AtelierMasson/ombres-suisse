@@ -272,8 +272,8 @@ export function lireObj(texte, axeHaut = "z") {
   return D;
 }
 
-/** Indique si un OBJ vient de l'export du site (en-tête « Ombres »), donc en Z vers le haut. */
-export const objDuSite = texte => /^#[^\n]*(Ombres|E\d{7}|EPSG:2056)/m.test(texte.slice(0, 2000));
+/** Indique si un OBJ vient de l'export du site (en-tête « Topograph » ou « Ombres »), donc en Z vers le haut. */
+export const objDuSite = texte => /^#[^\n]*(Topograph|Ombres|E\d{7}|EPSG:2056)/m.test(texte.slice(0, 2000));
 
 /* ------------------------------------------------------------------ assemblage de lignes */
 /**

@@ -315,7 +315,7 @@ export function ecrireDxf(cats, O, infos) {
 /** Groupe three.js d'une liste de catégories. `versScene` : repère du glTF (Y vers le haut) au lieu de celui de la CAO. */
 function groupe(cats, O, versScene) {
   const racine = new THREE.Group(), [dx, dy, dz] = O.decalage;
-  racine.name = "OMBRES_SUISSE";
+  racine.name = "TOPOGRAPH";
   const tableau = pts => {
     const a = new (versScene ? Float32Array : Float64Array)(pts.length);
     for (let k = 0; k < pts.length; k += 3) {
@@ -420,11 +420,11 @@ export async function exporterSite(o) {
   const base = `ombres_${sansAccent(o.lieu)}_${absolu ? "MN95" : `E${o.E0}_N${o.N0}_Z${Z0}`}`, fichier = `${base}.${format}`;
   o.progres?.(0.45, t("export.ecriture", { format: F.nom })); await souffle();
   const infos = [t("export.infoLieu", { lieu: sansAccent(o.lieu) }), repere, t("export.infoSource")];
-  const extras = { generateur: "Ombres — Suisse", lieu: o.lieu, epsg: 2056, origine: { E: o.E0, N: o.N0, Z: Z0 }, unite: t("export.unite"),
+  const extras = { generateur: "Topograph (Atelier Masson)", lieu: o.lieu, epsg: 2056, origine: { E: o.E0, N: o.N0, Z: Z0 }, unite: t("export.unite"),
     repere: t("export.gltfRepere"),
     source: "© swisstopo (swissSURFACE3D, swissALTI3D), cadastre geo.admin.ch" };
   const morceaux = format === "dxf" ? ecrireDxf(cats, O, infos) : format === "obj" ? ecrireObj(cats, O, infos)
-    : format === "glb" ? await ecrireGlb(cats, O, extras) : ecrireStl(cats, O, `Ombres-Suisse E0=${o.E0} N0=${o.N0} Z0=${Z0} EPSG:2056 m`);
+    : format === "glb" ? await ecrireGlb(cats, O, extras) : ecrireStl(cats, O, `Topograph E0=${o.E0} N0=${o.N0} Z0=${Z0} EPSG:2056 m`);
   const modele = new Uint8Array(await new Blob(morceaux).arrayBuffer());
   o.progres?.(0.8, t("export.archive")); await souffle();
   const lisezMoi = texteLisezMoi({ ...o, O, F, fichier, cats, triangles, origine, octets: modele.length });
