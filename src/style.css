@@ -345,3 +345,20 @@ body.accueil #infos { display: none; }
 .calendrier .cal-grille button:hover { background: var(--accent-clair); }
 .calendrier .cal-grille button.auj { box-shadow: inset 0 0 0 1px var(--accent); }
 .calendrier .cal-grille button.choisi { background: var(--accent); color: var(--sur-accent); }
+
+/* fiche du lieu sélectionné : bas à droite */
+#fiche { position: absolute; right: 12px; bottom: 40px; z-index: 12; width: 290px; max-height: 60vh; overflow: auto; font-size: 12.5px; }
+#fiche .card-body { padding: 10px 12px; }
+#fiche .btn-close { position: absolute; top: 8px; right: 8px; width: .6em; height: .6em; }
+#fiche .fiche-titre { font-weight: 600; font-size: 13.5px; padding-right: 18px; margin-bottom: 4px; }
+#fiche dl { display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; margin: 0; }
+#fiche dt { font-weight: 400; color: var(--doux); }
+#fiche dd { margin: 0; text-align: right; }
+#fiche .fiche-liens { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--bord); }
+#fiche .fiche-liens a { color: var(--accent); text-decoration: none; }
+#fiche .fiche-liens a:hover { text-decoration: underline; }
+#fiche .fiche-source { color: var(--doux); font-size: 10.5px; margin-top: 6px; }
+body.accueil #fiche { display: none; }
+@media (max-width: 760px) { #fiche { left: 12px; right: 12px; width: auto; bottom: 34px; } }
+#fiche .fiche-bats { list-style: none; padding: 0; margin: 0 0 4px; }
+#fiche .fiche-bats li { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; border-bottom: 1px solid var(--bord); }

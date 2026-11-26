@@ -78,6 +78,12 @@ export function brancherPro(o) {
         if (!ids.length) o.message(t(tous.size ? "pro.dejaMasques" : "pro.aucunBatiment"));
       }
     }
+    // fiche du lieu (bas à droite) : bâtiment cliqué, ou parcelle ; point exact du clic (toit, façade ou sol)
+    const pc = scene.pointSol(e);
+    if (pc && o.fiche) {
+      const q2 = o.parcelleEn?.(pc[0], pc[1]), aire = q2 ? Math.abs(q2.anneauxRel[0].reduce((a, [x, y], i, A) => { const [x2, y2] = A[(i + 1) % A.length]; return a + x * y2 - x2 * y; }, 0) / 2) : null;
+      o.fiche.montrer(S.E0 + pc[0], S.N0 + pc[1], { batiment: s >= 0, surface: aire, numero: q2?.numero });
+    }
     if (!e.shiftKey) { P.selection = new Set(ids); P.selNom = nom; }
     else {
       if (ids.length && ids.every(v => P.selection.has(v))) ids.forEach(v => P.selection.delete(v));
@@ -135,7 +141,13 @@ export function brancherPro(o) {
     scene.renderer.domElement.style.cursor = "crosshair";
     aide(); maj();
   };
-  addEventListener("keydown", e => { if (e.key === "Escape" && dessin) finDessin(); });
+  // Échap : fin du dessin en cours ; sinon, la sélection est vidée et la fiche fermée
+  addEventListener("keydown", e => {
+    if (e.key !== "Escape" || e.target.closest?.("input, textarea, select, dialog")) return;
+    if (dessin) return finDessin();
+    if (P.selection.size) { P.selection = new Set(); P.selNom = null; maj(); }
+    o.fiche?.fermer();
+  });
   const pointDessin = e => { const p = scene.pointSol(e); return p && Math.max(Math.abs(p[0]), Math.abs(p[1])) < S.G.R - 1 ? p : null; };
   const volumeDe = (coins, base = {}) => ({ id: base.id ?? ++numero, coins, hauteur: base.hauteur ?? 9, toit: base.toit ?? "plat", faite: base.faite ?? 3 });
   function clicDessin(e) {

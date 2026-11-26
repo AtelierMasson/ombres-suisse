@@ -65,3 +65,23 @@ export function teinterCadastre(img, plan, canvas = document.createElement("canv
   ctx.putImageData(image, 0, 0);
   return canvas;
 }
+
+/** Photo aérienne estompée : plus claire, un peu moins saturée, fondue (~40 %) dans la teinte du sol de la maquette. */
+export function adoucirPhoto(img, sol, cv = document.createElement("canvas")) {
+  cv.width = img.naturalWidth || img.width; cv.height = img.naturalHeight || img.height;
+  const ctx = cv.getContext("2d");
+  ctx.filter = "brightness(1.15) saturate(0.95) contrast(0.95)";
+  ctx.drawImage(img, 0, 0);
+  ctx.filter = "none";
+  ctx.globalAlpha = 0.38; ctx.fillStyle = sol; ctx.fillRect(0, 0, cv.width, cv.height); ctx.globalAlpha = 1;
+  return cv;
+}
+
+/** Bruit : bandes de niveau (dB) posées, un peu transparentes, sur le plan cadastral reteinté (`cadastre` : image). */
+export function bruitSurPlan(img, cadastre, plan) {
+  const cv = teinterCadastre(cadastre, plan), ctx = cv.getContext("2d");
+  ctx.globalAlpha = 0.72;
+  ctx.drawImage(img, 0, 0, cv.width, cv.height);
+  ctx.globalAlpha = 1;
+  return cv;
+}

@@ -5,6 +5,7 @@ import { textureHeures } from "./heures.js";
 import { pontsAutour } from "./pontsModeles.js";
 import { brancherLieux } from "./lieux.js";
 import { brancherCalendrier } from "./calendrier.js";
+import { brancherFiche } from "./fiche.js";
 import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
 import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, versWgs } from "./geo.js";
 import { chargerNuage } from "./nuage.js";
@@ -925,7 +926,8 @@ function choisirParcelle(p) {
 }
 
 // mode pro : sélection et masquage de bâtiments, taille de la maquette, exports (pro.js)
-const pro = brancherPro({ scene, S, message, etat, recharger: depuisAdresse, calculerHeures, annulerCalcul, majCoupe, soleilActuel, compte, compter,
+const fiche = brancherFiche(document.body, t);
+const pro = brancherPro({ scene, S, message, etat, fiche, recharger: depuisAdresse, calculerHeures, annulerCalcul, majCoupe, soleilActuel, compte, compter,
   relancerHeures, ouvrirCoupes, rayonZone: () => S.rayonZone, reglerRayon, parcelleEn: (x, y) => S.toutes?.find(q => dansParcelle(x, y, q.anneauxRel)), changerJour: j => { $("#jour").value = j; $("#jour").dispatchEvent(new Event("change")); } });
 // coupes d'un projet rouvert : toutes recréées, la dernière active
 function ouvrirCoupes(liste) {

@@ -15,7 +15,7 @@ import { indexVolumes } from "./volumes.js";
 import { socleRond, materiauPoints } from "./maillages.js";
 import { dansPont, maillagePont } from "./pontsModeles.js";
 import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord, tabliersPonts, pontsLegers } from "./maillages.js";
-import { chargerImage, teinterCadastre } from "./fond.js";
+import { chargerImage, teinterCadastre, adoucirPhoto } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
 
 /**
@@ -451,8 +451,11 @@ void main() {
     // moitié enlevée) ; avec la ligne de coupe seule, le paysage reste
     const coupee = !!this.coupe && this.couperModele !== false;
     if (L.maille) L.maille.visible = L.voir && (!this.modeVue || enPlan) && !coupee;
-    // plan en tuiles : avec le plan cadastral, en 3D avec le paysage, et toujours en vue plan
-    const tuiles = this.typeFond === "cadastre" && !!L.maille && L.maille.visible;
+    // plan en tuiles (cadastre, photo ou bruit, comme le sol de la maquette) : sur le paysage, et sur l'anneau du
+    // grand cercle même sans paysage
+    const couche = this.typeFond, avecAnneau = !!this.couches?.anneau && this.couches.anneau.visible !== false;
+    const tuiles = couche !== "uni" && ((!!L.maille && L.maille.visible) || avecAnneau);
+    if (tuiles) this.tuilesPlan.changerCouche(couche);
     if (tuiles !== this.tuilesPlan.actif) { this.tuilesPlan.actif = tuiles; if (tuiles) this.tuilesPlan.demander(); }
     L.mat.uniforms.planActif.value = tuiles ? 1 : 0;
     if (tuiles) this.tuilesPlan.peindre(this.renderer);
@@ -889,7 +892,8 @@ void main() {
     ["c1", "c2", "c3"].forEach((u, i) => this.mat.pointsAnneau.uniforms[u].value.set(this.T.arbres[i]));
     this.swiss.chargerArbres({ couronne: this.mat.couronne, tronc: this.mat.mur, points: this.mat.pointsAnneau, calqueOmbre: CALQUE_OMBRE, zone: [Rint, Rext] }, 10);
     // ponts de l'anneau : swissTLM3D (légers), coupés au cercle fin et au bord ; nos ponts modélisés à part y sont ajoutés
-    if (!this.mat.pontsAnneau) { this.mat.pontsAnneau = new THREE.MeshStandardMaterial({ color: this.T.mur, roughness: 1 }); decoupeZone(this.mat.pontsAnneau, ZONE_ANNEAU); }
+    // tuiles sans normales : éclairage par facette
+    if (!this.mat.pontsAnneau) { this.mat.pontsAnneau = new THREE.MeshStandardMaterial({ color: this.T.mur, roughness: 1, flatShading: true, side: THREE.DoubleSide }); decoupeZone(this.mat.pontsAnneau, ZONE_ANNEAU); }
     this.swiss.chargerPonts(this.mat.pontsAnneau);
     this.appliquerCoupe();
     this.majZone();
@@ -1578,13 +1582,7 @@ void main() {
       if (type === "ortho" && !F.canvas) {
         // photo aérienne au sol, estompée : plus claire, moins saturée, et fondue d'un bon tiers dans la teinte du sol
         // de la maquette (elle reste lisible sans dominer les volumes)
-        const cv = F.canvas = document.createElement("canvas");
-        cv.width = img.naturalWidth || img.width; cv.height = img.naturalHeight || img.height;
-        const ctx = cv.getContext("2d");
-        ctx.filter = "brightness(1.15) saturate(0.95) contrast(0.95)";
-        ctx.drawImage(img, 0, 0);
-        ctx.filter = "none";
-        ctx.globalAlpha = 0.38; ctx.fillStyle = this.T.sol; ctx.fillRect(0, 0, cv.width, cv.height); ctx.globalAlpha = 1;
+        F.canvas = adoucirPhoto(img, this.T.sol);
       }
       if (!F.tex) {
         F.tex = F.canvas ? new THREE.CanvasTexture(F.canvas) : new THREE.Texture(img);

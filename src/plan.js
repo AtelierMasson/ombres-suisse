@@ -5,7 +5,7 @@
 // Elles ne sont pas posées en 3D (le relief fin du paysage les percerait) : elles sont peintes à plat, vues de
 // dessus, dans deux images centrées sur la vue — une proche et fine, une large — que le paysage reprend comme texture.
 import * as THREE from "three";
-import { urlFond, COUCHES, chargerImage, teinterCadastre } from "./fond.js";
+import { urlFond, COUCHES, chargerImage, teinterCadastre, adoucirPhoto, bruitSurPlan } from "./fond.js";
 
 const COTE0 = 125, NIVEAUX = 9, PIXELS = 512, MAX_TUILES = 160;
 // deux images du plan : demi-côté (m) et taille (pixels) ; la proche fait environ 0,6 m par pixel, la large 16 m
@@ -30,6 +30,7 @@ export class TuilesPlan {
     this.tuiles = new Map(); // clé « niveau/i/j » -> { maille, pret, niveau, e0, n0, cote, vieille }
     this.lieu = null;
     this.actif = true;
+    this.couche = "cadastre"; // cadastre, ortho (photo aérienne) ou bruit
     this.attente = null;
     this.sale = false;
     this.camPlan = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 100);
@@ -67,6 +68,15 @@ export class TuilesPlan {
     this.scenePlan.remove(T.maille);
     T.maille.geometry.dispose(); T.maille.material.map?.dispose(); T.maille.material.dispose();
     this.sale = true;
+  }
+
+  /** Couche du sol (cadastre, ortho, bruit) : les tuiles affichées sont remplacées par celles de la nouvelle couche. */
+  changerCouche(couche) {
+    if (couche === this.couche) return;
+    this.couche = couche;
+    for (const T of this.tuiles.values()) this.liberer(T);
+    this.tuiles.clear();
+    this.demander();
   }
 
   /** Recalcul des tuiles voulues, un peu après le dernier mouvement de la caméra. */
@@ -130,10 +140,13 @@ export class TuilesPlan {
     this.tuiles.set(v.cle, T);
     const lieu = this.lieu;
     try {
-      const img = await image(v.cle, urlFond(COUCHES.cadastre, [v.e0, v.n0, v.e0 + v.cote, v.n0 + v.cote], PIXELS));
-      if (T.abandon || lieu !== this.lieu) return;
-      T.image = img;
-      const tex = new THREE.CanvasTexture(teinterCadastre(img, this.s.T.plan));
+      const couche = this.couche, boite = [v.e0, v.n0, v.e0 + v.cote, v.n0 + v.cote];
+      const img = await image(`${couche}:${v.cle}`, urlFond(COUCHES[couche], boite, PIXELS));
+      // bruit : posé sur le plan cadastral de la même tuile
+      const cad = couche === "bruit" ? await image(`cadastre:${v.cle}`, urlFond(COUCHES.cadastre, boite, PIXELS)) : null;
+      if (T.abandon || lieu !== this.lieu || couche !== this.couche) return;
+      T.image = img; T.cadastre = cad; T.couche = couche;
+      const tex = new THREE.CanvasTexture(this.preparer(T));
       tex.colorSpace = THREE.SRGBColorSpace;
       const g = new THREE.PlaneGeometry(v.cote, v.cote).rotateX(-Math.PI / 2);
       T.maille = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ map: tex, depthTest: false, depthWrite: false, toneMapped: false }));
@@ -168,10 +181,18 @@ export class TuilesPlan {
     renderer.setClearColor(fond, alpha);
   }
 
+  /** Image d'une tuile aux couleurs du thème : cadastre reteinté, photo estompée, ou bruit sur le cadastre. */
+  preparer(T, cv) {
+    const P = this.s.T;
+    if (T.couche === "ortho") return adoucirPhoto(T.image, P.sol, cv);
+    if (T.couche === "bruit") return bruitSurPlan(T.image, T.cadastre, P.plan);
+    return teinterCadastre(T.image, P.plan, cv);
+  }
+
   /** Thème changé : toutes les tuiles sont reteintées. */
   reteindre() {
     for (const T of this.tuiles.values()) if (T.maille && T.image) {
-      teinterCadastre(T.image, this.s.T.plan, T.maille.material.map.image);
+      T.maille.material.map.image = this.preparer(T, T.couche === "bruit" ? undefined : T.maille.material.map.image);
       T.maille.material.map.needsUpdate = true;
     }
     this.sale = true;
