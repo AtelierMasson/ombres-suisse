@@ -29,11 +29,13 @@ export function depuisPoints(nuage, R, c = 0.5) {
   {
     const E = G.eau, file = [];
     for (let p = 0; p < n * n; p++) if (!isNaN(E[p])) file.push(p);
-    const vide = p => isNaN(sol[p]) && isNaN(bat[p]) && isNaN(veg[p]) && isNaN(pont[p]) && isNaN(E[p]);
+    // cellule gagnée par l'eau : sans aucun point, ou dont le sol mesuré est sous le niveau de l'eau voisine (le laser
+    // voit le fond près des rives, par faible profondeur : sans cela, une bande claire longeait la rive)
+    const gagnee = (q, niv) => isNaN(E[q]) && isNaN(bat[q]) && isNaN(pont[q]) && (isNaN(sol[q]) ? isNaN(veg[q]) : sol[q] < niv - 0.03);
     for (let f = 0; f < file.length; f++) {
       const p = file[f], i = p % n;
       for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p >= n ? p - n : -1, p + n < n * n ? p + n : -1])
-        if (q >= 0 && vide(q)) { E[q] = E[p]; file.push(q); }
+        if (q >= 0 && gagnee(q, E[p])) { E[q] = E[p]; file.push(q); }
     }
   }
   remplir(sol, n);

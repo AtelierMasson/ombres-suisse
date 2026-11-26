@@ -233,7 +233,7 @@ export class Scene3D {
       couronne: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }),
       parcelle: new THREE.MeshBasicMaterial(), trait: traitNet(),
       poignee: new THREE.MeshBasicMaterial({ depthTest: false, fog: false }),
-      eau: new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0.05, polygonOffset: true, polygonOffsetFactor: -1 }),
+      eau: new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0.05 }), // sans décalage de profondeur : il faisait passer l'eau devant la rive vue de haut
     };
     // même grain léger partout (sol, socle, toits, murs, couronnes) : aspect de maquette en plâtre
     for (const [k, force, contact] of [["terrain", 0.07, "sol"], ["socle", 0.07], ["toit", 0.07, "toit"], ["mur", 0.07, "mur"], ["couronne", 0.05], ["eau", 0.025]]) grainPlatre(this.mat[k], force, contact);

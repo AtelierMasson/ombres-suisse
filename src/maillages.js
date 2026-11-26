@@ -799,8 +799,24 @@ function etiquetteNumero(texte, couleur, x, y, z) {
  * bandes (cellules consécutives d'une même ligne au même niveau) pour rester légère.
  */
 export function plansEau(G, zRef) {
-  const { n, c, x0, eau } = G;
-  if (!eau) return null;
+  const { n, c, x0 } = G;
+  if (!G.eau) return null;
+  // le plan d'eau déborde de 3 m sous la rive : c'est le terrain, plus haut, qui le coupe ; la rive suit alors le
+  // terrain (triangles de 1 m) au lieu des cellules de 0,5 m en escalier
+  const eau = Float32Array.from(G.eau);
+  {
+    let front = [];
+    for (let p = 0; p < n * n; p++) if (!isNaN(eau[p])) front.push(p);
+    for (let tour = 0; tour < Math.round(3 / c) && front.length; tour++) {
+      const suivant = [];
+      for (const p of front) {
+        const i = p % n;
+        for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p >= n ? p - n : -1, p + n < n * n ? p + n : -1])
+          if (q >= 0 && isNaN(eau[q]) && !(G.sol[q] < eau[p] - 0.5)) { eau[q] = eau[p] - (tour ? 0 : 0.12); suivant.push(q); } // débord 12 cm plus bas : pas de conflit avec une rive presque au niveau
+      }
+      front = suivant;
+    }
+  }
   // plan d'eau par cellule, chaque coin à la moyenne des cellules d'eau voisines : plat sur un lac, en pente douce
   // le long d'une rivière (sans marches)
   const coin = (i, j) => {
@@ -824,7 +840,11 @@ export function plansEau(G, zRef) {
   if (!pos.length) return null;
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  g.computeVertexNormals();
+  // normales verticales : de longues bandes fines, à peine inclinées, prenaient sinon la lumière chacune à sa façon
+  // (stries sur le lac, surtout vu de haut)
+  const nor = new Float32Array(pos.length);
+  for (let k = 1; k < nor.length; k += 3) nor[k] = 1;
+  g.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
   return g;
 }
 
