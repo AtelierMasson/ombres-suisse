@@ -11,27 +11,38 @@ export const CLASSES = { 2: "sol", 3: "végétation", 6: "bâtiment", 9: "eau", 
  * Points de la boîte [e0, n0, e1, n1] (MN95). Retourne des tableaux typés relatifs à (E0, N0).
  * onProgres(fraction, texte) est appelé pendant le chargement. `signal` (AbortSignal) arrête les fils en cours.
  */
-export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, onProgres = () => {}, signal = null) {
+export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, onProgres = () => {}, signal = null, densite = null) {
   const [e0, n0, e1, n1] = boite;
-  const taches = [];
-  for (const t of tuiles) {
-    const copc = await Copc.create(t.url);
+  // densité selon la distance : toute la finesse dans la boîte intérieure (parcelle et ses abords), un niveau de moins
+  // au-delà (« équilibrée »), deux niveaux de moins loin de la parcelle (« légère ») ; `densite` = { interieur, niveau }
+  const coupe = (b, [a0, b0, a1, b1]) => b[0] < a1 && b[2] > a0 && b[1] < b1 && b[3] > b0;
+  const elargir = ([a0, b0, a1, b1], m) => [a0 - m, b0 - m, a1 + m, b1 + m];
+  const niveauMax = (bn, profMax) => {
+    if (!densite?.niveau || !densite.interieur) return profMax;
+    if (coupe(bn, densite.interieur)) return profMax;
+    if (densite.niveau >= 2 && !coupe(bn, elargir(densite.interieur, 100))) return profMax - 2;
+    return profMax - 1;
+  };
+  // en-têtes et hiérarchies des tuiles en parallèle (chacune coûte ~0,7 s)
+  const parTuile = await Promise.all(tuiles.map(async t => {
+    const copc = await Copc.create(t.url), liste = [];
     const cube = copc.info.cube, cote = cube[3] - cube[0];
     const profMax = Math.max(0, Math.ceil(Math.log2(copc.info.spacing / espacement)));
-    const touche = k => {
-      const [d, x, y] = k.split("-").map(Number), s = cote / 2 ** d;
-      const x0 = cube[0] + x * s, y0 = cube[1] + y * s;
-      return x0 < e1 && x0 + s > e0 && y0 < n1 && y0 + s > n0;
+    const boiteNoeud = k => {
+      const [d, x, y] = k.split("-").map(Number), s = cote / 2 ** d, x0 = cube[0] + x * s, y0 = cube[1] + y * s;
+      return [x0, y0, x0 + s, y0 + s];
     };
+    const garder = k => { const b = boiteNoeud(k); return coupe(b, boite) && +k.split("-")[0] <= niveauMax(b, profMax); };
     // la hiérarchie peut être répartie sur plusieurs pages
     const pages = [copc.info.rootHierarchyPage];
     while (pages.length) {
       const { nodes, pages: sous } = await Copc.loadHierarchyPage(t.url, pages.pop());
-      for (const [k, n] of Object.entries(nodes))
-        if (n && n.pointCount && +k.split("-")[0] <= profMax && touche(k)) taches.push({ url: t.url, copc, n });
-      for (const [k, p] of Object.entries(sous)) if (+k.split("-")[0] <= profMax && touche(k)) pages.push(p);
+      for (const [k, n] of Object.entries(nodes)) if (n && n.pointCount && garder(k)) liste.push({ url: t.url, copc, n });
+      for (const [k, p] of Object.entries(sous)) if (+k.split("-")[0] <= profMax && coupe(boiteNoeud(k), boite)) pages.push(p);
     }
-  }
+    return liste;
+  }));
+  const taches = parTuile.flat();
   const total = taches.reduce((s, t) => s + t.n.pointCount, 0);
   let X = new Float32Array(total), Y = new Float32Array(total), Z = new Float32Array(total), C = new Uint8Array(total);
   let n = 0, faits = 0;
