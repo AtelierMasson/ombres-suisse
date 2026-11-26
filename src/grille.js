@@ -31,7 +31,7 @@ export function depuisPoints(nuage, R, c = 0.5) {
   for (let p = 0; p < n * n; p++) {
     if (bat[p] < sol[p] + 1.5) bat[p] = NaN;
     if (veg[p] < sol[p] + 1.0) veg[p] = NaN;
-    if (pont[p] < sol[p] + 2.5 || !isNaN(bat[p])) pont[p] = NaN; // tablier au ras du sol : c'est la chaussée
+    if (pont[p] < sol[p] + 0.3 || !isNaN(bat[p])) pont[p] = NaN; // tablier au ras du sol : c'est la chaussée
   }
   retirerIsoles(pont, n, 3);
   G.pontBas = dessousPonts(nuage, G, R, c);
@@ -196,8 +196,14 @@ function dessousPonts(nuage, G, R, c) {
       lisse[p] = s / k;
     }
   }
-  // jamais sous le sol, jamais moins de 0,8 m d'épaisseur
-  for (let p = 0; p < n * n; p++) if (!isNaN(lisse[p])) fin[p] = Math.min(pont[p] - 0.8, Math.max(sol[p], pont[p] - lisse[p]));
+  // jamais sous le sol, jamais moins de 0,8 m d'épaisseur ; près des culées (tablier à moins de 4 m du sol), le tablier
+  // est plein jusqu'au terrain, avec un fondu sur 4 à 7 m : le pont rejoint le sol de chaque côté sans marche ni vide
+  for (let p = 0; p < n * n; p++) {
+    if (isNaN(lisse[p])) continue;
+    const h = pont[p] - sol[p], dessous = Math.min(pont[p] - 0.8, Math.max(sol[p], pont[p] - lisse[p]));
+    const t = Math.min(1, Math.max(0, (h - 4) / 3));
+    fin[p] = sol[p] * (1 - t) + dessous * t;
+  }
   return fin;
 }
 
