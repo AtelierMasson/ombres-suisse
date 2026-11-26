@@ -474,10 +474,22 @@ void main() {
     if (seuil < 0.45) discard;
     base = teinteNeutre * (0.85 + 0.6 * (dot(vCouleur, vec3(0.2126, 0.7152, 0.0722)) - 0.25));
   }
-  vec3 c = mix(base, vec3(dot(base, vec3(0.2126, 0.7152, 0.0722))), gris);
-  // lumière faible : vers la teinte du sol (gardant un peu de la clarté propre à chaque point)
-  c = mix(c, teinteSol * (0.75 + 0.8 * (dot(vCouleur, vec3(0.2126, 0.7152, 0.0722)) - 0.25)), versSol);
-  gl_FragColor = vec4(c * mix(teinteOmbre, teinteSoleil, masque) * (1.0 - relief * (0.3 * r2 + 0.12 * p.y)) * lum * soleil, 1.0);
+  // éclairage : exactement les lumières du reste de la maquette (ciel en hémisphère, soleil, ombres portées), comme
+  // pour un matériau mat ; chaque point est une petite boule tournée vers la caméra (normale tirée de sa place dans
+  // le disque, un peu aplatie). Le matin, le soir et la nuit suivent donc d'eux-mêmes, sans réglage à part.
+  vec3 N = normalize(vec3(p.x, -p.y, sqrt(max(0.0, 1.0 - r2)) + 0.4));
+  vec3 eclairage = vec3(0.0);
+  #if NUM_HEMI_LIGHTS > 0
+    for (int i = 0; i < NUM_HEMI_LIGHTS; i++) eclairage += getHemisphereLightIrradiance(hemisphereLights[i], N);
+  #endif
+  #if NUM_DIR_LIGHTS > 0
+    for (int i = 0; i < NUM_DIR_LIGHTS; i++) {
+      // feuillage : une part de la lumière traverse (le côté opposé au soleil n'est pas noir)
+      float ndl = 0.3 + 0.7 * max(dot(N, directionalLights[i].direction), 0.0);
+      eclairage += directionalLights[i].color * ndl * masque;
+    }
+  #endif
+  gl_FragColor = vec4(base * eclairage * RECIPROCAL_PI, 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
   #include <fog_fragment>

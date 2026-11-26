@@ -65,7 +65,7 @@ jobs:
           DOSSIER: ${{ secrets.INFOMANIAK_DOSSIER }}
         run: |
           rsync -rlvz --delete --checksum \
-            --exclude 'api/config.php' --exclude '.well-known/' --exclude '.user.ini' --exclude '.infomaniak-maintenance.html' \
+            --exclude 'api/config.php' --exclude 'bathy/' --exclude '.well-known/' --exclude '.user.ini' --exclude '.infomaniak-maintenance.html' \
             -e "ssh -i ~/.ssh/deploiement -o IdentitiesOnly=yes" \
             paquet/ "$UTILISATEUR@$HOTE:$DOSSIER/"
       - name: Garder la version (release GitHub)

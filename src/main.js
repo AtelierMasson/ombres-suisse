@@ -19,6 +19,7 @@ import { contoursBatiments } from "./contours.js";
 import { profilCoupe, dessinerCoupe } from "./coupe.js";
 import { hameau } from "./demo.js";
 import { lancerVol } from "./vol.js";
+import { fondLacs } from "./bathy.js";
 import { ICONE } from "./icones.js";
 import { brancherSuggestion } from "./suggestion.js";
 brancherSuggestion();
@@ -303,6 +304,9 @@ async function depuisAdresse() {
       if (id !== tache) return;
       source = t("source.grille", { terrain: [...new Set(g.terrain.map(u => u.annee))].join(", "), surface: [...new Set(g.surface.map(u => u.annee))].join(", ") });
     }
+    // lacs : fond mesuré (swissBATHY3D) sous l'eau, là où il est préparé ; sinon la pente estimée reste
+    try { await fondLacs(G, E0, N0); } catch (e) { console.warn("Fond des lacs :", e.message); }
+    if (id !== tache) return;
     if (ronde()) garderCercle(G, R); // ne montrer que le cercle (sinon : maquette carrée, comme avant)
     S.rayonZone = Rz;
     $("#source").textContent = source;

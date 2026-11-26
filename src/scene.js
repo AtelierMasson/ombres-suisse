@@ -1466,8 +1466,9 @@ export class Scene3D {
     // les points ne sont pas éclairés par three.js : leur luminosité suit la lumière présente (ciel + soleil), rapportée
     // à celle d'un jour clair, comme pour les surfaces ; à l'ombre, ils ne gardent que la part du ciel
     const k = 0.55, jourClair = 1.1 + 2.6 * k, total = this.ciel.intensity + this.soleil.intensity * k;
-    for (const c of ["arbres", "tous"]) {
-      const u = this.couches[c]?.material.uniforms;
+    // nuages de points : arbres et nuage brut du relevé, et arbres swisstopo de l'anneau (même lumière du soir)
+    for (const mat of [this.couches.arbres?.material, this.couches.tous?.material, this.mat.pointsAnneau]) {
+      const u = mat?.uniforms;
       const f = Math.min(1, total / jourClair);
       if (u) {
         // lumière faible : moins sombres et moins verts qu'avant, ils tirent vers la couleur du sol (comme la maquette)
@@ -1481,7 +1482,7 @@ export class Scene3D {
         if (u.teinteSoleil) {
           teinte(this.ciel.color, u.teinteOmbre.value, 0.5);
           // soleil couché ou caché : plus de lumière directe, donc plus de teinte rouge orangé (seule celle du ciel)
-          if (visible && this.soleil.intensity > 0) teinte(this.soleil.color, u.teinteSoleil.value, 0.6 * Math.min(1, this.soleil.intensity / 1.2));
+          if (visible && this.soleil.intensity > 0) teinte(this.soleil.color, u.teinteSoleil.value, 0.22 * Math.min(1, this.soleil.intensity / 1.2)); // lueur du soir, discrète sur le feuillage
           else u.teinteSoleil.value.copy(u.teinteOmbre.value);
         }
       }
