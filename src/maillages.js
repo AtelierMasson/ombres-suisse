@@ -337,8 +337,14 @@ void main() {
   vec3 base = vCouleur;
   // dégradé selon la hauteur : la teinte de la rampe, nuancée par la clarté propre à chaque point
   if (degrade > 0.5) base = rampeHaut(vHaut) * (0.8 + 0.9 * (dot(vCouleur, vec3(0.2126, 0.7152, 0.0722)) - 0.25));
-  // carte des heures de soleil affichée : arbres de la zone calculée en gris (le reste garde sa couleur)
-  if (neutre > 0.5 && vZone > 0.3) base = teinteNeutre * (0.85 + 0.6 * (dot(vCouleur, vec3(0.2126, 0.7152, 0.0722)) - 0.25));
+  // carte des heures de soleil affichée : arbres de la zone calculée en gris et un peu transparents (tramage régulier,
+  // sans tri des points), pour lire la carte au travers ; le reste garde sa couleur
+  if (neutre > 0.5 && vZone > 0.3) {
+    vec2 q = mod(floor(gl_FragCoord.xy), 4.0);
+    float seuil = mod(q.x * 8.0 + q.y * 4.0 + mod(q.y, 2.0) * 2.0 + mod(q.x + q.y, 2.0) * 1.0, 16.0) / 16.0; // matrice 4 × 4
+    if (seuil < 0.45) discard;
+    base = teinteNeutre * (0.85 + 0.6 * (dot(vCouleur, vec3(0.2126, 0.7152, 0.0722)) - 0.25));
+  }
   vec3 c = mix(base, vec3(dot(base, vec3(0.2126, 0.7152, 0.0722))), gris);
   gl_FragColor = vec4(c * mix(teinteOmbre, teinteSoleil, masque) * (1.0 - relief * (0.3 * r2 + 0.12 * p.y)) * lum * soleil, 1.0);
   #include <tonemapping_fragment>

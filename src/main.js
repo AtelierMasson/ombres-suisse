@@ -540,14 +540,36 @@ $("#btnTracer").onclick = () => {
 scene.surDepart = () => $("#aideCoupe").textContent = t("coupe.aideB");
 scene.surCoupe = (A, B) => majCoupe(A, B);
 const refaireCoupe = () => { if (S.coupe) majCoupe(S.coupe.A, S.coupe.B); };
-scene.surBatiments = refaireCoupe; // bâtiments de comparaison arrivés ou changés (tuiles swisstopo, roofer)
+// bâtiments de comparaison arrivés ou changés (tuiles swisstopo, roofer) : la coupe, et la carte des heures si elle est
+// affichée, sont recalculées avec les bâtiments montrés
+scene.surBatiments = () => { refaireCoupe(); relancerHeures(); };
 $("#distPoints").addEventListener("change", refaireCoupe);
 $("#vPro").addEventListener("change", refaireCoupe);
 
 /* ------------------------------------------------------------------ heures d'ensoleillement */
 let calcul = null, attente = null;
 const periode = () => $("input[name=periode]:checked").value;
-const clePeriode = () => `${periode()}:${S.jour.slice(0, periode() === "jour" ? 10 : periode() === "mois" ? 7 : 4)}`;
+const clePeriode = () => `${periode()}:${S.jour.slice(0, periode() === "jour" ? 10 : periode() === "mois" ? 7 : 4)}:${nomJeuHeures()}`;
+const nomJeuHeures = () => {
+  if (choixBatiments() !== "swiss" || !S.G) return "releve";
+  const h = scene.grilleComparaison("swiss");
+  return h && h.some(v => !isNaN(v)) ? "swiss" : "releve";
+};
+/**
+ * Bâtiments du calcul des heures : ceux qui sont affichés. Relevé : grilles de la maquette ; Swiss3D : leurs toits vus de
+ * dessus remplacent les bâtiments du relevé (sol et arbres inchangés). Tant que ses tuiles manquent, le relevé.
+ */
+function jeuHeures() {
+  const G = S.G;
+  if (nomJeuHeures() === "releve") return { nom: "releve", surface: G?.surface, base: G?.base };
+  const h = scene.grilleComparaison("swiss");
+  const base = new Float32Array(G.n * G.n), surface = new Float32Array(G.n * G.n);
+  for (let p = 0; p < base.length; p++) {
+    base[p] = isNaN(h[p]) ? G.sol[p] : Math.max(G.sol[p], h[p]);
+    surface[p] = Math.max(base[p], G.veg[p] || -1e9);
+  }
+  return { nom: "swiss", surface, base };
+}
 function annulerCalcul() {
   clearTimeout(attente);
   if (!calcul) return;
@@ -569,7 +591,7 @@ function calculerHeures() {
   const G = S.G;
   if (!G || !S.horizon) return;
   const zone = S.zone ||= zoneHeures(G, S.parcelle.anneauxRel), facades = S.facades ||= carreauxFacades(G, scene.contours, zone);
-  const P = soleilsPeriode(periode(), S.jour, S.lat, S.lon, S.horizon), cle = clePeriode(), debut = performance.now();
+  const P = soleilsPeriode(periode(), S.jour, S.lat, S.lon, S.horizon), cle = clePeriode(), debut = performance.now(), jeu = jeuHeures();
   const heures = new Float32Array(zone.w * zone.h), heuresF = new Float32Array(facades.carreaux.length);
   const fin = () => {
     calcul = null;
@@ -595,7 +617,7 @@ function calculerHeures() {
       for (let p = 0; p < heuresF.length; p++) heuresF[p] += data.heuresF[p];
       if (--restants === 0) fin();
     };
-    w.postMessage({ surface: G.surface, base: G.base, n: G.n, c: G.c, zone: [zone.i0, zone.j0, zone.i1, zone.j1], alpha: zone.alpha, soleils: lot, facades: facades.pts });
+    w.postMessage({ surface: jeu.surface, base: jeu.base, n: G.n, c: G.c, zone: [zone.i0, zone.j0, zone.i1, zone.j1], alpha: zone.alpha, soleils: lot, facades: facades.pts });
     return w;
   }) };
 }

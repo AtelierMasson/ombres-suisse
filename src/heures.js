@@ -126,6 +126,7 @@ export function soleilsPeriode(periode, jour, lat, lon, horizon) {
  */
 export function carreauxFacades(G, C, zone) {
   const pts = [], carreaux = [];
+  let cotes = 0;
   const alphaEn = (x, y) => {
     const i = Math.floor((x - G.x0) / G.c) - zone.i0, j = Math.floor((y - G.x0) / G.c) - zone.j0;
     return i < 0 || j < 0 || i >= zone.w || j >= zone.h ? 0 : zone.alpha[j * zone.w + i];
@@ -152,15 +153,18 @@ export function carreauxFacades(G, C, zone) {
         const x = a[0] + (b[0] - a[0]) * t, y = a[1] + (b[1] - a[1]) * t;
         return [x, y, a[2] + (b[2] - a[2]) * t, solEn(G, x, y)];
       };
-      const nc = Math.max(1, Math.round(long));
+      // grille régulière : colonnes de même largeur (environ 1 m) sur tout le côté, rangées de 1 m comptées depuis le
+      // sol, la dernière arrêtée au toit ; les rangées s'alignent d'une colonne à l'autre, quelle que soit l'orientation
+      const nc = Math.max(1, Math.round(long)), cote = cotes++;
       for (let col = 0; col < nc; col++) {
         const g = en(col * long / nc), d = en((col + 1) * long / nc), m = en((col + 0.5) * long / nc);
         const a = alphaEn(m[0] + nx * 0.6, m[1] + ny * 0.6), haut = m[2] - m[3];
         if (a <= 0 || haut < 0.8) continue;
-        const nr = Math.max(1, Math.round(haut));
+        const nr = Math.ceil(haut - 0.25);
         for (let l = 0; l < nr; l++) {
-          pts.push((m[0] + nx * 0.75 - G.x0) / G.c, (m[1] + ny * 0.75 - G.x0) / G.c, m[3] + (l + 0.5) * haut / nr, nx, ny);
-          carreaux.push({ g, d, nx, ny, l, nr, alpha: a, premier: l === 0 });
+          const z0 = l, z1 = Math.min(l + 1, haut);
+          pts.push((m[0] + nx * 0.75 - G.x0) / G.c, (m[1] + ny * 0.75 - G.x0) / G.c, m[3] + (z0 + z1) / 2, nx, ny);
+          carreaux.push({ g, d, nx, ny, l, nr, z0, z1, haut, cote, col, alpha: a, premier: l === 0 });
         }
       }
     }
@@ -207,16 +211,24 @@ export function maillagesHeures(G, C, zone, facades, { heures, heuresF }, max, e
     }
     for (const k of [0, 1, 2, 0, 2, 3]) { pos.push(S[k][0], S[k][1], S[k][2]); col.push(S[k][3], S[k][4], S[k][5], S[k][6]); }
   }
-  // façades : la couleur est lissée de bas en haut dans chaque colonne
-  const posF = [], colF = [];
+  // façades : couleur lissée entre carreaux voisins, en hauteur et en largeur (valeur aux coins = moyenne des carreaux
+  // qui s'y touchent), comme sur le sol et les toits
+  const posF = [], colF = [], index = new Map();
+  facades.carreaux.forEach((K, t) => index.set(`${K.cote}/${K.col}/${K.l}`, heuresF[t]));
+  const coin = (cote, c, r) => { // coin entre les colonnes c-1 et c, les rangées r-1 et r
+    let s = 0, q = 0;
+    for (const [a, b] of [[c - 1, r - 1], [c, r - 1], [c - 1, r], [c, r]]) { const v = index.get(`${cote}/${a}/${b}`); if (v !== undefined) { s += v; q++; } }
+    return q ? s / q : 0;
+  };
   facades.carreaux.forEach((K, t) => {
-    const { g, d, nx, ny, l, nr, alpha: a } = K, v = heuresF[t];
-    const bas = l > 0 ? (v + heuresF[t - 1]) / 2 : v, haut = l < nr - 1 ? (v + heuresF[t + 1]) / 2 : v;
+    const { g, d, nx, ny, l, z0, z1, haut: hT, cote, col, alpha: a } = K;
+    const vBG = coin(cote, col, l), vBD = coin(cote, col + 1, l), vHG = coin(cote, col, l + 1), vHD = coin(cote, col + 1, l + 1);
     // carreaux un peu prolongés sur les côtés (angles) et, en haut, jusqu'à la carte du toit (posée 0,12 m au-dessus) :
     // sinon un liseré du bâtiment gris apparaît aux angles et au bord des toits
     const lx = d[0] - g[0], ly = d[1] - g[1], L = Math.hypot(lx, ly) || 1, ux = lx / L * 0.09, uy = ly / L * 0.09;
-    const P = (pt, f, s) => [pt[0] + nx * 0.07 + s * ux, pt[3] + (pt[2] - pt[3]) * f - zRef + (f === 1 ? 0.14 : 0), -(pt[1] + ny * 0.07 + s * uy)];
-    const f0 = l / nr, f1 = (l + 1) / nr, Q = [[P(g, f0, -1), bas], [P(d, f0, 1), bas], [P(d, f1, 1), haut], [P(g, f1, -1), haut]];
+    // hauteur prise depuis le sol de chaque bord (la rangée suit le terrain), la dernière jusqu'au toit de ce bord
+    const P = (pt, z, s) => { const h = pt[2] - pt[3], zz = z >= hT - 1e-6 ? h + 0.14 : Math.min(z, h + 0.14); return [pt[0] + nx * 0.07 + s * ux, pt[3] + zz - zRef, -(pt[1] + ny * 0.07 + s * uy)]; };
+    const Q = [[P(g, z0, -1), vBG], [P(d, z0, 1), vBD], [P(d, z1, 1), vHD], [P(g, z1, -1), vHG]];
     for (const k of [0, 1, 2, 0, 2, 3]) {
       couleurEchelle(palette, Q[k][1] / max, teinte);
       posF.push(...Q[k][0]); colF.push(teinte.r, teinte.g, teinte.b, a);
