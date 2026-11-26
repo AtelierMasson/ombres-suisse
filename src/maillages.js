@@ -89,6 +89,29 @@ export function socleRond(R, solA, zRef, zBas, batA = null) {
   return g;
 }
 
+/** Bande d'eau verticale au bord du cercle (maquette ronde), du fond du lac jusqu'à la surface : l'épaisseur du lac. */
+export function bordEauRond(G, zRef) {
+  if (!G.rayonZone || !G.eau) return null;
+  const R = G.rayonZone - 0.05, nb = Math.min(4096, Math.max(256, Math.ceil(2 * Math.PI * R))), pos = [];
+  const eauEn = (x, y) => { const i = Math.floor((x - G.x0) / G.c), j = Math.floor((y - G.x0) / G.c); return i < 0 || j < 0 || i >= G.n || j >= G.n ? NaN : G.eau[j * G.n + i]; };
+  const point = a => { const x = Math.cos(a) * R, y = Math.sin(a) * R; return [x, y, solEn(G, x, y), eauEn(x * 0.995, y * 0.995)]; };
+  let A = point(0);
+  for (let k = 1; k <= nb; k++) {
+    const B = point(k / nb * 2 * Math.PI);
+    if (A[3] > A[2] || B[3] > B[2]) {
+      const e = Math.max(isNaN(A[3]) ? -Infinity : A[3], isNaN(B[3]) ? -Infinity : B[3]) - zRef;
+      const a0 = Math.min(A[2] - zRef, e), b0 = Math.min(B[2] - zRef, e);
+      pos.push(A[0], a0, -A[1], B[0], b0, -B[1], B[0], e, -B[1], A[0], a0, -A[1], B[0], e, -B[1], A[0], e, -A[1]);
+    }
+    A = B;
+  }
+  if (!pos.length) return null;
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  return g;
+}
+
 export function socle(G, zRef, zBas, bords = null, avecReleve = true) {
   // le haut de la paroi monte jusqu'au niveau de l'eau là où le lac touche le bord (sinon l'eau flotte au-dessus)
   const eauEn = (x, y) => { const i = Math.floor((x - G.x0) / G.c), j = Math.floor((y - G.x0) / G.c); return !G.eau || i < 0 || j < 0 || i >= G.n || j >= G.n ? NaN : G.eau[j * G.n + i]; };
@@ -97,7 +120,8 @@ export function socle(G, zRef, zBas, bords = null, avecReleve = true) {
     // hauteurs des bâtiments swisstopo ou roofer affichés), là où ils sont coupés par le cercle
     const cellule = (a, x, y) => { const i = Math.floor((x - G.x0) / G.c), j = Math.floor((y - G.x0) / G.c); return !a || i < 0 || j < 0 || i >= G.n || j >= G.n ? NaN : a[j * G.n + i]; };
     const grille = bords instanceof Float32Array ? bords : null;
-    return socleRond(G.rayonZone, (x, y) => { const z = solEn(G, x, y), e = eauEn(x * 0.995, y * 0.995); return e > z ? e : z; }, zRef, zBas,
+    // la paroi s'arrête au fond du lac : au-dessus, la bordure est une bande d'eau (bordEauRond), on voit l'épaisseur du lac
+    return socleRond(G.rayonZone, (x, y) => solEn(G, x, y), zRef, zBas,
       (avecReleve || grille) ? (x, y) => Math.max(avecReleve ? cellule(G.bat, x, y) || -Infinity : -Infinity, cellule(grille, x, y) || -Infinity) : null);
   }
   // `bords` (facultatif) : hauteurs absolues des bâtiments de comparaison qui traversent chaque côté, par cellule

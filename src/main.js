@@ -353,6 +353,8 @@ async function depuisAdresse() {
     }
     // lacs : fond mesuré (swissBATHY3D) sous l'eau, là où il est préparé ; sinon la pente estimée reste
     try { await fondLacs(G, E0, N0); } catch (e) { console.warn("Fond des lacs :", e.message); }
+    // sous l'eau, le sol reste sous la surface : des mâts de bateaux (ports) levaient sinon des aiguilles de terrain
+    if (G.eau) for (let p = 0; p < G.sol.length; p++) if (!isNaN(G.eau[p]) && !(G.sol[p] < G.eau[p] - 0.1)) G.sol[p] = G.eau[p] - 0.3;
     if (id !== tache) return;
     if (ronde()) garderCercle(G, R); // ne montrer que le cercle (sinon : maquette carrée, comme avant)
     S.rayonZone = Rz;

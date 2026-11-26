@@ -12,7 +12,7 @@ import { Line2 } from "three/addons/lines/Line2.js";
 import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { solEn, majSurface } from "./grille.js";
 import { indexVolumes } from "./volumes.js";
-import { socleRond, materiauPoints } from "./maillages.js";
+import { socleRond, materiauPoints, bordEauRond } from "./maillages.js";
 import { dansPont, maillagePont } from "./pontsModeles.js";
 import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord, tabliersPonts, pontsLegers } from "./maillages.js";
 import { chargerImage, teinterCadastre, adoucirPhoto } from "./fond.js";
@@ -113,7 +113,7 @@ function decoupeZone(mat, zone = ZONE) {
  */
 const RAYON_EAU = { value: 1e9 };
 function matEau() {
-  const m = new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0.05, transparent: true, opacity: 0.86 });
+  const m = new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0.05, transparent: true, opacity: 0.93 }); // le fond (paliers, jointures des tuiles) se voyait trop à travers
   m.onBeforeCompile = sh => {
     sh.uniforms.rayonEau = RAYON_EAU;
     sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec2 vEauXZ;")
@@ -602,6 +602,9 @@ void main() {
     const limite = contourParcelle(parcelle, G, this.zRef, m.parcelle);
     // lacs et étangs : un vrai plan, au niveau de l'eau
     const ge = plansEau(G, this.zRef), eau = ge ? maille(ge, m.eau, false, true) : null;
+    // bordure du lac au bord du cercle : bande d'eau du fond jusqu'à la surface (l'épaisseur du lac se lit dans la coupe)
+    const gb = eau ? bordEauRond(G, this.zRef) : null;
+    if (gb) { const mb = new THREE.Mesh(gb, this.mat.eauBord = Object.assign(m.eau.clone(), { side: THREE.DoubleSide })); mb.raycast = () => {}; eau.add(mb); }
     RAYON_EAU.value = G.rayonZone ? G.rayonZone - 0.02 : 1e9;
     // ponts : tablier (dalle et rives) avec le vide dessous, du même plâtre que les murs
     // la chaussée prend la matière du terrain (le plan, le grain, les couleurs réelles continuent sur le pont)
@@ -811,7 +814,10 @@ void main() {
     for (const k of ["anneau", "socleAnneau", "eauAnneau", "releveAnneau"]) if (c[k]) { this.groupe.remove(c[k]); c[k].geometry.dispose(); c[k] = null; }
     if (this.mat.pointsAnneau) this.mat.pointsAnneau.visible = true;
     this.rayonExt = 0;
-    if (!G || !fin || !(Rext > Rint + 5)) { c.socle && (c.socle.visible = true); this.majZone(); this.appliquerCalques(); return; }
+    // bande d'eau du cercle fin : seulement sans anneau (sinon elle serait au milieu du lac)
+    const bandeFine = v => c.eau?.children.forEach(o => { o.visible = v; });
+    if (!G || !fin || !(Rext > Rint + 5)) { c.socle && (c.socle.visible = true); bandeFine(true); this.majZone(); this.appliquerCalques(); return; }
+    bandeFine(false);
     this.rayonExt = Rext;
     const { E, N } = lieu, H = fin.h;
     const altFin = (x, y) => {
