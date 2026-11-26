@@ -255,6 +255,7 @@ export class Scene3D {
     let avant = 0;
     r.setAnimationLoop(t => {
       this.animation?.(t);
+      if (this.deplacerClavier(t)) this.demander(2);
       const bouge = this.controls.update();
       if (!bouge && this.aRendre <= 0) { avant = 0; return; }
       this.aRendre = Math.max(0, this.aRendre - 1);
@@ -472,8 +473,14 @@ export class Scene3D {
     // lacs et étangs : un vrai plan, au niveau de l'eau
     const ge = plansEau(G, this.zRef), eau = ge ? maille(ge, m.eau, false, true) : null;
     // ponts : tablier (dalle et rives) avec le vide dessous, du même plâtre que les murs
-    const gp = tabliersPonts(G, this.zRef), ponts = gp ? maille(gp, m.mur, true, true) : null;
-    if (ponts) decouperBord(ponts, G.R - 0.03);
+    // la chaussée prend la matière du terrain (le plan, le grain, les couleurs réelles continuent sur le pont)
+    const gp = tabliersPonts(G, this.zRef);
+    let ponts = null;
+    if (gp) {
+      ponts = new THREE.Group();
+      ponts.add(maille(gp.dessus, m.terrain, true, true), maille(gp.cotes, m.mur, true, true));
+      ponts.children.forEach(o => decouperBord(o, G.R - 0.03));
+    }
     this.couches = { terrain: sol, socle: base, bati, canopee, arbres, limite, eau, ponts };
     for (const o of Object.values(this.couches)) if (o) this.groupe.add(o);
     // la canopée qui porte l'ombre des points est un peu abaissée : le haut des couronnes reste au soleil,
@@ -1443,7 +1450,48 @@ export class Scene3D {
   }
 
   /** Souris : déplacer les poignées A et B de la coupe, ou tracer une coupe en deux clics (voir `tracer`). */
+  /**
+   * Déplacement au clavier, comme dans un jeu : W / S avancer et reculer, A / D de côté, E / Q monter et descendre,
+   * Maj pour aller plus vite. Touches physiques (KeyW…) : ZQSD sur un clavier français. La vitesse suit la distance
+   * au point visé (lent de près, rapide de loin) ; la caméra et le point visé bougent ensemble.
+   */
+  deplacerClavier(t) {
+    const k = this.touches, avant = this.dernierClavier ?? t;
+    this.dernierClavier = t;
+    if (!k?.size || this.vol || !this.G) { this.dernierClavier = null; return false; }
+    const dt = Math.min(0.1, (t - avant) / 1000);
+    if (!dt) return true;
+    const cam = this.camera, cible = this.controls.target, e = cam.matrixWorld.elements;
+    // devant : l'axe de visée à plat ; vue de dessus : le haut de l'écran
+    const devant = new THREE.Vector3(-e[8], 0, -e[10]);
+    if (devant.lengthSq() < 0.01) devant.set(e[4], 0, e[6]);
+    devant.normalize();
+    const droite = new THREE.Vector3(-devant.z, 0, devant.x);
+    const d = new THREE.Vector3();
+    if (k.has("KeyW") || k.has("ArrowUp")) d.add(devant);
+    if (k.has("KeyS") || k.has("ArrowDown")) d.sub(devant);
+    if (k.has("KeyD") || k.has("ArrowRight")) d.add(droite);
+    if (k.has("KeyA") || k.has("ArrowLeft")) d.sub(droite);
+    if (k.has("KeyE")) d.y += 1;
+    if (k.has("KeyQ")) d.y -= 1;
+    if (!d.lengthSq()) return false;
+    const vitesse = Math.max(4, cam.position.distanceTo(cible) * 0.35) * (k.has("ShiftLeft") || k.has("ShiftRight") ? 3 : 1);
+    d.normalize().multiplyScalar(vitesse * dt);
+    cam.position.add(d); cible.add(d);
+    return true;
+  }
+
   interactions() {
+    // clavier : touches enfoncées (pas quand on écrit dans un champ)
+    this.touches = new Set();
+    const ecrit = e => e.target.closest?.("input, textarea, select, [contenteditable]");
+    const DEPL = ["KeyW", "KeyA", "KeyS", "KeyD", "KeyQ", "KeyE", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+    addEventListener("keydown", e => {
+      if (ecrit(e) || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (DEPL.includes(e.code) || e.code.startsWith("Shift")) { this.touches.add(e.code); if (DEPL.includes(e.code)) e.preventDefault(); }
+    });
+    addEventListener("keyup", e => this.touches.delete(e.code));
+    addEventListener("blur", () => this.touches.clear());
     const el = this.renderer.domElement, sol = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), v = new THREE.Vector3();
     this.rayon = new THREE.Raycaster();
     let prise = null, appui = null;

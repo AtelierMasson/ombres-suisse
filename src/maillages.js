@@ -724,13 +724,13 @@ export function decouperBord(m, lim) {
   }
   const cle = e.map(v => v.toFixed(4)).join(",");
   if (m.userData.cleDecoupe === cle) return;
-  const pos = orig.attributes.position, nor = orig.attributes.normal, idx = orig.index;
-  const nt = (idx ? idx.count : pos.count) / 3, outP = [], outN = [], source = [];
-  // sommet : [lx, ly, lz, nx, ny, nz, wx, wz]
+  const pos = orig.attributes.position, nor = orig.attributes.normal, tuv = orig.attributes.uv, idx = orig.index;
+  const nt = (idx ? idx.count : pos.count) / 3, outP = [], outN = [], outU = [], source = [];
+  // sommet : [lx, ly, lz, nx, ny, nz, wx, wz, u, v]
   const sommet = i => {
     const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
     return [x, y, z, nor ? nor.getX(i) : 0, nor ? nor.getY(i) : 0, nor ? nor.getZ(i) : 0,
-      e[0] * x + e[4] * y + e[8] * z + e[12], e[2] * x + e[6] * y + e[10] * z + e[14]];
+      e[0] * x + e[4] * y + e[8] * z + e[12], e[2] * x + e[6] * y + e[10] * z + e[14], tuv ? tuv.getX(i) : 0, tuv ? tuv.getY(i) : 0];
   };
   const mel = (a, b, t) => a.map((v, k) => v + (b[k] - v) * t);
   // quatre demi-plans : distance positive = dedans
@@ -754,6 +754,7 @@ export function decouperBord(m, lim) {
       for (const v of [poly[0], poly[k], poly[k + 1]]) {
         outP.push(v[0], v[1], v[2]);
         if (nor) outN.push(v[3], v[4], v[5]);
+        if (tuv) outU.push(v[8], v[9]);
       }
     }
   }
@@ -761,6 +762,7 @@ export function decouperBord(m, lim) {
   g.setAttribute("position", new THREE.Float32BufferAttribute(outP, 3));
   if (nor) g.setAttribute("normal", new THREE.Float32BufferAttribute(outN, 3));
   else g.computeVertexNormals();
+  if (tuv) g.setAttribute("uv", new THREE.Float32BufferAttribute(outU, 2));
   // volumes (bâtiments) : ceux des triangles d'origine, un par triangle découpé
   if (orig.userData.volumes) { const V = orig.userData.volumes; g.userData.volumesTri = Int32Array.from(source, t => V[t >> 1] ?? -1); }
   if (m.userData.geomOrig) m.geometry.dispose(); else m.userData.geomOrig = orig;
@@ -771,12 +773,19 @@ export function decouperBord(m, lim) {
 /**
  * Ponts (classe 17 du relevé) : le tablier, de sa surface jusqu'au dessous relevé (G.pontBas : intrados des arches,
  * pied des piles), avec ses rives ; le vide reste dessous ailleurs. Null s'il n'y a pas de pont.
+ * Les bords sont redressés comme les façades (contoursBatiments : coins du bord ramenés sur des côtés droits) ;
+ * `dessus` (la chaussée, avec les coordonnées de texture du terrain : le sol continue sur le pont) est séparé de
+ * `cotes` (rives et dessous, en plâtre).
  */
 export function tabliersPonts(G, zRef) {
   const { n, c, x0, pont, pontBas } = G;
   if (!pont || !pont.some(v => !isNaN(v))) return null;
-  const pos = [], P = (i, j, z) => [x0 + i * c, z - zRef, -(x0 + j * c)];
-  const quad = (a, b, d, e) => pos.push(...a, ...b, ...d, ...a, ...d, ...e);
+  // un seul « volume » par pont (la chaussée monte en pente douce) : seuls les bords comptent ici
+  const K = contoursBatiments(G, pont, 0.6, 4), m = n + 1;
+  const haut = [], uv = [], bas = [];
+  const P = (i, j, z) => { const k = j * m + i; return [K.px[k], z - zRef, -K.py[k]]; };
+  const UV = (i, j) => { const k = j * m + i; return [(K.px[k] - x0) / (2 * G.R), (K.py[k] - x0) / (2 * G.R)]; };
+  const quad = (o, a, b, d, e) => o.push(...a, ...b, ...d, ...a, ...d, ...e);
   const coin = (g, i, j) => { // valeur au coin : moyenne des cellules de tablier voisines
     let s = 0, k = 0;
     for (const [a, b] of [[i - 1, j - 1], [i, j - 1], [i - 1, j], [i, j]]) if (a >= 0 && b >= 0 && a < n && b < n && !isNaN(pont[b * n + a])) { s += g[b * n + a]; k++; }
@@ -786,18 +795,23 @@ export function tabliersPonts(G, zRef) {
   for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
     if (isNaN(pont[j * n + i])) continue;
     const C = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]];
-    const h = C.map(([a, b]) => coin(pont, a, b)), d = C.map(([a, b]) => coin(sous, a, b));
-    quad(P(i, j, h[0]), P(i + 1, j, h[1]), P(i + 1, j + 1, h[2]), P(i, j + 1, h[3])); // dessus
-    quad(P(i, j + 1, d[3]), P(i + 1, j + 1, d[2]), P(i + 1, j, d[1]), P(i, j, d[0])); // dessous (intrados, pied des piles)
+    const h = C.map(([a, b]) => coin(pont, a, b)), d = C.map(([a, b]) => coin(sous, a, b)), t = C.map(([a, b]) => UV(a, b));
+    quad(haut, P(i, j, h[0]), P(i + 1, j, h[1]), P(i + 1, j + 1, h[2]), P(i, j + 1, h[3])); // dessus
+    uv.push(...t[0], ...t[1], ...t[2], ...t[0], ...t[2], ...t[3]);
+    quad(bas, P(i, j + 1, d[3]), P(i + 1, j + 1, d[2]), P(i + 1, j, d[1]), P(i, j, d[0])); // dessous (intrados, pied des piles)
     // rives : là où la cellule voisine n'est pas du tablier
     const vide = (a, b) => a < 0 || b < 0 || a >= n || b >= n || isNaN(pont[b * n + a]);
-    if (vide(i, j - 1)) quad(P(i, j, d[0]), P(i + 1, j, d[1]), P(i + 1, j, h[1]), P(i, j, h[0]));
-    if (vide(i + 1, j)) quad(P(i + 1, j, d[1]), P(i + 1, j + 1, d[2]), P(i + 1, j + 1, h[2]), P(i + 1, j, h[1]));
-    if (vide(i, j + 1)) quad(P(i + 1, j + 1, d[2]), P(i, j + 1, d[3]), P(i, j + 1, h[3]), P(i + 1, j + 1, h[2]));
-    if (vide(i - 1, j)) quad(P(i, j + 1, d[3]), P(i, j, d[0]), P(i, j, h[0]), P(i, j + 1, h[3]));
+    if (vide(i, j - 1)) quad(bas, P(i, j, d[0]), P(i + 1, j, d[1]), P(i + 1, j, h[1]), P(i, j, h[0]));
+    if (vide(i + 1, j)) quad(bas, P(i + 1, j, d[1]), P(i + 1, j + 1, d[2]), P(i + 1, j + 1, h[2]), P(i + 1, j, h[1]));
+    if (vide(i, j + 1)) quad(bas, P(i + 1, j + 1, d[2]), P(i, j + 1, d[3]), P(i, j + 1, h[3]), P(i + 1, j + 1, h[2]));
+    if (vide(i - 1, j)) quad(bas, P(i, j + 1, d[3]), P(i, j, d[0]), P(i, j, h[0]), P(i, j + 1, h[3]));
   }
-  const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  g.computeVertexNormals();
-  return g;
+  const dessus = new THREE.BufferGeometry();
+  dessus.setAttribute("position", new THREE.Float32BufferAttribute(haut, 3));
+  dessus.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+  dessus.computeVertexNormals();
+  const cotes = new THREE.BufferGeometry();
+  cotes.setAttribute("position", new THREE.Float32BufferAttribute(bas, 3));
+  cotes.computeVertexNormals();
+  return { dessus, cotes };
 }
