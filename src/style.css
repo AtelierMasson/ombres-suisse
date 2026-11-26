@@ -55,7 +55,11 @@ body.accueil #haut .recherche { visibility: hidden; }
 /* vue 3D, panneau, cartes du bas */
 #vue { position: absolute; top: var(--haut); left: 0; right: 0; bottom: 0; }
 #vue canvas { display: block; }
-#panneau { position: absolute; top: calc(var(--haut) + 12px); left: 12px; width: var(--large); max-height: calc(100% - var(--haut) - 56px - var(--coupe-h, 0px)); overflow: auto; z-index: 5; }
+/* colonne de gauche : panneau principal, puis la carte « Pro » dessous ; elle défile si elle dépasse */
+#colonne { position: absolute; top: calc(var(--haut) + 12px); left: 12px; width: var(--large); max-height: calc(100% - var(--haut) - 56px - var(--coupe-h, 0px));
+  overflow: auto; z-index: 5; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+#colonne > .card { pointer-events: auto; flex: none; }
+#panneau { position: static; width: auto; }
 #commandes section { border-top: 1px solid var(--bord); margin-top: 12px; padding-top: 10px; }
 .titre { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--doux); margin-bottom: 6px; }
 .bloc-date .btn-group { margin-top: 6px; }
@@ -98,6 +102,16 @@ body.accueil #haut .recherche { visibility: hidden; }
 body:not(.pro) .pro-seul { display: none !important; }
 #svgCoupe .bati { fill: var(--coupe-bati); stroke: var(--coupe-trait); stroke-width: 1.5; stroke-linejoin: round; }
 #svgCoupe .sol { fill: none; stroke: var(--coupe-trait); stroke-width: 1.2; stroke-linejoin: round; }
+#svgCoupe .audela-sil { fill: none; stroke: var(--coupe-trait); stroke-width: 0.7; opacity: 0.45; stroke-linejoin: round; }
+#svgCoupe .audela-plan { fill: var(--coupe-trait); stroke: none; }
+#svgCoupe .audela-plan.p0 { opacity: 0.16; } #svgCoupe .audela-plan.p1 { opacity: 0.1; } #svgCoupe .audela-plan.p2 { opacity: 0.06; } #svgCoupe .audela-plan.p3 { opacity: 0.035; }
+#svgCoupe .audela-bord { fill: none; stroke: var(--coupe-trait); stroke-width: 0.5; stroke-linejoin: round; }
+#svgCoupe .audela-bord.p0 { opacity: 0.5; } #svgCoupe .audela-bord.p1 { opacity: 0.35; } #svgCoupe .audela-bord.p2 { opacity: 0.22; } #svgCoupe .audela-bord.p3 { opacity: 0.14; }
+#svgCoupe .audela-terrain { fill: none; stroke: var(--coupe-trait); stroke-width: 0.5; opacity: 0.35; }
+#svgCoupe .audela-facade { fill: var(--coupe-trait); opacity: 0.08; }
+#svgCoupe .audela-arete { fill: none; stroke: var(--coupe-trait); stroke-width: 0.6; opacity: 0.55; stroke-linejoin: round; }
+#svgCoupe .audela-arbres { fill: none; stroke: var(--coupe-trait); stroke-width: 0.6; stroke-dasharray: 1.5 2; opacity: 0.45; }
+#svgCoupe .sol-estime { fill: none; stroke: var(--coupe-trait); stroke-width: 0.8; stroke-dasharray: 4 3; opacity: 0.6; }
 #svgCoupe line.limite { stroke: var(--coupe-trait); stroke-width: .7; stroke-dasharray: 5 2 1 2; }
 #svgCoupe .rayon { stroke: var(--course); stroke-width: 1; stroke-dasharray: 6 4; }
 #svgCoupe .pied { fill: var(--course); }
@@ -169,7 +183,7 @@ body[data-theme=nuit] #message { background: #3a2f12; color: #ffe2a8; border-col
 .table-calques tbody tr + tr th, .table-calques tbody tr + tr td { border-top: 1px solid var(--bord); }
 @media (max-width: 800px) {
   #haut .marque { font-size: 1.05rem; gap: 0; } /* sans logo, le nom reste visible sur petit écran */
-  #panneau, body[data-theme=nuit] #panneau { width: auto; left: 12px; right: 12px; max-height: 45%; }
+  #colonne { width: auto; left: 12px; right: 12px; max-height: 45%; }
   #bas, body[data-theme=nuit] #bas { left: 12px; right: 12px; bottom: 34px; }
   #coupe { width: 100%; }
   .atouts { grid-template-columns: 1fr; }
@@ -230,11 +244,11 @@ body.accueil #orientation { display: none; }
 /* ensoleillement : directement sous la course du soleil */
 #ensoleillement { margin: 4px 0 10px; padding-top: 8px; border-top: 1px solid var(--bord); }
 /* « Voir » : un petit œil, ouvert ou barré, à la place de la case */
-.table-calques .form-check-input.oeil { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; border: 0; border-radius: 0; background: var(--doux);
+:is(.table-calques, #listeVolumes) .form-check-input.oeil { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; border: 0; border-radius: 0; background: var(--doux);
   -webkit-mask: var(--oeil-ferme) center / contain no-repeat; mask: var(--oeil-ferme) center / contain no-repeat; opacity: .55; box-shadow: none; }
-.table-calques .form-check-input.oeil:checked { background: var(--accent); -webkit-mask-image: var(--oeil); mask-image: var(--oeil); opacity: 1; }
-.table-calques .form-check-input.oeil:disabled { opacity: .25; cursor: default; }
-.table-calques .form-check-input.oeil:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+:is(.table-calques, #listeVolumes) .form-check-input.oeil:checked { background: var(--accent); -webkit-mask-image: var(--oeil); mask-image: var(--oeil); opacity: 1; }
+:is(.table-calques, #listeVolumes) .form-check-input.oeil:disabled { opacity: .25; cursor: default; }
+:is(.table-calques, #listeVolumes) .form-check-input.oeil:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 :root {
   --oeil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
   --oeil-ferme: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.6-7 10-7c2 0 3.7.7 5.1 1.6M22 12s-3.6 7-10 7c-2 0-3.7-.7-5.1-1.6'/%3E%3Cpath d='M3 3l18 18'/%3E%3C/svg%3E");
@@ -266,11 +280,15 @@ body.accueil #orientation { display: none; }
 .onglets-coupe button.ajouter { padding: 1px 10px; color: var(--accent-fonce); border: 1px dashed var(--bord-fort); border-radius: 999px; }
 
 /* volumes du projet (mode pro) */
-#listeVolumes .volume { display: grid; grid-template-columns: 1fr auto auto auto; gap: 4px; align-items: center; font-size: 12px; padding: 3px 0; border-top: 1px solid var(--bord); }
+#listeVolumes .volume { display: grid; grid-template-columns: auto 1fr auto auto auto auto; gap: 4px; align-items: center; font-size: 12px; padding: 3px 0; border-top: 1px solid var(--bord); }
 #listeVolumes .volume input { width: 58px; }
 #listeVolumes .volume select { width: auto; }
 #listeVolumes .volume button { border: 0; background: none; color: var(--doux); padding: 0 4px; }
 #listeVolumes .volume button:hover { color: var(--texte); }
+#listeVolumes .volume .pastille { width: 16px; height: 16px; padding: 0; border-radius: 50%; border: 1px solid var(--bord); }
+#listeVolumes .palette { grid-column: 1 / -1; display: flex; gap: 5px; flex-wrap: wrap; padding: 2px 0 4px 22px; }
+#listeVolumes .palette button { width: 18px; height: 18px; padding: 0; border-radius: 50%; border: 1px solid var(--bord); }
+#listeVolumes .palette button:hover { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* mention « beta » à côté du nom */
 .marque .beta { margin-left: 6px; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--bord-fort); font-size: 10px; font-weight: 600;

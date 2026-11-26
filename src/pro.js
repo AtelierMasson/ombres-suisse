@@ -36,48 +36,57 @@ export function brancherPro(o) {
   const pret = () => !!S.G && S.lat != null && !!scene.contoursTous;
 
   /* ---------------------------------------------------------------- sélection et masquage */
+  // Le clic choisit tout seul : un bâtiment s'il touche un toit ou une façade, sinon les bâtiments de la parcelle
+  // cliquée. Masquer la sélection l'ajoute à la liste « ajoutés et masqués », où un œil la remontre ou la recache.
+  const couleurs = ["#fbf7ee", "#eadfca", "#d9c09b", "#c99a78", "#b07a62", "#a9b49c", "#7f9083", "#93a2ad", "#b6a9bb", "#8e8379"];
+  P.caches = [];
+  /** Volumes masqués : ceux des entrées de la liste dont l'œil est fermé. */
+  const recalculer = () => { P.masques = new Set(P.caches.filter(c => !c.visible).flatMap(c => c.ids)); };
   function maj() {
     const releve = jeu() === "releve", V = pret() ? scene.indexer() : null;
     if (!actif() || !releve) P.selection.clear();
     if (pret()) scene.surbrillance(actif() ? P.selection : null);
-    $("#btnSelection").disabled = $("#btnSelParcelle").disabled = !releve;
     $("#btnMasquer").disabled = !P.selection.size;
-    $("#btnReafficher").disabled = !P.masques.size;
     $("#btnAnnuler").disabled = !P.historique.length;
     const nbMasques = V ? new Set([...P.masques].map(s => V.bati[s])).size : 0;
     $("#etatPro").textContent = P.masques.size ? t("pro.etat", { n: nbMasques, v: P.masques.size }) : "";
     const F = V && P.selection.size ? ficheVolumes(S.G, scene.contoursTous, V, P.selection) : null;
     $("#fichePro").innerHTML = F
-      ? `<b>${F.batiments > 1 ? t("pro.ficheN", { n: F.batiments }) : F.volumes > 1 ? t("pro.ficheVolumes", { n: F.volumes }) : t($("#vParVolume").checked ? "pro.ficheVolume" : "pro.ficheBatiment")}</b><br>`
+      ? `<b>${P.selNom || (F.batiments > 1 ? t("pro.ficheN", { n: F.batiments }) : t("pro.ficheBatiment"))}</b><br>`
         + t("pro.ficheHauteur", { haut: fr(F.haut), moyenne: fr(F.moyenne) })
         + t("pro.ficheEmprise", { emprise: entier(F.emprise), n: F.niveaux })
         + `<span class="text-secondary">${t("pro.ficheSommet", { z: fr(F.sommet) })}</span>`
-      : `<span class="text-secondary">${!releve ? t("pro.aideReleve")
-        : $("#btnSelection").classList.contains("active") ? t("pro.aideClic") : ""}</span>`;
+      : `<span class="text-secondary">${!releve ? t("pro.aideReleve") : t("pro.aideClic")}</span>`;
     majExport();
   }
 
   scene.surClic = e => {
     if (dessin) return clicDessin(e);
-    if (!actif() || !pret() || jeu() !== "releve" || !$("#btnSelection").classList.contains("active")) return;
+    if (!actif() || !pret() || jeu() !== "releve") return;
     const V = scene.indexer(), s = scene.designer(e);
-    const ids = s < 0 ? [] : $("#vParVolume").checked ? [s] : V.parBati[V.bati[s]].filter(v => !P.masques.has(v));
-    if (!e.shiftKey) P.selection = new Set(ids);
-    else if (ids.length && ids.every(v => P.selection.has(v))) ids.forEach(v => P.selection.delete(v));
-    else ids.forEach(v => P.selection.add(v));
-    maj();
-  };
-  $("#btnSelection").onclick = () => { $("#btnSelection").classList.toggle("active"); maj(); };
-  $("#btnSelParcelle").onclick = () => {
-    if (!pret()) return;
-    const ids = volumesParcelle(S.G, scene.indexer(), S.parcelle?.anneauxRel || []);
-    P.selection = new Set([...ids].filter(s => !P.masques.has(s)));
-    if (!P.selection.size) o.message(t(ids.size ? "pro.dejaMasques" : "pro.aucunBatiment"));
+    let ids = [], nom = null;
+    if (s >= 0) ids = V.parBati[V.bati[s]].filter(v => !P.masques.has(v));
+    else {
+      const p = scene.pointSol(e), q = p && o.parcelleEn?.(p[0], p[1]);
+      if (q) {
+        const tous = volumesParcelle(S.G, V, q.anneauxRel);
+        ids = [...tous].filter(v => !P.masques.has(v));
+        nom = t("pro.batParcelle", { n: q.numero });
+        if (!ids.length) o.message(t(tous.size ? "pro.dejaMasques" : "pro.aucunBatiment"));
+      }
+    }
+    if (!e.shiftKey) { P.selection = new Set(ids); P.selNom = nom; }
+    else {
+      if (ids.length && ids.every(v => P.selection.has(v))) ids.forEach(v => P.selection.delete(v));
+      else ids.forEach(v => P.selection.add(v));
+      P.selNom = null;
+    }
     maj();
   };
 
   /** Applique l'ensemble des volumes masqués à la scène et à tout ce qui en dépend (ombres, heures, coupe). */
   function appliquer() {
+    recalculer();
     scene.masquer(P.masques);
     S.facades = null; // les carreaux de façade sont à refaire
     if (S.heuresDemandees) {
@@ -87,14 +96,21 @@ export function brancherPro(o) {
       else { o.annulerCalcul(); S.heuresDemandees = false; $("#heures").hidden = true; $("#btnHeures").textContent = t("heures.calculer"); }
     }
     if (S.coupe) o.majCoupe(S.coupe.A, S.coupe.B);
+    listeVolumes();
     maj();
   }
-  const changer = masques => { P.historique.push(P.masques); P.masques = masques; P.selection.clear(); appliquer(); };
-  $("#btnMasquer").onclick = () => { if (P.selection.size) changer(new Set([...P.masques, ...P.selection])); };
-  $("#btnReafficher").onclick = () => { if (P.masques.size) changer(new Set()); };
-  $("#btnAnnuler").onclick = () => { if (P.historique.length) { P.masques = P.historique.pop(); P.selection.clear(); appliquer(); } };
+  const memoriser = () => P.historique.push(JSON.stringify(P.caches));
+  let numeroCache = 0;
+  $("#btnMasquer").onclick = () => {
+    if (!P.selection.size) return;
+    memoriser();
+    const V = scene.indexer(), n = new Set([...P.selection].map(s => V.bati[s])).size;
+    P.caches.push({ id: ++numeroCache, ids: [...P.selection], visible: false, nom: P.selNom || (n > 1 ? t("pro.ficheN", { n }) : t("pro.ficheBatiment")) });
+    P.selection.clear(); P.selNom = null;
+    appliquer();
+  };
+  $("#btnAnnuler").onclick = () => { if (P.historique.length) { P.caches = JSON.parse(P.historique.pop()); P.selection.clear(); appliquer(); } };
   $$("input[name=batiments]").forEach(b => b.addEventListener("change", maj));
-  $("#vParVolume").addEventListener("change", () => { P.selection.clear(); maj(); });
 
   /* ---------------------------------------------------------------- volumes du projet */
   // dessin d'un rectangle en trois clics sur la maquette : A, B (un côté), puis la profondeur ; aperçu qui suit la souris
@@ -105,6 +121,7 @@ export function brancherPro(o) {
     $("#btnVolume").classList.remove("active");
     scene.renderer.domElement.style.cursor = "";
     scene.afficherVolumes(P.volumes);
+    scene.laserVolume(null);
     aide();
   }
   $("#btnVolume").onclick = () => {
@@ -112,7 +129,6 @@ export function brancherPro(o) {
     if (!pret()) return;
     dessin = [];
     $("#btnVolume").classList.add("active");
-    $("#btnSelection").classList.remove("active");
     scene.renderer.domElement.style.cursor = "crosshair";
     aide(); maj();
   };
@@ -131,13 +147,16 @@ export function brancherPro(o) {
     aide();
   }
   scene.renderer.domElement.addEventListener("pointermove", e => {
-    if (!dessin?.length) return;
+    if (!dessin) return;
     const p = pointDessin(e);
     if (!p) return;
+    // plan laser : où tombe le prochain point (avant le premier clic), le côté en cours, puis le rectangle
+    if (!dessin.length) return scene.laserVolume([p]);
     // aperçu : après le premier coin, un mur fin le long du côté ; après le deuxième, le volume entier
     const L = Math.hypot(p[0] - dessin[0][0], p[1] - dessin[0][1]) || 1, n = [-(p[1] - dessin[0][1]) / L * 0.3, (p[0] - dessin[0][0]) / L * 0.3];
     const coins = dessin.length === 1 ? rectangle(dessin[0], p, [p[0] + n[0] * 4, p[1] + n[1] * 4]) : rectangle(dessin[0], dessin[1], p);
     scene.afficherVolumes(P.volumes, coins ? volumeDe(coins, { id: 0, hauteur: dessin.length === 1 ? 0.5 : 9 }) : null);
+    scene.laserVolume(dessin.length === 1 ? [dessin[0], p] : coins || [dessin[0], dessin[1]], dessin.length === 2 && !!coins);
   });
   /** Volumes changés : maquette, ombres, coupe, heures de soleil (si affichées), liste du panneau. */
   function volumesChanges() {
@@ -148,29 +167,54 @@ export function brancherPro(o) {
     if (S.heuresDemandees) o.relancerHeures?.();
     listeVolumes();
   }
+  /** Liste « ajoutés et masqués » : modèles importés, volumes dessinés (œil, couleur, hauteur, toit) et bâtiments masqués (œil). */
   function listeVolumes() {
+    const oeil = (visible, titre, changer) => {
+      const i = document.createElement("input");
+      Object.assign(i, { type: "checkbox", className: "form-check-input oeil", checked: visible, title: titre });
+      i.setAttribute("aria-label", titre);
+      i.onchange = () => changer(i.checked);
+      return i;
+    };
     const modeles = P.imports.map(m => {
       const d = document.createElement("div");
       d.className = "volume";
-      d.innerHTML = `<span style="grid-column: 1 / 4">${t("import.modele", { nom: m.nom })}<br><span class="text-secondary">${m.note}</span></span>`
+      d.innerHTML = `<span></span><span style="grid-column: 2 / 6">${t("import.modele", { nom: m.nom })}<br><span class="text-secondary">${m.note}</span></span>`
         + `<button type="button" title="${t("import.retirer")}" aria-label="${t("import.retirer")}">×</button>`;
       d.querySelector("button").onclick = () => { P.imports = P.imports.filter(x => x !== m); importsChanges(); };
       return d;
     });
-    $("#listeVolumes").replaceChildren(...modeles, ...P.volumes.map((v, k) => {
+    const volumes = P.volumes.map((v, k) => {
       const [l, p] = dimensions(v), d = document.createElement("div");
       d.className = "volume";
       d.innerHTML = `<span>${t("projet.volume", { n: k + 1, l: fr(l), p: fr(p) })}</span>`
+        + `<button type="button" class="pastille" title="${t("projet.couleur")}" aria-label="${t("projet.couleur")}" style="background:${v.couleur || couleurs[0]}"></button>`
         + `<input type="number" class="form-control form-control-sm" min="1" max="200" step="0.5" value="${v.hauteur}" title="${t("projet.hauteur")}" aria-label="${t("projet.hauteur")}">`
         + `<select class="form-select form-select-sm"><option value="plat">${t("projet.plat")}</option><option value="deux">${t("projet.deuxPans")}</option></select>`
-        + `<button type="button" title="${t("projet.retirer")}" aria-label="${t("projet.retirer")}">×</button>`;
-      const [h, toit, x] = d.querySelectorAll("input, select, button");
+        + `<button type="button" title="${t("projet.retirer")}" aria-label="${t("projet.retirer")}">×</button>`
+        + `<div class="palette" hidden>${couleurs.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join("")}</div>`;
+      d.prepend(oeil(v.visible !== false, t("projet.voir"), ok => { v.visible = ok; volumesChanges(); }));
+      const [pastille, h, toit, x] = d.querySelectorAll(":scope > input[type=number], :scope > select, :scope > button");
+      const palette = d.querySelector(".palette");
       toit.value = v.toit;
+      pastille.onclick = () => { palette.hidden = !palette.hidden; };
+      palette.onclick = e => { const c = e.target.dataset?.c; if (c) { v.couleur = c; volumesChanges(); } };
       h.onchange = () => { v.hauteur = Math.max(1, +h.value || v.hauteur); volumesChanges(); };
       toit.onchange = () => { v.toit = toit.value; volumesChanges(); };
       x.onclick = () => { P.volumes = P.volumes.filter(w => w !== v); volumesChanges(); };
       return d;
-    }));
+    });
+    const caches = P.caches.map(c => {
+      const d = document.createElement("div");
+      d.className = "volume";
+      d.innerHTML = `<span style="grid-column: 2 / 6">${c.nom} <span class="text-secondary">· ${t(c.visible ? "pro.montre" : "pro.masque")}</span></span>`
+        + `<button type="button" title="${t("pro.retablir")}" aria-label="${t("pro.retablir")}">×</button>`;
+      d.prepend(oeil(c.visible, t("pro.voirMasque"), ok => { memoriser(); c.visible = ok; appliquer(); }));
+      d.querySelector("button").onclick = () => { memoriser(); P.caches = P.caches.filter(x => x !== c); appliquer(); };
+      return d;
+    });
+    const liste = [...modeles, ...volumes, ...caches];
+    $("#listeVolumes").replaceChildren(...(liste.length ? liste : [Object.assign(document.createElement("div"), { className: "small text-secondary", textContent: t("pro.listeVide") })]));
   }
 
   /* ---------------------------------------------------------------- modèles importés */
@@ -220,7 +264,7 @@ export function brancherPro(o) {
     if (!nom) return;
     const p = {
       id: P.projet?.id || `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, nom,
-      hash: location.hash, jour: S.jour, rayon: $("#rayonPro").value, masques: [...P.masques], volumes: P.volumes,
+      hash: location.hash, jour: S.jour, rayon: $("#rayonPro").value, caches: P.caches, volumes: P.volumes,
       coupes: (S.coupes || []).map(c => ({ A: c.A, B: c.B })),
     };
     if (!enregistrerProjet(p)) return o.message(t("projet.stockage"));
@@ -245,7 +289,10 @@ export function brancherPro(o) {
   };
   function ouvrir(p) {
     if (p.jour) o.changerJour?.(p.jour);
-    P.masques = new Set(p.masques || []); P.historique = []; P.selection.clear();
+    // anciens projets : une seule liste de volumes masqués
+    P.caches = p.caches ? p.caches.map(c => ({ ...c })) : p.masques?.length ? [{ id: 1, ids: p.masques, visible: false, nom: t("pro.ficheN", { n: p.masques.length }) }] : [];
+    numeroCache = Math.max(0, ...P.caches.map(c => c.id));
+    P.historique = []; P.selection.clear();
     appliquer();
     P.volumes = (p.volumes || []).map(v => ({ ...v }));
     numero = Math.max(0, ...P.volumes.map(v => v.id));
@@ -347,7 +394,7 @@ export function brancherPro(o) {
     rayon: () => actif() && +$("#rayonPro").value || null,
     /** Nouveau lieu : plus de sélection ni de masquage. */
     reinitialiser() {
-      P.selection = new Set(); P.masques = new Set(); P.historique = []; P.volumes = []; P.imports = []; S.volumesProjet = [];
+      P.selection = new Set(); P.masques = new Set(); P.caches = []; P.historique = []; P.volumes = []; P.imports = []; S.volumesProjet = [];
       if (dessin) finDessin();
       $("#resultatExport").textContent = ""; listeVolumes(); maj();
     },

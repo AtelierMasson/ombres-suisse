@@ -114,7 +114,7 @@ function accueil() {
   chargement?.abort();
   annulerCalcul();
   document.body.classList.add("accueil");
-  $("#panneau").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
+  $("#panneau").hidden = $("#panneauPro").hidden = $("#panneauAffichage").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
   message("");
   Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
   const D = hameau();
@@ -188,7 +188,7 @@ async function depuisAdresse() {
   chargement?.abort();
   annulerCalcul();
   quitterAccueil();
-  $("#panneau").hidden = false; $("#commandes").hidden = true; $("#heures").hidden = true; $("#diagramme").hidden = $("#coupe").hidden = true;
+  $("#panneau").hidden = false; $("#commandes").hidden = $("#panneauPro").hidden = $("#panneauAffichage").hidden = true; $("#heures").hidden = true; $("#diagramme").hidden = $("#coupe").hidden = true;
   $("#lieu").textContent = h.get("l") || `${E}, ${N}`;
   $("#lieuType").textContent = nomType(h.get("t") || "");
   $("#source").textContent = "";
@@ -280,7 +280,7 @@ async function depuisAdresse() {
       .then(g => g && scene.afficherLointain(g, idScene, { E0, N0 }))
       .catch(e => console.warn("Relief lointain :", e.message));
     etat(1, "");
-    $("#commandes").hidden = false; $("#diagramme").hidden = false;
+    $("#commandes").hidden = $("#panneauPro").hidden = $("#panneauAffichage").hidden = false; $("#diagramme").hidden = false;
     majSoleil();
     pro.apresChargement(); // projet rouvert depuis la liste : démolitions, volumes, coupes
     compter("lieu");
@@ -444,18 +444,6 @@ async function comparerRoofer() {
 }
 scene.surTuilesSwiss = n => telechargement("swiss", n > 0 ? t("etat.swiss", { n }) : null);
 // bâtiments affichés : un seul jeu à la fois (relevé, swisstopo, roofer là où il a été calculé, ou aucun)
-// onglets du panneau : un seul groupe de réglages visible à la fois ; le dernier choisi est retenu par ce navigateur
-{
-  const montrer = nom => {
-    $$("#onglets [data-onglet]").forEach(b => { const ok = b.dataset.onglet === nom; b.classList.toggle("active", ok); b.setAttribute("aria-selected", String(ok)); });
-    $$("#commandes section[data-onglet]").forEach(sec => sec.hidden = sec.dataset.onglet !== nom);
-    try { localStorage.setItem("onglet", nom); } catch { /* stockage indisponible */ }
-  };
-  $$("#onglets [data-onglet]").forEach(b => b.addEventListener("click", () => montrer(b.dataset.onglet)));
-  let memo = null;
-  try { memo = localStorage.getItem("onglet"); } catch { /* idem */ }
-  montrer($(`#onglets [data-onglet="${memo}"]`) ? memo : "affichage");
-}
 function choixBatiments() { return $("input[name=batiments]:checked")?.value || "releve"; }
 const NOTES = {
   releve: "", aucun: "",
@@ -519,7 +507,7 @@ function majCoupe(A, B) {
     for (let p = 0; p < g.length; p++) if (g[p] === -Infinity) g[p] = NaN;
     grille = g;
   }
-  const distance = $("#vPro").checked && scene.nuage ? +$("#distPoints").value : 0;
+  const distance = scene.nuage ? +$("#distPoints").value : 0;
   const P = profilCoupe(S.G, scene.contours, A, B, S.parcelle, 0.25, S.voisines || [],
     { batiments: grille || (jeu === "releve" ? null : "aucun"), nuage: scene.nuage, distance });
   // plusieurs coupes : celle-ci est l'active (en 3D et dessinée) ; une nouvelle reçoit la paire de lettres libre suivante
@@ -533,7 +521,7 @@ function majCoupe(A, B) {
 }
 function lettresLibres() {
   for (let k = 0; ; k++) {
-    const l = [String.fromCharCode(65 + 2 * k), String.fromCharCode(66 + 2 * k)];
+    const l = [String.fromCharCode(65 + k), String.fromCharCode(65 + k) + "'"]; // A et A', puis B et B'…
     if (!S.coupes.some(c => c.lettres[0] === l[0])) return l;
   }
 }
@@ -569,7 +557,7 @@ function coupeParDefaut(travers = false) {
   return travers ? [[-L, 0], [L, 0]] : [[0, -L], [0, L]];
 }
 function dessinCoupe() {
-  const r = dessinerCoupe($("#svgCoupe"), S.coupe.P, soleilActuel());
+  const r = dessinerCoupe($("#svgCoupe"), S.coupe.P, soleilActuel(), { audela: $("#vueAudela").value });
   $("#coupeTexte").textContent = r ? `· ${nombre(r.long, 0)} m${r.note ? " · " + r.note : ""}` : "";
 }
 $("#vCouperModele").addEventListener("change", e => { scene.couperModele = e.target.checked; if (S.coupe) scene.definirCoupe(S.coupe.P); });
@@ -610,6 +598,8 @@ const refaireCoupe = () => { if (S.coupe) majCoupe(S.coupe.A, S.coupe.B); };
 // affichée, sont recalculées avec les bâtiments montrés
 scene.surBatiments = () => { refaireCoupe(); relancerHeures(); };
 $("#distPoints").addEventListener("change", refaireCoupe);
+$("#vueAudela").addEventListener("change", () => { try { localStorage.setItem("vueAudela", $("#vueAudela").value); } catch { /* stockage indisponible */ } if (S.coupe) dessinCoupe(); });
+try { const v = localStorage.getItem("vueAudela"); if (v && $(`#vueAudela option[value="${v}"]`)) $("#vueAudela").value = v; } catch { /* idem */ }
 $("#vPro").addEventListener("change", refaireCoupe);
 
 /* ------------------------------------------------------------------ heures d'ensoleillement */
@@ -723,7 +713,7 @@ function afficherResultat() {
 marquerTheme();
 /* ------------------------------------------------------------------ choisir une autre parcelle d'un clic */
 // Un clic (sans glisser) sur le terrain ou un toit choisit la parcelle à cet endroit, sans recharger la maquette.
-// Le clic reste au mode pro quand son outil « Sélectionner » est actif, et au tracé de la coupe.
+// En mode pro, le clic revient à la sélection (pro.js), comme pendant le tracé de la coupe.
 {
   const el = scene.renderer.domElement;
   let appui = null;
@@ -741,7 +731,7 @@ marquerTheme();
       return;
     }
     $("#ailleurs").hidden = true;
-    if ($("#vPro")?.checked && $("#btnSelection")?.classList.contains("active")) return;
+    if ($("#vPro")?.checked) return; // mode pro : le clic sélectionne un bâtiment, ou ceux de la parcelle (pro.js)
     const choisie = S.toutes.find(q => dansParcelle(p[0], p[1], q.anneauxRel));
     if (choisie && choisie.numero !== S.parcelle?.numero) choisirParcelle(choisie);
   });
@@ -801,7 +791,7 @@ function choisirParcelle(p) {
 
 // mode pro : sélection et masquage de bâtiments, taille de la maquette, exports (pro.js)
 const pro = brancherPro({ scene, S, message, etat, recharger: depuisAdresse, calculerHeures, annulerCalcul, majCoupe, soleilActuel, compte, compter,
-  relancerHeures, ouvrirCoupes, changerJour: j => { $("#jour").value = j; $("#jour").dispatchEvent(new Event("change")); } });
+  relancerHeures, ouvrirCoupes, parcelleEn: (x, y) => S.toutes?.find(q => dansParcelle(x, y, q.anneauxRel)), changerJour: j => { $("#jour").value = j; $("#jour").dispatchEvent(new Event("change")); } });
 // coupes d'un projet rouvert : toutes recréées, la dernière active
 function ouvrirCoupes(liste) {
   if (!$("#vCoupe").checked) { $("#vCoupe").checked = true; $("#outilsCoupe").hidden = $("#coupe").hidden = false; }

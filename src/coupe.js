@@ -4,6 +4,7 @@
 import * as THREE from "three";
 import { Line2 } from "three/addons/lines/Line2.js";
 import { LineGeometry } from "three/addons/lines/LineGeometry.js";
+import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { solEn } from "./grille.js";
 import { dansBatiment } from "./contours.js";
 import { t as tr, nombre } from "./i18n.js";
@@ -42,8 +43,9 @@ export function profilCoupe(G, contours, A, B, parcelle, pas = 0.25, voisines = 
   s0 = Math.max(s0, -2 * G.R * 1.5); s1 = Math.min(s1, 2 * G.R * 1.5);
   const nb = Math.max(2, Math.floor((s1 - s0) / pas) + 1), s = new Float32Array(nb), sol = new Float32Array(nb), bat = new Float32Array(nb), veg = new Float32Array(nb);
   // toit tel qu'affiché à la distance d : le plan du pan s'il y en a un, sinon la grille (NaN hors bâtiment)
-  const toit = d => {
-    const x = A[0] + ux * d, y = A[1] + uy * d, pan = contours?.pans ? contours.pans.hauteurEn(x, y) : NaN;
+  const toit = d => toitEn(A[0] + ux * d, A[1] + uy * d);
+  const toitEn = (x, y) => {
+    const pan = contours?.pans ? contours.pans.hauteurEn(x, y) : NaN;
     const b = aucun ? NaN : grille ? (isNaN(celluleEn(G, grille, x, y)) ? NaN : valeurEn(G, grille, x, y))
       : contours && dansBatiment(contours, x, y) ? (isNaN(pan) ? valeurEn(G, G.bat, x, y) : pan) : NaN;
     return b > solEn(G, x, y) + 0.5 ? b : NaN;
@@ -88,10 +90,98 @@ export function profilCoupe(G, contours, A, B, parcelle, pas = 0.25, voisines = 
     if (isNaN(bat[k])) debut[k + 1] = dedans; else fin[k] = dedans;
   }
   const P = { A, B, L, ux, uy, pas, nb, s, sol, bat, veg, debut, fin, limites, voisines: toutes.filter(d => !limites.some(e => Math.abs(e - d) < 0.3)), parcelles };
+  P.audela = audela(G, P, toitEn, lim);
   const N = lireNuage(P, o.nuage, o.distance || 0);
   P.points = N.points;
   P.arbres = arbresCoupe(P, N);
   return P;
+}
+
+/**
+ * Ce qu'on voit au-delà du plan de coupe, en regardant la coupe avec A à gauche et B à droite (donc vers la gauche
+ * de A→B), entre A et B, une colonne tous les 0,5 m :
+ * - `plans[b]` : le plus haut (terrain ou bâtiment) dans chaque tranche de profondeur BORDS[b]–BORDS[b+1] ;
+ * - `face` / `faceD` : toit du premier bâtiment rencontré et sa profondeur (élévation) ; `solMax` : terrain le plus haut ;
+ * - `veg` : cime la plus haute des arbres dans les 30 premiers mètres.
+ */
+export const BORDS = [0, 10, 30, 80, 400];
+function audela(G, P, toitEn, lim) {
+  const { A, ux, uy, L } = P, nx = -uy, ny = ux, pasC = 0.5, nc = Math.max(2, Math.floor(L / pasC) + 1);
+  const s = new Float32Array(nc), plans = BORDS.slice(1).map(() => new Float32Array(nc).fill(NaN));
+  const face = new Float32Array(nc).fill(NaN), faceD = new Float32Array(nc).fill(NaN), solMax = new Float32Array(nc).fill(NaN), veg = new Float32Array(nc).fill(NaN);
+  const prof = [];
+  for (let d = 0.5; d < BORDS.at(-1); d += d < 20 ? 0.5 : d < 80 ? 1 : 2) prof.push(d);
+  for (let c = 0; c < nc; c++) {
+    const sd = c * pasC; s[c] = sd;
+    const x0 = A[0] + ux * sd, y0 = A[1] + uy * sd;
+    let b = 0;
+    for (const d of prof) {
+      const x = x0 + nx * d, y = y0 + ny * d;
+      if (Math.abs(x) > lim || Math.abs(y) > lim) break;
+      while (d >= BORDS[b + 1]) b++;
+      const zs = solEn(G, x, y), zb = toitEn(x, y), z = isNaN(zb) ? zs : zb;
+      if (!(plans[b][c] >= z)) plans[b][c] = z;
+      if (!(solMax[c] >= zs)) solMax[c] = zs;
+      if (!isNaN(zb) && isNaN(face[c])) { face[c] = zb; faceD[c] = d; }
+      if (d < 30 && isNaN(zb)) { const v = valeurEn(G, G.veg, x, y); if (v > zs + 1 && !(veg[c] >= v)) veg[c] = v; }
+    }
+  }
+  return { s, nc, pasC, plans, face, faceD, solMax, veg };
+}
+
+/**
+ * Dessin de ce qu'on voit au-delà de la coupe, sous la masse coupée. Plusieurs manières (`vue`) :
+ * - « silhouette » : un seul trait fin, le profil le plus haut derrière la coupe ;
+ * - « plans » : plans successifs (0–10, 10–30, 30–80 m, au-delà), du plus pâle au loin au plus soutenu devant ;
+ * - « elevation » : façades et toits du premier bâtiment rencontré, arêtes verticales là où il change, terrain
+ *   derrière en trait fin et arbres proches en contour pointillé ;
+ * - « traits » : élévation au trait seul, sans aplat, comme un dessin d'architecte.
+ */
+function dessinAudela(V, vue, X, Y, H, f) {
+  const { s, nc } = V;
+  // chemin ouvert d'une série (coupé aux trous)
+  const ligne = a => { let p = "", ouvert = false; for (let c = 0; c < nc; c++) { if (isNaN(a[c])) { ouvert = false; continue; } p += `${ouvert ? "L" : "M"}${f(X(s[c]))},${f(Y(a[c]))}`; ouvert = true; } return p; };
+  // aplat jusqu'au bas du cadre, par morceau continu
+  const aplat = a => {
+    let p = "";
+    for (let c = 0; c < nc;) {
+      if (isNaN(a[c])) { c++; continue; }
+      const d = c; while (c < nc && !isNaN(a[c])) c++;
+      p += `M${f(X(s[d]))},${H}`; for (let q = d; q < c; q++) p += `L${f(X(s[q]))},${f(Y(a[q]))}`; p += `L${f(X(s[c - 1]))},${H}Z`;
+    }
+    return p;
+  };
+  const max = (...l) => Float32Array.from({ length: nc }, (_, c) => { let m = NaN; for (const a of l) if (!(m >= a[c])) m = isNaN(a[c]) ? m : a[c]; return m; });
+  let t = "";
+  if (vue === "silhouette") return `<path d="${ligne(max(...V.plans))}" class="audela-sil"/>`;
+  if (vue === "plans") {
+    // du lointain au proche : chaque plan cumule ce qui est devant lui pour ne pas laisser de trou
+    for (let b = V.plans.length - 1; b >= 0; b--) {
+      const a = max(...V.plans.slice(0, b + 1));
+      t += `<path d="${aplat(a)}" class="audela-plan p${b}"/><path d="${ligne(a)}" class="audela-bord p${b}"/>`;
+    }
+    return t;
+  }
+  // élévation : terrain le plus haut derrière, puis le premier bâtiment (toit et arêtes verticales)
+  const remplir = vue === "elevation";
+  t += `<path d="${ligne(V.solMax)}" class="audela-terrain"/>`;
+  if (remplir) t += `<path d="${aplat(V.face)}" class="audela-facade"/>`;
+  let aretes = "";
+  for (let c = 0; c < nc; c++) {
+    const a = V.face[c], b = V.face[c + 1];
+    const debut = !isNaN(a) && (c === 0 || isNaN(V.face[c - 1]));
+    if (debut) aretes += `M${f(X(s[c]))},${f(Y(V.solMax[c]))}V${f(Y(a))}`;
+    if (c + 1 < nc && !isNaN(a) && isNaN(b)) aretes += `M${f(X(s[c]))},${f(Y(V.solMax[c]))}V${f(Y(a))}`;
+    // changement de bâtiment (saut de profondeur) ou de hauteur nette : arête verticale du plus haut au plus bas
+    if (c + 1 < nc && !isNaN(a) && !isNaN(b) && (Math.abs(V.faceD[c] - V.faceD[c + 1]) > 2 || Math.abs(a - b) > 1.5)) {
+      const x = X((s[c] + s[c + 1]) / 2);
+      aretes += `M${f(x)},${f(Y(Math.max(a, b)))}V${f(Y(Math.min(a, b)))}`;
+      if (Math.abs(V.faceD[c] - V.faceD[c + 1]) > 2) aretes += `V${f(Y(Math.min(V.solMax[c], V.solMax[c + 1])))}`;
+    }
+  }
+  t += `<path d="${ligne(V.face)}${aretes}" class="audela-arete"/>`;
+  t += `<path d="${ligne(V.veg)}" class="audela-arbres"/>`;
+  return t;
 }
 
 /** Valeur de la cellule qui contient (x, y), NaN hors de la grille. */
@@ -234,6 +324,19 @@ function suites(a, k0 = 0, k1 = a.length - 1) {
  * Surfaces tranchées dans le plan de coupe : terrain poché jusqu'à la base, bâtiments pochés, trait épais.
  * `couleurs` = { trait, bati, terrain } ; `materiauTrait` = LineMaterial partagé (épaisseur en pixels).
  */
+/** Traitillé du terrain estimé sous les bâtiments : même encre que le trait de coupe, fin et léger (partagé). */
+const estimes = new WeakMap();
+function materiauEstime(trait) {
+  let m = estimes.get(trait);
+  if (!m) {
+    m = new LineMaterial({ linewidth: 1.2, dashed: true, dashSize: 0.8, gapSize: 0.6, transparent: true, opacity: 0.55, depthTest: false, depthWrite: false, fog: false });
+    m.uniforms.resolution = trait.uniforms.resolution; // même objet : suit la taille de la vue
+    estimes.set(trait, m);
+  }
+  m.color.copy(trait.color);
+  return m;
+}
+
 export function trancheCoupe(P, zRef, zBas, couleurs, materiauTrait) {
   const grp = new THREE.Group(), en = (d, z) => [P.A[0] + P.ux * d, z - zRef, -(P.A[1] + P.uy * d)], pt = (k, z) => en(P.s[k], z);
   const plein = (pos, couleur) => {
@@ -256,9 +359,17 @@ export function trancheCoupe(P, zRef, zBas, couleurs, materiauTrait) {
     const g = new LineGeometry();
     g.setPositions(pts.flat());
     const l = new Line2(g, materiauTrait);
-    l.renderOrder = 3;
+    l.renderOrder = 20; // dessiné après tout le reste, par-dessus (le matériau ignore la profondeur)
     grp.add(l);
     (grp.userData.traits ||= []).push(l); // hors de l'occlusion ambiante (scene.js)
+    // jonctions rondes : un disque de l'épaisseur du trait à chaque sommet, pour un trait continu sans encoches
+    if (materiauTrait.jonction) {
+      const gp = new THREE.BufferGeometry();
+      gp.setAttribute("position", new THREE.Float32BufferAttribute(pts.flat(), 3));
+      const j = new THREE.Points(gp, materiauTrait.jonction);
+      j.renderOrder = 20; j.frustumCulled = false;
+      grp.add(j); grp.userData.traits.push(j);
+    }
   };
   plein(bande(0, P.nb - 1, () => zBas + zRef, k => P.sol[k]), couleurs.terrain);
   // terrain et bâtiments coupés forment une seule masse : même couleur, un seul trait qui suit le dessus ;
@@ -272,6 +383,22 @@ export function trancheCoupe(P, zRef, zBas, couleurs, materiauTrait) {
     if (!isNaN(P.fin[k])) dessus.push(en(P.fin[k], P.bat[k]), en(P.fin[k], Math.min(P.sol[k], P.bat[k])));
   }
   trait(dessus);
+  // terrain estimé sous les bâtiments coupés : traitillé léger, d'un mur à l'autre
+  const estime = materiauEstime(materiauTrait);
+  for (const [a, b] of suites(P.bat)) {
+    const pts = [];
+    if (!isNaN(P.debut[a])) pts.push(en(P.debut[a], P.sol[a]));
+    for (let k = a; k <= b; k++) pts.push(pt(k, P.sol[k]));
+    if (!isNaN(P.fin[b])) pts.push(en(P.fin[b], P.sol[b]));
+    if (pts.length < 2) continue;
+    const g = new LineGeometry();
+    g.setPositions(pts.flat());
+    const l = new Line2(g, estime);
+    l.computeLineDistances();
+    l.renderOrder = 21;
+    grp.add(l);
+    grp.userData.traits.push(l);
+  }
   // arbres coupés : hachure diagonale grise dans le plan de coupe, du sol jusqu'à la cime (groupe `arbres`)
   if (couleurs.arbres && P.arbres?.length) {
     const pos = [], uv = [], ech = 0.55; // une ligne de hachure tous les ~0,55 m
@@ -307,7 +434,8 @@ const enveloppe = (P, k) => isNaN(P.bat[k]) ? P.sol[k] : Math.max(P.sol[k], P.ba
  * d'architecte : trait de coupe fin, masse coupée en gris très clair, arbres hachurés, cotes petites qui s'évitent.
  * `soleil` = { azimut, hauteur, visible, heure } ou null.
  */
-export function dessinerCoupe(svg, P, soleil) {
+export function dessinerCoupe(svg, P, soleil, o = {}) {
+  const vue = P.audela && o.audela && o.audela !== "aucun" ? o.audela : null;
   const k0 = Math.max(0, Math.ceil((0 - P.s[0]) / P.pas)), k1 = Math.min(P.nb - 1, Math.floor((P.L - P.s[0]) / P.pas));
   if (k1 - k0 < 2) { svg.innerHTML = ""; return; }
   let zmin = Infinity, zmax = -Infinity;
@@ -315,6 +443,8 @@ export function dessinerCoupe(svg, P, soleil) {
     zmin = Math.min(zmin, P.sol[k]);
     zmax = Math.max(zmax, P.sol[k], P.bat[k] || -Infinity, P.veg[k] || -Infinity);
   }
+  // au-delà de la coupe : ce qui est proche (< 30 m) entre dans le cadre ; le lointain peut en sortir
+  if (vue) for (const a of P.audela.plans.slice(0, 2)) for (const z of a) if (z > zmax) zmax = z;
   const long = P.s[k1] - P.s[k0], bas = zmin - Math.max(2, long * 0.03), haut = Math.max(zmax + Math.max(3, long * 0.05), bas + long * 0.22);
   // largeur de la carte (pixels de l'écran, textes à leur taille), hauteur limitée ; échelle identique en x et en z
   const m = { g: 46, d: 12, h: 8, b: 20 }, largeDispo = Math.max(360, (svg.parentElement?.clientWidth || 736) - 16), Hmax = Math.max(250, Math.round(innerHeight * 0.32));
@@ -337,6 +467,7 @@ export function dessinerCoupe(svg, P, soleil) {
     if (dessous) for (let k = b; k >= a; k--) p += `L${f(X(P.s[k]))},${f(Y(dessous(k)))}`;
     return p + (dessous ? "Z" : "");
   };
+  if (vue) t += dessinAudela(P.audela, vue, X, Y, H, f);
   // arbres : simple hachure diagonale grise, du sol jusqu'à la cime
   for (const T of P.arbres || []) {
     const a = Math.max(T.a, k0), b = Math.min(T.b, k1);
@@ -355,6 +486,16 @@ export function dessinerCoupe(svg, P, soleil) {
   }
   masse = `${trait}L${f(X(P.s[k1]))},${H}L${f(X(P.s[k0]))},${H}Z`;
   t += `<path d="${masse}" class="terrain"/><path d="${trait}" class="sol"/>`;
+  // terrain estimé sous les bâtiments coupés : traitillé léger
+  let estime = "";
+  for (const [a, b] of suites(P.bat, k0, k1)) {
+    const pts = [];
+    if (!isNaN(P.debut[a]) && dans(P.debut[a])) pts.push([P.debut[a], P.sol[a]]);
+    for (let k = a; k <= b; k++) pts.push([P.s[k], P.sol[k]]);
+    if (!isNaN(P.fin[b]) && dans(P.fin[b])) pts.push([P.fin[b], P.sol[b]]);
+    pts.forEach(([d, z], i) => estime += `${i ? "L" : "M"}${f(X(d))},${f(Y(z))}`);
+  }
+  if (estime) t += `<path d="${estime}" class="sol-estime"/>`;
   // points du nuage proches de la coupe : un chemin par catégorie (points ronds), préparé une fois par profil
   if (P.points?.n) {
     const N = P.points, pas = Math.ceil(N.n / 40000); // au-delà de 40 000 points, le dessin n'en montre qu'une partie

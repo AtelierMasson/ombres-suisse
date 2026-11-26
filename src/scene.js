@@ -15,6 +15,21 @@ import { indexVolumes } from "./volumes.js";
 import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord, tabliersPonts } from "./maillages.js";
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
+
+/**
+ * Trait de coupe « 2D » : épaisseur constante en pixels, dessiné par-dessus tout (sans test de profondeur), avec des
+ * disques aux sommets pour des jonctions rondes, comme un trait de plume sur un plan.
+ */
+function traitNet() {
+  const m = new LineMaterial({ linewidth: 3, fog: false, depthTest: false, depthWrite: false, transparent: true });
+  m.jonction = new THREE.ShaderMaterial({
+    uniforms: { taille: { value: 3 }, couleur: { value: new THREE.Color() } },
+    vertexShader: "uniform float taille; void main() { gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); gl_PointSize = taille; }",
+    fragmentShader: "uniform vec3 couleur; void main() { vec2 p = gl_PointCoord * 2.0 - 1.0; float r = dot(p, p); if (r > 1.0) discard; gl_FragColor = vec4(couleur, 1.0); }",
+    depthTest: false, depthWrite: false, transparent: true,
+  });
+  return m;
+}
 import { materiauLointain } from "./lointain.js";
 import { TuilesPlan } from "./plan.js";
 import { volumeGeometrie } from "./projet.js";
@@ -187,7 +202,7 @@ export class Scene3D {
       terrain: std({ roughness: 1, side: THREE.FrontSide }), socle: std({ roughness: 1 }),
       toit: std({ flatShading: true }), mur: std({ flatShading: true }), canopee: std({ roughness: 1 }),
       couronne: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }),
-      parcelle: new THREE.MeshBasicMaterial(), trait: new LineMaterial({ linewidth: 4, fog: false }),
+      parcelle: new THREE.MeshBasicMaterial(), trait: traitNet(),
       poignee: new THREE.MeshBasicMaterial({ depthTest: false, fog: false }),
       eau: new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0.05, polygonOffset: true, polygonOffsetFactor: -1 }),
     };
@@ -216,7 +231,7 @@ export class Scene3D {
     const rendu = ao.render.bind(ao);
     ao.render = (...a) => {
       // les points n'entrent jamais dans l'occlusion (sinon chaque point a son halo sombre)
-      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, c.heures, c.limite, c.voisines, c.arbres, c.tous, c.selection,
+      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, c.heures, c.limite, c.voisines, c.arbres, c.tous, c.selection, c.laser,
         this.coupe ? this.tranche?.userData.arbres : null, ...(this.coupe && this.tranche?.userData.traits || []),
         c.canopee?.material.colorWrite === false ? c.canopee : null].filter(o => o && o.visible);
       for (const o of caches) o.visible = false;
@@ -263,6 +278,7 @@ export class Scene3D {
     this.composeur.setPixelRatio(this.ratio);
     this.composeur.setSize(w, h);
     this.mat.trait.resolution.set(w, h);
+    this.mat.trait.jonction.uniforms.taille.value = this.mat.trait.linewidth * this.ratio;
     this.camera.aspect = w / h;
     // `decalage` pousse le modèle vers la droite (écran d'accueil, à côté du texte)
     if (this.decalage && w > 900) this.camera.setViewOffset(w, h, -this.decalage * w, 0, w, h); else this.camera.clearViewOffset();
@@ -365,7 +381,7 @@ export class Scene3D {
     // socle de la même matière que le terrain et les bâtiments
     m.socle.color.set(T.sol); m.canopee.color.set(T.arbres[1]); m.parcelle.color.set(T.parcelle);
     m.eau.color.set(T.eau || (T.sombre ? "#36536e" : "#a7c6d6"));
-    m.trait.color.set(T.coupe.trait); m.poignee.color.set(T.coupe.trait); // poignées A et B à l'encre du trait de coupe, discrètes
+    m.trait.color.set(T.coupe.trait); m.trait.jonction.uniforms.couleur.value.set(T.coupe.trait); m.poignee.color.set(T.coupe.trait); // poignées A et B à l'encre du trait de coupe, discrètes
     CONTACT.teinteSel.value.set(T.parcelle);
     this.couches?.selection?.material.color.set(T.parcelle);
     m.terrain.color.set(m.terrain.map ? "#ffffff" : T.sol);
@@ -781,22 +797,73 @@ export class Scene3D {
   }
 
   /**
-   * Volumes du projet (mode pro), dessinés en blanc chaud : ils portent et reçoivent les ombres, entrent dans la coupe ;
-   * `apercu` = volume en cours de dessin (transparent, sans ombre). Renvoie les hauteurs (grille alignée sur G) ou null.
+   * « Plan laser » pendant le dessin d'un volume : murs verticaux de lumière le long de l'emprise (un point, un côté ou
+   * le rectangle), qui montent très haut en s'effaçant, pour voir où l'on dessine malgré les bâtiments et les arbres.
+   * `pts` = coins relatifs (x est, y nord) ; `ferme` = polygone fermé ; null retire le laser.
+   */
+  laserVolume(pts, ferme = false) {
+    const c = this.couches;
+    if (c.laser) { this.groupe.remove(c.laser); c.laser.geometry.dispose(); c.laser = null; }
+    if (pts?.length && this.G) {
+      if (!this.mat.laser) {
+        // dégradé : vif au sol (liseré net au pied), puis de moins en moins visible en montant (canal vert = opacité)
+        const cv = document.createElement("canvas"); cv.width = 1; cv.height = 512;
+        const x = cv.getContext("2d"), img = x.createImageData(1, 512);
+        for (let j = 0; j < 512; j++) {
+          const v = j / 511, a = 0.2 * Math.pow(1 - v, 5) + (v < 0.006 ? 0.55 : 0);
+          img.data.set([255, Math.round(255 * Math.min(1, a)), 255, 255], (511 - j) * 4);
+        }
+        x.putImageData(img, 0, 0);
+        const tex = new THREE.CanvasTexture(cv);
+        this.mat.laser = new THREE.MeshBasicMaterial({ alphaMap: tex, transparent: true, depthWrite: false, side: THREE.DoubleSide, fog: false });
+      }
+      this.mat.laser.color.set(this.T.parcelle);
+      const H = 250, pos = [], h = [];
+      // un point seul : deux plans en croix de 0,6 m, comme un faisceau
+      const P = pts.length === 1 ? [[pts[0][0] - 0.3, pts[0][1]], [pts[0][0] + 0.3, pts[0][1]], null, [pts[0][0], pts[0][1] - 0.3], [pts[0][0], pts[0][1] + 0.3]] : pts;
+      const bas = p => solEn(this.G, p[0], p[1]) - this.zRef - 0.3;
+      const n = P.length, aretes = [];
+      for (let k = 0; k + 1 < n; k++) if (P[k] && P[k + 1]) aretes.push([P[k], P[k + 1]]);
+      if (ferme && n > 2) aretes.push([P[n - 1], P[0]]);
+      for (const [a, b] of aretes) {
+        const za = bas(a), zb = bas(b);
+        const A0 = [a[0], za, -a[1]], B0 = [b[0], zb, -b[1]], A1 = [a[0], za + H, -a[1]], B1 = [b[0], zb + H, -b[1]];
+        pos.push(...A0, ...B0, ...B1, ...A0, ...B1, ...A1);
+        h.push(0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1);
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+      g.setAttribute("uv", new THREE.Float32BufferAttribute(h, 2));
+      const m = c.laser = new THREE.Mesh(g, this.mat.laser);
+      m.renderOrder = 5; m.frustumCulled = false;
+      this.groupe.add(m);
+    }
+    this.demander();
+  }
+
+  /**
+   * Volumes du projet (mode pro), dans leur couleur (blanc chaud par défaut) : ils portent et reçoivent les ombres,
+   * entrent dans la coupe ; `apercu` = volume en cours de dessin (transparent, sans ombre).
    */
   afficherVolumes(volumes, apercu = null) {
     const c = this.couches;
     for (const k of ["volumes", "apercuVolume"]) if (c[k]) { this.groupe.remove(c[k]); c[k].traverse(o => o.geometry?.dispose()); c[k] = null; }
     if (!this.G) return;
-    if (!this.mat.projet) {
-      this.mat.projet = new THREE.MeshStandardMaterial({ color: "#fbf7ee", roughness: 0.9, side: THREE.DoubleSide });
-      grainPlatre(this.mat.projet, 0.05);
+    this.mat.projets ||= new Map();
+    const matVolume = couleur => {
+      couleur ||= "#fbf7ee";
+      let m = this.mat.projets.get(couleur);
+      if (!m) { m = new THREE.MeshStandardMaterial({ color: couleur, roughness: 0.9, side: THREE.DoubleSide }); grainPlatre(m, 0.05); this.mat.projets.set(couleur, m); }
+      return m;
+    };
+    if (!this.mat.apercu) {
       this.mat.apercu = new THREE.MeshBasicMaterial({ color: this.T.parcelle, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false });
     }
     if (volumes?.length) {
       const g = c.volumes = new THREE.Group();
       for (const v of volumes) {
-        const m = new THREE.Mesh(volumeGeometrie(v, this.G, this.zRef), this.mat.projet);
+        if (v.visible === false) continue;
+        const m = new THREE.Mesh(volumeGeometrie(v, this.G, this.zRef), matVolume(v.couleur));
         m.castShadow = m.receiveShadow = true; m.userData.volume = v.id;
         g.add(m);
       }
@@ -1282,8 +1349,19 @@ export class Scene3D {
       const traits = this.tranche.userData.traits || [];
       this.tranche.traverse(o => { if (o.isMesh && !traits.includes(o)) o.visible = false; });
       const pale = this.mat.trait.clone();
-      Object.assign(pale, { depthTest: false, transparent: true, opacity: 0.3, linewidth: 2 });
-      for (const l of [...traits]) { const r = l.clone(); r.material = pale; r.renderOrder = 6; this.tranche.add(r); traits.push(r); } // copie : la liste grandit dans la boucle
+      Object.assign(pale, { opacity: 0.3, linewidth: 2 });
+      // trait principal : caché derrière les bâtiments, mais tiré vers la caméra pour ne pas s'enfoncer dans les toits
+      const net = this.mat.trait.clone();
+      Object.assign(net, { depthTest: true, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -40 });
+      net.uniforms.resolution = pale.uniforms.resolution = this.mat.trait.uniforms.resolution; // même objet : suit la taille de la vue
+      const jn = this.mat.trait.jonction.clone();
+      jn.uniforms = this.mat.trait.jonction.uniforms; net.jonction = jn; Object.assign(jn, { depthTest: true, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -40 });
+      for (const l of [...traits]) {
+        if (l.isPoints) { l.material = jn; continue; }
+        if (l.material.dashed) continue; // terrain estimé : reste visible à travers, léger
+        l.material = net;
+        const r = l.clone(); r.material = pale; r.renderOrder = 6; this.tranche.add(r); traits.push(r); // copie : la liste grandit dans la boucle
+      }
       this.outils.add(this.tranche);
     } else if (P) {
       this.tranche = trancheCoupe(P, this.zRef, this.zBas, { ...this.T.coupe, arbres: this.T.sombre ? "#7f8da6" : "#8a9096" }, this.mat.trait);
@@ -1347,7 +1425,7 @@ export class Scene3D {
     c.heures?.traverse(o => o.material && cibles.push(o.material));
     c.voisines?.traverse(o => o.material && cibles.push(o.material)); // limites et numéros des parcelles voisines
     if (c.selection) cibles.push(c.selection.material);
-    if (this.mat.projet) cibles.push(this.mat.projet);
+    for (const m of this.mat.projets?.values() || []) cibles.push(m);
     c.imports?.traverse(o => o.isMesh && cibles.push(o.material));
     for (const x of cibles) if (!!x.clippingPlanes !== !!plans) { x.clippingPlanes = plans; x.needsUpdate = true; }
   }
