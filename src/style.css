@@ -264,3 +264,10 @@ body.accueil #orientation { display: none; }
 .onglets-coupe button.retirer { padding: 1px 8px 1px 4px; color: var(--doux); }
 .onglets-coupe button.retirer:hover { color: var(--texte); }
 .onglets-coupe button.ajouter { padding: 1px 10px; color: var(--accent-fonce); border: 1px dashed var(--bord-fort); border-radius: 999px; }
+
+/* volumes du projet (mode pro) */
+#listeVolumes .volume { display: grid; grid-template-columns: 1fr auto auto auto; gap: 4px; align-items: center; font-size: 12px; padding: 3px 0; border-top: 1px solid var(--bord); }
+#listeVolumes .volume input { width: 58px; }
+#listeVolumes .volume select { width: auto; }
+#listeVolumes .volume button { border: 0; background: none; color: var(--doux); padding: 0 4px; }
+#listeVolumes .volume button:hover { color: var(--texte); }

@@ -17,6 +17,7 @@ import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
 import { materiauLointain } from "./lointain.js";
 import { TuilesPlan } from "./plan.js";
+import { volumeGeometrie } from "./projet.js";
 
 const CIEL_SOMMETS = /* glsl */`
 varying vec3 vDir;
@@ -762,6 +763,51 @@ export class Scene3D {
     this.ombres();
   }
 
+  /**
+   * Volumes du projet (mode pro), dessinés en blanc chaud : ils portent et reçoivent les ombres, entrent dans la coupe ;
+   * `apercu` = volume en cours de dessin (transparent, sans ombre). Renvoie les hauteurs (grille alignée sur G) ou null.
+   */
+  afficherVolumes(volumes, apercu = null) {
+    const c = this.couches;
+    for (const k of ["volumes", "apercuVolume"]) if (c[k]) { this.groupe.remove(c[k]); c[k].traverse(o => o.geometry?.dispose()); c[k] = null; }
+    if (!this.G) return;
+    if (!this.mat.projet) {
+      this.mat.projet = new THREE.MeshStandardMaterial({ color: "#fbf7ee", roughness: 0.9, side: THREE.DoubleSide });
+      grainPlatre(this.mat.projet, 0.05);
+      this.mat.apercu = new THREE.MeshBasicMaterial({ color: this.T.parcelle, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false });
+    }
+    if (volumes?.length) {
+      const g = c.volumes = new THREE.Group();
+      for (const v of volumes) {
+        const m = new THREE.Mesh(volumeGeometrie(v, this.G, this.zRef), this.mat.projet);
+        m.castShadow = m.receiveShadow = true; m.userData.volume = v.id;
+        g.add(m);
+      }
+      this.groupe.add(g);
+    }
+    if (apercu) {
+      const m = c.apercuVolume = new THREE.Mesh(volumeGeometrie(apercu, this.G, this.zRef), this.mat.apercu);
+      m.renderOrder = 4;
+      this.groupe.add(m);
+    }
+    this.appliquerCoupe();
+    if (!apercu) this.ombres(); else this.demander();
+  }
+
+  /** Hauteurs (absolues, grille de G) des volumes du projet vus de dessus, ou null s'il n'y en a pas. */
+  hauteursVolumes() {
+    const g = this.couches.volumes;
+    return g && this.G ? hauteursDessus(this.G, this.zRef, [g]) : null;
+  }
+
+  /** Volume du projet sous le pointeur (id), ou null. */
+  volumeVise(e) {
+    const g = this.couches.volumes;
+    if (!g) return null;
+    const t = this.viser(e).intersectObjects(g.children)[0];
+    return t ? t.object.userData.volume : null;
+  }
+
   /** Couronnes à refaire (couleurs du thème changées). */
   refaireCouronnes() {
     const o = this.couches.couronnes;
@@ -1202,6 +1248,7 @@ export class Scene3D {
     c.heures?.traverse(o => o.material && cibles.push(o.material));
     c.voisines?.traverse(o => o.material && cibles.push(o.material)); // limites et numéros des parcelles voisines
     if (c.selection) cibles.push(c.selection.material);
+    if (this.mat.projet) cibles.push(this.mat.projet);
     for (const x of cibles) if (!!x.clippingPlanes !== !!plans) { x.clippingPlanes = plans; x.needsUpdate = true; }
   }
 

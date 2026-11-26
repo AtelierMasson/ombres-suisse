@@ -268,6 +268,7 @@ async function depuisAdresse() {
     etat(1, "");
     $("#commandes").hidden = false; $("#diagramme").hidden = false;
     majSoleil();
+    pro.apresChargement(); // projet rouvert depuis la liste : démolitions, volumes, coupes
   } catch (e) {
     if (id !== tache) return; // lieu changé entre-temps : le chargement abandonné n'affiche rien
     console.error(e);
@@ -493,10 +494,18 @@ $("#btnPartager").onclick = async () => { await navigator.clipboard.writeText(lo
 /* ------------------------------------------------------------------ coupe */
 function majCoupe(A, B) {
   // la coupe suit le jeu de bâtiments affiché (relevé, swisstopo, roofer ou aucun) ; en mode pro, points du nuage proches
-  const jeu = choixBatiments(), grille = jeu === "swiss" || jeu === "roofer" ? scene.grilleComparaison(jeu) : null;
+  const jeu = choixBatiments(), hv = scene.hauteursVolumes();
+  let grille = jeu === "swiss" || jeu === "roofer" ? scene.grilleComparaison(jeu) : null;
+  // volumes du projet : ajoutés aux bâtiments coupés (au relevé comme aux autres jeux)
+  if (hv) {
+    const b = grille || (jeu === "releve" ? S.G.bat : null), g = new Float32Array(hv.length);
+    for (let p = 0; p < g.length; p++) g[p] = Math.max(b && !isNaN(b[p]) ? b[p] : -Infinity, isNaN(hv[p]) ? -Infinity : hv[p]);
+    for (let p = 0; p < g.length; p++) if (g[p] === -Infinity) g[p] = NaN;
+    grille = g;
+  }
   const distance = $("#vPro").checked && scene.nuage ? +$("#distPoints").value : 0;
   const P = profilCoupe(S.G, scene.contours, A, B, S.parcelle, 0.25, S.voisines || [],
-    { batiments: jeu === "releve" ? null : grille || "aucun", nuage: scene.nuage, distance });
+    { batiments: grille || (jeu === "releve" ? null : "aucun"), nuage: scene.nuage, distance });
   // plusieurs coupes : celle-ci est l'active (en 3D et dessinée) ; une nouvelle reçoit la paire de lettres libre suivante
   if (!S.coupe) { S.coupe = { lettres: lettresLibres() }; S.coupes.push(S.coupe); }
   Object.assign(S.coupe, { A, B, P });
@@ -589,7 +598,7 @@ $("#vPro").addEventListener("change", refaireCoupe);
 /* ------------------------------------------------------------------ heures d'ensoleillement */
 let calcul = null, attente = null;
 const periode = () => $("input[name=periode]:checked").value;
-const clePeriode = () => `${periode()}:${S.jour.slice(0, periode() === "jour" ? 10 : periode() === "mois" ? 7 : 4)}:${nomJeuHeures()}`;
+const clePeriode = () => `${periode()}:${S.jour.slice(0, periode() === "jour" ? 10 : periode() === "mois" ? 7 : 4)}:${nomJeuHeures()}:${S.versionProjet || 0}`;
 const nomJeuHeures = () => {
   if (choixBatiments() !== "swiss" || !S.G) return "releve";
   const h = scene.grilleComparaison("swiss");
@@ -600,15 +609,16 @@ const nomJeuHeures = () => {
  * dessus remplacent les bâtiments du relevé (sol et arbres inchangés). Tant que ses tuiles manquent, le relevé.
  */
 function jeuHeures() {
-  const G = S.G;
-  if (nomJeuHeures() === "releve") return { nom: "releve", surface: G?.surface, base: G?.base };
-  const h = scene.grilleComparaison("swiss");
+  const G = S.G, nom = nomJeuHeures(), hv = scene.hauteursVolumes(); // volumes du projet (mode pro), ajoutés aux bâtiments
+  if (nom === "releve" && !hv) return { nom, surface: G?.surface, base: G?.base };
+  const h = nom === "swiss" ? scene.grilleComparaison("swiss") : null;
   const base = new Float32Array(G.n * G.n), surface = new Float32Array(G.n * G.n);
   for (let p = 0; p < base.length; p++) {
-    base[p] = isNaN(h[p]) ? G.sol[p] : Math.max(G.sol[p], h[p]);
+    base[p] = h ? (isNaN(h[p]) ? G.sol[p] : Math.max(G.sol[p], h[p])) : G.base[p];
+    if (hv && !isNaN(hv[p])) base[p] = Math.max(base[p], hv[p]);
     surface[p] = Math.max(base[p], G.veg[p] || -1e9);
   }
-  return { nom: "swiss", surface, base };
+  return { nom, surface, base };
 }
 function annulerCalcul() {
   clearTimeout(attente);
@@ -693,6 +703,7 @@ marquerTheme();
     if (!appui || Math.hypot(e.clientX - appui[0], e.clientY - appui[1]) > 5 || e.button !== 0) return;
     appui = null;
     if (!S.G || !S.toutes?.length || scene.trace || scene.modeVue === "N" || scene.modeVue === "S" || scene.modeVue === "E" || scene.modeVue === "O") return;
+    if (pro.dessine()) return; // dessin d'un volume : les clics lui reviennent
     let p = scene.pointSol(e);
     // hors de la maquette : la parcelle visée sur le plan autour, à construire en 3D d'un clic
     if (!p || Math.max(Math.abs(p[0]), Math.abs(p[1])) > S.G.R) {
@@ -760,7 +771,14 @@ function choisirParcelle(p) {
 }
 
 // mode pro : sélection et masquage de bâtiments, taille de la maquette, exports (pro.js)
-const pro = brancherPro({ scene, S, message, etat, recharger: depuisAdresse, calculerHeures, annulerCalcul, majCoupe, soleilActuel });
+const pro = brancherPro({ scene, S, message, etat, recharger: depuisAdresse, calculerHeures, annulerCalcul, majCoupe, soleilActuel,
+  relancerHeures, ouvrirCoupes, changerJour: j => { $("#jour").value = j; $("#jour").dispatchEvent(new Event("change")); } });
+// coupes d'un projet rouvert : toutes recréées, la dernière active
+function ouvrirCoupes(liste) {
+  if (!$("#vCoupe").checked) { $("#vCoupe").checked = true; $("#outilsCoupe").hidden = $("#coupe").hidden = false; }
+  S.coupes = [];
+  for (const c of liste) { S.coupe = null; majCoupe(c.A, c.B); }
+}
 
 majSoleil();
 depuisAdresse();
