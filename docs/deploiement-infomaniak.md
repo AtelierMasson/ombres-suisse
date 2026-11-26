@@ -1,6 +1,6 @@
 # Déploiement chez Infomaniak — site, comptes et paiement
 
-Hébergement web Infomaniak (PHP 8, MySQL/MariaDB, e-mail), domaine `exemple.ch` à remplacer par le domaine choisi.
+Hébergement web Infomaniak (PHP 8, MySQL/MariaDB, e-mail), domaine `topograph.ch` à remplacer par le domaine choisi.
 
 ## 1. Base de données
 
@@ -9,25 +9,47 @@ Hébergement web Infomaniak (PHP 8, MySQL/MariaDB, e-mail), domaine `exemple.ch`
 
 ## 2. Adresse d'envoi (SMTP)
 
-1. Manager → Service Mail → créer `compte@exemple.ch` (mot de passe fort).
+1. Manager → Service Mail → créer `compte@topograph.ch` (mot de passe fort).
 2. Paramètres SMTP : `mail.infomaniak.com`, port 465 (SSL), identifiant = l'adresse complète.
 3. Ajouter les enregistrements SPF/DKIM proposés par Infomaniak (souvent automatiques si le domaine y est géré), sinon les liens finissent en indésirables.
 
 ## 3. Configuration de l'API
 
 1. Copier `api/config.exemple.php` en `api/config.php` **sur le serveur seulement** (le fichier est ignoré par git).
-2. Remplir : DSN, utilisateur et mot de passe de la base ; `SITE_URL` (`https://exemple.ch`) ; `API_URL` (`https://exemple.ch/api`) ; SMTP ; clés Stripe (étape 5). En production, `ORIGINE_DEV = ''`.
+2. Remplir : DSN, utilisateur et mot de passe de la base ; `SITE_URL` (`https://topograph.ch`) ; `API_URL` (`https://topograph.ch/api`) ; SMTP ; clés Stripe (étape 5). En production, `ORIGINE_DEV = ''`.
 3. Droits : `chmod 600 api/config.php`. Le `.htaccess` d'`api/` bloque déjà l'accès à `config.php`, `_commun.php` et `schema.sql`.
 
-## 4. Fichiers
+## 4. Mise en ligne automatique (GitHub Actions → SSH)
 
-1. En local : `npm run build`.
-2. Par SFTP (Manager → FTP/SSH), dans le dossier du site (`/sites/exemple.ch/`) :
-   - le **contenu** de `dist/` à la racine ;
-   - le dossier `api/` tel quel (sans `schema.sql` si l'on préfère), plus `config.php`.
-3. Manager → Hébergement → le site : PHP **8.2 ou plus**, certificat **Let's Encrypt** activé, redirection HTTPS forcée.
-4. Vérifier : `https://exemple.ch/api/moi.php` doit répondre `{"erreur":"non_connecte"}` (401) ; `https://exemple.ch/api/config.php` doit répondre 403.
-5. Côté site, le module de compte est branché avec `api: "/api"`.
+Chaque **version** (tag `v…`) est construite par GitHub et envoyée sur l'hébergement par SSH (rsync) : `dist/` à la
+racine du site, `api/` à côté. `api/config.php` n'est jamais envoyé ni effacé. Chaque version est aussi gardée comme
+« release » GitHub (archive zip du site construit). Fichier : `.github/workflows/infomaniak.yml`.
+
+**Une seule fois :**
+1. Manager → Hébergement web → le site **topograph.ch** : noter son dossier (ex. `sites/topograph.ch`) ; PHP **8.2 ou
+   plus** ; certificat **Let's Encrypt** activé ; redirection HTTPS forcée.
+2. Manager → Hébergement web → **FTP / SSH** : créer (ou choisir) un utilisateur avec l'accès **SSH** ; noter le
+   serveur (ex. `xxxx.ftp.infomaniak.com`) et l'utilisateur. Le mot de passe reste chez vous.
+3. Sur cet utilisateur : **Clés SSH → Ajouter**, coller la clé publique de déploiement
+   (`~/.ssh/topograph_deploiement.pub` sur le Mac).
+4. Secrets du dépôt GitHub (Settings → Secrets and variables → Actions), ou en ligne de commande :
+   ```
+   gh secret set INFOMANIAK_CLE_SSH --repo AtelierMasson/ombres-suisse < ~/.ssh/topograph_deploiement
+   gh secret set INFOMANIAK_HOTE --repo AtelierMasson/ombres-suisse --body "xxxx.ftp.infomaniak.com"
+   gh secret set INFOMANIAK_UTILISATEUR --repo AtelierMasson/ombres-suisse --body "utilisateur"
+   gh secret set INFOMANIAK_DOSSIER --repo AtelierMasson/ombres-suisse --body "sites/topograph.ch"
+   ```
+
+**À chaque version :** `npm run publier` (crée le tag du jour, ex. `v2026.11.26`, et l'envoie). Le suivi est dans
+l'onglet *Actions* du dépôt ; le site affiche la version publiée dans `https://topograph.ch/version.txt`.
+
+**Revenir à une version précédente :** Actions → « Déployer sur Infomaniak » → *Run workflow* → indiquer le tag.
+
+**Aperçu :** chaque envoi sur `main` reste publié sur GitHub Pages (`ateliermasson.github.io/ombres-suisse`), sans
+compte ni paiement ; la production (topograph.ch) ne change qu'à la création d'une version.
+
+Vérifier ensuite : `https://topograph.ch/api/moi.php` doit répondre `{"erreur":"non_connecte"}` (401) ;
+`https://topograph.ch/api/config.php` doit répondre 403.
 
 ## 5. Stripe — mode test
 
@@ -36,7 +58,7 @@ Hébergement web Infomaniak (PHP 8, MySQL/MariaDB, e-mail), domaine `exemple.ch`
 3. Paramètres → E-mails clients : activer **« Paiements réussis »** (reçu automatique).
 4. Développeurs → Clés API : copier `sk_test_…` dans `STRIPE_CLE_SECRETE`. Aucun produit à créer : le prix (CHF 39.–) et le nom viennent de `config.php`.
 5. Développeurs → **Webhooks** → Ajouter un point de terminaison :
-   - URL : `https://exemple.ch/api/webhook.php` ;
+   - URL : `https://topograph.ch/api/webhook.php` ;
    - événements : `checkout.session.completed` et `checkout.session.async_payment_succeeded` ;
    - copier le secret de signature `whsec_…` dans `STRIPE_SECRET_WEBHOOK`.
 

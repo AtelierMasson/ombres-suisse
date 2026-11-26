@@ -1,0 +1,77 @@
+# Déploie le site (et l'API PHP) sur l'hébergement Infomaniak de topograph.ch, par SSH (rsync).
+#
+# - Une version = un tag « v… » (ex. v2026.11.26) : le tag poussé déclenche le déploiement, et le site construit est
+#   joint à une « release » GitHub (archive zip) : on garde ainsi chaque version publiée.
+# - Retour arrière : Actions > « Déployer sur Infomaniak » > Run workflow, en donnant le tag d'une version précédente.
+# - GitHub Pages (pages.yml) reste l'aperçu, publié à chaque envoi sur main.
+#
+# Secrets du dépôt (Settings > Secrets and variables > Actions) :
+#   INFOMANIAK_HOTE         serveur SSH, ex. « abcd.ftp.infomaniak.com » (Manager > Hébergement > FTP / SSH)
+#   INFOMANIAK_UTILISATEUR  utilisateur SSH/FTP
+#   INFOMANIAK_DOSSIER      dossier du site sur le serveur, ex. « sites/topograph.ch »
+#   INFOMANIAK_CLE_SSH      clé privée de déploiement (sa clé publique est ajoutée à l'utilisateur dans le Manager)
+# Le fichier api/config.php (mots de passe, clés Stripe) n'est jamais envoyé ni effacé : il reste sur le serveur.
+name: Déployer sur Infomaniak
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Tag à (re)déployer, ex. v2026.11.26 (vide : la branche main)"
+        required: false
+permissions:
+  contents: write
+concurrency:
+  group: infomaniak
+  cancel-in-progress: false
+jobs:
+  deployer:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://topograph.ch
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.version || github.ref }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Assembler le paquet (site construit + API, sans config.php)
+        run: |
+          mkdir paquet
+          cp -R dist/. paquet/
+          rsync -a --exclude config.php --exclude '*.md' api/ paquet/api/
+          VERSION="${{ inputs.version || github.ref_name }}"
+          echo "$VERSION $(git rev-parse --short HEAD) $(date -u +%Y-%m-%dT%H:%MZ)" > paquet/version.txt
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Clé SSH
+        env:
+          CLE: ${{ secrets.INFOMANIAK_CLE_SSH }}
+          HOTE: ${{ secrets.INFOMANIAK_HOTE }}
+        run: |
+          test -n "$CLE" && test -n "$HOTE" || { echo "Secrets INFOMANIAK_* manquants : voir docs/deploiement-infomaniak.md"; exit 1; }
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$CLE" > ~/.ssh/deploiement && chmod 600 ~/.ssh/deploiement
+          ssh-keyscan -H "$HOTE" >> ~/.ssh/known_hosts 2>/dev/null
+      - name: Envoyer sur Infomaniak
+        env:
+          HOTE: ${{ secrets.INFOMANIAK_HOTE }}
+          UTILISATEUR: ${{ secrets.INFOMANIAK_UTILISATEUR }}
+          DOSSIER: ${{ secrets.INFOMANIAK_DOSSIER }}
+        run: |
+          rsync -rlvz --delete --checksum \
+            --exclude 'api/config.php' --exclude '.well-known/' --exclude '.user.ini' \
+            -e "ssh -i ~/.ssh/deploiement -o IdentitiesOnly=yes" \
+            paquet/ "$UTILISATEUR@$HOTE:$DOSSIER/"
+      - name: Garder la version (release GitHub)
+        if: startsWith(github.ref, 'refs/tags/v') && !inputs.version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          (cd paquet && zip -qr "../topograph-$VERSION.zip" .)
+          gh release create "$VERSION" "topograph-$VERSION.zip" --title "Topograph $VERSION" --generate-notes
