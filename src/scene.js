@@ -1367,6 +1367,15 @@ export class Scene3D {
         F.theme = this.T;
         if (F.tex) F.tex.needsUpdate = true;
       }
+      if (type === "bruit" && !F.canvas) {
+        // bruit : bandes de niveau (dB) posées sur le plan cadastral reteinté, un peu transparentes
+        const cad = await (this.fonds.cadastre ||= { image: chargerImage(this.urls.cadastre) }).image;
+        if (id !== this.idScene) return;
+        const cv = F.canvas = teinterCadastre(cad, this.T.plan), ctx = cv.getContext("2d");
+        ctx.globalAlpha = 0.72;
+        ctx.drawImage(img, 0, 0, cv.width, cv.height);
+        ctx.globalAlpha = 1;
+      }
       if (type === "ortho" && !F.canvas) {
         // photo aérienne au sol : un peu plus lumineuse et saturée (l'orthophoto brute paraît terne sous l'éclairage)
         const cv = F.canvas = document.createElement("canvas");

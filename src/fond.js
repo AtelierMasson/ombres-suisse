@@ -8,9 +8,11 @@ const WMS = "https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&
 /** Adresse de l'image d'une couche pour la boîte MN95 [e0, n0, e1, n1]. */
 export function urlFond(couche, [e0, n0, e1, n1], px = 2048) {
   const format = couche === "ch.swisstopo.swissimage" ? "image/jpeg" : "image/png";
-  return `${WMS}&LAYERS=${couche}&BBOX=${e0},${n0},${e1},${n1}&WIDTH=${px}&HEIGHT=${px}&FORMAT=${format}`;
+  return `${WMS}&LAYERS=${couche}&BBOX=${e0},${n0},${e1},${n1}&WIDTH=${px}&HEIGHT=${px}&FORMAT=${format}${format === "image/png" ? "&TRANSPARENT=true" : ""}`;
 }
-export const COUCHES = { cadastre: "ch.kantone.cadastralwebmap-farbe", ortho: "ch.swisstopo.swissimage" };
+export const COUCHES = { cadastre: "ch.kantone.cadastralwebmap-farbe", ortho: "ch.swisstopo.swissimage",
+  // bruit du trafic routier et ferroviaire, le jour (OFEV, sonBASE) : bandes de couleur par niveau en dB(A)
+  bruit: "ch.bafu.laerm-strassenlaerm_tag,ch.bafu.laerm-bahnlaerm_tag" };
 
 /** Image du service WMS, avec deux nouvelles tentatives (la dernière hors cache) : un échec ponctuel du réseau
  * ou du service laissait sinon le terrain uni. */

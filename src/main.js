@@ -20,6 +20,8 @@ import { profilCoupe, dessinerCoupe } from "./coupe.js";
 import { hameau } from "./demo.js";
 import { lancerVol } from "./vol.js";
 import { ICONE } from "./icones.js";
+import { brancherSuggestion } from "./suggestion.js";
+brancherSuggestion();
 import { brancherPro } from "./pro.js";
 import { brancherCompte } from "./compte.js";
 import "./compte.css";
@@ -312,7 +314,7 @@ async function depuisAdresse() {
     await pause();
     scene.controls.autoRotate = false;
     scene.typeFond = typeFond();
-    scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite) });
+    scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite), bruit: urlFond(COUCHES.bruit, boite) });
     scene.tuilesPlan.placer(E0, N0, G.R); // plan autour : tuiles en mémoire aussitôt, les autres au fil de l'eau
     pro.reinitialiser();
     // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
@@ -548,7 +550,8 @@ $("#vSwiss").addEventListener("change", e => {
 synchroSwiss();
 window.addEventListener("pageshow", synchroSwiss);
 // sol : photo aérienne (prioritaire), plan cadastral, ou uni
-function typeFond() { return $("#vReel").checked ? "ortho" : $("#vCadastre").checked ? "cadastre" : "uni"; }
+function typeFond() { return $("#vReel").checked ? "ortho" : $("#vBruit").checked ? "bruit" : $("#vCadastre").checked ? "cadastre" : "uni"; }
+$("#vBruit").addEventListener("change", () => scene.fond(typeFond()));
 $("#vCadastre").addEventListener("change", () => scene.fond(typeFond()));
 scene.surFondAbsent = () => message(t("msg.cadastreAbsent"));
 $("#vEffets").addEventListener("change", e => scene.reglerEffets(e.target.checked));

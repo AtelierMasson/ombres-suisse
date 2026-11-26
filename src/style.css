@@ -41,7 +41,10 @@ body {
 body.accueil #haut .recherche { visibility: hidden; }
 .suggestions { top: calc(100% + 4px); z-index: 20; max-height: 360px; overflow: auto; text-align: left; }
 .suggestions .list-group-item { cursor: pointer; }
-#langues { margin-left: auto; font-size: 12px; letter-spacing: .04em; white-space: nowrap; }
+#boiteSuggestion { margin-left: auto; }
+#btnSuggestion { font-size: 12px; padding: 2px 10px; border-radius: 999px; }
+#suggestion { position: absolute; right: 0; top: calc(100% + 8px); width: min(340px, calc(100vw - 24px)); z-index: 20; }
+#langues { font-size: 12px; letter-spacing: .04em; white-space: nowrap; }
 #langues a { color: var(--doux); text-decoration: none; padding: 2px 3px; }
 #langues a:hover { color: var(--texte); }
 #langues a.actif { color: var(--texte); font-weight: 600; }

@@ -20,6 +20,23 @@
     <input id="q" class="form-control" type="search" data-i18n-placeholder="recherche.placeholder" placeholder="Adresse, parcelle ou coordonnées GPS (ex. « Lutry 3947 »)" autocomplete="off">
     <div class="suggestions list-group position-absolute w-100 shadow" hidden></div>
   </div>
+  <!-- suggestion : un message libre pour Atelier Masson -->
+  <div class="position-relative" id="boiteSuggestion">
+    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnSuggestion" aria-expanded="false" aria-controls="suggestion" data-i18n="suggestion.bouton">Suggestion</button>
+    <form id="suggestion" class="card shadow" hidden>
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2"><b class="small" data-i18n="suggestion.titre">Une idée, un problème ?</b>
+          <button type="button" class="btn-close btn-sm" id="suggestionFermer" data-i18n-aria-label="suggestion.fermer" aria-label="Fermer"></button></div>
+        <textarea class="form-control form-control-sm mb-2" id="suggestionTexte" rows="4" maxlength="3000" required data-i18n-placeholder="suggestion.placeholder" placeholder="Écrivez votre suggestion…"></textarea>
+        <input type="email" class="form-control form-control-sm mb-2" id="suggestionEmail" data-i18n-placeholder="suggestion.email" placeholder="E-mail (facultatif, pour une réponse)">
+        <input type="text" id="suggestionPiege" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+        <div class="d-flex align-items-center gap-2">
+          <button type="submit" class="btn btn-sm btn-primary" id="suggestionEnvoyer" data-i18n="suggestion.envoyer">Envoyer</button>
+          <span class="small text-secondary" id="suggestionEtat" aria-live="polite"></span>
+        </div>
+      </div>
+    </form>
+  </div>
   <div id="langues"></div>
   <div id="themes" role="group" data-i18n-aria-label="themes.aria" aria-label="Mode jour ou nuit"></div>
 </nav>
@@ -166,6 +183,8 @@
           <td><input class="form-check-input oeil" type="checkbox" id="vReel"></td></tr>
         <tr><th scope="row"><label for="vCadastre" data-i18n="aff.cadastre">Plan cadastral au sol</label></th>
           <td><input class="form-check-input oeil" type="checkbox" id="vCadastre" checked></td></tr>
+        <tr><th scope="row"><label for="vBruit" data-i18n="aff.bruit" data-i18n-title="aff.bruitTitre" title="Bruit du trafic routier et ferroviaire le jour, en dB(A) (OFEV, sonBASE), sur le plan cadastral">Bruit (routes et rail)</label></th>
+          <td><input class="form-check-input oeil" type="checkbox" id="vBruit"></td></tr>
         <tr><th scope="row"><label for="vParcelles" data-i18n="aff.parcelles">Parcellaire</label></th>
           <td><input class="form-check-input oeil" type="checkbox" id="vParcelles" checked></td></tr>
         <tr class="groupe"><th colspan="2" data-i18n="aff.gReleve">Relevé</th></tr>
