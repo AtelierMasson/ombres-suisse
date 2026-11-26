@@ -1274,7 +1274,7 @@ export class Scene3D {
       this.tranche.traverse(o => { if (o.isMesh && !traits.includes(o)) o.visible = false; });
       const pale = this.mat.trait.clone();
       Object.assign(pale, { depthTest: false, transparent: true, opacity: 0.3, linewidth: 2 });
-      for (const l of traits) { const r = l.clone(); r.material = pale; r.renderOrder = 6; this.tranche.add(r); traits.push(r); }
+      for (const l of [...traits]) { const r = l.clone(); r.material = pale; r.renderOrder = 6; this.tranche.add(r); traits.push(r); } // copie : la liste grandit dans la boucle
       this.outils.add(this.tranche);
     } else if (P) {
       this.tranche = trancheCoupe(P, this.zRef, this.zBas, { ...this.T.coupe, arbres: this.T.sombre ? "#7f8da6" : "#8a9096" }, this.mat.trait);
