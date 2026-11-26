@@ -167,7 +167,10 @@
           </div>
           <div class="d-flex gap-1 mt-1">
             <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnVolume" data-i18n="projet.dessiner" data-i18n-title="projet.dessinerTitre" title="Trois clics sur la maquette : deux pour un côté, un pour la profondeur">Dessiner un volume</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnImporter" data-i18n="import.bouton" data-i18n-title="import.boutonTitre" title="glTF/GLB, OBJ, STL ou DXF ; avec la limite de parcelle dedans, il se place tout seul">Importer un modèle</button>
           </div>
+          <input type="file" id="fichierModele" accept=".glb,.gltf,.obj,.stl,.dxf,.dwg" hidden>
+          <button type="button" class="btn btn-sm btn-link px-0" id="btnRefParcelle" data-i18n="import.refBouton">Télécharger la parcelle de référence (DXF)</button>
           <div class="small text-secondary mt-1" id="aideVolume"></div>
           <div id="listeVolumes" class="mt-1"></div>
 

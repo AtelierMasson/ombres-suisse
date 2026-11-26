@@ -794,10 +794,26 @@ export class Scene3D {
     if (!apercu) this.ombres(); else this.demander();
   }
 
-  /** Hauteurs (absolues, grille de G) des volumes du projet vus de dessus, ou null s'il n'y en a pas. */
+  /** Hauteurs (absolues, grille de G) des volumes et modèles importés du projet vus de dessus, ou null s'il n'y en a pas. */
   hauteursVolumes() {
-    const g = this.couches.volumes;
-    return g && this.G ? hauteursDessus(this.G, this.zRef, [g]) : null;
+    const objets = [this.couches.volumes, this.couches.imports].filter(Boolean);
+    return objets.length && this.G ? hauteursDessus(this.G, this.zRef, objets) : null;
+  }
+
+  /** Modèles importés du projet (groupes de importerModele), coupés au bord de la maquette, avec ombres. */
+  afficherImports(objets) {
+    const c = this.couches;
+    if (c.imports) { this.groupe.remove(c.imports); c.imports = null; }
+    if (objets?.length && this.G) {
+      const g = c.imports = new THREE.Group();
+      for (const o of objets) {
+        o.traverse(m => { if (m.isMesh) { m.castShadow = m.receiveShadow = true; decouperBord(m, this.G.R - 0.03); } });
+        g.add(o);
+      }
+      this.groupe.add(g);
+    }
+    this.appliquerCoupe();
+    this.ombres();
   }
 
   /** Volume du projet sous le pointeur (id), ou null. */
@@ -1249,6 +1265,7 @@ export class Scene3D {
     c.voisines?.traverse(o => o.material && cibles.push(o.material)); // limites et numéros des parcelles voisines
     if (c.selection) cibles.push(c.selection.material);
     if (this.mat.projet) cibles.push(this.mat.projet);
+    c.imports?.traverse(o => o.isMesh && cibles.push(o.material));
     for (const x of cibles) if (!!x.clippingPlanes !== !!plans) { x.clippingPlanes = plans; x.needsUpdate = true; }
   }
 

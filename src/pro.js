@@ -5,6 +5,9 @@ import { FORMATS, exporterSite, estimer, sansAccent } from "./export.js";
 import { dessinCoupe, coupeDxf, coupeSvg } from "./exportCoupe.js";
 import { t, nombre, entier, date } from "./i18n.js";
 import { rectangle, dimensions, listerProjets, enregistrerProjet, supprimerProjet } from "./projet.js";
+import { importerModele } from "./importer.js";
+import { dxfReference } from "./referenceParcelle.js";
+import { solEn } from "./grille.js";
 
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const memoire = (cle, valeur) => {
@@ -27,7 +30,7 @@ function telecharger(blob, nom) {
  */
 export function brancherPro(o) {
   const { scene, S } = o;
-  const P = { selection: new Set(), masques: new Set(), historique: [], volumes: [], projet: null };
+  const P = { selection: new Set(), masques: new Set(), historique: [], volumes: [], imports: [], projet: null };
   const actif = () => $("#vPro").checked;
   const jeu = () => $("input[name=batiments]:checked")?.value || "releve";
   const pret = () => !!S.G && S.lat != null && !!scene.contoursTous;
@@ -146,7 +149,15 @@ export function brancherPro(o) {
     listeVolumes();
   }
   function listeVolumes() {
-    $("#listeVolumes").replaceChildren(...P.volumes.map((v, k) => {
+    const modeles = P.imports.map(m => {
+      const d = document.createElement("div");
+      d.className = "volume";
+      d.innerHTML = `<span style="grid-column: 1 / 4">${t("import.modele", { nom: m.nom })}<br><span class="text-secondary">${m.note}</span></span>`
+        + `<button type="button" title="${t("import.retirer")}" aria-label="${t("import.retirer")}">×</button>`;
+      d.querySelector("button").onclick = () => { P.imports = P.imports.filter(x => x !== m); importsChanges(); };
+      return d;
+    });
+    $("#listeVolumes").replaceChildren(...modeles, ...P.volumes.map((v, k) => {
       const [l, p] = dimensions(v), d = document.createElement("div");
       d.className = "volume";
       d.innerHTML = `<span>${t("projet.volume", { n: k + 1, l: fr(l), p: fr(p) })}</span>`
@@ -161,6 +172,39 @@ export function brancherPro(o) {
       return d;
     }));
   }
+
+  /* ---------------------------------------------------------------- modèles importés */
+  // glTF/GLB, OBJ, STL ou DXF : placé par ses coordonnées MN95, l'origine locale du site, ou sa limite de parcelle
+  // (importer.js) ; son calque « sections » donne des coupes. Les modèles ne sont pas gardés dans les projets enregistrés.
+  const contexteImport = () => ({ E0: S.E0, N0: S.N0, zRef: scene.zRef, parcelle: S.parcelle?.anneauxRel || [], solEn: (x, y) => solEn(S.G, x, y) });
+  function importsChanges() {
+    scene.afficherImports(P.imports.map(m => m.objet));
+    volumesChanges();
+  }
+  $("#btnImporter").onclick = () => { if (pret()) $("#fichierModele").click(); };
+  $("#fichierModele").onchange = async e => {
+    const f = e.target.files[0];
+    e.target.value = "";
+    if (!f || !pret()) return;
+    o.etat(0.3, t("import.enCours", { nom: f.name }));
+    try {
+      const r = await importerModele(f, contexteImport());
+      const pl = r.placement, note = [t(`import.methode.${pl.methode}`), pl.ecartMax != null ? t("import.ajuste", { cm: Math.max(1, Math.round(pl.ecartMax * 100)) }) : ""].filter(Boolean).join(" · ");
+      P.imports.push({ nom: f.name, objet: r.objet, note });
+      importsChanges();
+      if (r.coupes?.length) o.ouvrirCoupes?.([...(S.coupes || []).map(c => ({ A: c.A, B: c.B })), ...r.coupes]);
+      o.message([note, ...r.avertissements, t("import.nonEnregistre")].filter(Boolean).join(" · "), 9000);
+    } catch (err) {
+      console.error(err);
+      o.message(err.message);
+    }
+    o.etat(1, "");
+  };
+  $("#btnRefParcelle").onclick = () => {
+    if (!pret()) return;
+    const { nom, texte } = dxfReference({ ...contexteImport(), lieu: $("#lieu").textContent || "" });
+    telecharger(new Blob([texte], { type: "application/dxf" }), nom);
+  };
 
   /* ---------------------------------------------------------------- projets enregistrés (dans ce navigateur) */
   function listeProjets() {
@@ -299,7 +343,7 @@ export function brancherPro(o) {
     rayon: () => actif() && +$("#rayonPro").value || null,
     /** Nouveau lieu : plus de sélection ni de masquage. */
     reinitialiser() {
-      P.selection = new Set(); P.masques = new Set(); P.historique = []; P.volumes = []; S.volumesProjet = [];
+      P.selection = new Set(); P.masques = new Set(); P.historique = []; P.volumes = []; P.imports = []; S.volumesProjet = [];
       if (dessin) finDessin();
       $("#resultatExport").textContent = ""; listeVolumes(); maj();
     },
