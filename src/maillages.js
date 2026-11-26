@@ -304,6 +304,20 @@ function simplifierProfil(pts, tol, sens) {
   return r;
 }
 
+/** Polyligne 2D simplifiée (Douglas-Peucker, écart `tol` m). */
+function simplifierLigne(pts, tol) {
+  if (pts.length <= 2) return pts;
+  const garde = new Uint8Array(pts.length), pile = [[0, pts.length - 1]];
+  garde[0] = garde[pts.length - 1] = 1;
+  while (pile.length) {
+    const [a, b] = pile.pop(), [ax, ay] = pts[a], [bx, by] = pts[b], L = Math.hypot(bx - ax, by - ay) || 1;
+    let pire = -1, dmax = tol;
+    for (let i = a + 1; i < b; i++) { const d = Math.abs((pts[i][0] - ax) * (by - ay) - (pts[i][1] - ay) * (bx - ax)) / L; if (d > dmax) { dmax = d; pire = i; } }
+    if (pire > 0) { garde[pire] = 1; pile.push([a, pire], [pire, b]); }
+  }
+  return pts.filter((_, i) => garde[i]);
+}
+
 /** Hauteur d'un profil simplifié en `x`, du côté `cote` (1 : juste après, −1 : juste avant) d'une marche verticale. */
 function lireCote(Pf, x, cote) {
   for (let i = 0; i < Pf.length - 1; i++) {
@@ -821,10 +835,27 @@ export function plansEau(G, zRef) {
  * par des faces planes : quelques centaines de triangles par pont au lieu de dizaines de milliers.
  * Pour les ponts droits ou peu courbes. Retourne { dessus (avec coordonnées de texture du terrain), cotes } ou null.
  */
-export function pontsLegers(G, zRef) {
+export function pontsLegers(G, zRef, nuage = null) {
   const { n, c, x0, pont, pontBas } = G;
   if (!pont || !pont.some(v => !isNaN(v))) return null;
   const sous = pontBas || pont.map(z => z - 1.5), vu = new Uint8Array(n * n), haut = [], uv = [], bas = [];
+  // points vus sous le tablier (nuage du relevé) : classe « pont » à moins de 15 m sous la chaussée = dessous du
+  // tablier (intrados, arches) ; plus bas, ou classe 27 (ouvrages) = piles
+  const intrados = new Map(), piles = new Map();
+  if (nuage) {
+    const { X, Y, Z, C } = nuage;
+    for (let k = 0; k < nuage.n; k++) {
+      const cl = C[k];
+      if (cl !== 17 && cl !== 27) continue;
+      const i = Math.floor((X[k] - x0) / c), j = Math.floor((Y[k] - x0) / c);
+      if (i < 0 || j < 0 || i >= n || j >= n) continue;
+      const p = j * n + i, d = pont[p] - Z[k];
+      if (!(d > 1)) continue;
+      const M = cl === 17 && d < 15 ? intrados : piles;
+      (M.get(p) || M.set(p, []).get(p)).push(Z[k]);
+    }
+  }
+  const avecNuage = !!nuage;
   const UV = (x, y) => [(x - x0) / (2 * G.R), (y - x0) / (2 * G.R)];
   for (let p0 = 0; p0 < n * n; p0++) {
     if (vu[p0] || isNaN(pont[p0])) continue;
@@ -838,23 +869,73 @@ export function pontsLegers(G, zRef) {
         if (q >= 0 && q < n * n && !vu[q] && !isNaN(pont[q])) { vu[q] = 1; pile.push(q); }
     }
     if (cel.length * c * c < 20) continue;
-    // axe principal (analyse en composantes principales des centres de cellules)
-    let mx = 0, my = 0;
+    // axe du pont, droit ou courbe : on ordonne les cellules le long du pont (distance dans le tablier depuis un bout),
+    // puis l'axe est la suite des centres par tranche, lissée et simplifiée ; chaque cellule est ensuite projetée
+    // sur cet axe : abscisse curviligne s et écart t (positif à gauche)
     const X = cel.map(p => x0 + (p % n + 0.5) * c), Y = cel.map(p => x0 + (Math.floor(p / n) + 0.5) * c);
-    for (let k = 0; k < cel.length; k++) { mx += X[k]; my += Y[k]; }
-    mx /= cel.length; my /= cel.length;
-    let sxx = 0, syy = 0, sxy = 0;
-    for (let k = 0; k < cel.length; k++) { const dx = X[k] - mx, dy = Y[k] - my; sxx += dx * dx; syy += dy * dy; sxy += dx * dy; }
-    const a = 0.5 * Math.atan2(2 * sxy, sxx - syy), ux = Math.cos(a), uy = Math.sin(a), vx = -uy, vy = ux;
+    const rang = new Map(cel.map((p, k) => [p, k]));
+    const parcours = depart => {
+      const d = new Int32Array(cel.length).fill(-1), file = [depart];
+      d[depart] = 0;
+      for (let f = 0; f < file.length; f++) {
+        const k = file[f], p = cel[k], i = p % n;
+        for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n, i > 0 ? p - n - 1 : -1, i < n - 1 ? p - n + 1 : -1, i > 0 ? p + n - 1 : -1, i < n - 1 ? p + n + 1 : -1]) {
+          const r = rang.get(q);
+          if (r !== undefined && d[r] < 0) { d[r] = d[k] + 1; file.push(r); }
+        }
+      }
+      return d;
+    };
+    let d0 = parcours(0), bout = 0;
+    for (let k = 0; k < cel.length; k++) if (d0[k] > d0[bout]) bout = k;
+    const dA = parcours(bout);
+    let dmax = 0;
+    for (let k = 0; k < cel.length; k++) if (dA[k] > dmax) dmax = dA[k];
+    // centres par tranche de 4 m de parcours
+    const tr = Math.max(1, Math.round(4 / c)), nt = Math.floor(dmax / tr) + 1, cx = new Float64Array(nt), cy = new Float64Array(nt), cn = new Int32Array(nt);
+    for (let k = 0; k < cel.length; k++) { if (dA[k] < 0) continue; const q = Math.floor(dA[k] / tr); cx[q] += X[k]; cy[q] += Y[k]; cn[q]++; }
+    let axe = [];
+    for (let q = 0; q < nt; q++) if (cn[q]) axe.push([cx[q] / cn[q], cy[q] / cn[q]]);
+    if (axe.length < 2) continue;
+    // lissage (moyenne glissante sur 3) puis prolongement aux deux bouts, et simplification (20 cm)
+    axe = axe.map((v, i) => i === 0 || i === axe.length - 1 ? v : [(axe[i - 1][0] + v[0] + axe[i + 1][0]) / 3, (axe[i - 1][1] + v[1] + axe[i + 1][1]) / 3]);
+    const prolonger = (A, B) => { const dx = A[0] - B[0], dy = A[1] - B[1], l = Math.hypot(dx, dy) || 1; return [A[0] + dx / l * 6, A[1] + dy / l * 6]; };
+    axe = [prolonger(axe[0], axe[1]), ...axe, prolonger(axe.at(-1), axe.at(-2))];
+    axe = simplifierLigne(axe, 0.2);
+    const cum = [0];
+    for (let i = 1; i < axe.length; i++) cum.push(cum[i - 1] + Math.hypot(axe[i][0] - axe[i - 1][0], axe[i][1] - axe[i - 1][1]));
+    // projection d'un point sur l'axe : [s, t]
+    const projeter = (x, y) => {
+      let best = [0, 0], bd = Infinity;
+      for (let i = 0; i < axe.length - 1; i++) {
+        const [ax, ay] = axe[i], [bx, by] = axe[i + 1], ex = bx - ax, ey = by - ay, L2 = ex * ex + ey * ey || 1;
+        const u = Math.max(0, Math.min(1, ((x - ax) * ex + (y - ay) * ey) / L2)), px = ax + ex * u, py = ay + ey * u, dd = (x - px) ** 2 + (y - py) ** 2;
+        if (dd < bd) { bd = dd; const L = Math.sqrt(L2); best = [cum[i] + u * L, (-(x - ax) * ey + (y - ay) * ex) / L]; }
+      }
+      return best;
+    };
+    // point et normale (gauche) de l'axe à l'abscisse s
+    const surAxe = s => {
+      let i = 0;
+      while (i < axe.length - 2 && cum[i + 1] < s) i++;
+      const [ax, ay] = axe[i], [bx, by] = axe[i + 1], L = cum[i + 1] - cum[i] || 1, u = (s - cum[i]) / L;
+      return { x: ax + (bx - ax) * u, y: ay + (by - ay) * u, nx: -(by - ay) / L, ny: (bx - ax) / L };
+    };
     // stations d'un mètre le long de l'axe
     let s0 = Infinity, s1 = -Infinity;
-    const S = cel.map((p, k) => { const v = (X[k] - mx) * ux + (Y[k] - my) * uy; if (v < s0) s0 = v; if (v > s1) s1 = v; return v; });
-    const pas = 1, nb = Math.max(2, Math.ceil((s1 - s0) / pas) + 1), st = Array.from({ length: nb }, () => ({ g: Infinity, d: -Infinity, h: [], b: [] }));
+    const ST = cel.map((p, k) => { const v = projeter(X[k], Y[k]); if (v[0] < s0) s0 = v[0]; if (v[0] > s1) s1 = v[0]; return v; });
+    const pas = 1, nb = Math.max(2, Math.ceil((s1 - s0) / pas) + 1), st = Array.from({ length: nb }, () => ({ g: Infinity, d: -Infinity, h: [], b: [], pile: 0, pg: Infinity, pd: -Infinity }));
     for (let k = 0; k < cel.length; k++) {
-      const q = Math.min(nb - 1, Math.round((S[k] - s0) / pas)), t = (X[k] - mx) * vx + (Y[k] - my) * vy, T = st[q];
+      const [sk, t] = ST[k], q = Math.min(nb - 1, Math.round((sk - s0) / pas)), T = st[q], p = cel[k];
       if (t - c / 2 < T.g) T.g = t - c / 2;
       if (t + c / 2 > T.d) T.d = t + c / 2;
-      T.h.push(pont[cel[k]]); if (!isNaN(sous[cel[k]])) T.b.push(sous[cel[k]]);
+      T.h.push(pont[p]);
+      if (avecNuage) {
+        // dessous : les points du dessous du tablier ; piles : leur emprise en travers
+        for (const z of intrados.get(p) || []) T.b.push(z);
+        const P = piles.get(p);
+        if (P) { T.pile += P.length; if (t - c / 2 < T.pg) T.pg = t - c / 2; if (t + c / 2 > T.pd) T.pd = t + c / 2; }
+      } else if (!isNaN(sous[p])) T.b.push(sous[p]);
     }
     const med = a => { if (!a.length) return NaN; a.sort((u, v) => u - v); return a[a.length >> 1]; };
     const profils = { g: [], d: [], h: [], b: [] };
@@ -862,7 +943,28 @@ export function pontsLegers(G, zRef) {
       const T = st[q], x = s0 + q * pas;
       if (T.g === Infinity) continue;
       const h = med(T.h), b = med(T.b);
-      profils.g.push([x, T.g]); profils.d.push([x, T.d]); profils.h.push([x, h]); profils.b.push([x, isNaN(b) ? h - 1.5 : Math.min(b, h - 0.4)]);
+      profils.g.push([x, T.g]); profils.d.push([x, T.d]); profils.h.push([x, h]); profils.b.push([x, isNaN(b) ? NaN : Math.min(b, h - 0.4)]);
+    }
+    // dessous sans mesure : repris des stations voisines (sinon 1,5 m sous la chaussée)
+    {
+      const B = profils.b, H = profils.h;
+      let der = NaN;
+      for (let i = 0; i < B.length; i++) { if (isNaN(B[i][1])) B[i][1] = isNaN(der) ? NaN : H[i][1] - der; else der = H[i][1] - B[i][1]; }
+      der = NaN;
+      for (let i = B.length - 1; i >= 0; i--) { if (isNaN(B[i][1])) B[i][1] = H[i][1] - (isNaN(der) ? 1.5 : der); else der = H[i][1] - B[i][1]; }
+    }
+    // piles : stations voisines où des points descendent loin sous le tablier, regroupées
+    const blocs = [];
+    if (avecNuage) {
+      let cur = null;
+      for (let q = 0; q < nb; q++) {
+        const T = st[q];
+        if (T.pile >= 4) {
+          const x = s0 + q * pas;
+          if (cur && x - cur.s1 <= 2.5) { cur.s1 = x; cur.g = Math.min(cur.g, T.pg); cur.d = Math.max(cur.d, T.pd); cur.np += T.pile; }
+          else { cur = { s0: x, s1: x, g: T.pg, d: T.pd, np: T.pile }; blocs.push(cur); }
+        }
+      }
     }
     if (profils.h.length < 2) continue;
     // simplification : rives à 25 cm (vers l'extérieur), dessus à 10 cm (jamais sous la chaussée), dessous à 30 cm
@@ -872,12 +974,11 @@ export function pontsLegers(G, zRef) {
       for (let i = 0; i < Pf.length - 1; i++) if (x <= Pf[i + 1][0] + 1e-6) { const [a1, z1] = Pf[i], [a2, z2] = Pf[i + 1]; return a2 - a1 < 1e-6 ? z2 : z1 + (z2 - z1) * (x - a1) / (a2 - a1); }
       return Pf.at(-1)[1];
     };
-    const bornes = [...new Set([Pg, Pd, Ph, Pb].flatMap(P => P.map(v => +v[0].toFixed(3))))].sort((u, v) => u - v);
-    // sections : coins gauche / droite, en haut et en bas (repère de la scène)
+    // bornes : points des quatre profils, et coudes de l'axe
+    const bornes = [...new Set([Pg, Pd, Ph, Pb].flatMap(P => P.map(v => +v[0].toFixed(3))).concat(cum.filter(v => v > s0 && v < s1).map(v => +v.toFixed(3))))].sort((u, v) => u - v);
     const sec = bornes.map(x => {
-      const g = lire(Pg, x), d = lire(Pd, x), h = lire(Ph, x) - zRef, b = lire(Pb, x) - zRef;
-      const G2 = [mx + ux * x + vx * g, my + uy * x + vy * g], D2 = [mx + ux * x + vx * d, my + uy * x + vy * d];
-      return { G2, D2, h, b };
+      const g = lire(Pg, x), d = lire(Pd, x), h = lire(Ph, x) - zRef, b = lire(Pb, x) - zRef, A = surAxe(x);
+      return { G2: [A.x + A.nx * g, A.y + A.ny * g], D2: [A.x + A.nx * d, A.y + A.ny * d], h, b };
     });
     const P = ([x, y], z) => [x, z, -y];
     const quad = (o, A, B, C, D) => o.push(...A, ...B, ...C, ...A, ...C, ...D);
@@ -889,6 +990,18 @@ export function pontsLegers(G, zRef) {
       quad(bas, P(A.G2, A.b), P(B.G2, B.b), P(B.D2, B.b), P(A.D2, A.b));
       quad(bas, P(A.G2, A.b), P(A.G2, A.h), P(B.G2, B.h), P(B.G2, B.b));
       quad(bas, P(A.D2, A.b), P(B.D2, B.b), P(B.D2, B.h), P(A.D2, A.h));
+    }
+    // piles : blocs du dessous du tablier jusqu'au sol (un peu enterrés)
+    for (const B of blocs) {
+      if (B.np < 12) continue;
+      const sa = B.s0 - 0.5, sb = B.s1 + 0.5, ga = B.g - 0.2, da = B.d + 0.2, haut = lire(Pb, (sa + sb) / 2) - zRef;
+      const coin = (x, t) => { const A = surAxe(x); return [A.x + A.nx * t, A.y + A.ny * t]; };
+      const C4 = [coin(sa, ga), coin(sb, ga), coin(sb, da), coin(sa, da)];
+      const pied = Math.min(...C4.map(([x, y]) => solEn(G, x, y))) - 1 - zRef;
+      for (let k = 0; k < 4; k++) {
+        const A2 = C4[k], B2 = C4[(k + 1) % 4];
+        quad(bas, P(A2, pied), P(B2, pied), P(B2, haut), P(A2, haut));
+      }
     }
     // bouts (culées)
     const A = sec[0], B = sec.at(-1);

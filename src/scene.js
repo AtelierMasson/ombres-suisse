@@ -515,7 +515,7 @@ export class Scene3D {
     // ponts : tablier (dalle et rives) avec le vide dessous, du même plâtre que les murs
     // la chaussée prend la matière du terrain (le plan, le grain, les couleurs réelles continuent sur le pont)
     // ponts allégés (par défaut : quelques centaines de triangles par pont) ou tels que relevés (cellule par cellule)
-    const gp = this.pontsDetailles ? tabliersPonts(G, this.zRef) : pontsLegers(G, this.zRef) || tabliersPonts(G, this.zRef);
+    const gp = this.pontsDetailles ? tabliersPonts(G, this.zRef) : pontsLegers(G, this.zRef, nuage) || tabliersPonts(G, this.zRef);
     let ponts = null;
     if (gp) {
       ponts = new THREE.Group();

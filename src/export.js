@@ -320,7 +320,7 @@ export function preparer(scene, parcelle, quoi, jeu = "releve") {
     if (jeu !== "releve") orienter(M);
     if (M.idx.length) cats.push({ nom: "BATIMENTS", maillage: M });
     // ponts : modèle allégé (solide le long de l'axe, arches et piles), en coordonnées du site
-    const P = pontsLegers(G, zRef);
+    const P = pontsLegers(G, zRef, scene.nuage);
     if (P) {
       const objets = [new THREE.Mesh(P.dessus), new THREE.Mesh(P.cotes)];
       const MP = souder(trianglesDe(objets, zRef, G.R));
