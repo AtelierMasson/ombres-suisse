@@ -90,8 +90,16 @@ export function socleRond(R, solA, zRef, zBas, batA = null) {
 }
 
 export function socle(G, zRef, zBas, bords = null, avecReleve = true) {
-  if (G.rayonZone) return socleRond(G.rayonZone, (x, y) => solEn(G, x, y), zRef, zBas,
-    avecReleve ? (x, y) => { const i = Math.floor((x - G.x0) / G.c), j = Math.floor((y - G.x0) / G.c); return i < 0 || j < 0 || i >= G.n || j >= G.n ? NaN : G.bat[j * G.n + i]; } : null);
+  // le haut de la paroi monte jusqu'au niveau de l'eau là où le lac touche le bord (sinon l'eau flotte au-dessus)
+  const eauEn = (x, y) => { const i = Math.floor((x - G.x0) / G.c), j = Math.floor((y - G.x0) / G.c); return !G.eau || i < 0 || j < 0 || i >= G.n || j >= G.n ? NaN : G.eau[j * G.n + i]; };
+  if (G.rayonZone) {
+    // haut de la paroi : le toit de nos bâtiments (relevé affiché) et/ou de ceux de comparaison (`bords` = grille de
+    // hauteurs des bâtiments swisstopo ou roofer affichés), là où ils sont coupés par le cercle
+    const cellule = (a, x, y) => { const i = Math.floor((x - G.x0) / G.c), j = Math.floor((y - G.x0) / G.c); return !a || i < 0 || j < 0 || i >= G.n || j >= G.n ? NaN : a[j * G.n + i]; };
+    const grille = bords instanceof Float32Array ? bords : null;
+    return socleRond(G.rayonZone, (x, y) => { const z = solEn(G, x, y), e = eauEn(x * 0.995, y * 0.995); return e > z ? e : z; }, zRef, zBas,
+      (avecReleve || grille) ? (x, y) => Math.max(avecReleve ? cellule(G.bat, x, y) || -Infinity : -Infinity, cellule(grille, x, y) || -Infinity) : null);
+  }
   // `bords` (facultatif) : hauteurs absolues des bâtiments de comparaison qui traversent chaque côté, par cellule
   const { n, c, x0, bat } = G, R = n * c / 2, pos = new Float32Array(4 * n * 18);
   // terrain du bord : comme le maillage du terrain (sommets tous les 1 m, interpolés entre deux)
@@ -104,7 +112,7 @@ export function socle(G, zRef, zBas, bords = null, avecReleve = true) {
   let q = 0;
   const face = (i, j, xa, ya, xb, yb, cote, k) => {
     const b = bords?.[cote][k];
-    const h = Math.max(avecReleve && bat[j * n + i] || -Infinity, b > -Infinity ? b : -Infinity), za = sol(xa, ya), zb = sol(xb, yb);
+    const h = Math.max(avecReleve && bat[j * n + i] || -Infinity, b > -Infinity ? b : -Infinity), za = Math.max(sol(xa, ya), eauEn(xa * 0.999, ya * 0.999) || -Infinity), zb = Math.max(sol(xb, yb), eauEn(xb * 0.999, yb * 0.999) || -Infinity);
     const ha = (h > -Infinity ? Math.max(za, h) : za) - zRef, hb = (h > -Infinity ? Math.max(zb, h) : zb) - zRef;
     // A, A bas, B bas ; A, B bas, B
     for (const [x, y, z] of [[xa, ha, -ya], [xa, zBas, -ya], [xb, zBas, -yb], [xa, ha, -ya], [xb, zBas, -yb], [xb, hb, -yb]]) { pos[q++] = x; pos[q++] = y; pos[q++] = z; }

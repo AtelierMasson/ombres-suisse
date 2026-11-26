@@ -75,13 +75,15 @@ const CONTACT = { tSol: { value: null }, tDist: { value: null }, grille: { value
  * roofer) : maquette ronde (0 à R) ou anneau autour de la maquette fine (R fin à R zone). Partagé par les matériaux.
  */
 export const ZONE = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
-function decoupeZone(mat) {
+/** Zone de nos propres bâtiments, ponts et volumes : le disque de la maquette fine. */
+const ZONE_FINE = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
+function decoupeZone(mat, zone = ZONE) {
   if (mat.userData.zone) return;
   mat.userData.zone = true;
   const avant = mat.onBeforeCompile, cle = mat.customProgramCacheKey;
   mat.onBeforeCompile = (sh, r) => {
     avant?.call(mat, sh, r);
-    Object.assign(sh.uniforms, ZONE);
+    Object.assign(sh.uniforms, zone);
     sh.vertexShader = sh.vertexShader
       .replace("#include <common>", "#include <common>\nvarying vec2 vZone;")
       .replace("#include <project_vertex>", `#include <project_vertex>
@@ -96,6 +98,24 @@ function decoupeZone(mat) {
   };
   mat.customProgramCacheKey = () => (cle ? cle.call(mat) : "") + "|zone";
   mat.needsUpdate = true;
+}
+
+/**
+ * Eau : un peu translucide (on devine le fond), bleu-vert ; coupée au cercle de la maquette ronde (`rayonEau`,
+ * uniforme partagé) pour ne pas déborder du socle.
+ */
+const RAYON_EAU = { value: 1e9 };
+function matEau() {
+  const m = new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0.05, transparent: true, opacity: 0.86 });
+  m.onBeforeCompile = sh => {
+    sh.uniforms.rayonEau = RAYON_EAU;
+    sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec2 vEauXZ;")
+      .replace("#include <project_vertex>", "#include <project_vertex>\nvEauXZ = (modelMatrix * vec4(transformed, 1.0)).xz;");
+    sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nvarying vec2 vEauXZ;\nuniform float rayonEau;")
+      .replace("void main() {", "void main() {\n  if (length(vEauXZ) > rayonEau) discard;");
+  };
+  m.customProgramCacheKey = () => "eauCercle";
+  return m;
 }
 
 function grainPlatre(mat, force, contact = "") {
@@ -213,7 +233,7 @@ export class Scene3D {
     this.disque.visible = false; // affiché dès qu'un lieu est chargé
     // paysage (relief jusqu'à 50 km) : dans la scène, pour que paysage et maquette se cachent l'un l'autre ; le plan
     // lointain de la caméra s'étend alors à 150 km (la précision de profondeur dépend surtout du plan proche)
-    this.loin = { mat: materiauLointain(), maille: null, voir: true, brume: true };
+    this.loin = { mat: materiauLointain(), maille: null, voir: false, brume: true }; // paysage : coupé par défaut (case Affichage)
     // plan cadastral en tuiles autour de la maquette, chargées au fil des déplacements
     this.tuilesPlan = new TuilesPlan(this);
     {
@@ -233,7 +253,7 @@ export class Scene3D {
       couronne: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }),
       parcelle: new THREE.MeshBasicMaterial(), trait: traitNet(),
       poignee: new THREE.MeshBasicMaterial({ depthTest: false, fog: false }),
-      eau: new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0.05 }), // sans décalage de profondeur : il faisait passer l'eau devant la rive vue de haut
+      eau: matEau(), // sans décalage de profondeur : il faisait passer l'eau devant la rive vue de haut
     };
     // même grain léger partout (sol, socle, toits, murs, couronnes) : aspect de maquette en plâtre
     for (const [k, force, contact] of [["terrain", 0.07, "sol"], ["socle", 0.07], ["toit", 0.07, "toit"], ["mur", 0.07, "mur"], ["couronne", 0.05], ["eau", 0.025]]) grainPlatre(this.mat[k], force, contact);
@@ -260,7 +280,7 @@ export class Scene3D {
     const rendu = ao.render.bind(ao);
     ao.render = (...a) => {
       // les points n'entrent jamais dans l'occlusion (sinon chaque point a son halo sombre)
-      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, c.heures, c.limite, c.voisines, c.arbres, c.tous, c.selection, c.laser, ...(this.horsAO || []),
+      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, c.heures, c.limite, c.voisines, c.arbres, c.tous, c.selection, c.laser, c.eau, ...(this.horsAO || []), // l'eau : plate et translucide, l'occlusion y dessinait des arcs
         this.coupe ? this.tranche?.userData.arbres : null, ...(this.coupe && this.tranche?.userData.traits || []),
         c.canopee?.material.colorWrite === false ? c.canopee : null].filter(o => o && o.visible);
       for (const o of caches) o.visible = false;
@@ -421,7 +441,7 @@ export class Scene3D {
     this.swiss?.materiau.color.set(T.sol);
     // socle de la même matière que le terrain et les bâtiments
     m.socle.color.set(T.sol); m.canopee.color.set(T.arbres[1]); m.parcelle.color.set(T.parcelle);
-    m.eau.color.set(T.eau || (T.sombre ? "#36536e" : "#a7c6d6"));
+    m.eau.color.set(T.eau || (T.sombre ? "#2f5d6e" : "#8fc1c9")); // bleu-vert
     m.trait.color.set(T.coupe.trait); m.trait.jonction.uniforms.couleur.value.set(T.coupe.trait); m.poignee.color.set(T.coupe.trait); // poignées A et B à l'encre du trait de coupe, discrètes
     CONTACT.teinteSel.value.set(T.parcelle);
     this.couches?.selection?.material.color.set(T.parcelle);
@@ -512,6 +532,7 @@ export class Scene3D {
     const limite = contourParcelle(parcelle, G, this.zRef, m.parcelle);
     // lacs et étangs : un vrai plan, au niveau de l'eau
     const ge = plansEau(G, this.zRef), eau = ge ? maille(ge, m.eau, false, true) : null;
+    RAYON_EAU.value = G.rayonZone ? G.rayonZone - 0.02 : 1e9;
     // ponts : tablier (dalle et rives) avec le vide dessous, du même plâtre que les murs
     // la chaussée prend la matière du terrain (le plan, le grain, les couleurs réelles continuent sur le pont)
     // ponts allégés (par défaut : quelques centaines de triangles par pont) ou tels que relevés (cellule par cellule)
@@ -683,6 +704,7 @@ export class Scene3D {
   /** Rayons de la zone des tuiles swisstopo : toute la maquette ronde (comparaison), ou seulement l'anneau. */
   majZone() {
     const Rf = this.G?.rayonZone;
+    ZONE_FINE.zoneMax.value = Rf ? Rf - 0.03 : 1e9;
     if (!Rf) { ZONE.zoneMin.value = 0; ZONE.zoneMax.value = 1e9; return; }
     ZONE.zoneMax.value = Math.max(Rf, this.rayonExt || 0) - 0.03;
     ZONE.zoneMin.value = this.calques.jeu === "swiss" ? 0 : Rf - 0.03;
@@ -790,7 +812,7 @@ export class Scene3D {
       if (!this.G.rayonZone) for (const o of [this.swiss?.socle, this.couches.roofer]) o?.traverse(m => m.isMesh && decouperBord(m, this.G.R - 0.03));
       this.majZone();
       base.geometry.dispose();
-      base.geometry = socle(this.G, this.zRef, this.zBas, objets.length ? hauteursBords(this.G, this.zRef, objets) : null, releve);
+      base.geometry = socle(this.G, this.zRef, this.zBas, objets.length ? (this.G.rayonZone ? hauteursDessus(this.G, this.zRef, objets) : hauteursBords(this.G, this.zRef, objets)) : null, releve);
       this.grilleComp = null; // la coupe relira les bâtiments affichés
       this.surBatiments?.();
       this.ombres();
@@ -1572,7 +1594,11 @@ export class Scene3D {
       // nos bâtiments (et roofer) : coupés 3 cm en retrait du bord, sinon les murs du bord sont dans le plan de la face
       // du socle et leur partie enterrée apparaît en stries à travers elle
       const dedans = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), R - 0.03));
-      for (const x of [m.toit, m.mur]) if (x) { x.clippingPlanes = [...dedans, ...(plans || [])]; x.needsUpdate = true; }
+      for (const x of [m.toit, m.mur]) if (x) {
+        // maquette ronde : coupés net au cercle (dans le shader) ; carrée : coupés au bord par les plans
+        if (this.G.rayonZone) decoupeZone(x, ZONE_FINE);
+        x.clippingPlanes = this.G.rayonZone ? plans : [...dedans, ...(plans || [])]; x.needsUpdate = true;
+      }
       // maquette ronde : swisstopo et roofer sont découpés par la zone (cercle ou anneau), pas par la boîte
       for (const x of [c.roofer?.material, this.swiss?.materiau]) if (x) {
         if (this.G.rayonZone) decoupeZone(x);

@@ -163,13 +163,17 @@ export async function terrainAutour(liste, E0, N0, rayon) {
  * des cellules hors du cercle sont retirés (le terrain reste complet : il sert aux interpolations et au paysage).
  */
 export function garderCercle(G, rayon) {
-  const { n, c, x0 } = G, r2 = rayon * rayon;
+  const { n, c, x0 } = G, r2 = rayon * rayon, marge = (rayon + 25) ** 2;
   G.rayonZone = rayon;
+  // végétation : coupée au cercle ; bâtiments et ponts : gardés jusqu'à 25 m au-delà, puis coupés net au cercle
+  // par le rendu (découpe dans le shader), la paroi du socle montant jusqu'à leur toit pour fermer la coupe
   for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
-    const x = x0 + (i + 0.5) * c, y = x0 + (j + 0.5) * c;
-    if (x * x + y * y <= r2) continue;
+    const x = x0 + (i + 0.5) * c, y = x0 + (j + 0.5) * c, d2 = x * x + y * y;
+    if (d2 <= r2) continue;
     const p = j * n + i;
-    G.bat[p] = G.veg[p] = NaN;
+    G.veg[p] = NaN;
+    if (d2 <= marge) continue;
+    G.bat[p] = NaN;
     if (G.pont) G.pont[p] = NaN;
     if (G.pontBas) G.pontBas[p] = NaN;
   }

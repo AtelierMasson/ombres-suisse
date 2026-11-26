@@ -52,6 +52,8 @@ export async function lancerVol(scene, cle, o) {
   majSurface(G);
   o.etat(0.35, `${V.nom} · bâtiments et arbres`);
   scene.vol = true;
+  const voirAvant = scene.loin.voir;
+  scene.loin.voir = true; // le vol montre toujours le paysage
   scene.construire(G, null, { anneauxRel: [] }, null);
   const k = scene.couches;
   for (const nom of ["socle", "limite", "canopee", "arbres"]) if (k[nom]) k[nom].visible = false;
@@ -100,5 +102,5 @@ export async function lancerVol(scene, cle, o) {
     if (!temps.image) marque("image");
     if (!temps.tuiles && scene.swiss?.enCours === 0 && scene.swiss.tuiles?.stats.loaded > 0 && scene.swiss.arbres?.stats.loaded > 0) marque("tuiles");
   };
-  return () => { arret = true; scene.vol = false; scene.calques.jeu = jeuAvant; ctl.enabled = true; scene.animation = null; };
+  return () => { arret = true; scene.vol = false; scene.reglerLointain({ voir: voirAvant }); scene.calques.jeu = jeuAvant; ctl.enabled = true; scene.animation = null; };
 }
