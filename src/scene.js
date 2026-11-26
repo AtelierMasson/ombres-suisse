@@ -12,7 +12,7 @@ import { Line2 } from "three/addons/lines/Line2.js";
 import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { solEn, majSurface } from "./grille.js";
 import { indexVolumes } from "./volumes.js";
-import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord } from "./maillages.js";
+import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord, tabliersPonts } from "./maillages.js";
 import { chargerImage, teinterCadastre } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
 import { materiauLointain } from "./lointain.js";
@@ -445,7 +445,10 @@ export class Scene3D {
     const limite = contourParcelle(parcelle, G, this.zRef, m.parcelle);
     // lacs et étangs : un vrai plan, au niveau de l'eau
     const ge = plansEau(G, this.zRef), eau = ge ? maille(ge, m.eau, false, true) : null;
-    this.couches = { terrain: sol, socle: base, bati, canopee, arbres, limite, eau };
+    // ponts : tablier (dalle et rives) avec le vide dessous, du même plâtre que les murs
+    const gp = tabliersPonts(G, this.zRef), ponts = gp ? maille(gp, m.mur, true, true) : null;
+    if (ponts) decouperBord(ponts, G.R - 0.03);
+    this.couches = { terrain: sol, socle: base, bati, canopee, arbres, limite, eau, ponts };
     for (const o of Object.values(this.couches)) if (o) this.groupe.add(o);
     // la canopée qui porte l'ombre des points est un peu abaissée : le haut des couronnes reste au soleil,
     // l'intérieur et le bas s'assombrissent

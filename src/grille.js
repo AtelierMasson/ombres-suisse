@@ -12,25 +12,28 @@ export function grilleVide(R, c = 0.5) {
 /** Points -> grilles (min du sol, max des bâtiments et de la végétation). */
 export function depuisPoints(nuage, R, c = 0.5) {
   const G = grilleVide(R, c), { n, sol, bat, veg } = G;
-  const { X, Y, Z, C } = nuage, eauZ = new Float32Array(n * n).fill(NaN);
+  const { X, Y, Z, C } = nuage, eauZ = new Float32Array(n * n).fill(NaN), pont = G.pont = new Float32Array(n * n).fill(NaN);
   for (let k = 0; k < nuage.n; k++) {
     const i = Math.floor((X[k] + R) / c), j = Math.floor((Y[k] + R) / c);
     if (i < 0 || j < 0 || i >= n || j >= n) continue;
     const p = j * n + i, z = Z[k], cl = C[k];
     if (cl === 2 || cl === 9) { if (!(sol[p] <= z)) sol[p] = z; }
     if (cl === 9 && !(eauZ[p] <= z)) eauZ[p] = z;
-    else if (cl === 6 || cl === 17) { if (!(bat[p] >= z)) bat[p] = z; }
+    else if (cl === 6) { if (!(bat[p] >= z)) bat[p] = z; }
+    else if (cl === 17) { if (!(pont[p] >= z)) pont[p] = z; } // ponts : un tablier, pas un bâtiment plein jusqu'au sol
     else if (cl === 3 || cl === 4 || cl === 5) { if (!(veg[p] >= z)) veg[p] = z; }
   }
   G.eau = plansEau(eauZ, n, c);
   remplir(sol, n);
   // sous l'eau : fond plat un peu sous le niveau (le plan d'eau est dessiné à part)
   for (let p = 0; p < n * n; p++) if (!isNaN(G.eau[p])) sol[p] = Math.min(sol[p], G.eau[p] - 0.3);
-  fermer(bat, n, 2); fermer(veg, n, 1);
+  fermer(bat, n, 2); fermer(veg, n, 1); fermer(pont, n, 2);
   for (let p = 0; p < n * n; p++) {
     if (bat[p] < sol[p] + 1.5) bat[p] = NaN;
     if (veg[p] < sol[p] + 1.0) veg[p] = NaN;
+    if (pont[p] < sol[p] + 2.5 || !isNaN(bat[p])) pont[p] = NaN; // tablier au ras du sol : c'est la chaussée
   }
+  retirerIsoles(pont, n, 3);
   retirerIsoles(bat, n, 3);
   boucherTrous(bat, n, c);
   retirerMats(bat, sol, n, c);
@@ -147,7 +150,7 @@ function surface(G) {
   G.base = new Float32Array(sol.length);
   for (let p = 0; p < s.length; p++) {
     G.base[p] = Math.max(sol[p], bat[p] || -1e9);
-    s[p] = Math.max(G.base[p], veg[p] || -1e9);
+    s[p] = Math.max(G.base[p], veg[p] || -1e9, G.pont?.[p] || -1e9); // le tablier d'un pont fait de l'ombre au-dessous
   }
   return s;
 }
