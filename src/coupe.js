@@ -317,7 +317,7 @@ export function dessinerCoupe(svg, P, soleil) {
   }
   const long = P.s[k1] - P.s[k0], bas = zmin - Math.max(2, long * 0.03), haut = Math.max(zmax + Math.max(3, long * 0.05), bas + long * 0.22);
   // largeur de la carte (pixels de l'écran, textes à leur taille), hauteur limitée ; échelle identique en x et en z
-  const m = { g: 46, d: 12, h: 8, b: 20 }, largeDispo = Math.max(360, (svg.parentElement?.clientWidth || 736) - 16), Hmax = 250;
+  const m = { g: 46, d: 12, h: 8, b: 20 }, largeDispo = Math.max(360, (svg.parentElement?.clientWidth || 736) - 16), Hmax = Math.max(250, Math.round(innerHeight * 0.32));
   const e = Math.min((largeDispo - m.g - m.d) / long, (Hmax - m.h - m.b) / (haut - bas));
   const W = Math.round(long * e + m.g + m.d), H = Math.round((haut - bas) * e + m.h + m.b);
   svg.style.width = `${W}px`;
@@ -449,7 +449,7 @@ export function dessinerCoupe(svg, P, soleil) {
     note = tr("coupe.soleilPlan", { heure: soleil.heure, angle: nombre(app, 0) });
   } else if (soleil) note = tr(soleil.hauteur <= 0 ? "coupe.soleilCouche" : "coupe.soleilCache", { heure: soleil.heure });
   t += `</g><line x1="${m.g}" x2="${W - m.d}" y1="${H - m.b}" y2="${H - m.b}" class="axe"/>`;
-  t += `<text x="${m.g + 4}" y="${m.h + 11}" class="repere">A</text><text x="${W - m.d - 4}" y="${m.h + 11}" text-anchor="end" class="repere">B</text>`;
+  t += `<text x="${m.g + 4}" y="${m.h + 11}" class="repere">${P.lettres?.[0] || "A"}</text><text x="${W - m.d - 4}" y="${m.h + 11}" text-anchor="end" class="repere">${P.lettres?.[1] || "B"}</text>`;
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   svg.innerHTML = t;
   return { note, long, zmin, zmax };

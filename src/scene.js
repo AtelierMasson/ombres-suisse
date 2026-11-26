@@ -1147,7 +1147,7 @@ export class Scene3D {
       this.poignees = [P.A, P.B].map(([x, y], k) => {
         const g = new THREE.Group(), boule = new THREE.Mesh(new THREE.SphereGeometry(0.55, 20, 12), this.mat.poignee);
         boule.renderOrder = 5; boule.userData.bout = k;
-        g.add(boule, etiquette(k ? "B" : "A", this.T.coupe.trait));
+        g.add(boule, etiquette(P.lettres?.[k] || (k ? "B" : "A"), this.T.coupe.trait));
         g.position.set(x, solEn(this.G, x, y) - this.zRef + 1, -y);
         this.outils.add(g);
         return g;

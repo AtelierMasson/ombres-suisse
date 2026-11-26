@@ -103,7 +103,7 @@ function accueil() {
   document.body.classList.add("accueil");
   $("#panneau").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
   message("");
-  Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, heuresDemandees: false });
+  Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
   const D = hameau();
   scene.construire(D.G, D.nuage, D.parcelle, null);
   pro.reinitialiser();
@@ -224,7 +224,7 @@ async function depuisAdresse() {
     }
     $("#source").textContent = source;
     [S.lon, S.lat] = versWgs(E0, N0);
-    Object.assign(S, { E0, N0, parcelle: rel, G, horizon: null, zone: null, facades: null, resultat: null, coupe: null, heuresDemandees: false });
+    Object.assign(S, { E0, N0, parcelle: rel, G, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
     $("#vCoupe").checked = false; $("#outilsCoupe").hidden = true;
     $("#btnHeures").textContent = t("heures.calculer");
     etat(0.85, t("etat.scene"));
@@ -495,11 +495,53 @@ function majCoupe(A, B) {
   // la coupe suit le jeu de bâtiments affiché (relevé, swisstopo, roofer ou aucun) ; en mode pro, points du nuage proches
   const jeu = choixBatiments(), grille = jeu === "swiss" || jeu === "roofer" ? scene.grilleComparaison(jeu) : null;
   const distance = $("#vPro").checked && scene.nuage ? +$("#distPoints").value : 0;
-  S.coupe = { A, B, P: profilCoupe(S.G, scene.contours, A, B, S.parcelle, 0.25, S.voisines || [],
-    { batiments: jeu === "releve" ? null : grille || "aucun", nuage: scene.nuage, distance }) };
+  const P = profilCoupe(S.G, scene.contours, A, B, S.parcelle, 0.25, S.voisines || [],
+    { batiments: jeu === "releve" ? null : grille || "aucun", nuage: scene.nuage, distance });
+  // plusieurs coupes : celle-ci est l'active (en 3D et dessinée) ; une nouvelle reçoit la paire de lettres libre suivante
+  if (!S.coupe) { S.coupe = { lettres: lettresLibres() }; S.coupes.push(S.coupe); }
+  Object.assign(S.coupe, { A, B, P });
+  P.lettres = S.coupe.lettres;
+  ongletsCoupe();
   $("#legendePoints").hidden = !S.coupe.P.points;
   scene.definirCoupe(S.coupe.P);
   dessinCoupe();
+}
+function lettresLibres() {
+  for (let k = 0; ; k++) {
+    const l = [String.fromCharCode(65 + 2 * k), String.fromCharCode(66 + 2 * k)];
+    if (!S.coupes.some(c => c.lettres[0] === l[0])) return l;
+  }
+}
+// onglets des coupes au-dessus du dessin : choisir, retirer (×), ajouter
+function ongletsCoupe() {
+  const el = $("#ongletsCoupe");
+  el.replaceChildren(...S.coupes.map(c => {
+    const b = document.createElement("span");
+    b.className = "onglet-coupe" + (c === S.coupe ? " actif" : "");
+    const nom = document.createElement("button");
+    nom.type = "button"; nom.textContent = t("coupe.nom", { a: c.lettres[0], b: c.lettres[1] });
+    nom.onclick = () => { if (c !== S.coupe) { S.coupe = c; majCoupe(c.A, c.B); } };
+    const x = document.createElement("button");
+    x.type = "button"; x.className = "retirer"; x.textContent = "×"; x.title = x.ariaLabel = t("coupe.retirer");
+    x.onclick = () => {
+      S.coupes = S.coupes.filter(d => d !== c);
+      if (!S.coupes.length) { $("#vCoupe").checked = false; $("#vCoupe").dispatchEvent(new Event("change")); return; }
+      if (c === S.coupe) { S.coupe = S.coupes.at(-1); majCoupe(S.coupe.A, S.coupe.B); } else ongletsCoupe();
+    };
+    b.append(nom, x);
+    return b;
+  }), (() => {
+    const plus = document.createElement("button");
+    plus.type = "button"; plus.className = "ajouter"; plus.textContent = t("coupe.ajouter");
+    plus.onclick = () => { S.coupe = null; majCoupe(...coupeParDefaut(S.coupes.length % 2 === 1)); };
+    return plus;
+  })());
+}
+/** Coupe par défaut à travers la parcelle : sud–nord (soleil de midi dans le plan), ou ouest–est en travers. */
+function coupeParDefaut(travers = false) {
+  const pts = S.parcelle.anneauxRel.flat(), demi = pts.length ? Math.max(...pts.map(p => Math.abs(p[travers ? 0 : 1]))) : 15;
+  const L = Math.min(S.G.R - 5, Math.max(35, demi + 25));
+  return travers ? [[-L, 0], [L, 0]] : [[0, -L], [0, L]];
 }
 function dessinCoupe() {
   const r = dessinerCoupe($("#svgCoupe"), S.coupe.P, soleilActuel());
@@ -521,11 +563,9 @@ new ResizeObserver(() => {
 $("#vCoupe").addEventListener("change", e => {
   $("#outilsCoupe").hidden = $("#coupe").hidden = !e.target.checked;
   scene.tracer(null); $("#btnTracer").classList.remove("active");
-  if (!e.target.checked) { S.coupe = null; scene.definirCoupe(null); return; }
-  // par défaut : coupe sud–nord à travers la parcelle (le soleil de midi est alors dans le plan)
-  const pts = S.parcelle.anneauxRel.flat(), demi = pts.length ? Math.max(...pts.map(p => Math.abs(p[1]))) : 15;
-  const L = Math.min(S.G.R - 5, Math.max(35, demi + 25));
-  majCoupe([0, -L], [0, L]);
+  if (!e.target.checked) { S.coupe = null; S.coupes = []; scene.definirCoupe(null); return; }
+  S.coupe = null; S.coupes = [];
+  majCoupe(...coupeParDefaut());
 });
 $("#btnTracer").onclick = () => {
   const actif = !$("#btnTracer").classList.contains("active");

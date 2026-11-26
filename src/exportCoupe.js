@@ -78,7 +78,7 @@ export function dessinCoupe(P, o) {
   const pas = [1, 2, 5, 10, 20, 50].find(v => L / v <= 12) || 100, nb = Math.min(5, Math.floor(L / pas)), ye = bas - 2.2;
   ligne("CADRE", [0, ye, nb * pas, ye]);
   for (let k = 0; k <= nb; k++) { ligne("CADRE", [k * pas, ye, k * pas, ye + 0.5]); texte("CADRE", k * pas, ye - 0.8, `${k * pas}${k === nb ? " m" : ""}`, "middle"); }
-  for (const [nom, x, pt, ancre] of [["A", 0, P.A, "start"], ["B", L, P.B, "end"]]) {
+  for (const [nom, x, pt, ancre] of [[P.lettres?.[0] || "A", 0, P.A, "start"], [P.lettres?.[1] || "B", L, P.B, "end"]]) {
     ligne("CADRE", [x, bas, x, haut]);
     texte("CADRE", x + (ancre === "start" ? 0.5 : -0.5), haut - 1.2, nom, ancre, 0.9);
     texte("CADRE", x + (ancre === "start" ? 0.5 : -0.5), haut - 2.1, mn95(pt), ancre, 0.4);

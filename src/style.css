@@ -254,3 +254,13 @@ body.accueil #orientation { display: none; }
 #retour { position: absolute; z-index: 6; left: 50%; top: 56px; transform: translateX(-50%); border-radius: 999px; padding: 4px 14px;
   border: 1px solid var(--bord-fort); background: var(--carte); color: var(--texte); }
 #retour:hover { border-color: var(--accent); }
+
+/* onglets des coupes (en bas) : nom, × pour retirer, « + Ajouter une coupe » */
+.onglets-coupe { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.onglet-coupe { display: inline-flex; align-items: center; border: 1px solid var(--bord); border-radius: 999px; overflow: hidden; }
+.onglet-coupe.actif { border-color: var(--accent); background: var(--accent-clair); }
+.onglets-coupe button { border: 0; background: transparent; color: var(--texte); font-size: 12px; padding: 1px 4px 1px 10px; line-height: 1.6; }
+.onglet-coupe.actif button:first-child { font-weight: 600; }
+.onglets-coupe button.retirer { padding: 1px 8px 1px 4px; color: var(--doux); }
+.onglets-coupe button.retirer:hover { color: var(--texte); }
+.onglets-coupe button.ajouter { padding: 1px 10px; color: var(--accent-fonce); border: 1px dashed var(--bord-fort); border-radius: 999px; }
