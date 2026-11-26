@@ -108,6 +108,8 @@ export default {
   "aff.couleursTitre": "Couleur de chaque point prise sur l'orthophoto SWISSIMAGE, à la verticale (les façades prennent la couleur du toit ou du sol voisin)",
   "aff.points": "Nuage de points brut",
   "aff.degrade": "Couleur selon la hauteur",
+  "aff.reel": "Couleurs réelles",
+  "aff.reelTitre": "Sol et bâtiments aux couleurs de l'orthophoto SWISSIMAGE : le sol dégagé (sous les arbres, celui d'à côté), les toits, et la couleur du toit pour les façades",
   "aff.cadastre": "Plan cadastral au sol",
   "aff.parcelles": "Parcelles voisines",
   "aff.lointain": "Paysage",

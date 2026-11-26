@@ -238,6 +238,7 @@ async function depuisAdresse() {
     scene.controls.autoRotate = false;
     scene.typeFond = $("#vCadastre").checked ? "cadastre" : "uni";
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite) });
+    if ($("#vReel").checked) scene.couleursReellesModele(true);
     scene.tuilesPlan.placer(E0, N0, G.R); // plan autour : tuiles en mémoire aussitôt, les autres au fil de l'eau
     pro.reinitialiser();
     // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
@@ -487,6 +488,7 @@ $("#vCouleursReelles").addEventListener("change", e => {
   scene.couleursPoints(e.target.checked);
   if (e.target.checked && !$("#vPoints").checked && !$("#vPoints").disabled) { $("#vPoints").checked = true; appliquerAffichage(); }
 });
+$("#vReel").addEventListener("change", e => scene.couleursReellesModele(e.target.checked));
 $("#vLointain").addEventListener("change", e => scene.reglerLointain({ voir: e.target.checked }));
 $("#vBrume").addEventListener("change", e => scene.reglerLointain({ brume: e.target.checked }));
 $("#vDegrade").addEventListener("change", e => scene.degradeHauteur(e.target.checked));

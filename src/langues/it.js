@@ -107,6 +107,8 @@ export default {
   "aff.couleursTitre": "Colore di ogni punto preso dall'ortofoto SWISSIMAGE, in verticale (le facciate prendono il colore del tetto o del suolo vicino)",
   "aff.points": "Nuvola di punti grezza",
   "aff.degrade": "Colore secondo l'altezza",
+  "aff.reel": "Colori reali",
+  "aff.reelTitre": "Suolo ed edifici con i colori dell'ortofoto SWISSIMAGE: il suolo libero (sotto gli alberi quello accanto), i tetti, e il colore del tetto per le facciate",
   "aff.cadastre": "Piano catastale al suolo",
   "aff.parcelles": "Particelle vicine",
   "aff.lointain": "Paesaggio",

@@ -44,7 +44,9 @@ void main() {
 // ombre de contact : grilles du lieu (altitude du sol, distance au bâti) partagées par les matériaux
 const CONTACT = { tSol: { value: null }, tDist: { value: null }, grille: { value: new THREE.Vector3(0, 1, 0) }, contactActif: { value: 0 },
   // sélection : R = parcelle choisie, G = bâtiment(s) de l'adresse ou de la parcelle ; teinte = couleur de parcelle du thème
-  tSel: { value: null }, teinteSel: { value: new THREE.Color("#e0262b") } };
+  tSel: { value: null }, teinteSel: { value: new THREE.Color("#e0262b") },
+  // couleurs réelles (orthophoto lue par catégorie) : sol, et bâtiments (toits, couleur reprise par leurs façades)
+  tReelSol: { value: null }, tReelBati: { value: null }, tReelMur: { value: null }, reelActif: { value: 0 } };
 
 /**
  * `contact` : "mur" (bas des murs assombri sur ~1,5 m), "sol" (sol assombri au pied des bâtiments, ~2 m) ou "toit" ;
@@ -62,7 +64,8 @@ function grainPlatre(mat, force, contact = "") {
       .replace("#include <common>", `#include <common>
 varying vec3 vMonde;
 uniform float grainForce;
-uniform sampler2D tSol, tDist, tSel;
+uniform sampler2D tSol, tDist, tSel, tReelSol, tReelBati, tReelMur;
+uniform float reelActif;
 uniform vec3 teinteSel;
 uniform vec3 grille; // x0, côté (m), zRef inutilisé
 uniform float contactActif;
@@ -81,6 +84,7 @@ float pixel = hachage(floor(vMonde * 2.0 + 0.001) + 0.37);
 diffuseColor.rgb *= 1.0 + grainForce * ((g - 0.5) * 1.4 + (pixel - 0.5) * 0.9);
 ${contact && `if (contactActif > 0.5) {
   vec2 uvG = (vec2(vMonde.x, -vMonde.z) - grille.x) / grille.y;
+  if (reelActif > 0.5) diffuseColor.rgb = texture2D(${contact === "sol" ? "tReelSol" : contact === "mur" ? "tReelMur" : "tReelBati"}, uvG).rgb * (1.0 + grainForce * (g - 0.5) * 0.7);
   ${contact === "mur"
     ? "float hc = vMonde.y - texture2D(tSol, uvG).r; diffuseColor.rgb *= mix(0.84, 1.0, smoothstep(0.0, 1.2, hc));"
     : contact === "sol" ? "float dc = texture2D(tDist, uvG).r; diffuseColor.rgb *= mix(0.86, 1.0, smoothstep(0.0, 1.6, dc));" : ""}
@@ -393,6 +397,7 @@ export class Scene3D {
     this.couches = {};
     this.poignees = [];
     this.coupe = this.contours = this.urls = null;
+    CONTACT.reelActif.value = 0; for (const k of ["sol", "bati", "mur"]) this.reel?.[k].dispose(); this.reel = null;
     // la teinte de sélection du lieu précédent (grille d'une autre taille) ne doit pas déteindre sur le suivant, ni sur l'accueil
     CONTACT.tSel.value?.dispose(); CONTACT.tSel.value = null;
     this.contoursTous = this.volumes = this.batOrigine = this.nuage = this.grilleComp = null;
@@ -792,6 +797,72 @@ export class Scene3D {
     }
     this.appliquerCoupe();
     if (!apercu) this.ombres(); else this.demander();
+  }
+
+  /**
+   * Couleurs réelles du sol et des bâtiments, tirées de l'orthophoto SWISSIMAGE par catégorie (le nuage de points n'a pas
+   * de couleur) : sol = la photo là où le sol est dégagé, sinon (sous les arbres) la couleur du sol dégagé le plus proche ;
+   * bâtiments = la couleur de leur toit, reprise par leurs façades. Deux petites textures alignées sur la grille.
+   */
+  async couleursReellesModele(actif) {
+    this.reelModele = !!actif;
+    if (!actif) { CONTACT.reelActif.value = 0; this.demander(); return; }
+    const G = this.G, id = this.idScene;
+    if (!G || !this.urls?.ortho) return;
+    if (!this.reel || this.reel.id !== id) {
+      const img = await chargerImage(this.urls.ortho), cv = document.createElement("canvas");
+      if (id !== this.idScene) return;
+      const W = cv.width = img.naturalWidth, H = cv.height = img.naturalHeight, ctx = cv.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0);
+      const px = ctx.getImageData(0, 0, W, H).data, { n, c, x0, R } = G;
+      const couleur = (i, j) => { // moyenne des pixels de la cellule
+        const xa = Math.floor((x0 + i * c + R) / (2 * R) * W), xb = Math.max(xa + 1, Math.floor((x0 + (i + 1) * c + R) / (2 * R) * W));
+        const ya = Math.floor((R - (x0 + (j + 1) * c)) / (2 * R) * H), yb = Math.max(ya + 1, Math.floor((R - (x0 + j * c)) / (2 * R) * H));
+        let r = 0, g = 0, b = 0, k = 0;
+        for (let y = Math.max(0, ya); y < Math.min(H, yb); y++) for (let x = Math.max(0, xa); x < Math.min(W, xb); x++) { const p = 4 * (y * W + x); r += px[p]; g += px[p + 1]; b += px[p + 2]; k++; }
+        return k ? [r / k, g / k, b / k] : null;
+      };
+      // couleur des cellules de la bonne catégorie, puis, de proche en proche (parcours en largeur), celle de la cellule
+      // valide la plus proche pour les autres, jusqu'à `portee` cellules
+      const remplir = (ok, portee, valeur = couleur) => {
+        const col = new Float32Array(n * n * 3), dist = new Int32Array(n * n).fill(-1), file = new Int32Array(n * n);
+        let tete = 0, queue = 0;
+        for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+          const p = j * n + i;
+          if (!ok(p)) continue;
+          const v = valeur(i, j);
+          if (v) { col.set(v, 3 * p); dist[p] = 0; file[queue++] = p; }
+        }
+        while (tete < queue) {
+          const p = file[tete++], i = p % n;
+          if (dist[p] >= portee) continue;
+          for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n]) {
+            if (q < 0 || q >= n * n || dist[q] >= 0) continue;
+            dist[q] = dist[p] + 1; col[3 * q] = col[3 * p]; col[3 * q + 1] = col[3 * p + 1]; col[3 * q + 2] = col[3 * p + 2];
+            file[queue++] = q;
+          }
+        }
+        const d = new Uint8Array(n * n * 4);
+        for (let p = 0; p < n * n; p++) { d[4 * p] = col[3 * p]; d[4 * p + 1] = col[3 * p + 1]; d[4 * p + 2] = col[3 * p + 2]; d[4 * p + 3] = 255; }
+        const tex = new THREE.DataTexture(d, n, n, THREE.RGBAFormat);
+        tex.colorSpace = THREE.SRGBColorSpace; tex.magFilter = tex.minFilter = THREE.LinearFilter; tex.needsUpdate = true;
+        return tex;
+      };
+      const solDegage = p => isNaN(G.bat[p]) && !(G.veg[p] - G.sol[p] > 0.8);
+      // façades : une seule couleur par bâtiment, la moyenne de son toit (sinon des bandes verticales, d'une cellule à l'autre)
+      const seg = this.contours?.seg, moyennes = new Map();
+      if (seg) for (let p = 0; p < n * n; p++) {
+        if (isNaN(G.bat[p]) || seg[p] < 0) continue;
+        const v = couleur(p % n, Math.floor(p / n)); if (!v) continue;
+        const m = moyennes.get(seg[p]) || [0, 0, 0, 0];
+        m[0] += v[0]; m[1] += v[1]; m[2] += v[2]; m[3]++; moyennes.set(seg[p], m);
+      }
+      const murEn = (i, j) => { const m = moyennes.get(seg?.[j * n + i]); return m ? [m[0] / m[3], m[1] / m[3], m[2] / m[3]] : couleur(i, j); };
+      this.reel = { id, sol: remplir(solDegage, 1e6), bati: remplir(p => !isNaN(G.bat[p]), 6), mur: remplir(p => !isNaN(G.bat[p]), 6, murEn) };
+    }
+    if (!this.reelModele || id !== this.idScene) return;
+    CONTACT.tReelSol.value = this.reel.sol; CONTACT.tReelBati.value = this.reel.bati; CONTACT.tReelMur.value = this.reel.mur; CONTACT.reelActif.value = 1;
+    this.demander();
   }
 
   /** Hauteurs (absolues, grille de G) des volumes et modèles importés du projet vus de dessus, ou null s'il n'y en a pas. */

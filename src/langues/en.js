@@ -107,6 +107,8 @@ export default {
   "aff.couleursTitre": "Colour of each point taken from the SWISSIMAGE orthophoto, straight above it (façades take the colour of the roof or ground next to them)",
   "aff.points": "Raw point cloud",
   "aff.degrade": "Colour by height",
+  "aff.reel": "Real colours",
+  "aff.reelTitre": "Ground and buildings in the colours of the SWISSIMAGE orthophoto: open ground (under trees, the ground next to them), roofs, and the roof colour for the façades",
   "aff.cadastre": "Cadastral plan on the ground",
   "aff.parcelles": "Neighbouring plots",
   "aff.lointain": "Landscape",

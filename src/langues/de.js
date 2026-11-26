@@ -107,6 +107,8 @@ export default {
   "aff.couleursTitre": "Farbe jedes Punkts aus dem Orthofoto SWISSIMAGE, senkrecht darüber (Fassaden erhalten die Farbe des Dachs oder des Bodens daneben)",
   "aff.points": "Rohe Punktwolke",
   "aff.degrade": "Einfärbung nach Höhe",
+  "aff.reel": "Echte Farben",
+  "aff.reelTitre": "Boden und Gebäude in den Farben des Orthofotos SWISSIMAGE: freier Boden (unter Bäumen der daneben), Dächer, und die Dachfarbe für die Fassaden",
   "aff.cadastre": "Katasterplan auf dem Boden",
   "aff.parcelles": "Nachbarparzellen",
   "aff.lointain": "Landschaft",
