@@ -292,7 +292,11 @@ async function depuisAdresse() {
     const copc = await tuilesNuage(boite);
     if (id !== tache) return;
     if (copc) {
-      nuage = await chargerNuage(copc, boite, [E0, N0], 0.5, (f, t) => id === tache && etat(0.05 + 0.7 * f, t), (chargement = new AbortController()).signal);
+      // densité : 0 légère, 1 équilibrée, 2 complète ; la parcelle et 40 m autour gardent toujours toute la finesse
+      const niv = +$("#densite").value, coeur = parcelle ? [Math.min(...parcelle.anneaux.flat().map(p => p[0])) - 40, Math.min(...parcelle.anneaux.flat().map(p => p[1])) - 40,
+        Math.max(...parcelle.anneaux.flat().map(p => p[0])) + 40, Math.max(...parcelle.anneaux.flat().map(p => p[1])) + 40] : [E0 - 60, N0 - 60, E0 + 60, N0 + 60];
+      nuage = await chargerNuage(copc, boite, [E0, N0], 0.5, (f, t) => id === tache && etat(0.05 + 0.7 * f, t), (chargement = new AbortController()).signal,
+        { interieur: coeur, niveau: niv === 2 ? 0 : niv === 1 ? 1 : 2 });
       if (id !== tache) return;
       etat(0.78, t("etat.reconstruction"));
       await pause();
@@ -558,18 +562,34 @@ function typeFond() { return $("#vReel").checked ? "ortho" : $("#vBruit").checke
 $("#vBruit").addEventListener("change", () => scene.fond(typeFond()));
 $("#vCadastre").addEventListener("change", () => scene.fond(typeFond()));
 scene.surFondAbsent = () => message(t("msg.cadastreAbsent"));
-$("#vEffets").addEventListener("change", e => scene.reglerEffets(e.target.checked));
+// curseurs d'Affichage, retenus par ce navigateur : qualité du rendu, brume, densité des points
+const memo = (cle, defaut) => { try { const v = localStorage.getItem(cle); return v === null ? defaut : +v; } catch { return defaut; } };
+const garder = (cle, v) => { try { localStorage.setItem(cle, String(v)); } catch { /* stockage indisponible */ } };
+const NOMS_QUALITE = () => [t("aff.qualite0"), t("aff.qualite1"), t("aff.qualite2"), t("aff.qualite3")];
+const NOMS_DENSITE = () => [t("aff.densite0"), t("aff.densite1"), t("aff.densite2")];
+function curseurs() {
+  $("#qualiteVal").textContent = NOMS_QUALITE()[+$("#qualite").value];
+  $("#brumeVal").textContent = `${$("#brume").value} %`;
+  $("#densiteVal").textContent = NOMS_DENSITE()[+$("#densite").value];
+}
+$("#qualite").value = memo("ombres.qualite", 2); $("#brume").value = memo("ombres.brume", 0); $("#densite").value = memo("ombres.densite", 1);
+scene.reglerQualite(+$("#qualite").value);
+scene.loin.facteurBrume = $("#brume").value / 100; scene.loin.brume = +$("#brume").value > 0;
+curseurs();
+$("#qualite").addEventListener("input", e => { scene.reglerQualite(+e.target.value); garder("ombres.qualite", e.target.value); curseurs(); });
+$("#brume").addEventListener("input", e => { scene.loin.facteurBrume = e.target.value / 100; scene.reglerLointain({ brume: +e.target.value > 0 }); garder("ombres.brume", e.target.value); curseurs(); });
+$("#densite").addEventListener("input", curseurs);
+$("#densite").addEventListener("change", e => { garder("ombres.densite", e.target.value); if (S.G) depuisAdresse(); });
 $("#vCouleursReelles").addEventListener("change", e => {
   scene.couleursPoints(e.target.checked);
   if (e.target.checked && !$("#vPoints").checked && !$("#vPoints").disabled) { $("#vPoints").checked = true; appliquerAffichage(); }
 });
 $("#vReel").addEventListener("change", () => scene.fond(typeFond()));
 $("#vLointain").addEventListener("change", e => scene.reglerLointain({ voir: e.target.checked }));
-$("#vBrume").addEventListener("change", e => scene.reglerLointain({ brume: e.target.checked }));
 $("#vDegrade").addEventListener("change", e => scene.degradeHauteur(e.target.checked));
 scene.surQualite = q => {
   if (q < 2) return;
-  $("#vEffets").checked = false;
+  $("#qualite").value = 0; curseurs();
   if (S.G && S.lat != null) message(t("msg.effetsCoupes"));
 };
 $("#btnPartager").onclick = async () => { await navigator.clipboard.writeText(location.href); $("#btnPartager").textContent = t("panneau.copie"); setTimeout(() => $("#btnPartager").textContent = t("panneau.lien"), 1500); };

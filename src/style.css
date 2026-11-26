@@ -304,3 +304,7 @@ body.accueil #orientation { display: none; }
 #colonne::-webkit-scrollbar { width: 8px; }
 #colonne::-webkit-scrollbar-thumb { background: var(--bord-fort); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
 #colonne::-webkit-scrollbar-track { background: transparent; }
+
+/* curseurs dans la table d'Affichage : sur toute la largeur */
+.table-calques tr.ligne-curseur td { width: auto; text-align: left; padding: 4px 0 2px; }
+.table-calques tr.ligne-curseur .form-range { height: 1.2rem; }

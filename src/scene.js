@@ -370,7 +370,9 @@ export class Scene3D {
   densiteBrume() {
     if (this.vol && !this.modeVue) return 1.5e-4; // vol de l'accueil : toujours sa brume d'été
     if (this.modeVue || !this.loin.brume) return 0;
-    return this.loin.maille && this.loin.voir ? 2.2e-5 : this.T.lumiere.brume;
+    // curseur de brume : 0 à 100 % (50 % = la brume habituelle), quadruple au plus
+    const f = (this.loin.facteurBrume ?? 0.5) * 2;
+    return (this.loin.maille && this.loin.voir ? 2.2e-5 : this.T.lumiere.brume) * f * f;
   }
 
   /** Couleurs et lumière du relief lointain, celles de la maquette (thème, soleil, ciel). */
@@ -419,23 +421,31 @@ export class Scene3D {
     if (this.effets && this.qualite < 2) this.composeur.render(); else this.renderer.render(this.scene, this.camera);
   }
 
+  /** Images trop lentes (moins de ~5 par seconde, plusieurs fois de suite) : les effets de lumière se coupent. */
   mesurer(dt) {
-    if (!this.effets || this.qualite >= 2) return;
-    this.lent = dt > 55 ? this.lent + 1 : Math.max(0, this.lent - 2);
-    if (this.lent < 45) return;
+    if (!this.effets) return;
+    this.lent = dt > 200 ? this.lent + 1 : Math.max(0, this.lent - 1);
+    if (this.lent < 8) return;
     this.lent = 0;
-    this.qualite = this.qualite === 0 && this.ratio > 1 ? 1 : 2;
-    if (this.qualite === 1) { this.ratio = 1; this.taille(); }
-    this.surQualite?.(this.qualite);
+    this.reglerQualite(0);
+    this.surQualite?.(0);
   }
 
-  /** Active ou coupe les effets (occlusion ambiante). */
-  reglerEffets(actifs) {
-    this.effets = actifs;
-    if (actifs && this.qualite === 2) this.qualite = this.ratio > 1 ? 0 : 1;
+  /**
+   * Qualité du rendu (curseur) : 0 simple (sans effets, image 1:1), 1 effets, 2 effets et image fine sur écran dense
+   * (jusqu'à 1,5), 3 la plus fine (jusqu'à 2).
+   */
+  reglerQualite(niveau) {
+    this.niveauQualite = niveau;
+    this.effets = niveau >= 1;
+    this.qualite = this.effets ? 0 : 2;
+    const ratio = Math.min(niveau >= 3 ? 2 : niveau >= 2 ? 1.5 : 1, devicePixelRatio);
+    if (ratio !== this.ratio) { this.ratio = ratio; this.taille(); }
     this.lent = 0;
     this.demander();
   }
+  /** Ancien interrupteur des effets (gardé pour les appels existants). */
+  reglerEffets(actifs) { this.reglerQualite(actifs ? Math.max(1, this.niveauQualite ?? 2) : 0); }
 
   /* ------------------------------------------------------------------ thème */
   appliquerTheme(T) {
@@ -1660,11 +1670,11 @@ export class Scene3D {
     const dt = Math.min(0.1, (t - avant) / 1000);
     if (!dt) return true;
     const cam = this.camera, cible = this.controls.target, e = cam.matrixWorld.elements;
-    // devant : l'axe de visée à plat ; vue de dessus : le haut de l'écran
-    const devant = new THREE.Vector3(-e[8], 0, -e[10]);
-    if (devant.lengthSq() < 0.01) devant.set(e[4], 0, e[6]);
+    // devant : l'axe de visée de la caméra, montée ou descente comprise (comme un vol) ; vue de dessus : le haut de
+    // l'écran ; de côté : toujours à plat
+    const devant = this.modeVue === "plan" ? new THREE.Vector3(e[4], 0, e[6]) : new THREE.Vector3(-e[8], -e[9], -e[10]);
     devant.normalize();
-    const droite = new THREE.Vector3(-devant.z, 0, devant.x);
+    const droite = new THREE.Vector3(-e[0] === 0 && -e[2] === 0 ? 1 : e[0], 0, e[2]).normalize();
     const d = new THREE.Vector3();
     if (k.has("KeyW") || k.has("ArrowUp")) d.add(devant);
     if (k.has("KeyS") || k.has("ArrowDown")) d.sub(devant);
