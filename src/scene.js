@@ -160,7 +160,7 @@ vec2 tailleCase = fwidth(vec2(vMonde.x, vMonde.z));
 float visibleCase = smoothstep(0.008, 0.035, max(tailleCase.x, tailleCase.y));
 float pixel = mix(0.5, hachage(floor(vMonde * 2.0 + 0.001) + 0.37), visibleCase);
 diffuseColor.rgb *= 1.0 + grainForce * ((g - 0.5) * 1.4 + (pixel - 0.5) * 0.9);
-${contact && contact !== "swiss" && `if (contactActif > 0.5) {
+${contact && contact !== "swiss" ? `if (contactActif > 0.5) {
   vec2 uvG = (vec2(vMonde.x, -vMonde.z) - grille.x) / grille.y;
   if (reelActif > 0.5) {
     // couleurs de la photo adoucies : en bonne partie désaturées, éclaircies et fondues dans un beige lumineux (maquette)
@@ -175,7 +175,7 @@ ${contact && contact !== "swiss" && `if (contactActif > 0.5) {
     : contact === "sol" ? "float dc = texture2D(tDist, uvG).r; diffuseColor.rgb *= mix(0.86, 1.0, smoothstep(0.0, 1.6, dc));" : ""}
   vec2 sel = texture2D(tSel, uvG).rg;
   diffuseColor.rgb = mix(diffuseColor.rgb, teinteSel * 1.15, ${contact === "sol" ? "0.13 * sel.r" : "0.22 * sel.g"});
-}`}`);
+}` : ""}`);
   };
   if (contact === "sol" || contact === "toit" || contact === "mur" || contact === "swiss") {
     const avant = mat.onBeforeCompile;

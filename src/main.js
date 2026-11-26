@@ -130,6 +130,8 @@ function accueil() {
   Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
   const D = hameau();
   scene.construire(D.G, D.nuage, D.parcelle, null);
+  // le décor réel (Gruyères) se charge derrière : le hameau reste affiché en attendant
+  setTimeout(() => { if (document.body.classList.contains("accueil") && !location.hash.includes("e=")) depuisAdresse({ accueil: ACCUEIL }); }, 50);
   pro.reinitialiser();
   scene.camera.position.set(-78, 52, 96);
   scene.controls.autoRotate = true; scene.controls.autoRotateSpeed = 0.5;
@@ -165,6 +167,7 @@ async function vol(cle) {
 }
 function quitterAccueil() {
   arreterVol?.(); arreterVol = null;
+  scene.loin.facteurBrume = $("#brume").value / 100; scene.loin.brume = +$("#brume").value > 0;
   document.body.classList.remove("accueil");
   scene.animation = null;
   scene.decalage = 0; scene.taille();
@@ -290,22 +293,27 @@ async function arbresAnneau(id, Rint, Rext, E0, N0) {
   } catch (e) { if (e?.name !== "AbortError") console.warn("arbres de l'anneau", e); }
 }
 
-async function depuisAdresse() {
-  const h = new URLSearchParams(location.hash.slice(1));
-  if (h.get("vol")) return vol(h.get("vol"));
-  if (!h.get("e")) return accueil();
+async function depuisAdresse(o = null) {
+  // mode accueil (`o.accueil` = { E, N, R }) : le décor de la page d'entrée, chargé comme un lieu, sans panneau ni parcelle
+  const ACC = o?.accueil || null;
+  const h = ACC ? new URLSearchParams(`e=${ACC.E}&n=${ACC.N}`) : new URLSearchParams(location.hash.slice(1));
+  if (!ACC && h.get("vol")) return vol(h.get("vol"));
+  if (!ACC && !h.get("e")) return accueil();
+  const et = ACC ? () => {} : etat;
   const E = +h.get("e"), N = +h.get("n"), id = ++tache;
   chargement?.abort();
   annulerCalcul();
-  quitterAccueil();
-  $("#panneau").hidden = false; $("#commandes").hidden = $("#panneauPro").hidden = $("#panneauAffichage").hidden = true; $("#heures").hidden = true; $("#diagramme").hidden = $("#coupe").hidden = true;
+  if (!ACC) {
+    quitterAccueil();
+    $("#panneau").hidden = false; $("#commandes").hidden = $("#panneauPro").hidden = $("#panneauAffichage").hidden = true; $("#heures").hidden = true; $("#diagramme").hidden = $("#coupe").hidden = true;
+  }
   $("#lieu").textContent = h.get("l") || `${E}, ${N}`;
   $("#lieuType").textContent = nomType(h.get("t") || "");
   $("#source").textContent = "";
   message("");
   try {
-    etat(0.02, t("etat.parcelle"));
-    const parcelle = await parcelleEn(E, N);
+    et(0.02, t("etat.parcelle"));
+    const parcelle = ACC ? null : await parcelleEn(E, N);
     if (id !== tache) return;
     // centre et rayon : la parcelle et ~120 m autour (bâtiments voisins, arbres)
     let E0 = E, N0 = N, demi = 20;
@@ -315,12 +323,12 @@ async function depuisAdresse() {
       demi = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) / 2;
       $("#lieuType").textContent = `${t("lieu.parcelle", { n: parcelle.numero })} · ${parcelle.canton}${h.get("t") === "Adresse" ? " · " + h.get("l") : ""}`;
       $("#lieu").textContent = (h.get("l") || "").replace(/\s*\(CH.*\)$/, "");
-    } else message(t("msg.pasDeParcelle"), 0);
+    } else if (!ACC) message(t("msg.pasDeParcelle"), 0);
     E0 = Math.round(E0); N0 = Math.round(N0);
     // maquette ronde : rayon choisi (curseur), sinon automatique ; relevé laser jusqu'à 300 m, au-delà un anneau
     // carrée : pas d'anneau, le rayon s'arrête au relevé fin
-    const Rz = Math.min(ronde() ? 1e9 : RAYON_FIN_MAX, rayonChoisi() || Math.min(300, Math.max(150, Math.ceil(demi + 120)))), R = Math.min(Rz, RAYON_FIN_MAX);
-    afficherRayon(Rz);
+    const Rz = ACC ? ACC.R : Math.min(ronde() ? 1e9 : RAYON_FIN_MAX, rayonChoisi() || Math.min(300, Math.max(150, Math.ceil(demi + 120)))), R = Math.min(Rz, RAYON_FIN_MAX);
+    if (!ACC) afficherRayon(Rz);
     const boite = [E0 - R, N0 - R, E0 + R, N0 + R];
     const rel = parcelle ? { ...parcelle, anneauxRel: parcelle.anneaux.map(a => a.map(([e, n]) => [e - E0, n - N0])) } : { anneauxRel: [] };
 
@@ -330,7 +338,7 @@ async function depuisAdresse() {
     const horizon = profilHorizon(E0, N0, new Promise(r => donnerAltitude = r), { rayonProche: R, onProgres: f => horizonFini = f });
     horizon.catch(() => {}); // l'erreur éventuelle est traitée à l'attente, plus bas
 
-    etat(0.05, t("etat.releve"));
+    et(0.05, t("etat.releve"));
     let G, nuage = null, source;
     const copc = await tuilesNuage(boite);
     if (id !== tache) return;
@@ -338,16 +346,16 @@ async function depuisAdresse() {
       // densité : 0 légère, 1 équilibrée, 2 complète ; la parcelle et 40 m autour gardent toujours toute la finesse
       const niv = 1, coeur = parcelle ? [Math.min(...parcelle.anneaux.flat().map(p => p[0])) - 40, Math.min(...parcelle.anneaux.flat().map(p => p[1])) - 40,
         Math.max(...parcelle.anneaux.flat().map(p => p[0])) + 40, Math.max(...parcelle.anneaux.flat().map(p => p[1])) + 40] : [E0 - 60, N0 - 60, E0 + 60, N0 + 60];
-      nuage = await chargerNuage(copc, boite, [E0, N0], 0.5, (f, t) => id === tache && etat(0.05 + 0.7 * f, t), (chargement = new AbortController()).signal,
+      nuage = await chargerNuage(copc, boite, [E0, N0], 0.5, (f, t) => id === tache && et(0.05 + 0.7 * f, t), (chargement = new AbortController()).signal,
         { interieur: coeur, niveau: niv === 2 ? 0 : niv === 1 ? 1 : 2 });
       if (id !== tache) return;
-      etat(0.78, t("etat.reconstruction"));
+      et(0.78, t("etat.reconstruction"));
       await pause();
       G = depuisPoints(nuage, R);
       source = t("source.nuage", { annees: [...new Set(copc.map(u => u.annee))].join(", "), n: entier(nuage.n) });
     } else {
       const g = await tuilesGrille(boite);
-      G = await depuisRasters(g, [E0, N0], R, 0.5, (f, t) => id === tache && etat(0.05 + 0.7 * f, t));
+      G = await depuisRasters(g, [E0, N0], R, 0.5, (f, t) => id === tache && et(0.05 + 0.7 * f, t));
       if (id !== tache) return;
       source = t("source.grille", { terrain: [...new Set(g.terrain.map(u => u.annee))].join(", "), surface: [...new Set(g.surface.map(u => u.annee))].join(", ") });
     }
@@ -356,17 +364,19 @@ async function depuisAdresse() {
     // sous l'eau, le sol reste sous la surface : des mâts de bateaux (ports) levaient sinon des aiguilles de terrain
     if (G.eau) for (let p = 0; p < G.sol.length; p++) if (!isNaN(G.eau[p]) && !(G.sol[p] < G.eau[p] - 0.1)) G.sol[p] = G.eau[p] - 0.3;
     if (id !== tache) return;
-    if (ronde()) garderCercle(G, R); // ne montrer que le cercle (sinon : maquette carrée, comme avant)
+    if (ACC || ronde()) garderCercle(G, R); // ne montrer que le cercle (sinon : maquette carrée, comme avant)
     S.rayonZone = Rz;
     $("#source").textContent = source; $("#infos").title = source;
     [S.lon, S.lat] = versWgs(E0, N0);
     Object.assign(S, { E0, N0, parcelle: rel, G, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
     $("#vCoupe").checked = false; $("#outilsCoupe").hidden = true;
     $("#btnHeures").textContent = t("heures.calculer");
-    etat(0.85, t("etat.scene"));
+    et(0.85, t("etat.scene"));
     await pause();
     scene.controls.autoRotate = false;
-    scene.typeFond = typeFond();
+    scene.typeFond = ACC ? "uni" : typeFond();
+    // accueil : brume douce (le réglage de l'utilisateur revient en quittant l'accueil)
+    if (ACC) { scene.loin.facteurBrume = 0.6; scene.loin.brume = true; }
     scene.pontsModeles = await pontsAutour(E0, N0, R).catch(() => []); scene.lieuPonts = { E: E0, N: N0 };
     if (id !== tache) return;
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite), bruit: urlFond(COUCHES.bruit, boite) });
@@ -377,10 +387,10 @@ async function depuisAdresse() {
     scene.tuilesPlan.placer(E0, N0, G.R); // plan autour : tuiles en mémoire aussitôt, les autres au fil de l'eau
     pro.reinitialiser();
     // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
-    scene.surligner(rel, h.get("t") === "Adresse" ? [E - E0, N - N0] : null);
+    if (!ACC) scene.surligner(rel, h.get("t") === "Adresse" ? [E - E0, N - N0] : null);
     // parcelles voisines (limites et numéros), chargées sans bloquer
     S.voisines = [];
-    parcellesAutour(boite).then(v => {
+    if (!ACC) parcellesAutour(boite).then(v => {
       if (id !== tache) return;
       S.toutes = v.map(p => ({ numero: p.numero, anneauxRel: p.anneaux.map(a => a.map(([e, n]) => [e - E0, n - N0])) }));
       S.voisines = S.toutes.filter(p => p.numero !== parcelle?.numero);
@@ -389,13 +399,14 @@ async function depuisAdresse() {
     }).catch(e => console.warn("Parcelles voisines :", e.message));
     S.roofer = essaiRoofer(E0, N0);
     choixRoofer();
-    scene.comparerSwiss(choixBatiments() === "swiss", { E: S.E0, N: S.N0 });
+    scene.comparerSwiss(!!ACC || choixBatiments() === "swiss", { E: S.E0, N: S.N0 });
     comparerRoofer();
-    appliquerAffichage();
+    if (ACC) scene.reglerCalques({ jeu: "swiss", batVoir: true, batOmbre: true, arbOmbre: true });
+    else appliquerAffichage();
     $("#vArbres").disabled = !nuage && !G.veg.some(v => !isNaN(v)); $("#vPoints").disabled = $("#distPoints").disabled = !nuage;
 
     donnerAltitude(scene.zRef + 1.7);
-    if (horizonFini < 1) etat(0.9 + 0.1 * horizonFini, t("etat.relief"));
+    if (horizonFini < 1) et(0.9 + 0.1 * horizonFini, t("etat.relief"));
     S.horizon = await horizon;
     if (id !== tache) return;
     // paysage jusqu'à 50 km, des mêmes tuiles (déjà en cache), sans bloquer
@@ -406,7 +417,8 @@ async function depuisAdresse() {
       .then(l => terrainAutour(l, E0, N0, RAYON_FIN)).catch(e => { console.warn("swissALTI3D 2 m :", e.message); return null; })
       .then(fin => { if (id === tache) { S.fin = fin; return paysageEtAnneau(id, idScene); } })
       .catch(e => console.warn("Relief lointain :", e.message));
-    etat(1, "");
+    et(1, "");
+    if (ACC) { volAccueil(E0, N0, id); return; }
     $("#commandes").hidden = $("#panneauPro").hidden = $("#panneauAffichage").hidden = false; $("#diagramme").hidden = false;
     majSoleil();
     pro.apresChargement(); // projet rouvert depuis la liste : démolitions, volumes, coupes
@@ -419,6 +431,30 @@ async function depuisAdresse() {
   }
 }
 const pause = () => new Promise(r => setTimeout(r, 30));
+
+/**
+ * Accueil sur Gruyères : la caméra avance lentement depuis le bas du bourg vers le château, puis revient, en boucle.
+ * Un geste sur la vue l'arrête (on reprend la main).
+ */
+const ACCUEIL = { E: 2572640, N: 1159220, R: 250, chateau: [2572790, 1159320] };
+function volAccueil(E0, N0, id) {
+  // départ au-dessus du bas du bourg, vers le château ; la caméra s'en approche d'un tiers, puis revient
+  const C = [ACCUEIL.chateau[0] - E0 - 60, 5, -(ACCUEIL.chateau[1] - N0) + 40], A = [-300, 135, 220], B = A.map((v, k) => v + (C[k] - v) * 0.35);
+  const t0 = performance.now(), duree = 60000;
+  scene.controls.autoRotate = false;
+  // lumière de fin d'après-midi, de l'ouest-sud-ouest : les façades vues de la caméra sont au soleil
+  const az = 250 * Math.PI / 180, h = 30 * Math.PI / 180;
+  scene.placerSoleil([Math.sin(az) * Math.cos(h), Math.sin(h), -Math.cos(az) * Math.cos(h)], true);
+  scene.animation = t => {
+    if (id !== tache) return;
+    const u = ((t - t0) / duree) % 2, f = u < 1 ? u : 2 - u, e = f * f * (3 - 2 * f);
+    scene.camera.position.set(...A.map((v, k) => v + (B[k] - v) * e));
+    scene.controls.target.set(...C);
+    scene.controls.update();
+  };
+  const arret = () => { if (scene.animation) scene.animation = null; scene.controls.removeEventListener("start", arret); };
+  scene.controls.addEventListener("start", arret);
+}
 
 /* ------------------------------------------------------------------ soleil */
 function soleilActuel() {
@@ -571,7 +607,7 @@ async function comparerRoofer() {
     if (lieu === S.E0 && choixBatiments() === "roofer") scene.afficherRoofer(m);
   } finally { telechargement("roofer", null); }
 }
-scene.surTuilesSwiss = n => telechargement("swiss", n > 0 && !scene.vol ? t("etat.swiss", { n }) : null); // le vol charge sans bandeau
+scene.surTuilesSwiss = n => telechargement("swiss", n > 0 && !scene.vol && !document.body.classList.contains("accueil") ? t("etat.swiss", { n }) : null); // le vol et l'accueil chargent sans bandeau
 // bâtiments affichés : un seul jeu à la fois (relevé, swisstopo, roofer là où il a été calculé, ou aucun)
 function choixBatiments() { return $("input[name=batiments]:checked")?.value || "releve"; }
 const NOTES = {
