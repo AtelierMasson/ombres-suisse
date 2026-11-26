@@ -44,5 +44,12 @@ json(200, [
     'ventesJour'   => $tous("SELECT DATE(cree_le) AS jour, COUNT(*) AS n, SUM(montant) AS montant FROM achats WHERE etat = 'paye' AND cree_le > UTC_TIMESTAMP() - INTERVAL 90 DAY GROUP BY jour ORDER BY jour"),
     'usage'        => $tous('SELECT jour, evenement, n FROM compteurs WHERE jour > UTC_DATE() - INTERVAL 90 DAY ORDER BY jour'),
     'ventes'       => $tous('SELECT a.id, c.email, a.montant, a.devise, a.etat, a.cree_le FROM achats a JOIN comptes c ON c.id = a.compte_id ORDER BY a.cree_le DESC LIMIT 100'),
-    'comptes'      => $tous('SELECT email, pro, achete_le, cree_le FROM comptes ORDER BY cree_le DESC LIMIT 200'),
+    'comptes'      => $tous('SELECT email, pro, achete_le, cree_le, prenom, nom, societe, adresse, npa, localite, pays, telephone FROM comptes ORDER BY cree_le DESC LIMIT 500'),
+    // boîte à suggestions (suggestion.php) : les 200 dernières, la plus récente d'abord
+    'suggestions'  => (function () {
+        $f = dirname(__DIR__, 2) . '/donnees-topograph/suggestions.jsonl';
+        if (!is_file($f)) return [];
+        $lignes = array_slice(file($f, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [], -200);
+        return array_reverse(array_values(array_filter(array_map(fn($l) => json_decode($l, true), $lignes))));
+    })(),
 ]);

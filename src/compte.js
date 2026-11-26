@@ -11,7 +11,7 @@ const CLE_INTENTION = "ombres.compte.achat"; // « veut passer pro » mémorisé
 
 export function brancherCompte({ api = "/api", t = c => c } = {}) {
   const bus = new EventTarget();
-  let e = { connecte: false, email: null, pro: false };
+  let e = { connecte: false, email: null, pro: false, admin: false, profil: {} };
   let disponible = false;
   let bouton = null, dlg = null, raison = "", message = "", annonce = false;
 
@@ -37,7 +37,7 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       else if (r.ok) {
         const d = await r.json();
         disponible = true;
-        changer({ connecte: true, email: String(d.email || ""), pro: !!d.pro });
+        changer({ connecte: true, email: String(d.email || ""), pro: !!d.pro, admin: !!d.admin, profil: d.profil || {} });
       } else disponible = false;
     } catch { disponible = false; }
     if (bouton) bouton.hidden = !disponible;
@@ -58,7 +58,7 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
   }
 
   function majBouton() {
-    bouton.textContent = t("compte.bouton");
+    bouton.textContent = t(e.connecte ? "compte.boutonConnecte" : "compte.bouton");
     bouton.title = e.connecte ? e.email : t("compte.boutonTitre");
     if (e.pro) {
       const b = document.createElement("span");
@@ -79,7 +79,11 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       if (a === "acheter") acheter();
       else if (a === "deconnecter") deconnecter();
     });
-    dlg.addEventListener("submit", ev => { ev.preventDefault(); demanderLien(ev.target.elements.email.value); });
+    dlg.addEventListener("submit", ev => {
+      ev.preventDefault();
+      if (ev.target.dataset.profil !== undefined) enregistrerProfil(ev.target);
+      else demanderLien(ev.target.elements.email.value);
+    });
     dlg.addEventListener("close", () => { raison = ""; message = ""; });
     document.body.append(dlg);
   }
@@ -119,14 +123,41 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       contenu.push(dl);
       if (e.pro) contenu.push(el("p", "compte-doux", t("compte.merci")));
       else {
-        contenu.push(el("p", "compte-doux", t("compte.avantages")));
-        contenu.push(bouton2("btn btn-primary w-100", t("compte.passerPro"), "acheter"));
+        // offre Pro : titre, avantages, bouton et conditions dans un même encadré, bien visible
+        const offre = el("div", "compte-offre");
+        offre.append(el("div", "compte-offre-titre", "Topograph Pro"), el("p", "compte-offre-texte", t("compte.avantages")));
+        offre.append(bouton2("btn btn-primary w-100", t("compte.passerPro"), "acheter"));
         const note = el("p", "compte-note", t("compte.paiement") + " ");
         const cgv = el("a", null, t("compte.conditions"));
         cgv.href = "#";
         cgv.dataset.legal = "conditions";
         note.append(cgv);
-        contenu.push(note);
+        offre.append(note);
+        contenu.push(offre);
+      }
+      // informations du compte (facultatives) : repliées, un seul formulaire
+      const P = e.profil || {}, det = el("details", "compte-profil"), resume = el("summary", null, t("compte.mesInfos"));
+      const f = el("form", "compte-profil-form");
+      f.dataset.profil = "";
+      const champ = (nom, auto, large = false) => {
+        const c = el("input", "form-control form-control-sm");
+        Object.assign(c, { name: nom, value: P[nom] || "", autocomplete: auto, placeholder: t("compte.champ." + nom) });
+        c.setAttribute("aria-label", t("compte.champ." + nom));
+        if (large) c.classList.add("large");
+        return c;
+      };
+      f.append(champ("prenom", "given-name"), champ("nom", "family-name"), champ("societe", "organization", true), champ("adresse", "street-address", true),
+        champ("npa", "postal-code"), champ("localite", "address-level2"), champ("pays", "country-name"), champ("telephone", "tel"));
+      const ok = el("button", "btn btn-sm btn-outline-primary large", t("compte.enregistrer"));
+      ok.type = "submit";
+      f.append(ok);
+      det.append(resume, f);
+      if (!P.prenom && !P.nom) det.open = true; // pas encore rempli : ouvert
+      contenu.push(det);
+      if (e.admin) {
+        const a = el("a", "btn btn-sm btn-outline-secondary w-100 mt-2", t("compte.administration"));
+        a.href = "/admin/";
+        contenu.push(a);
       }
       contenu.push(bouton2("btn btn-link btn-sm compte-deconnexion", t("compte.deconnecter"), "deconnecter"));
     }
@@ -173,6 +204,17 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       else ecrire(t("compte.erreurPaiement"));
     } catch { ecrire(t("compte.erreurPaiement")); }
     occupe(false);
+  }
+
+  async function enregistrerProfil(f) {
+    const d = Object.fromEntries(new FormData(f).entries());
+    try {
+      const r = await appel("/profil.php", { method: "POST", body: JSON.stringify(d) });
+      if (!r.ok) throw new Error();
+      e = { ...e, profil: d };
+      message = t("compte.enregistre");
+    } catch { message = t("compte.erreur"); }
+    dessiner();
   }
 
   async function deconnecter() {

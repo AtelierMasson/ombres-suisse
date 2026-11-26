@@ -19,3 +19,16 @@
 #compte .compte-note a { color: inherit; }
 #compte .compte-deconnexion { display: block; margin: 14px auto 0; color: var(--doux); }
 #compte .compte-message { margin: 12px 0 0; font-weight: 600; }
+
+/* informations du compte : deux colonnes, les champs longs sur toute la largeur */
+#compte .compte-profil { margin: 12px 0 4px; }
+#compte .compte-profil summary { cursor: pointer; font-size: 13px; font-weight: 600; }
+#compte .compte-profil-form { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+#compte .compte-profil-form .large { grid-column: 1 / -1; }
+
+/* offre Pro : un encadré à part, couleur d'accent */
+#compte .compte-offre { margin: 14px 0 6px; padding: 12px 14px 8px; border: 1.5px solid var(--accent, #c8741a); border-radius: 12px;
+  background: color-mix(in srgb, var(--accent, #c8741a) 9%, transparent); }
+#compte .compte-offre-titre { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+#compte .compte-offre-texte { margin: 0 0 10px; font-size: 13px; }
+#compte .compte-offre .compte-note { margin: 6px 0 0; }

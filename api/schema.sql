@@ -10,6 +10,17 @@ CREATE TABLE IF NOT EXISTS comptes (
   UNIQUE KEY email_unique (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Informations du compte (facultatives : factures, contact)
+ALTER TABLE comptes
+  ADD COLUMN IF NOT EXISTS prenom    VARCHAR(80)  NULL,
+  ADD COLUMN IF NOT EXISTS nom       VARCHAR(80)  NULL,
+  ADD COLUMN IF NOT EXISTS societe   VARCHAR(120) NULL,
+  ADD COLUMN IF NOT EXISTS adresse   VARCHAR(160) NULL,
+  ADD COLUMN IF NOT EXISTS npa       VARCHAR(12)  NULL,
+  ADD COLUMN IF NOT EXISTS localite  VARCHAR(80)  NULL,
+  ADD COLUMN IF NOT EXISTS pays      VARCHAR(60)  NULL,
+  ADD COLUMN IF NOT EXISTS telephone VARCHAR(40)  NULL;
+
 -- Liens de connexion : seul le haché SHA-256 du jeton est conservé
 CREATE TABLE IF NOT EXISTS jetons (
   jeton     CHAR(64) NOT NULL PRIMARY KEY,
