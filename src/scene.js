@@ -59,6 +59,8 @@ void main() {
  */
 // ombre de contact : grilles du lieu (altitude du sol, distance au bâti) partagées par les matériaux
 const CONTACT = { tSol: { value: null }, tDist: { value: null }, grille: { value: new THREE.Vector3(0, 1, 0) }, contactActif: { value: 0 },
+  // carte des heures de soleil, peinte directement sur le sol et les toits : une couleur par cellule (pixels nets)
+  tHeures: { value: null }, heuresZone: { value: new THREE.Vector4(0, 0, 1, 1) }, heuresActif: { value: 0 },
   // sélection : R = parcelle choisie, G = bâtiment(s) de l'adresse ou de la parcelle ; teinte = couleur de parcelle du thème
   tSel: { value: null }, teinteSel: { value: new THREE.Color("#e0262b") },
   // couleurs réelles (orthophoto lue par catégorie) : sol, et bâtiments (toits, couleur reprise par leurs façades)
@@ -131,7 +133,9 @@ function grainPlatre(mat, force, contact = "") {
       .replace("#include <common>", `#include <common>
 varying vec3 vMonde;
 uniform float grainForce;
-uniform sampler2D tSol, tDist, tSel, tReelSol, tReelBati, tReelMur;
+uniform sampler2D tSol, tDist, tSel, tReelSol, tReelBati, tReelMur, tHeures;
+uniform vec4 heuresZone;
+uniform float heuresActif;
 uniform float reelActif;
 uniform vec3 teinteReel;
 uniform vec3 teinteSel;
@@ -170,6 +174,26 @@ ${contact && `if (contactActif > 0.5) {
   diffuseColor.rgb = mix(diffuseColor.rgb, teinteSel * 1.15, ${contact === "sol" ? "0.13 * sel.r" : "0.22 * sel.g"});
 }`}`);
   };
+  if (contact === "sol" || contact === "toit" || contact === "mur") {
+    const avant = mat.onBeforeCompile;
+    // murs : la couleur de la cellule juste devant la façade (fond sous les carreaux : aucun recoin ne reste beige)
+    const decale = contact === "mur" ? `vec3 nM = normalize(cross(dFdx(vMonde), dFdy(vMonde)));
+  vec2 posH = vec2(vMonde.x, -vMonde.z) + vec2(nM.x, -nM.z) * 0.7;` : `vec2 posH = vec2(vMonde.x, -vMonde.z);`;
+    mat.onBeforeCompile = (sh, r) => {
+      avant(sh, r);
+      sh.fragmentShader = sh.fragmentShader.replace("#include <opaque_fragment>", `if (heuresActif > 0.5) {
+  ${decale}
+  vec2 uvH = (posH - heuresZone.xy) / heuresZone.zw;
+  if (uvH.x >= 0.0 && uvH.y >= 0.0 && uvH.x < 1.0 && uvH.y < 1.0) {
+    vec4 hc = texture2D(tHeures, uvH);
+    // couleur de la carte presque pleine, avec un reste du relief éclairé (on lit encore la forme des toits)
+    float l = dot(outgoingLight, vec3(0.2126, 0.7152, 0.0722));
+    outgoingLight = mix(outgoingLight, hc.rgb * (0.78 + 0.35 * clamp(l, 0.0, 1.0)), hc.a);
+  }
+}
+#include <opaque_fragment>`);
+    };
+  }
   mat.customProgramCacheKey = () => "platre" + force + contact;
   mat.userData.platre = true;
 }
@@ -732,9 +756,9 @@ export class Scene3D {
    * terrainAutour), bâtiments et arbres de swisstopo (tuiles chargées selon la vue, arbres en points), paroi du socle
    * au bord extérieur. `lieu` = { E, N } : centre MN95. Sans `fin` ou si Rext <= Rint : pas d'anneau.
    */
-  construireAnneau(fin, Rint, Rext, lieu) {
+  construireAnneau(fin, Rint, Rext, lieu, lac = null) {
     const c = this.couches, G = this.G;
-    for (const k of ["anneau", "socleAnneau"]) if (c[k]) { this.groupe.remove(c[k]); c[k].geometry.dispose(); c[k] = null; }
+    for (const k of ["anneau", "socleAnneau", "eauAnneau"]) if (c[k]) { this.groupe.remove(c[k]); c[k].geometry.dispose(); c[k] = null; }
     this.rayonExt = 0;
     if (!G || !fin || !(Rext > Rint + 5)) { c.socle && (c.socle.visible = true); this.majZone(); this.appliquerCalques(); return; }
     this.rayonExt = Rext;
@@ -742,8 +766,12 @@ export class Scene3D {
     const altFin = (x, y) => {
       const fx = (E + x - fin.e0) / fin.c - 0.5, fy = (fin.n1 - (N + y)) / fin.c - 0.5, i = Math.floor(fx), j = Math.floor(fy), u = fx - i, v = fy - j;
       if (i < 0 || j < 0 || i >= fin.n - 1 || j >= fin.n - 1) return solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y)));
-      const p = j * fin.n + i, z = (H[p] * (1 - u) + H[p + 1] * u) * (1 - v) + (H[p + fin.n] * (1 - u) + H[p + fin.n + 1] * u) * v;
-      return isNaN(z) ? solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y))) : z;
+      const p = j * fin.n + i;
+      let z = (H[p] * (1 - u) + H[p + 1] * u) * (1 - v) + (H[p + fin.n] * (1 - u) + H[p + fin.n + 1] * u) * v;
+      if (isNaN(z)) return solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y)));
+      // lac : le terrain à 2 m donne la surface de l'eau ; le fond mesuré (ou 3 m plus bas) la remplace
+      if (lac && z <= lac.niveau + 0.8) { // la surface du lac du terrain à 2 m est un peu plus haute que le niveau mesuré const f = lac.fond?.(E + x, N + y); z = f < lac.niveau - 0.1 ? f : lac.niveau - 3; }
+      return z;
     };
     this.altAnneau = altFin;
     // maillage polaire : environ 3 m le long du cercle extérieur, 2,5 m en rayon ; le bord intérieur suit le terrain fin
@@ -775,9 +803,28 @@ export class Scene3D {
     c.anneau = new THREE.Mesh(g, this.mat.anneau);
     c.anneau.receiveShadow = true;
     this.groupe.add(c.anneau);
-    // la paroi du socle passe au bord extérieur
+    // la paroi du socle passe au bord extérieur (jusqu'au niveau de l'eau là où le lac la touche)
     if (c.socle) c.socle.visible = false;
-    c.socleAnneau = new THREE.Mesh(socleRond(Rext, altFin, this.zRef, this.zBas), this.mat.socle);
+    const haut = lac ? (x, y) => Math.max(altFin(x, y), lac.niveau) : altFin;
+    const zBasA = lac ? Math.min(this.zBas, lac.niveau - this.zRef - 60) : this.zBas;
+    c.socleAnneau = new THREE.Mesh(socleRond(Rext, (x, y) => { const z = altFin(x, y); return lac && z < lac.niveau ? lac.niveau : z; }, this.zRef, Math.min(zBasA, Math.min(...[0, 1, 2, 3].map(k => altFin(Math.cos(k) * Rext, Math.sin(k) * Rext))) - this.zRef - 5)), this.mat.socle);
+    // eau de l'anneau : un plan au niveau du lac, coupé au cercle extérieur ; le terrain plus haut le cache
+    if (lac) {
+      const nA2 = 512, pts = [], lvl = lac.niveau - this.zRef;
+      for (let a = 0; a < nA2; a++) {
+        const t0 = a / nA2 * 2 * Math.PI, t1 = (a + 1) / nA2 * 2 * Math.PI;
+        const P = (t, r) => [Math.cos(t) * r, lvl, -Math.sin(t) * r];
+        pts.push(...P(t0, Rint - 1), ...P(t0, Rext), ...P(t1, Rext), ...P(t0, Rint - 1), ...P(t1, Rext), ...P(t1, Rint - 1));
+      }
+      const ge = new THREE.BufferGeometry();
+      ge.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+      const nor = new Float32Array(pts.length); for (let k = 1; k < nor.length; k += 3) nor[k] = 1;
+      ge.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
+      c.eauAnneau = new THREE.Mesh(ge, this.mat.eau);
+      c.eauAnneau.receiveShadow = true;
+      this.groupe.add(c.eauAnneau);
+      RAYON_EAU.value = Rext - 0.02;
+    }
     this.groupe.add(c.socleAnneau);
     // ombres sur tout l'anneau
     const sc = this.soleil.shadow.camera, Rs = Rext * 1.15;
@@ -1504,6 +1551,7 @@ export class Scene3D {
 
   /** Arbres de la zone en gris tant que la carte des heures de soleil est affichée (sinon ils la cachent). */
   arbresSurHeures() {
+    CONTACT.heuresActif.value = this.couches.heures?.visible && CONTACT.tHeures.value ? 1 : 0;
     const m = this.couches.arbres?.material;
     if (!m) return;
     m.uniforms.neutre.value = this.couches.heures?.visible ? 1 : 0;
@@ -1528,10 +1576,15 @@ export class Scene3D {
   }
 
   /** Carte des heures d'ensoleillement (groupe de maillages préparé par heures.js), ou null pour l'enlever. */
-  afficherHeures(grp) {
+  afficherHeures(grp, tex = null) {
     const vieux = this.couches.heures;
     if (vieux) { this.groupe.remove(vieux); this.liberer(vieux); }
     this.couches.heures = grp;
+    // sol et toits : la carte est peinte sur leurs faces (texture d'une cellule par pixel, sans lissage)
+    if (CONTACT.tHeures.value && CONTACT.tHeures.value !== tex?.texture) CONTACT.tHeures.value.dispose();
+    CONTACT.tHeures.value = tex?.texture || null;
+    if (tex) CONTACT.heuresZone.value.set(...tex.zone);
+    CONTACT.heuresActif.value = grp && tex ? 1 : 0;
     if (grp) { if (vieux) grp.visible = vieux.visible; this.groupe.add(grp); }
     this.arbresSurHeures();
     this.appliquerCoupe();

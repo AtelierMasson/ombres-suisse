@@ -1,6 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./style.css";
 document.documentElement.classList.add("pret"); // styles chargés : la page peut s'afficher
+import { textureHeures } from "./heures.js";
 import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
 import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, versWgs } from "./geo.js";
 import { chargerNuage } from "./nuage.js";
@@ -19,7 +20,7 @@ import { contoursBatiments } from "./contours.js";
 import { profilCoupe, dessinerCoupe } from "./coupe.js";
 import { hameau } from "./demo.js";
 import { lancerVol } from "./vol.js";
-import { fondLacs } from "./bathy.js";
+import { fondLacs, fondAutour } from "./bathy.js";
 import { ICONE } from "./icones.js";
 import { brancherSuggestion } from "./suggestion.js";
 brancherSuggestion();
@@ -239,7 +240,14 @@ afficherRayon(rayonChoisi() || 200);
 async function paysageEtAnneau(id, idScene) {
   const G = S.G, Rz = S.rayonZone, fin = S.fin, E0 = S.E0, N0 = S.N0, rond = !!G?.rayonZone;
   if (!G || id !== tache) return;
-  if (rond) scene.construireAnneau(fin, G.rayonZone, Rz, { E: E0, N: N0 });
+  // lac dans la maquette : il continue dans l'anneau (même niveau, fond mesuré s'il y en a)
+  let lac = null;
+  if (rond && Rz > G.rayonZone && G.eau) {
+    const niv = [...G.eau].filter(v => !isNaN(v)).sort((a, b) => a - b);
+    if (niv.length) lac = { niveau: niv[niv.length >> 1], fond: await fondAutour(E0, N0, Rz).catch(() => null) };
+    if (id !== tache) return;
+  }
+  if (rond) scene.construireAnneau(fin, G.rayonZone, Rz, { E: E0, N: N0 }, lac);
   const bord = rond && Rz > G.rayonZone && scene.altAnneau ? scene.altAnneau : (x, y) => solEn(G, x, y);
   const g = await reliefLointain(E0, N0, rond ? Math.max(Rz, G.rayonZone) : G.R, scene.zRef, bord, fin, 50000, rond);
   if (id !== tache) { g.dispose(); return; }
@@ -793,7 +801,7 @@ function calculerHeures() {
 function afficherResultat() {
   const { heures, heuresF, P, ms } = S.resultat, zone = S.zone, max = Math.max(0.5, P.max), parJour = P.nbJours > 1 ? t("heures.parJour") : "";
   scene.zoneArbres(zone);
-  scene.afficherHeures(maillagesHeures(S.G, S.facades.contours, zone, S.facades, { heures, heuresF }, max, T.heures, scene.zRef));
+  scene.afficherHeures(maillagesHeures(S.G, S.facades.contours, zone, S.facades, { heures, heuresF }, max, T.heures, scene.zRef), textureHeures(S.G, zone, heures, max, T.heures));
   // statistiques sur les cellules de la parcelle (à défaut : le cœur de la zone)
   const sans = !S.parcelle.anneauxRel.length;
   let s = 0, k = 0, mn = Infinity, mx = 0;

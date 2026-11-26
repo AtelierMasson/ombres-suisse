@@ -51,3 +51,24 @@ export async function fondLacs(G, E0, N0) {
   }
   return nb;
 }
+
+/**
+ * Altitude mesurée du fond des lacs autour de (E0, N0), jusqu'à `rayon` : charge les tuiles nécessaires, puis renvoie
+ * une fonction (E, N) → altitude (m) ou NaN hors des données. Null s'il n'y a aucune tuile.
+ */
+export async function fondAutour(E0, N0, rayon) {
+  const I = await lireIndex();
+  if (!I) return null;
+  const dispo = new Set(I.tuiles), cases = I.cases, pas = I.pas, cles = [];
+  for (let e = Math.floor((E0 - rayon) / 1000); e <= Math.floor((E0 + rayon) / 1000); e++)
+    for (let m = Math.floor((N0 - rayon) / 1000); m <= Math.floor((N0 + rayon) / 1000); m++) if (dispo.has(`${e}-${m}`)) cles.push(`${e}-${m}`);
+  if (!cles.length) return null;
+  const T = new Map(await Promise.all(cles.map(async k => [k, await lireTuile(k)])));
+  return (E, N) => {
+    const fe = Math.floor(E / 1000), fn = Math.floor(N / 1000), t = T.get(`${fe}-${fn}`);
+    if (!t) return NaN;
+    const i = Math.min(cases - 1, Math.max(0, Math.floor((E - fe * 1000) / pas))), j = Math.min(cases - 1, Math.max(0, Math.floor(((fn + 1) * 1000 - N) / pas)));
+    const z = t[j * cases + i];
+    return z ? z / 10 : NaN;
+  };
+}

@@ -159,14 +159,15 @@ export function carreauxFacades(G, C, zone) {
       };
       // grille régulière : colonnes de même largeur (environ 1 m) sur tout le côté, rangées de 1 m comptées depuis le
       // sol, la dernière arrêtée au toit ; les rangées s'alignent d'une colonne à l'autre, quelle que soit l'orientation
-      const nc = Math.max(1, Math.round(long)), cote = cotes++;
+      // grille régulière de carreaux de 0,5 m, la même partout (le mur est teinté dessous : aucun recoin ne reste nu)
+      const T = 0.5, nc = Math.max(1, Math.round(long / T)), cote = cotes++;
       for (let col = 0; col < nc; col++) {
         const g = en(col * long / nc), d = en((col + 1) * long / nc), m = en((col + 0.5) * long / nc);
         const a = alphaEn(m[0] + nx * 0.6, m[1] + ny * 0.6), haut = m[2] - m[3];
         if (a <= 0 || haut < 0.8) continue;
-        const nr = Math.ceil(haut - 0.25);
+        const nr = Math.ceil((haut - 0.12) / T);
         for (let l = 0; l < nr; l++) {
-          const z0 = l, z1 = Math.min(l + 1, haut);
+          const z0 = l * T, z1 = Math.min((l + 1) * T, haut);
           pts.push((m[0] + nx * 0.75 - G.x0) / G.c, (m[1] + ny * 0.75 - G.x0) / G.c, m[3] + (z0 + z1) / 2, nx, ny);
           carreaux.push({ g, d, nx, ny, l, nr, z0, z1, haut, cote, col, alpha: a, premier: l === 0 });
         }
@@ -187,7 +188,7 @@ export function maillagesHeures(G, C, zone, facades, { heures, heuresF }, max, e
   const pos = [], col = [];
   const cellule = (i, j) => i < 0 || j < 0 || i >= w || j >= h || alpha[j * w + i] <= 0 ? -1 : j * w + i;
   const volume = p => C.seg[(j0 + Math.floor(p / w)) * n + i0 + p % w]; // −1 = sol
-  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
+  for (let j = 0; j < 0 * h; j++) for (let i = 0; i < w; i++) { // sol et toits : peints par textureHeures
     const p = cellule(i, j);
     if (p < 0) continue;
     const toit = volume(p), gi = i0 + i, gj = j0 + j;
@@ -200,7 +201,8 @@ export function maillagesHeures(G, C, zone, facades, { heures, heuresF }, max, e
         if (v >= 0 && volume(v) === toit) { s += heures[v]; q++; }
       }
       const k = (gj + dj) * m + gi + di;
-      couleurEchelle(palette, (q ? s / q : heures[p]) / max, teinte);
+      // carte en pixels nets : une couleur par cellule (pas de fondu entre voisines)
+      couleurEchelle(palette, heures[p] / max, teinte);
       return toit >= 0
         ? [C.px[k], C.hauteurCoin(k, toit) - zRef + 0.12, -C.py[k], teinte.r, teinte.g, teinte.b, a / 4]
         : [x0 + (gi + di) * c, hauteurTerrain(G, gi + di, gj + dj) - zRef + 0.12, -(x0 + (gj + dj) * c), teinte.r, teinte.g, teinte.b, a / 4];
@@ -226,7 +228,8 @@ export function maillagesHeures(G, C, zone, facades, { heures, heuresF }, max, e
   };
   facades.carreaux.forEach((K, t) => {
     const { g, d, nx, ny, l, z0, z1, haut: hT, cote, col, alpha: a } = K;
-    const vBG = coin(cote, col, l), vBD = coin(cote, col + 1, l), vHG = coin(cote, col, l + 1), vHD = coin(cote, col + 1, l + 1);
+    // pixels nets : une couleur par carreau
+    const vBG = heuresF[t], vBD = vBG, vHG = vBG, vHD = vBG;
     // carreaux un peu prolongés sur les côtés (angles) et, en haut, jusqu'à la carte du toit (posée 0,12 m au-dessus) :
     // sinon un liseré du bâtiment gris apparaît aux angles et au bord des toits
     const lx = d[0] - g[0], ly = d[1] - g[1], L = Math.hypot(lx, ly) || 1, ux = lx / L * 0.09, uy = ly / L * 0.09;
@@ -248,7 +251,24 @@ export function maillagesHeures(G, C, zone, facades, { heures, heuresF }, max, e
     }));
   };
   const grp = new THREE.Group();
-  grp.add(maillage(pos, col));
   if (posF.length) grp.add(maillage(posF, colF));
   return grp;
+}
+
+/**
+ * Texture de la carte pour le sol et les toits : un pixel par cellule de la zone (couleur de l'échelle, opacité de la
+ * zone), filtrage « plus proche » (pixels nets, exactement alignés sur les faces). `zone` : rectangle en mètres
+ * [x0, y0 (sud), largeur, hauteur] dans le repère relatif (x est, y nord).
+ */
+export function textureHeures(G, zone, heures, max, etapes) {
+  const { i0, j0, w, h, alpha } = zone, palette = etapes.map(e => new THREE.Color(e)), teinte = new THREE.Color(), d = new Uint8Array(w * h * 4);
+  for (let p = 0; p < w * h; p++) {
+    if (alpha[p] <= 0) continue;
+    couleurEchelle(palette, heures[p] / max, teinte);
+    d.set([teinte.r * 255, teinte.g * 255, teinte.b * 255, Math.min(1, alpha[p]) * 255].map(Math.round), 4 * p);
+  }
+  const texture = new THREE.DataTexture(d, w, h, THREE.RGBAFormat);
+  texture.magFilter = texture.minFilter = THREE.NearestFilter;
+  texture.needsUpdate = true;
+  return { texture, zone: [G.x0 + i0 * G.c, G.x0 + j0 * G.c, w * G.c, h * G.c] };
 }

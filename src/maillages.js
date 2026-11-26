@@ -852,9 +852,11 @@ export function plansEau(G, zRef) {
     let i = 0;
     while (i < n) {
       const h = eau[j * n + i];
+      // maquette ronde : l'eau s'arrête au cercle (au-delà, celle de l'anneau prend le relais, sans recouvrement)
+      if (G.rayonZone && Math.hypot(x0 + (i + 0.5) * c, x0 + (j + 0.5) * c) > G.rayonZone + 0.5) { i++; continue; }
       if (isNaN(h)) { i++; continue; }
       let k = i + 1;
-      while (k < n && eau[j * n + k] === h) k++; // suite de cellules au même niveau (lac) : un seul quadrilatère
+      while (k < n && eau[j * n + k] === h && !(G.rayonZone && Math.hypot(x0 + (k + 0.5) * c, x0 + (j + 0.5) * c) > G.rayonZone + 0.5)) k++; // suite de cellules au même niveau (lac) : un seul quadrilatère
       const A = P(i, j), B = P(k, j), C = P(k, j + 1), D = P(i, j + 1);
       pos.push(...A, ...B, ...C, ...A, ...C, ...D);
       i = k;
