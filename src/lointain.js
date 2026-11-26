@@ -161,8 +161,9 @@ const COULEUR = /* glsl */`
   }
   diffuseColor.rgb *= base;`;
 
-export function materiauLointain() {
-  const uniforms = {
+export function materiauLointain(partages = null) {
+  // `partages` : uniformes d'un autre matériau du paysage (l'anneau de la maquette réutilise ceux du paysage)
+  const uniforms = partages || {
     sol: { value: new THREE.Color() }, lac: { value: new THREE.Color() },
     tPlanP: { value: null }, tPlanL: { value: null }, cPlanP: { value: new THREE.Vector3() }, cPlanL: { value: new THREE.Vector3() }, planActif: { value: 0 },
   };

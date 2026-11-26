@@ -608,7 +608,7 @@ function majCoupe(A, B) {
   }
   const distance = scene.nuage ? +$("#distPoints").value : 0;
   const P = profilCoupe(S.G, scene.contours, A, B, S.parcelle, 0.25, S.voisines || [],
-    { batiments: grille || (jeu === "releve" ? null : "aucun"), nuage: scene.nuage, distance });
+    { batiments: grille || (jeu === "releve" ? null : "aucun"), nuage: scene.nuage, distance, rayonExt: scene.rayonExt, solHors: scene.altAnneau });
   // plusieurs coupes : celle-ci est l'active (en 3D et dessinée) ; une nouvelle reçoit la paire de lettres libre suivante
   if (!S.coupe) { S.coupe = { lettres: lettresLibres() }; S.coupes.push(S.coupe); }
   Object.assign(S.coupe, { A, B, P });

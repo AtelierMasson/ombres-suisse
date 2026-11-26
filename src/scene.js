@@ -770,7 +770,9 @@ export class Scene3D {
     g.setIndex(idx);
     g.computeVertexNormals();
     // même matière que le paysage : plan cadastral en tuiles, grain, brume (la maquette fine garde son plan propre)
-    c.anneau = new THREE.Mesh(g, this.loin.mat);
+    // matière du paysage (mêmes uniformes : plan, lacs, grain), mais à part : elle reçoit le plan de coupe
+    this.mat.anneau ||= materiauLointain(this.loin.mat.uniforms);
+    c.anneau = new THREE.Mesh(g, this.mat.anneau);
     c.anneau.receiveShadow = true;
     this.groupe.add(c.anneau);
     // la paroi du socle passe au bord extérieur
@@ -1639,7 +1641,7 @@ export class Scene3D {
       // face du socle, ombres de bâtiments invisibles au bord du terrain)
       for (const x of [c.roofer?.material, this.swiss?.materiau]) if (x) x.clipShadows = true;
     }
-    const cibles = [m.terrain, m.socle, m.canopee, m.couronne, m.parcelle, m.eau];
+    const cibles = [m.terrain, m.socle, m.canopee, m.couronne, m.parcelle, m.eau, m.anneau, m.pointsAnneau].filter(Boolean);
     for (const k of ["arbres", "tous"]) if (c[k]) cibles.push(c[k].material);
     c.heures?.traverse(o => o.material && cibles.push(o.material));
     c.voisines?.traverse(o => o.material && cibles.push(o.material)); // limites et numéros des parcelles voisines
@@ -1706,7 +1708,7 @@ export class Scene3D {
     const el = this.renderer.domElement, sol = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), v = new THREE.Vector3();
     this.rayon = new THREE.Raycaster();
     let prise = null, appui = null;
-    const borne = x => Math.max(-this.G.R + 2, Math.min(this.G.R - 2, x));
+    const borne = x => { const R = Math.max(this.G.R, this.rayonExt || 0) - 2; return Math.max(-R, Math.min(R, x)); };
     // vue plan ou élévation : Maj + glisser repasse en 3D sur place, et le même geste fait tourner la vue
     // (OrbitControls : avec Maj, le bouton « déplacer » fait tourner ; le réglage normal revient au relâchement)
     el.addEventListener("pointerdown", e => {

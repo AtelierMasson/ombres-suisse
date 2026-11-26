@@ -32,7 +32,9 @@ function valeurEn(G, a, x, y) {
  */
 export function profilCoupe(G, contours, A, B, parcelle, pas = 0.25, voisines = [], o = {}) {
   const grille = o.batiments instanceof Float32Array ? o.batiments : null, aucun = o.batiments === "aucun";
-  const L = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1, ux = (B[0] - A[0]) / L, uy = (B[1] - A[1]) / L, lim = G.R - 1;
+  const L = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1, ux = (B[0] - A[0]) / L, uy = (B[1] - A[1]) / L;
+  // anneau autour de la maquette fine (o.rayonExt, o.solHors) : la coupe va jusqu'à son bord, terrain à 2 m
+  const Rext = o.rayonExt > (G.rayonZone || 0) && o.solHors ? o.rayonExt : 0, lim = Rext ? Rext : G.R - 1;
   // étendue de la droite dans le carré du modèle
   let s0 = -Infinity, s1 = Infinity;
   for (const [o, d] of [[A[0], ux], [A[1], uy]]) {
@@ -40,10 +42,10 @@ export function profilCoupe(G, contours, A, B, parcelle, pas = 0.25, voisines = 
     const a = (-lim - o) / d, b = (lim - o) / d;
     s0 = Math.max(s0, Math.min(a, b)); s1 = Math.min(s1, Math.max(a, b));
   }
-  s0 = Math.max(s0, -2 * G.R * 1.5); s1 = Math.min(s1, 2 * G.R * 1.5);
+  s0 = Math.max(s0, -2 * lim * 1.5); s1 = Math.min(s1, 2 * lim * 1.5);
   // maquette ronde : la droite s'arrête au cercle
   if (G.rayonZone) {
-    const r = G.rayonZone - 1, b = A[0] * ux + A[1] * uy, cc = A[0] * A[0] + A[1] * A[1] - r * r, delta = b * b - cc;
+    const r = (Rext || G.rayonZone) - 1, b = A[0] * ux + A[1] * uy, cc = A[0] * A[0] + A[1] * A[1] - r * r, delta = b * b - cc;
     if (delta > 0) { s0 = Math.max(s0, -b - Math.sqrt(delta)); s1 = Math.min(s1, -b + Math.sqrt(delta)); }
   }
   const nb = Math.max(2, Math.floor((s1 - s0) / pas) + 1), s = new Float32Array(nb), sol = new Float32Array(nb), bat = new Float32Array(nb), veg = new Float32Array(nb);
@@ -57,7 +59,10 @@ export function profilCoupe(G, contours, A, B, parcelle, pas = 0.25, voisines = 
   };
   for (let k = 0; k < nb; k++) {
     const d = s0 + k * pas, x = A[0] + ux * d, y = A[1] + uy * d;
-    s[k] = d; sol[k] = solEn(G, x, y);
+    // dans l'anneau : terrain à 2 m (pas de bâtiments ni d'arbres du relevé là)
+    const dehors = Rext && x * x + y * y > (G.rayonZone - 0.5) ** 2;
+    s[k] = d; sol[k] = dehors ? o.solHors(x, y) : solEn(G, x, y);
+    if (dehors) { bat[k] = veg[k] = NaN; continue; }
     bat[k] = toit(d);
     const v = isNaN(bat[k]) ? valeurEn(G, G.veg, x, y) : NaN;
     veg[k] = v > sol[k] + 1 ? v : NaN;
