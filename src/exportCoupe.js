@@ -2,7 +2,9 @@
 // Dans le plan de la coupe : X = distance depuis A le long de A→B, Y = altitude réelle, en mètres.
 // Calques : TERRAIN_COUPE, BATIMENTS_COUPES, ARBRES, NUAGE (points proches de la coupe), LIMITES_PARCELLE, COTES, CADRE.
 
-const alt = z => (Math.round(z * 10) / 10).toFixed(1).replace(".", ",");
+import { t as tr, nombre } from "./i18n.js";
+
+const alt = z => nombre(Math.round(z * 10) / 10, 1);
 const ascii = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\x20-\x7e]/g, "-");
 const COULEURS = { TERRAIN_COUPE: [7, "#1f2933"], BATIMENTS_COUPES: [8, "#3b4754"], ARBRES: [8, "#9aa0a6"], NUAGE: [8, "#7a7f8c"], LIMITES_PARCELLE: [1, "#e0262b"], COTES: [5, "#1d4f91"], CADRE: [9, "#66727f"] };
 
@@ -54,25 +56,25 @@ export function dessinCoupe(P, o) {
       texte("COTES", P.s[k] + (ancre === "end" ? -0.6 : ancre === "start" ? 0.6 : 0), z + dy, t, ancre);
     };
     const za = P.bat[a], zb = P.bat[b];
-    cote(a, za, `corniche ${alt(za)}`, "end", 0.2);
-    if (Math.abs(zb - za) >= 0.2) cote(b, zb, `corniche ${alt(zb)}`, "start", 0.2);
-    if (P.bat[kf] > Math.max(za, zb) + 0.3) cote(kf, P.bat[kf], `faîte ${alt(P.bat[kf])}`, "middle", 0.5);
-    cote(kb, P.sol[kb], `bas ${alt(P.sol[kb])}`, P.s[kb] - P.s[a] < P.s[b] - P.s[kb] ? "end" : "start", -0.9);
+    cote(a, za, tr("coupe.corniche", { z: alt(za) }), "end", 0.2);
+    if (Math.abs(zb - za) >= 0.2) cote(b, zb, tr("coupe.corniche", { z: alt(zb) }), "start", 0.2);
+    if (P.bat[kf] > Math.max(za, zb) + 0.3) cote(kf, P.bat[kf], tr("coupe.faite", { z: alt(P.bat[kf]) }), "middle", 0.5);
+    cote(kb, P.sol[kb], tr("coupe.bas", { z: alt(P.sol[kb]) }), P.s[kb] - P.s[a] < P.s[b] - P.s[kb] ? "end" : "start", -0.9);
   }
   // limites : parcelle choisie (avec la mention), parcelles voisines (plus courtes), numéros des parcelles traversées
   for (const s of P.limites) if (s > P.s[k0] && s < P.s[k1]) {
     ligne("LIMITES_PARCELLE", [s, solA(s) - 1.5, s, solA(s) + 5]);
-    texte("LIMITES_PARCELLE", s, solA(s) + 5.3, "limite", "middle");
+    texte("LIMITES_PARCELLE", s, solA(s) + 5.3, tr("coupeExport.limite"), "middle");
   }
   for (const s of P.voisines || []) if (s > P.s[k0] && s < P.s[k1]) ligne("LIMITES_PARCELLE", [s, solA(s) - 1, s, solA(s) + 2.5]);
   for (const p of P.parcelles || []) {
     const a = Math.max(p.s0, P.s[k0]), b = Math.min(p.s1, P.s[k1]);
-    if (b - a >= 6) texte("LIMITES_PARCELLE", (a + b) / 2, solA((a + b) / 2) - 2.2, `parcelle ${p.numero}`, "middle");
+    if (b - a >= 6) texte("LIMITES_PARCELLE", (a + b) / 2, solA((a + b) / 2) - 2.2, tr("coupeExport.parcelle", { n: p.numero }), "middle");
   }
   // cadre : niveau de référence, échelle graphique, extrémités A et B (MN95), soleil
   const bas = Math.floor(zmin - Math.max(4, L * 0.04)), haut = zmax + Math.max(4, L * 0.06), mn95 = ([x, y]) => `E ${(o.E0 + x).toFixed(1)}  N ${(o.N0 + y).toFixed(1)}`;
   ligne("CADRE", [0, bas, L, bas]);
-  texte("COTES", -0.6, bas + 0.15, `niveau ${alt(bas)}`, "end");
+  texte("COTES", -0.6, bas + 0.15, tr("coupeExport.niveau", { z: alt(bas) }), "end");
   const pas = [1, 2, 5, 10, 20, 50].find(v => L / v <= 12) || 100, nb = Math.min(5, Math.floor(L / pas)), ye = bas - 2.2;
   ligne("CADRE", [0, ye, nb * pas, ye]);
   for (let k = 0; k <= nb; k++) { ligne("CADRE", [k * pas, ye, k * pas, ye + 0.5]); texte("CADRE", k * pas, ye - 0.8, `${k * pas}${k === nb ? " m" : ""}`, "middle"); }
@@ -81,7 +83,7 @@ export function dessinCoupe(P, o) {
     texte("CADRE", x + (ancre === "start" ? 0.5 : -0.5), haut - 1.2, nom, ancre, 0.9);
     texte("CADRE", x + (ancre === "start" ? 0.5 : -0.5), haut - 2.1, mn95(pt), ancre, 0.4);
   }
-  texte("CADRE", 0, ye - 2.1, `Coupe A-B · ${o.lieu} · ${L.toFixed(1).replace(".", ",")} m · X = distance depuis A, Y = altitude (m) · MN95, EPSG:2056 · source swisstopo, résultats indicatifs`, "start", 0.4);
+  texte("CADRE", 0, ye - 2.1, tr("coupeExport.cadre", { lieu: o.lieu, long: nombre(L, 1) }), "start", 0.4);
   const S = o.soleil;
   if (S?.visible) {
     // rayon du soleil vu dans le plan de coupe, depuis le milieu de la coupe
@@ -90,14 +92,14 @@ export function dessinCoupe(P, o) {
     let t = (haut - z0) / (dz / n);
     if (ds > 1e-6) t = Math.min(t, (L - x0) / (ds / n)); else if (ds < -1e-6) t = Math.min(t, -x0 / (ds / n));
     ligne("CADRE", [x0, z0, x0 + ds / n * t, z0 + dz / n * t]);
-    texte("CADRE", 0, ye - 2.9, `Soleil le ${o.jour} à ${S.heure} : azimut ${S.azimut.toFixed(0)}°, hauteur ${S.hauteur.toFixed(1)}° (${(Math.atan2(dz, Math.abs(ds)) * 180 / Math.PI).toFixed(0)}° dans le plan de coupe)`, "start", 0.4);
+    texte("CADRE", 0, ye - 2.9, tr("coupeExport.soleil", { jour: o.jour, heure: S.heure, az: nombre(S.azimut, 0), h: nombre(S.hauteur, 1), angle: nombre(Math.atan2(dz, Math.abs(ds)) * 180 / Math.PI, 0) }), "start", 0.4);
   }
   // points du nuage proches de la coupe (s'ils sont affichés) : [x, y, catégorie, …]
   const points = [];
   if (P.points?.n) {
     const N = P.points;
     for (let k = 0; k < N.n; k++) if (N.s[k] >= P.s[k0] && N.s[k] <= P.s[k1]) points.push(N.s[k], N.z[k], N.c[k]);
-    texte("CADRE", 0, ye - 3.7, `Points du nuage à moins de ${String(N.distance).replace(".", ",")} m de la coupe (calque NUAGE) : sol, végétation, bâtiment, autre`, "start", 0.4);
+    texte("CADRE", 0, ye - 3.7, tr("coupeExport.points", { d: nombre(N.distance, Number.isInteger(N.distance) ? 0 : String(N.distance).split(".")[1].length) }), "start", 0.4);
   }
   return { lignes, textes, points, L, bas: ye - (points.length ? 4.4 : 3.6), haut: haut + 0.5 };
 }
@@ -134,7 +136,7 @@ export function coupeSvg(D, infos, echelle = 200) {
   const xml = s => s.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
   let t = `<?xml version="1.0" encoding="UTF-8"?>\n<!-- ${infos.map(xml).join(" | ").replace(/--/g, "-")} -->\n`
     + `<svg xmlns="http://www.w3.org/2000/svg" width="${f(w * mm)}mm" height="${f(h * mm)}mm" viewBox="${f(x0)} ${f(-D.haut)} ${f(w)} ${f(h)}" font-family="Helvetica, Arial, sans-serif">\n`
-    + `<title>Coupe A–B, échelle 1:${echelle}</title>\n`;
+    + `<title>${xml(tr("coupeExport.titreSvg", { echelle }))}</title>\n`;
   for (const [calque, [, couleur]] of Object.entries(COULEURS)) {
     t += `<g id="${calque}" fill="none" stroke="${couleur}" stroke-width="${calque === "TERRAIN_COUPE" ? 0.12 : calque === "BATIMENTS_COUPES" ? 0.08 : 0.04}" stroke-linejoin="round">\n`;
     for (const l of D.lignes) {

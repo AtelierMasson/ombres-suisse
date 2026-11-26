@@ -1,6 +1,7 @@
 // Horizon lointain (montagnes, collines) jusqu'à ~50 km, y compris en France et en Italie.
 // Relief : tuiles d'élévation libres « Terrarium » (AWS Open Data, ~30–100 m), lues dans le navigateur.
 import { versWgs } from "./geo.js";
+import { t } from "./i18n.js";
 
 const TUILE = (z, x, y) => `https://elevation-tiles-prod.s3.amazonaws.com/terrarium/${z}/${x}/${y}.png`;
 const cache = new Map();
@@ -17,7 +18,7 @@ function tuile(z, x, y) {
       for (let p = 0; p < h.length; p++) h[p] = d[4 * p] * 256 + d[4 * p + 1] + d[4 * p + 2] / 256 - 32768;
       ok(h);
     };
-    img.onerror = () => ko(new Error("Tuile de relief introuvable " + k));
+    img.onerror = () => ko(new Error(t("erreur.tuileRelief", { k })));
     img.src = TUILE(z, x, y);
   }));
   return cache.get(k);
@@ -56,7 +57,7 @@ export async function profilHorizon(E, N, alt, { pas = 1, rayonProche = 150, ray
   await Promise.all(liste.map(async k => {
     const [z, x, y] = k.split("/").map(Number);
     try { tuiles.set(k, await tuile(z, x, y)); } catch { /* hors couverture : ignoré */ }
-    onProgres(++faits / liste.length, `Relief lointain : ${faits} / ${liste.length} tuiles`);
+    onProgres(++faits / liste.length, t("etat.reliefTuiles", { faits, total: liste.length }));
   }));
   alt = await alt;
   const R = 6371000, k = 0.13; // courbure de la Terre et réfraction

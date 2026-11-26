@@ -1,5 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./style.css";
+import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
 import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, versWgs } from "./geo.js";
 import { chargerNuage } from "./nuage.js";
 import { depuisPoints, depuisRasters } from "./grille.js";
@@ -17,6 +18,9 @@ import { hameau } from "./demo.js";
 import { brancherPro } from "./pro.js";
 
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+// textes de la page dans la langue choisie, et sélecteur de langue au pied de page
+traduirePage();
+brancherSelecteur($("#pied .liens"));
 // ouverture : aujourd'hui à 14 h, pour qu'il y ait du soleil
 const S = { jour: aujourdhui(), minutes: 14 * 60 };
 let T = appliquerTheme(themeInitial());
@@ -24,7 +28,9 @@ const scene = new Scene3D($("#vue"), T);
 
 function aujourdhui() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
 const hhmm = m => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
-const duree = v => { const m = Math.round(v * 60); return `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`; };
+const duree = v => { const m = Math.round(v * 60); return t("duree", { h: Math.floor(m / 60), m: String(m % 60).padStart(2, "0") }); };
+// type de lieu (« Adresse », « Parcelle » : codes internes, aussi dans l'adresse de la page) dans la langue choisie
+const nomType = c => c === "Adresse" || c === "Parcelle" ? t(`type.${c}`) : c;
 const echap = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 let finMessage;
 function message(texte, tenir = 6000) {
@@ -37,7 +43,9 @@ function message(texte, tenir = 6000) {
 // mode jour (maquette claire) / nuit (bleu sombre) : un seul bouton
 function marquerTheme() {
   const nuit = document.body.dataset.theme === "nuit";
-  $("#themes").innerHTML = `<button type="button" class="actif" title="${nuit ? "Passer en mode jour" : "Passer en mode nuit"}">${nuit ? "☀︎ Mode jour" : "☾ Mode nuit"}</button>`;
+  const titre = t(nuit ? "themes.versJour" : "themes.versNuit");
+  // symbole seul (☀︎ pour passer en jour, ☾ pour passer en nuit) ; le texte reste dans title et aria-label
+  $("#themes").innerHTML = `<button type="button" class="actif symbole" title="${titre}" aria-label="${titre}">${nuit ? "☀︎" : "☾"}</button>`;
 }
 $("#themes").addEventListener("click", () => {
   T = appliquerTheme(document.body.dataset.theme === "nuit" ? "maquette" : "nuit");
@@ -64,8 +72,8 @@ function brancherRecherche(champ) {
       try {
         choix = await chercher(q, c.signal);
         liste.innerHTML = choix.map((r, k) =>
-          `<button type="button" class="list-group-item list-group-item-action" data-k="${k}"><span class="badge text-bg-light me-2">${r.type}</span>${echap(r.label)}</button>`).join("")
-          || `<div class="list-group-item text-secondary">Aucun résultat</div>`;
+          `<button type="button" class="list-group-item list-group-item-action" data-k="${k}"><span class="badge text-bg-light me-2">${nomType(r.type)}</span>${echap(r.label)}</button>`).join("")
+          || `<div class="list-group-item text-secondary">${t("recherche.aucun")}</div>`;
         liste.hidden = false;
       } catch (e) { if (e.name !== "AbortError") console.error(e); }
     }, 250);
@@ -146,7 +154,7 @@ function telechargement(source, texte, f = null) {
   $("#telechargementTexte").textContent = dernier.texte;
   const k = dernier.f == null ? null : Math.round(Math.max(0, Math.min(1, dernier.f)) * CARRES);
   if (dernier.source !== sourceBarre || (k != null && k < allumes)) { melanger(); sourceBarre = dernier.source; }
-  $("#telechargementPct").textContent = k == null ? "" : `${Math.round(dernier.f * 100)} %`;
+  $("#telechargementPct").textContent = k == null ? "" : t("pct", { n: Math.round(dernier.f * 100) });
   if (k != null) boite.setAttribute("aria-valuenow", Math.round(dernier.f * 100)); else boite.removeAttribute("aria-valuenow");
   if (k == null) {
     // durée inconnue : des carrés scintillent au hasard
@@ -166,11 +174,11 @@ async function depuisAdresse() {
   quitterAccueil();
   $("#panneau").hidden = false; $("#commandes").hidden = true; $("#heures").hidden = true; $("#diagramme").hidden = $("#coupe").hidden = true;
   $("#lieu").textContent = h.get("l") || `${E}, ${N}`;
-  $("#lieuType").textContent = h.get("t") || "";
+  $("#lieuType").textContent = nomType(h.get("t") || "");
   $("#source").textContent = "";
   message("");
   try {
-    etat(0.02, "Parcelle…");
+    etat(0.02, t("etat.parcelle"));
     const parcelle = await parcelleEn(E, N);
     if (id !== tache) return;
     // centre et rayon : la parcelle et ~120 m autour (bâtiments voisins, arbres)
@@ -179,9 +187,9 @@ async function depuisAdresse() {
       const xs = parcelle.anneaux.flat().map(p => p[0]), ys = parcelle.anneaux.flat().map(p => p[1]);
       E0 = (Math.min(...xs) + Math.max(...xs)) / 2; N0 = (Math.min(...ys) + Math.max(...ys)) / 2;
       demi = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) / 2;
-      $("#lieuType").textContent = `Parcelle ${parcelle.numero} · ${parcelle.canton}${h.get("t") === "Adresse" ? " · " + h.get("l") : ""}`;
+      $("#lieuType").textContent = `${t("lieu.parcelle", { n: parcelle.numero })} · ${parcelle.canton}${h.get("t") === "Adresse" ? " · " + h.get("l") : ""}`;
       $("#lieu").textContent = (h.get("l") || "").replace(/\s*\(CH.*\)$/, "");
-    } else message("Pas de parcelle trouvée à cet endroit : analyse autour du point.", 0);
+    } else message(t("msg.pasDeParcelle"), 0);
     E0 = Math.round(E0); N0 = Math.round(N0);
     // rayon automatique, ou celui choisi en mode pro (taille de la maquette)
     const R = pro.rayon() || Math.min(300, Math.max(150, Math.ceil(demi + 120)));
@@ -194,29 +202,29 @@ async function depuisAdresse() {
     const horizon = profilHorizon(E0, N0, new Promise(r => donnerAltitude = r), { rayonProche: R, onProgres: f => horizonFini = f });
     horizon.catch(() => {}); // l'erreur éventuelle est traitée à l'attente, plus bas
 
-    etat(0.05, "Recherche du relevé laser…");
+    etat(0.05, t("etat.releve"));
     let G, nuage = null, source;
     const copc = await tuilesNuage(boite);
     if (id !== tache) return;
     if (copc) {
       nuage = await chargerNuage(copc, boite, [E0, N0], 0.5, (f, t) => id === tache && etat(0.05 + 0.7 * f, t), (chargement = new AbortController()).signal);
       if (id !== tache) return;
-      etat(0.78, "Reconstruction du terrain, des bâtiments et des arbres…");
+      etat(0.78, t("etat.reconstruction"));
       await pause();
       G = depuisPoints(nuage, R);
-      source = `Nuage de points swissSURFACE3D ${[...new Set(copc.map(t => t.annee))].join(", ")} · ${nuage.n.toLocaleString("fr-CH")} points`;
+      source = t("source.nuage", { annees: [...new Set(copc.map(u => u.annee))].join(", "), n: entier(nuage.n) });
     } else {
       const g = await tuilesGrille(boite);
       G = await depuisRasters(g, [E0, N0], R, 0.5, (f, t) => id === tache && etat(0.05 + 0.7 * f, t));
       if (id !== tache) return;
-      source = `Relevé laser récent pas encore publié ici : modèles en grille 0,5 m (terrain ${[...new Set(g.terrain.map(t => t.annee))].join(", ")}, surface ${[...new Set(g.surface.map(t => t.annee))].join(", ")}). Bâtiments et arbres séparés par la forme (toit lisse, arbre rugueux) : moins fiable.`;
+      source = t("source.grille", { terrain: [...new Set(g.terrain.map(u => u.annee))].join(", "), surface: [...new Set(g.surface.map(u => u.annee))].join(", ") });
     }
     $("#source").textContent = source;
     [S.lon, S.lat] = versWgs(E0, N0);
     Object.assign(S, { E0, N0, parcelle: rel, G, horizon: null, zone: null, facades: null, resultat: null, coupe: null, heuresDemandees: false });
     $("#vCoupe").checked = false; $("#outilsCoupe").hidden = true;
-    $("#btnHeures").textContent = "Calculer les heures de soleil";
-    etat(0.85, "Construction de la scène 3D…");
+    $("#btnHeures").textContent = t("heures.calculer");
+    etat(0.85, t("etat.scene"));
     await pause();
     scene.controls.autoRotate = false;
     scene.typeFond = $("#vCadastre").checked ? "cadastre" : "uni";
@@ -241,7 +249,7 @@ async function depuisAdresse() {
     $("#vArbres").disabled = !nuage && !G.veg.some(v => !isNaN(v)); $("#vPoints").disabled = $("#distPoints").disabled = !nuage;
 
     donnerAltitude(scene.zRef + 1.7);
-    if (horizonFini < 1) etat(0.9 + 0.1 * horizonFini, "Relief lointain (montagnes)…");
+    if (horizonFini < 1) etat(0.9 + 0.1 * horizonFini, t("etat.relief"));
     S.horizon = await horizon;
     if (id !== tache) return;
     etat(1, "");
@@ -251,7 +259,7 @@ async function depuisAdresse() {
     if (id !== tache) return; // lieu changé entre-temps : le chargement abandonné n'affiche rien
     console.error(e);
     telechargement("lieu", null);
-    message("Erreur : " + e.message);
+    message(t("msg.erreur", { m: e.message }));
   }
 }
 const pause = () => new Promise(r => setTimeout(r, 30));
@@ -263,19 +271,19 @@ function soleilActuel() {
 }
 function majSoleil() {
   $("#jour").value = S.jour;
-  $("#jourTexte").textContent = new Date(S.jour + "T12:00").toLocaleDateString("fr-CH", { day: "numeric", month: "short", year: "numeric" });
+  $("#jourTexte").textContent = date(new Date(S.jour + "T12:00"), { day: "numeric", month: "short", year: "numeric" });
   $("#heure").value = S.minutes;
   $("#heureTexte").textContent = hhmm(S.minutes);
   if (S.lat == null) return;
   const p = soleilActuel();
   scene.placerSoleil(directionSoleil(p), p.visible);
-  const etatSoleil = p.hauteur <= 0 ? "couché" : p.visible ? "visible" : `caché par le relief lointain (horizon à ${p.horizon.toFixed(1)}°)`;
-  $("#soleilTexte").innerHTML = `Azimut ${p.azimut.toFixed(0)}° · hauteur ${p.hauteur.toFixed(1)}° · <b>${etatSoleil}</b>`;
+  const etatSoleil = p.hauteur <= 0 ? t("soleil.couche") : p.visible ? t("soleil.visible") : t("soleil.cacheRelief", { h: nombre(p.horizon, 1) });
+  $("#soleilTexte").innerHTML = t("soleil.texte", { az: nombre(p.azimut, 0), h: nombre(p.hauteur, 1), etat: etatSoleil });
   if (S.horizon) {
     dessinerDiagramme($("#svgSoleil"), { horizon: S.horizon, jour: S.jour, minutes: S.minutes, lat: S.lat, lon: S.lon });
     const v = soleilVisible(S.jour, S.lat, S.lon, S.horizon);
-    $("#horizonTexte").textContent = v.debut == null ? "· soleil caché toute la journée"
-      : `· au-dessus des montagnes de ${hhmm(v.debut)} à ${hhmm(v.fin)} (${Math.floor(v.minutes / 60)} h ${String(v.minutes % 60).padStart(2, "0")})`;
+    $("#horizonTexte").textContent = v.debut == null ? t("soleil.cacheJournee")
+      : t("soleil.auDessus", { debut: hhmm(v.debut), fin: hhmm(v.fin), duree: duree(v.minutes / 60) });
   }
   if (S.coupe) dessinCoupe();
 }
@@ -326,11 +334,11 @@ function appliquerAffichage() {
   const svg = $("#boussole"), NS = "http://www.w3.org/2000/svg";
   // axes en coordonnées de scène (x = est, y = haut, z = sud) ; dir = [est, haut, sud] pour scene.vueDirection
   const AXES = [
-    { nom: "E", v: [1, 0, 0], couleur: "#c8553d", vue: "E" }, { nom: "O", v: [-1, 0, 0], couleur: "#c8553d", neg: true, vue: "O" },
-    { nom: "N", v: [0, 0, -1], couleur: "#5b8c3a", vue: "N" }, { nom: "S", v: [0, 0, 1], couleur: "#5b8c3a", neg: true, vue: "S" },
-    { nom: "Z", v: [0, 1, 0], couleur: "#3d6fb6", vue: "plan", titre: "Plan (vue de dessus)" }, { nom: "", v: [0, -1, 0], couleur: "#3d6fb6", neg: true },
+    { nom: t("dir.E"), v: [1, 0, 0], couleur: "#c8553d", vue: "E" }, { nom: t("dir.O"), v: [-1, 0, 0], couleur: "#c8553d", neg: true, vue: "O" },
+    { nom: t("dir.N"), v: [0, 0, -1], couleur: "#5b8c3a", vue: "N" }, { nom: t("dir.S"), v: [0, 0, 1], couleur: "#5b8c3a", neg: true, vue: "S" },
+    { nom: "Z", v: [0, 1, 0], couleur: "#3d6fb6", vue: "plan", titre: t("boussole.plan") }, { nom: "", v: [0, -1, 0], couleur: "#3d6fb6", neg: true },
   ];
-  const TITRES = { E: "Élévation depuis l'est", O: "Élévation depuis l'ouest", N: "Élévation depuis le nord", S: "Élévation depuis le sud" };
+  const TITRES = { E: t("boussole.E"), O: t("boussole.O"), N: t("boussole.N"), S: t("boussole.S") };
   const el = (nom, attrs, parent = svg) => { const e = document.createElementNS(NS, nom); for (const k in attrs) e.setAttribute(k, attrs[k]); return parent.appendChild(e); };
   const q = new scene.camera.quaternion.constructor(), v = new scene.camera.position.constructor();
   const L = 34;
@@ -342,8 +350,8 @@ function appliquerAffichage() {
     el("circle", { class: "fond", r: 46 });
     // centre : retour à la vue 3D (affiché en plan et en élévation)
     if (actif) {
-      const g = el("g", { class: "bout centre", "data-vue": "3d", role: "button", "aria-label": "Revenir à la vue 3D" });
-      el("title", {}, g).textContent = "Revenir à la vue 3D";
+      const g = el("g", { class: "bout centre", "data-vue": "3d", role: "button", "aria-label": t("boussole.3d") });
+      el("title", {}, g).textContent = t("boussole.3d");
       el("circle", { r: 9, fill: "var(--accent)", stroke: "var(--accent)" }, g);
       el("text", { fill: "#fff" }, g).textContent = "3D";
     }
@@ -398,14 +406,14 @@ const matRoofer = new THREE.MeshStandardMaterial({ color: T.sol, roughness: 0.92
 async function comparerRoofer() {
   if (!S.roofer || choixBatiments() !== "roofer") { scene.afficherRoofer(null); return; }
   const lieu = S.E0;
-  telechargement("roofer", "Téléchargement des bâtiments roofer…", 0);
+  telechargement("roofer", t("etat.roofer"), 0);
   try {
     const m = await maillageRoofer(S.roofer, [S.E0, S.N0], scene.zRef, matRoofer,
-      (f, mo) => telechargement("roofer", `Téléchargement des bâtiments roofer… ${mo}`, f));
+      (f, mo) => telechargement("roofer", t("etat.rooferMo", { mo }), f));
     if (lieu === S.E0 && choixBatiments() === "roofer") scene.afficherRoofer(m);
   } finally { telechargement("roofer", null); }
 }
-scene.surTuilesSwiss = n => telechargement("swiss", n > 0 ? `Téléchargement des bâtiments swisstopo… ${n} tuile${n > 1 ? "s" : ""} en cours` : null);
+scene.surTuilesSwiss = n => telechargement("swiss", n > 0 ? t("etat.swiss", { n }) : null);
 // bâtiments affichés : un seul jeu à la fois (relevé, swisstopo, roofer là où il a été calculé, ou aucun)
 // onglets du panneau : un seul groupe de réglages visible à la fois ; le dernier choisi est retenu par ce navigateur
 {
@@ -422,13 +430,13 @@ scene.surTuilesSwiss = n => telechargement("swiss", n > 0 ? `Téléchargement de
 function choixBatiments() { return $("input[name=batiments]:checked")?.value || "releve"; }
 const NOTES = {
   releve: "", aucun: "",
-  swiss: "Swiss3D (swissBUILDINGS3D) : ils portent les ombres affichées ; les heures de soleil restent calculées avec le relevé.",
-  roofer: "Advanced (roofer, TU Delft) : ils portent les ombres affichées ; les heures de soleil restent calculées avec le relevé.",
+  swiss: t("aff.noteSwiss"),
+  roofer: t("aff.noteRoofer"),
 };
 function choixRoofer() {
   $("#bRoofer").disabled = !S.roofer;
   $("#etiquetteRoofer").hidden = $("#bRoofer").hidden = !S.roofer;
-  if (S.roofer) $("#etiquetteRoofer").title = `roofer (TU Delft), LoD2.2, calculé hors ligne — essai ${S.roofer.nom}`;
+  if (S.roofer) $("#etiquetteRoofer").title = t("aff.rooferEssai", { nom: S.roofer.nom });
   if (!S.roofer && choixBatiments() === "roofer") $("#bReleve").checked = true;
 }
 $$("input[name=batiments]").forEach(b => b.addEventListener("change", () => {
@@ -439,16 +447,29 @@ $$("input[name=batiments]").forEach(b => b.addEventListener("change", () => {
   appliquerAffichage();
   refaireCoupe();
 }));
+// case « Swiss3D » de la ligne Bâtiments : coche le bouton radio (caché) du jeu voulu, la suite passe par son événement.
+// « aucun » et « roofer » (anciens choix restaurés par le navigateur) retombent sur le relevé.
+function synchroSwiss() {
+  if (!["releve", "swiss"].includes(choixBatiments())) $("#bReleve").checked = true;
+  $("#vSwiss").checked = choixBatiments() === "swiss";
+}
+$("#vSwiss").addEventListener("change", e => {
+  const r = $(e.target.checked ? "#bSwiss" : "#bReleve");
+  r.checked = true;
+  r.dispatchEvent(new Event("change"));
+});
+synchroSwiss();
+window.addEventListener("pageshow", synchroSwiss);
 $("#vCadastre").addEventListener("change", e => scene.fond(e.target.checked ? "cadastre" : "uni"));
-scene.surFondAbsent = () => message("Plan cadastral indisponible ici : terrain uni.");
+scene.surFondAbsent = () => message(t("msg.cadastreAbsent"));
 $("#vEffets").addEventListener("change", e => scene.reglerEffets(e.target.checked));
 $("#vDegrade").addEventListener("change", e => scene.degradeHauteur(e.target.checked));
 scene.surQualite = q => {
   if (q < 2) return;
   $("#vEffets").checked = false;
-  if (S.G && S.lat != null) message("Effets de lumière coupés pour garder un affichage fluide (à réactiver dans « Affichage »).");
+  if (S.G && S.lat != null) message(t("msg.effetsCoupes"));
 };
-$("#btnPartager").onclick = async () => { await navigator.clipboard.writeText(location.href); $("#btnPartager").textContent = "Copié"; setTimeout(() => $("#btnPartager").textContent = "Lien", 1500); };
+$("#btnPartager").onclick = async () => { await navigator.clipboard.writeText(location.href); $("#btnPartager").textContent = t("panneau.copie"); setTimeout(() => $("#btnPartager").textContent = t("panneau.lien"), 1500); };
 
 /* ------------------------------------------------------------------ coupe */
 function majCoupe(A, B) {
@@ -463,7 +484,7 @@ function majCoupe(A, B) {
 }
 function dessinCoupe() {
   const r = dessinerCoupe($("#svgCoupe"), S.coupe.P, soleilActuel());
-  $("#coupeTexte").textContent = r ? `· ${r.long.toFixed(0)} m${r.note ? " · " + r.note : ""}` : "";
+  $("#coupeTexte").textContent = r ? `· ${nombre(r.long, 0)} m${r.note ? " · " + r.note : ""}` : "";
 }
 $("#vCouperModele").addEventListener("change", e => { scene.couperModele = e.target.checked; if (S.coupe) scene.definirCoupe(S.coupe.P); });
 // la carte de la coupe prend toute la largeur en bas : le panneau s'arrête au-dessus, le profil suit la largeur
@@ -490,14 +511,14 @@ $("#vCoupe").addEventListener("change", e => {
 $("#btnTracer").onclick = () => {
   const actif = !$("#btnTracer").classList.contains("active");
   $("#btnTracer").classList.toggle("active", actif);
-  $("#aideCoupe").textContent = actif ? "Cliquez le point A sur le modèle…" : "Déplacez les poignées A et B sur le modèle, ou tracez une nouvelle ligne.";
+  $("#aideCoupe").textContent = t(actif ? "coupe.aideA" : "coupe.aide");
   scene.tracer(actif ? (A, B) => {
     $("#btnTracer").classList.remove("active");
-    $("#aideCoupe").textContent = "Déplacez les poignées A et B sur le modèle, ou tracez une nouvelle ligne.";
+    $("#aideCoupe").textContent = t("coupe.aide");
     majCoupe(A, B);
   } : null);
 };
-scene.surDepart = () => $("#aideCoupe").textContent = "…puis le point B.";
+scene.surDepart = () => $("#aideCoupe").textContent = t("coupe.aideB");
 scene.surCoupe = (A, B) => majCoupe(A, B);
 const refaireCoupe = () => { if (S.coupe) majCoupe(S.coupe.A, S.coupe.B); };
 scene.surBatiments = refaireCoupe; // bâtiments de comparaison arrivés ou changés (tuiles swisstopo, roofer)
@@ -535,7 +556,7 @@ function calculerHeures() {
     calcul = null;
     etat(1, "");
     S.resultat = { heures, heuresF, P, cle, ms: performance.now() - debut };
-    $("#btnHeures").textContent = "Recalculer";
+    $("#btnHeures").textContent = t("heures.recalculer");
     afficherResultat();
   };
   // les positions du soleil sont réparties entre quelques fils de calcul
@@ -544,12 +565,12 @@ function calculerHeures() {
   const lots = Array.from({ length: nb }, () => []), avance = new Float32Array(nb);
   P.soleils.forEach((s, k) => lots[k % nb].push(s));
   let restants = nb;
-  etat(0.01, "Heures de soleil…");
+  etat(0.01, t("etat.heures"));
   const moi = calcul = { cle, ouvriers: lots.map((lot, k) => {
     const w = new Worker(new URL("./ensoleillement.worker.js", import.meta.url), { type: "module" });
     w.onmessage = ({ data }) => {
       if (calcul !== moi) return;
-      if (data.progres != null) { avance[k] = data.progres; etat(0.99 * avance.reduce((a, b) => a + b) / nb, `Heures de soleil (${P.titre})…`); return; }
+      if (data.progres != null) { avance[k] = data.progres; etat(0.99 * avance.reduce((a, b) => a + b) / nb, t("etat.heuresPeriode", { titre: P.titre })); return; }
       w.terminate();
       for (let p = 0; p < heures.length; p++) heures[p] += data.heures[p];
       for (let p = 0; p < heuresF.length; p++) heuresF[p] += data.heuresF[p];
@@ -561,7 +582,7 @@ function calculerHeures() {
 }
 
 function afficherResultat() {
-  const { heures, heuresF, P, ms } = S.resultat, zone = S.zone, max = Math.max(0.5, P.max), parJour = P.nbJours > 1 ? " / jour" : "";
+  const { heures, heuresF, P, ms } = S.resultat, zone = S.zone, max = Math.max(0.5, P.max), parJour = P.nbJours > 1 ? t("heures.parJour") : "";
   scene.zoneArbres(zone);
   scene.afficherHeures(maillagesHeures(S.G, scene.contours, zone, S.facades, { heures, heuresF }, max, T.heures, scene.zRef));
   // statistiques sur les cellules de la parcelle (à défaut : le cœur de la zone)
@@ -573,8 +594,8 @@ function afficherResultat() {
   }
   $("#heures").hidden = false;
   $("#heuresMax").textContent = duree(max) + parJour;
-  $("#heuresStats").innerHTML = (k ? `${sans ? "Autour du point" : "Parcelle"}, ${P.titre} : <b>${duree(s / k)}${parJour}</b> · min ${duree(mn)} · max ${duree(mx)}<br>` : "")
-    + `<span class="text-secondary">Soleil au-dessus du relief, ${P.titre} : ${duree(P.max)}${parJour}. Façades comprises (${S.facades.carreaux.length.toLocaleString("fr-CH")} carreaux). Calculé en ${(ms / 1000).toFixed(1).replace(".", ",")} s.</span>`;
+  $("#heuresStats").innerHTML = (k ? t("heures.stats", { lieu: t(sans ? "heures.autourPoint" : "heures.parcelle"), titre: P.titre, moyenne: duree(s / k) + parJour, min: duree(mn), max: duree(mx) }) : "")
+    + `<span class="text-secondary">${t("heures.resume", { titre: P.titre, max: duree(P.max) + parJour, carreaux: entier(S.facades.carreaux.length), s: nombre(ms / 1000, 1) })}</span>`;
   $("#vHeures").checked = true;
   appliquerAffichage();
 }
@@ -614,9 +635,9 @@ function choisirParcelle(p) {
   // en-tête et lien partageable (sans recharger : la maquette couvre déjà cette parcelle)
   const xs = p.anneauxRel.flat().map(q => q[0]), ys = p.anneauxRel.flat().map(q => q[1]);
   const E = Math.round(S.E0 + (Math.min(...xs) + Math.max(...xs)) / 2), N = Math.round(S.N0 + (Math.min(...ys) + Math.max(...ys)) / 2);
-  $("#lieuType").textContent = `Parcelle ${p.numero}${S.parcelle.canton ? " · " + S.parcelle.canton : ""}`;
-  $("#lieu").textContent = `Parcelle ${p.numero}`;
-  history.replaceState(null, "", `${location.pathname}${location.search}#e=${E}&n=${N}&l=${encodeURIComponent("Parcelle " + p.numero)}&t=Parcelle`);
+  $("#lieuType").textContent = `${t("lieu.parcelle", { n: p.numero })}${S.parcelle.canton ? " · " + S.parcelle.canton : ""}`;
+  $("#lieu").textContent = t("lieu.parcelle", { n: p.numero });
+  history.replaceState(null, "", `${location.pathname}${location.search}#e=${E}&n=${N}&l=${encodeURIComponent(t("lieu.parcelle", { n: p.numero }))}&t=Parcelle`);
   if (S.coupe) majCoupe(S.coupe.A, S.coupe.B);
   if (S.heuresDemandees) calculerHeures(); else scene.afficherHeures?.(null);
 }

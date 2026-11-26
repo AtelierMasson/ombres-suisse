@@ -6,6 +6,7 @@ import { Line2 } from "three/addons/lines/Line2.js";
 import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { solEn } from "./grille.js";
 import { dansBatiment } from "./contours.js";
+import { t as tr, nombre } from "./i18n.js";
 
 /** Valeur d'une grille au point (x, y), interpolée entre les cellules renseignées voisines (NaN si aucune). */
 function valeurEn(G, a, x, y) {
@@ -214,7 +215,7 @@ function dansAnneaux(x, y, anneaux) {
 }
 
 /** Altitude arrondie à 10 cm, à la suisse romande (virgule). */
-const alt = z => (Math.round(z * 10) / 10).toFixed(1).replace(".", ",");
+const alt = z => nombre(Math.round(z * 10) / 10, 1);
 
 /** Suites d'échantillons consécutifs où `a` est renseigné : [[début, fin], …] (indices inclus). */
 function suites(a, k0 = 0, k1 = a.length - 1) {
@@ -416,10 +417,10 @@ export function dessinerCoupe(svg, P, soleil) {
     };
     const xa = X(isNaN(P.debut[a]) ? P.s[a] : P.debut[a]), xb = X(isNaN(P.fin[b]) ? P.s[b] : P.fin[b]), za = P.bat[a], zbord = P.bat[b];
     const xf = X(P.s[kf]), xbas = X(P.s[kb]);
-    if (P.bat[kf] > Math.max(za, zbord) + 0.3) cote(xf, P.bat[kf], `faîte ${alt(P.bat[kf])}`, xf - xa < xb - xf ? "d" : "g");
-    cote(xa, za, `corniche ${alt(za)}`, "g");
-    if (Math.abs(zbord - za) >= 0.2) cote(xb, zbord, `corniche ${alt(zbord)}`, "d");
-    cote(xbas, zb, `bas ${alt(zb)}`, xbas - xa < xb - xbas ? "g" : "d");
+    if (P.bat[kf] > Math.max(za, zbord) + 0.3) cote(xf, P.bat[kf], tr("coupe.faite", { z: alt(P.bat[kf]) }), xf - xa < xb - xf ? "d" : "g");
+    cote(xa, za, tr("coupe.corniche", { z: alt(za) }), "g");
+    if (Math.abs(zbord - za) >= 0.2) cote(xb, zbord, tr("coupe.corniche", { z: alt(zbord) }), "d");
+    cote(xbas, zb, tr("coupe.bas", { z: alt(zb) }), xbas - xa < xb - xbas ? "g" : "d");
   }
   // rayon du soleil vu dans le plan de coupe (hauteur apparente), posé au milieu de la coupe
   let note = "";
@@ -434,8 +435,8 @@ export function dessinerCoupe(svg, P, soleil) {
     const tt = Math.min(tx, ty > 0 ? ty : Infinity);
     if (isFinite(tt)) t += `<circle cx="${f(x1 + (x2 - x1) * tt)}" cy="${f(y1 + (y2 - y1) * tt)}" r="5" class="astre"/>`;
     const app = Math.atan2(dz, Math.abs(ds)) * 180 / Math.PI;
-    note = `soleil à ${soleil.heure} : ${app.toFixed(0)}° dans le plan de coupe`;
-  } else if (soleil) note = `soleil ${soleil.hauteur <= 0 ? "couché" : "caché par le relief"} à ${soleil.heure}`;
+    note = tr("coupe.soleilPlan", { heure: soleil.heure, angle: nombre(app, 0) });
+  } else if (soleil) note = tr(soleil.hauteur <= 0 ? "coupe.soleilCouche" : "coupe.soleilCache", { heure: soleil.heure });
   t += `</g><line x1="${m.g}" x2="${W - m.d}" y1="${H - m.b}" y2="${H - m.b}" class="axe"/>`;
   t += `<text x="${m.g + 4}" y="${m.h + 11}" class="repere">A</text><text x="${W - m.d - 4}" y="${m.h + 11}" text-anchor="end" class="repere">B</text>`;
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);

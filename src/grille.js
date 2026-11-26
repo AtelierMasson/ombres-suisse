@@ -1,6 +1,7 @@
 // Mise en grille 0,5 m : terrain (sol), bâtiments, végétation et surface (le plus haut des trois).
 // Indices : i vers l'est, j vers le nord ; la cellule (i, j) couvre [x0 + i·c, x0 + (i+1)·c] (relatif à E0, N0).
 import { fromUrl } from "geotiff";
+import { t as tr } from "./i18n.js";
 
 export function grilleVide(R, c = 0.5) {
   const n = Math.round(2 * R / c);
@@ -42,9 +43,9 @@ export async function depuisRasters({ terrain, surface: surf }, [E0, N0], R, c =
   const G = grilleVide(R, c);
   G.classifie = false;
   const dsm = new Float32Array(G.n * G.n).fill(NaN);
-  const lire = async (liste, cible, nom) => {
+  const lire = async (liste, cible, cle) => {
     for (const [k, t] of liste.entries()) {
-      onProgres(k / liste.length, `${nom} (${t.annee})…`);
+      onProgres(k / liste.length, tr(cle, { annee: t.annee }));
       const img = await (await fromUrl(t.url, { maxRanges: 1 })).getImage();
       const [bx0, , , by1] = img.getBoundingBox(), [rx] = img.getResolution();
       const w = img.getWidth(), h = img.getHeight();
@@ -63,8 +64,8 @@ export async function depuisRasters({ terrain, surface: surf }, [E0, N0], R, c =
       }
     }
   };
-  await lire(terrain, G.sol, "Terrain swissALTI3D");
-  await lire(surf, dsm, "Surface swissSURFACE3D");
+  await lire(terrain, G.sol, "etat.grilleTerrain");
+  await lire(surf, dsm, "etat.grilleSurface");
   remplir(G.sol, G.n); remplir(dsm, G.n);
   // sans classes : tout ce qui dépasse le sol de plus de 2 m est un obstacle, puis on sépare toits (lisses) et arbres (rugueux)
   for (let p = 0; p < G.n * G.n; p++) if (dsm[p] > G.sol[p] + 2) G.bat[p] = dsm[p];

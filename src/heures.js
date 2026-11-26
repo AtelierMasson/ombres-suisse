@@ -6,6 +6,7 @@ import { hauteurTerrain } from "./maillages.js";
 import { positionSoleil, dateA } from "./soleil.js";
 import { horizonA } from "./horizon.js";
 import { couleurEchelle } from "./themes.js";
+import { t, date } from "./i18n.js";
 
 /* ------------------------------------------------------------------ zone */
 
@@ -83,7 +84,6 @@ export function zoneHeures(G, anneaux, { elargi = 20, lissage = 12, fondu = 4 } 
 
 /* ------------------------------------------------------------------ positions du soleil */
 
-const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 const iso = (a, m, j) => `${a}-${String(m).padStart(2, "0")}-${String(j).padStart(2, "0")}`;
 
 /**
@@ -94,15 +94,15 @@ const iso = (a, m, j) => `${a}-${String(m).padStart(2, "0")}-${String(j).padStar
  */
 export function soleilsPeriode(periode, jour, lat, lon, horizon) {
   const [an, mois] = jour.split("-").map(Number);
-  let jours = [jour], pas = 10, titre = `le ${new Date(jour + "T12:00:00").toLocaleDateString("fr-CH", { day: "numeric", month: "long" })}`;
+  let jours = [jour], pas = 10, titre = t("heures.titreJour", { date: date(new Date(jour + "T12:00:00"), { day: "numeric", month: "long" }) });
   if (periode === "mois") {
     const fin = new Date(an, mois, 0).getDate();
     jours = [3, 8, 13, 18, 23, 28].filter(j => j <= fin).map(j => iso(an, mois, j));
-    pas = 15; titre = `moyenne ${/^[ao]/.test(MOIS[mois - 1]) ? "d'" : "de "}${MOIS[mois - 1]}`;
+    pas = 15; titre = t("heures.titreMois", { mois: date(new Date(an, mois - 1, 15), { month: "long" }) });
   } else if (periode === "annee") {
     jours = [];
     for (let m = 1; m <= 12; m++) jours.push(iso(an, m, 1), iso(an, m, 16));
-    pas = 20; titre = "moyenne annuelle";
+    pas = 20; titre = t("heures.titreAnnee");
   }
   const groupes = new Map(), fin = periode === "jour" ? 1 : 1 / jours.length, finesse = periode === "annee" ? 2 : 1; // degrés d'azimut par groupe
   let max = 0;

@@ -1,6 +1,7 @@
 // Comparaison : bâtiments reconstruits hors ligne par roofer (3DBAG, TU Delft) pour des lieux d'essai (Lutry, Lausanne av. Floréal).
 // Le fichier contient des polygones (toits et murs) en MN95 relatives à son origine, altitudes absolues.
 import * as THREE from "three";
+import { t, nombre } from "./i18n.js";
 
 const ESSAIS = [
   { url: `${import.meta.env.BASE_URL}essais/roofer_lutry.json`, centre: [2542766, 1152300], rayon: 400, nom: "Lutry" },
@@ -21,7 +22,7 @@ export async function maillageRoofer(essai, [E0, N0], zRef, materiau, onProgres 
     const { done, value } = await lecteur.read();
     if (done) break;
     morceaux.push(value); recu += value.length;
-    onProgres(total ? recu / total : null, `${(recu / 1e6).toFixed(1)}${total ? ` / ${(total / 1e6).toFixed(1)}` : ""} Mo`);
+    onProgres(total ? recu / total : null, t("unite.mo", { n: `${nombre(recu / 1e6, 1)}${total ? ` / ${nombre(total / 1e6, 1)}` : ""}` }));
   }
   const d = JSON.parse(new TextDecoder().decode(await new Blob(morceaux).arrayBuffer()));
   const [oE, oN] = d.origine, pos = [];

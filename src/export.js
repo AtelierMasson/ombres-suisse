@@ -10,6 +10,7 @@ import { STLExporter } from "three/addons/exporters/STLExporter.js";
 import { zipSync, strToU8 } from "three/addons/libs/fflate.module.js";
 import { solEn } from "./grille.js";
 import { couronnes } from "./maillages.js";
+import { t, nombre as decimal, entier, locale } from "./i18n.js";
 
 export const FORMATS = {
   dxf: { nom: "DXF", absolu: true, lignes: true, parTriangle: 140 },
@@ -410,23 +411,22 @@ export async function exporterSite(o) {
   const { scene, format, quoi } = o, F = FORMATS[format], debut = performance.now(), souffle = () => new Promise(r => setTimeout(r, 20));
   const absolu = !!o.absolu && F.absolu, Z0 = Math.round(scene.zRef);
   const O = { absolu, E0: o.E0, N0: o.N0, Z0, decalage: absolu ? [o.E0, o.N0, 0] : [0, 0, -Z0] };
-  o.progres?.(0.1, "Export : préparation des géométries…"); await souffle();
+  o.progres?.(0.1, t("export.preparation")); await souffle();
   const cats = preparer(scene, o.parcelle, quoi, o.jeu).filter(c => c.maillage || F.lignes);
-  if (!cats.length) throw new Error("rien à exporter avec ces choix");
+  if (!cats.length) throw new Error(t("export.rien"));
   const triangles = cats.reduce((s, c) => s + (c.maillage ? c.maillage.idx.length / 3 : 0), 0);
-  const origine = `E ${o.E0} N ${o.N0} Z ${Z0} (MN95, EPSG:2056, altitudes NF02)`;
-  const repere = absolu ? `Coordonnees MN95 completes (EPSG:2056), X = est, Y = nord, Z = altitude, en metres`
-    : `Origine locale (0, 0, 0) = ${origine} ; X = est, Y = nord, Z = altitude, en metres`;
+  const origine = t("export.origine", { E: o.E0, N: o.N0, Z: Z0 });
+  const repere = absolu ? t("export.infoMn95") : t("export.infoLocal", { origine });
   const base = `ombres_${sansAccent(o.lieu)}_${absolu ? "MN95" : `E${o.E0}_N${o.N0}_Z${Z0}`}`, fichier = `${base}.${format}`;
-  o.progres?.(0.45, `Export : écriture du fichier ${F.nom}…`); await souffle();
-  const infos = [`Ombres - Suisse : ${sansAccent(o.lieu)}`, repere, "Source : swisstopo (swissSURFACE3D, swissALTI3D), cadastre geo.admin.ch. Resultats indicatifs."];
-  const extras = { generateur: "Ombres — Suisse", lieu: o.lieu, epsg: 2056, origine: { E: o.E0, N: o.N0, Z: Z0 }, unite: "mètre",
-    repere: "glTF : X = est, Y = altitude − Z0, −Z = nord. Après import dans un logiciel en Z vers le haut : X = est, Y = nord, Z = altitude − Z0.",
+  o.progres?.(0.45, t("export.ecriture", { format: F.nom })); await souffle();
+  const infos = [t("export.infoLieu", { lieu: sansAccent(o.lieu) }), repere, t("export.infoSource")];
+  const extras = { generateur: "Ombres — Suisse", lieu: o.lieu, epsg: 2056, origine: { E: o.E0, N: o.N0, Z: Z0 }, unite: t("export.unite"),
+    repere: t("export.gltfRepere"),
     source: "© swisstopo (swissSURFACE3D, swissALTI3D), cadastre geo.admin.ch" };
   const morceaux = format === "dxf" ? ecrireDxf(cats, O, infos) : format === "obj" ? ecrireObj(cats, O, infos)
     : format === "glb" ? await ecrireGlb(cats, O, extras) : ecrireStl(cats, O, `Ombres-Suisse E0=${o.E0} N0=${o.N0} Z0=${Z0} EPSG:2056 m`);
   const modele = new Uint8Array(await new Blob(morceaux).arrayBuffer());
-  o.progres?.(0.8, "Export : archive zip…"); await souffle();
+  o.progres?.(0.8, t("export.archive")); await souffle();
   const lisezMoi = texteLisezMoi({ ...o, O, F, fichier, cats, triangles, origine, octets: modele.length });
   // texte : compression rapide (÷ 5 à 10) ; binaire : léger gain
   const zip = zipSync({ [fichier]: [modele, { level: 1 }], "LISEZ-MOI.txt": strToU8(lisezMoi) });
@@ -434,38 +434,34 @@ export async function exporterSite(o) {
 }
 
 function texteLisezMoi({ lieu, format, quoi, jeu, source, O, F, fichier, cats, triangles, origine, octets }) {
-  const jeux = { releve: "reconstruits à partir du relevé laser (toits mesurés, murs droits)", swiss: "swissBUILDINGS3D de swisstopo", roofer: "roofer (TU Delft, LoD2.2)" };
-  const contenu = { TERRAIN: `terrain, maille de ${String(quoi.maille).replace(".", ",")} m`, SOCLE: "socle : côtés et fond, fermé avec le terrain",
-    BATIMENTS: `bâtiments ${jeux[jeu] || jeux.releve}${jeu === "releve" || !jeu ? ", sans ceux masqués en mode pro" : ""}`,
-    ARBRES: "arbres en volumes simples (couronnes lissées)", PARCELLE: "limite de la parcelle (cadastre), posée sur le terrain", COURBES: "courbes de niveau, équidistance 1 m" };
+  const jeux = { releve: t("lisez.jeuReleve"), swiss: t("lisez.jeuSwiss"), roofer: t("lisez.jeuRoofer") };
+  const contenu = { TERRAIN: t("lisez.TERRAIN", { maille: decimal(quoi.maille, Number.isInteger(quoi.maille) ? 0 : 1) }), SOCLE: t("lisez.SOCLE"),
+    BATIMENTS: t("lisez.BATIMENTS", { jeu: jeux[jeu] || jeux.releve }) + (jeu === "releve" || !jeu ? t("lisez.sansMasques") : ""),
+    ARBRES: t("lisez.ARBRES"), PARCELLE: t("lisez.PARCELLE"), COURBES: t("lisez.COURBES") };
   return [
-    `OMBRES — SUISSE · export du site`,
+    t("lisez.titre"),
     ``,
-    `Lieu      : ${lieu}`,
-    `Fichier   : ${fichier} (${F.nom}, ${(octets / 1e6).toFixed(1)} Mo, ${triangles.toLocaleString("fr-CH")} triangles)`,
-    `Date      : ${new Date().toLocaleString("fr-CH")}`,
+    t("lisez.lieu", { lieu }),
+    t("lisez.fichier", { fichier, format: F.nom, taille: t("unite.mo", { n: decimal(octets / 1e6, 1) }), triangles: entier(triangles) }),
+    t("lisez.date", { date: new Date().toLocaleString(locale) }),
     ``,
-    `REPÈRE`,
-    O.absolu
-      ? `Coordonnées MN95 complètes (EPSG:2056) : X = est, Y = nord, Z = altitude (NF02), en mètres.\nAttention : certains logiciels affichent mal d'aussi grandes coordonnées (tremblement) ; préférer alors l'origine locale.`
-      : `Origine locale : le point (0, 0, 0) du fichier correspond à\n    ${origine}.\nPour retrouver les coordonnées nationales : E = ${O.E0} + X, N = ${O.N0} + Y, altitude = ${O.Z0} + Z.`,
-    format === "glb"
-      ? `Axes : norme glTF, Y vers le haut (X = est, Y = altitude − ${O.Z0}, −Z = nord). Les logiciels en Z vers le haut (Blender, Rhino…)\nredressent le modèle à l'import : on y retrouve X = est, Y = nord, Z = altitude − ${O.Z0}. L'origine est aussi dans « asset.extras ».`
-      : `Axes : X = est, Y = nord, Z = altitude (Z vers le haut, convention de la CAO). Unité : le mètre.`,
-    format === "obj" ? `OBJ : à l'import, choisir « Z vers le haut » (Rhino : décocher « Map OBJ Y to Rhino Z » ; Blender : Up = Z, Forward = Y).` : null,
-    format === "stl" ? `STL : le format n'a pas d'unité ; indiquer « mètres » à l'import. L'origine est aussi dans l'en-tête du fichier.` : null,
-    format === "dxf" ? `DXF (version R12) : unité de dessin = le mètre. L'origine est rappelée en commentaire de tête et sur le calque INFO.\nDans AutoCAD : ouvrir, puis « Enregistrer sous » pour obtenir un DWG.` : null,
+    t("lisez.repere"),
+    O.absolu ? t("lisez.mn95") : t("lisez.local", { origine, E0: O.E0, N0: O.N0, Z0: O.Z0 }),
+    format === "glb" ? t("lisez.axesGlb", { Z0: O.Z0 }) : t("lisez.axes"),
+    format === "obj" ? t("lisez.obj") : null,
+    format === "stl" ? t("lisez.stl") : null,
+    format === "dxf" ? t("lisez.dxf") : null,
     ``,
-    `CONTENU (${format === "dxf" ? "calques" : format === "stl" ? "fondu en un seul maillage" : "objets"})`,
+    t(format === "dxf" ? "lisez.contenuCalques" : format === "stl" ? "lisez.contenuStl" : "lisez.contenuObjets"),
     ...cats.map(c => `  ${c.nom.padEnd(10)} ${contenu[c.nom]}`),
     ``,
-    `LIMITES`,
-    `- Modèle reconstruit automatiquement à partir du relevé laser aérien (grille de 0,5 m) : précision de quelques décimètres.`,
-    `- Terrain et socle forment un volume fermé. Les bâtiments sont des enveloppes ouvertes en bas (toit et murs, sans plancher) ;\n  leurs murs descendent 2,5 m sous le terrain pour ne pas laisser de jour dans la pente.`,
-    `- Pas d'avant-toits ni de passages couverts (hauteur unique par cellule).`,
+    t("lisez.limites"),
+    t("lisez.limite1"),
+    t("lisez.limite2"),
+    t("lisez.limite3"),
     ``,
-    `SOURCES`,
-    source || "", `© swisstopo (swissSURFACE3D, swissALTI3D), cadastre geo.admin.ch. Résultats indicatifs, sans valeur officielle.`,
+    t("lisez.sources"),
+    source || "", t("lisez.source"),
     ``,
   ].filter(l => l != null).join("\r\n");
 }

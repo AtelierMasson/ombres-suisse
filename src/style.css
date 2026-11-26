@@ -46,6 +46,7 @@ body.accueil #haut .recherche { visibility: hidden; }
 #themes button i { width: 18px; height: 18px; border-radius: 50%; border: 2px solid; flex: none; }
 #themes button:hover { border-color: var(--accent); }
 #themes button.actif { border-color: var(--accent); background: var(--accent-clair); font-weight: 600; }
+#themes button.symbole { justify-content: center; width: 30px; height: 30px; padding: 0; font-size: 16px; font-weight: 400; }
 
 /* vue 3D, panneau, cartes du bas */
 #vue { position: absolute; top: var(--haut); left: 0; right: 0; bottom: 0; }
@@ -213,3 +214,7 @@ body.accueil #orientation { display: none; }
 #legal .legal-onglets a { color: var(--doux); text-decoration: none; }
 #legal .legal-onglets a.actif { color: var(--texte); font-weight: 600; }
 @media (max-width: 700px) { #pied .sources { display: none; } }
+#pied .langues a { text-decoration: none; }
+#pied .langues a.actif { font-weight: 600; text-decoration: underline; }
+.table-calques .choix-swiss { font-weight: normal; white-space: nowrap; }
+.table-calques .choix-swiss .form-check-input { margin: 0 .25em 0 .1em; vertical-align: -.15em; }

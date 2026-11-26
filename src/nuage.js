@@ -2,6 +2,7 @@
 // jusqu'à la profondeur qui donne environ un point tous les 0,5 m. Les blocs sont téléchargés et décodés par
 // quelques fils de calcul (nuage.worker.js) : la page reste fluide pendant le chargement.
 import { Copc } from "copc";
+import { t, entier } from "./i18n.js";
 
 /** Classes swisstopo utiles : 2 sol, 3 végétation, 6 bâtiment, 9 eau, 17 pont ; le reste = autre. */
 export const CLASSES = { 2: "sol", 3: "végétation", 6: "bâtiment", 9: "eau", 17: "pont" };
@@ -43,21 +44,21 @@ export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, on
     await new Promise((ok, ko) => {
       if (!taches.length) return ok();
       let suivante = 0, restantes = taches.length;
-      signal?.addEventListener("abort", () => ko(new DOMException("Chargement annulé", "AbortError")), { once: true });
+      signal?.addEventListener("abort", () => ko(new DOMException(t("erreur.chargementAnnule"), "AbortError")), { once: true });
       const donner = w => {
         if (suivante >= taches.length) return;
         const { url, copc, n: noeud } = taches[suivante];
         w.postMessage({ id: suivante++, url, copc, noeud, boite, origine: [E0, N0] });
       };
       for (const w of fils) {
-        w.onerror = e => ko(new Error("Décodage du nuage : " + (e.message || "fil de calcul en échec")));
+        w.onerror = e => ko(new Error(t("erreur.nuageDecodage", { m: e.message || t("erreur.filEchec") })));
         w.onmessage = ({ data }) => {
           if (data.erreur) return ko(new Error(data.erreur));
           X.set(data.X.subarray(0, data.n), n); Y.set(data.Y.subarray(0, data.n), n);
           Z.set(data.Z.subarray(0, data.n), n); C.set(data.C.subarray(0, data.n), n);
           n += data.n;
           faits += taches[data.id].n.pointCount;
-          onProgres(faits / total, `Nuage de points : ${Math.round(faits / 1e3).toLocaleString("fr-CH")} k / ${Math.round(total / 1e3).toLocaleString("fr-CH")} k points`);
+          onProgres(faits / total, t("etat.nuage", { faits: entier(faits / 1e3), total: entier(total / 1e3) }));
           if (--restantes === 0) ok(); else donner(w);
         };
         donner(w);

@@ -1,6 +1,8 @@
 // Fond de plan posé sur le terrain : plan cadastral (mensuration officielle) reteinté aux couleurs du thème,
 // ou orthophoto SWISSIMAGE telle quelle. Les images viennent du service WMS de geo.admin.ch (accès libre, CORS ouvert).
 
+import { t } from "./i18n.js";
+
 const WMS = "https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&STYLES=&CRS=EPSG:2056";
 
 /** Adresse de l'image d'une couche pour la boîte MN95 [e0, n0, e1, n1]. */
@@ -19,7 +21,7 @@ export async function chargerImage(url, essais = 3) {
         const img = new Image();
         img.crossOrigin = "anonymous"; // nécessaire pour relire les pixels (reteinte) et pour WebGL
         img.onload = () => ok(img);
-        img.onerror = () => ko(new Error("Fond de plan indisponible"));
+        img.onerror = () => ko(new Error(t("erreur.fondIndisponible")));
         img.src = k < essais ? url : `${url}&essai=${Date.now()}`;
       });
     } catch (e) {
