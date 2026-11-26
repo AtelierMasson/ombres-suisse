@@ -1,0 +1,5 @@
+# Seuls les points d'entrée publics sont servis ; config et fichiers internes restent inaccessibles.
+Options -Indexes
+<FilesMatch "^(config|config\.exemple|_commun)\.php$|\.(sql|md)$|^\.">
+  Require all denied
+</FilesMatch>

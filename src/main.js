@@ -18,11 +18,17 @@ import { zoneHeures, soleilsPeriode, carreauxFacades, maillagesHeures } from "./
 import { profilCoupe, dessinerCoupe } from "./coupe.js";
 import { hameau } from "./demo.js";
 import { brancherPro } from "./pro.js";
+import { brancherCompte } from "./compte.js";
+import "./compte.css";
 
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 // textes de la page dans la langue choisie, et sélecteur de langue au pied de page
 traduirePage();
 brancherSelecteur($("#langues"));
+// compte (connexion par lien e-mail, achat de la version pro) : sans l'API (site statique actuel), le bouton reste caché
+// et tout reste ouvert
+const compte = brancherCompte({ api: "/api", t });
+compte.monter($("#langues"));
 // ouverture : aujourd'hui à 14 h, pour qu'il y ait du soleil
 const S = { jour: aujourdhui(), minutes: 14 * 60 };
 let T = appliquerTheme(themeInitial());
@@ -771,7 +777,7 @@ function choisirParcelle(p) {
 }
 
 // mode pro : sélection et masquage de bâtiments, taille de la maquette, exports (pro.js)
-const pro = brancherPro({ scene, S, message, etat, recharger: depuisAdresse, calculerHeures, annulerCalcul, majCoupe, soleilActuel,
+const pro = brancherPro({ scene, S, message, etat, recharger: depuisAdresse, calculerHeures, annulerCalcul, majCoupe, soleilActuel, compte,
   relancerHeures, ouvrirCoupes, changerJour: j => { $("#jour").value = j; $("#jour").dispatchEvent(new Event("change")); } });
 // coupes d'un projet rouvert : toutes recréées, la dernière active
 function ouvrirCoupes(liste) {

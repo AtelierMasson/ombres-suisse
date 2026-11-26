@@ -1,0 +1,21 @@
+/* Compte : bouton de la barre du haut et boîte unique (même modèle que #legal) */
+.compte-bouton { border: 0; background: none; padding: 2px 3px; margin-left: 10px; font: inherit; font-size: 12px; letter-spacing: .04em; color: var(--doux); white-space: nowrap; cursor: pointer; }
+.compte-bouton:hover { color: var(--texte); }
+.compte-bouton:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+.compte-pro { display: inline-block; padding: 0 5px; border-radius: 4px; background: var(--accent-clair); color: var(--accent); font-weight: 600; font-size: 11px; }
+
+#compte { width: min(420px, calc(100% - 32px)); max-height: min(80vh, 720px); border: 1px solid var(--bord); border-radius: calc(var(--rayon) * 1.4); padding: 22px 26px; background: var(--carte); color: var(--texte); font-size: 14px; line-height: 1.5; }
+#compte::backdrop { background: rgb(0 0 0 / .35); }
+#compte .btn-close { position: absolute; top: 14px; right: 14px; }
+#compte h2 { font-size: 1.3rem; font-weight: 700; margin: 4px 0 12px; }
+#compte .compte-doux { color: var(--doux); }
+#compte .compte-raison { background: var(--accent-clair); border-radius: var(--rayon); padding: 8px 12px; }
+#compte .compte-formulaire { display: flex; flex-direction: column; gap: 8px; }
+#compte .compte-infos { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0 0 12px; }
+#compte .compte-infos dt { font-weight: normal; color: var(--doux); }
+#compte .compte-infos dd { margin: 0; overflow-wrap: anywhere; }
+#compte .compte-statut-pro { color: var(--accent); font-weight: 600; }
+#compte .compte-note { font-size: 12.5px; color: var(--doux); margin: 8px 0 0; }
+#compte .compte-note a { color: inherit; }
+#compte .compte-deconnexion { display: block; margin: 14px auto 0; color: var(--doux); }
+#compte .compte-message { margin: 12px 0 0; font-weight: 600; }

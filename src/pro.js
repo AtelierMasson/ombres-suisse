@@ -285,6 +285,10 @@ export function brancherPro(o) {
 
   /* ---------------------------------------------------------------- interrupteur */
   $("#vPro").checked = memoire("ombres.pro") === "1";
+  // version pro : avec un compte en service, le mode pro demande le statut Pro (sinon la boîte du compte s'ouvre)
+  const autorise = () => !o.compte?.disponible() || o.compte.etat().pro;
+  $("#vPro").addEventListener("change", () => { if (actif() && !autorise() && !o.compte.exigerPro(t("compte.raisonPro"))) $("#vPro").checked = false; }, true);
+  o.compte?.addEventListener("compte", () => { if (actif() && !autorise()) { $("#vPro").checked = false; basculer(); } });
   const basculer = () => { $("#outilsPro").hidden = !actif(); document.body.classList.toggle("pro", actif()); memoire("ombres.pro", actif() ? "1" : "0"); maj(); };
   $("#vPro").addEventListener("change", basculer);
   $("#outilsPro").hidden = !actif();
