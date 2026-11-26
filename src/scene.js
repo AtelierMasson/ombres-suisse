@@ -90,8 +90,8 @@ ${contact && `if (contactActif > 0.5) {
     // couleurs de la photo adoucies : en bonne partie désaturées, éclaircies et fondues dans un beige lumineux (maquette)
     vec3 r = texture2D(${contact === "sol" ? "tReelSol" : contact === "mur" ? "tReelMur" : "tReelBati"}, uvG).rgb;
     float l = dot(r, vec3(0.2126, 0.7152, 0.0722));
-    r = mix(vec3(l), r, 0.4);
-    r = mix(r, teinteReel, 0.45) * (0.82 + 0.35 * smoothstep(0.0, 0.5, l));
+    r = mix(vec3(l), r, 0.75);
+    r = mix(r, teinteReel, 0.3) * (0.85 + 0.3 * smoothstep(0.0, 0.5, l));
     diffuseColor.rgb = r * (1.0 + grainForce * (g - 0.5) * 0.7);
   }
   ${contact === "mur"
