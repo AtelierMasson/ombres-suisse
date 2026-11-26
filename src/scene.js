@@ -430,7 +430,8 @@ void main() {
   majLointain() {
     const u = this.loin.mat.uniforms;
     u.sol.value.set(this.T.sol);
-    u.lac.value.set(this.T.plan.eau); // lacs légèrement bleus, du même bleu que l'eau du plan cadastral
+    // lacs du paysage et de l'anneau : le bleu-vert du plan d'eau de la maquette (un peu éclairci : vu de loin, à plat)
+    u.lac.value.set(this.T.eau || (this.T.sombre ? "#2f5d6e" : "#8fc1c9")).lerp(new THREE.Color(this.T.plan.sol), 0.12);
   }
 
 
@@ -858,7 +859,8 @@ void main() {
     if (c.socle) c.socle.visible = false;
     const haut = lac ? (x, y) => Math.max(altFin(x, y), lac.niveau) : altFin;
     const zBasA = lac ? Math.min(this.zBas, lac.niveau - this.zRef - 60) : this.zBas;
-    c.socleAnneau = new THREE.Mesh(socleRond(Rext, (x, y) => { const z = altFin(x, y); return lac && z < lac.niveau ? lac.niveau : z; }, this.zRef, Math.min(zBasA, Math.min(...[0, 1, 2, 3].map(k => altFin(Math.cos(k) * Rext, Math.sin(k) * Rext))) - this.zRef - 5)), this.mat.socle);
+    // la paroi s'arrête au fond du lac : au-dessus, la bordure est de l'eau (bande translucide, plus bas)
+    c.socleAnneau = new THREE.Mesh(socleRond(Rext, (x, y) => altFin(x, y), this.zRef, Math.min(zBasA, Math.min(...[0, 1, 2, 3].map(k => altFin(Math.cos(k) * Rext, Math.sin(k) * Rext))) - this.zRef - 5)), this.mat.socle);
     // eau de l'anneau : un plan au niveau du lac, coupé au cercle extérieur ; le terrain plus haut le cache
     if (lac) {
       const nA2 = 512, pts = [], lvl = lac.niveau - this.zRef;
@@ -871,7 +873,25 @@ void main() {
       ge.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
       const nor = new Float32Array(pts.length); for (let k = 1; k < nor.length; k += 3) nor[k] = 1;
       ge.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
+      // bordure du lac au bord du cercle : bande verticale d'eau, du fond jusqu'au niveau (juste en deçà du bord, où
+      // l'eau est coupée)
+      const bord = [], Rb = Rext - 0.05, nB = Math.min(4096, Math.max(512, Math.ceil(2 * Math.PI * Rext / 3)));
+      for (let a = 0; a < nB; a++) {
+        const t0 = a / nB * 2 * Math.PI, t1 = (a + 1) / nB * 2 * Math.PI;
+        const z0 = altFin(Math.cos(t0) * Rb, Math.sin(t0) * Rb), z1 = altFin(Math.cos(t1) * Rb, Math.sin(t1) * Rb);
+        if (!(z0 < lac.niveau || z1 < lac.niveau)) continue;
+        const b0 = Math.min(z0, lac.niveau) - this.zRef, b1 = Math.min(z1, lac.niveau) - this.zRef;
+        const A = [Math.cos(t0) * Rb, -Math.sin(t0) * Rb], B = [Math.cos(t1) * Rb, -Math.sin(t1) * Rb];
+        bord.push(A[0], b0, A[1], B[0], b1, B[1], B[0], lvl, B[1], A[0], b0, A[1], B[0], lvl, B[1], A[0], lvl, A[1]);
+      }
+      if (bord.length) {
+        const gb = new THREE.BufferGeometry();
+        gb.setAttribute("position", new THREE.Float32BufferAttribute(bord, 3));
+        gb.computeVertexNormals();
+        ge.userData.bord = gb;
+      }
       c.eauAnneau = new THREE.Mesh(ge, this.mat.eau);
+      if (ge.userData.bord) { const mb = new THREE.Mesh(ge.userData.bord, this.mat.eauBord = Object.assign(this.mat.eau.clone(), { side: THREE.DoubleSide })); mb.raycast = () => {}; c.eauAnneau.add(mb); }
       c.eauAnneau.receiveShadow = true;
       this.groupe.add(c.eauAnneau);
       RAYON_EAU.value = Rext - 0.02;

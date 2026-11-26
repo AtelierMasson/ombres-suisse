@@ -42,7 +42,8 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0]) {
   const pos = [], posD = [], uvD = [];
   const v = (x, y, z) => [x, z - zRef, -y];
   // dessus de la chaussée : une seule face, vers le haut, avec les coordonnées du plan au sol
-  const chaussee = (p, q, r, w) => { for (const c of [p, r, q, p, w, r]) { posD.push(...v(...c)); uvD.push(...uvPlan(c[0], c[1])); } };
+  // deux faces : selon le sens de l'axe, la face « avant » regardait vers le bas (trous vus d'en haut)
+  const chaussee = (p, q, r, w) => { for (const c of [p, r, q, p, w, r, p, q, r, p, r, w]) { posD.push(...v(...c)); uvD.push(...uvPlan(c[0], c[1])); } };
   // quadrilatère (quatre sommets [x, y, z] dans l'ordre) en deux triangles, les deux faces
   const quad = (p, q, r, w) => pos.push(...v(...p), ...v(...q), ...v(...r), ...v(...p), ...v(...r), ...v(...w), ...v(...p), ...v(...r), ...v(...q), ...v(...p), ...v(...w), ...v(...r));
   // volume balayé le long de l'axe entre t0 et t1 : en travers de largeur `l`, du bas `bas(t)` au haut `haut(t)`

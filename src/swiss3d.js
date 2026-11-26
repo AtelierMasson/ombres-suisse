@@ -265,7 +265,12 @@ export class Swiss3D {
     t.group.matrixWorldNeedsUpdate = true;
     this.socle.add(t.group);
     t.addEventListener("load-model", ({ scene }) => {
-      scene.traverse(o => { if (o.isMesh) { o.material = materiau; o.castShadow = o.receiveShadow = true; o.frustumCulled = false; } });
+      scene.traverse(o => {
+        if (!o.isMesh) return;
+        // tuiles sans normales : l'occlusion (qui les lit) les rendait noires
+        if (!o.geometry.attributes.normal) o.geometry.computeVertexNormals();
+        o.material = materiau; o.castShadow = o.receiveShadow = true; o.frustumCulled = false;
+      });
       s.ombres();
     });
     t.addEventListener("tiles-load-end", () => s.demander(3));

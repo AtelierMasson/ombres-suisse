@@ -246,10 +246,24 @@ async function paysageEtAnneau(id, idScene) {
   if (!G || id !== tache) return;
   // lac dans la maquette : il continue dans l'anneau (même niveau, fond mesuré s'il y en a)
   let lac = null;
-  if (rond && Rz > G.rayonZone && G.eau) {
-    const niv = [...G.eau].filter(v => !isNaN(v)).sort((a, b) => a - b);
-    if (niv.length) lac = { niveau: niv[niv.length >> 1], fond: await fondAutour(E0, N0, Rz).catch(() => null) };
+  if (rond && Rz > G.rayonZone) {
+    const niv = G.eau ? [...G.eau].filter(v => !isNaN(v)).sort((a, b) => a - b) : [];
+    const fond = await fondAutour(E0, N0, Rz).catch(() => null);
     if (id !== tache) return;
+    if (niv.length) lac = { niveau: niv[niv.length >> 1], fond };
+    else if (fond && fin) {
+      // lac seulement dans l'anneau : là où le fond est mesuré (swissBATHY3D), le terrain à 2 m donne la surface de
+      // l'eau ; son niveau = la médiane de ces altitudes (le niveau mesuré par le laser est ~0,5 m plus bas)
+      const alt = (E, N) => { const i = Math.floor((E - fin.e0) / fin.c), j = Math.floor((fin.n1 - N) / fin.c); return i < 0 || j < 0 || i >= fin.n || j >= fin.n ? NaN : fin.h[j * fin.n + i]; };
+      const z = [];
+      for (let y = -Rz; y <= Rz; y += 15) for (let x = -Rz; x <= Rz; x += 15) {
+        const d = Math.hypot(x, y);
+        if (d < G.rayonZone || d > Rz || isNaN(fond(E0 + x, N0 + y))) continue;
+        const h = alt(E0 + x, N0 + y);
+        if (!isNaN(h)) z.push(h);
+      }
+      if (z.length > 20) { z.sort((a, b) => a - b); lac = { niveau: z[z.length >> 1] - 0.5, fond }; }
+    }
   }
   if (rond) scene.construireAnneau(fin, G.rayonZone, Rz, { E: E0, N: N0 }, lac);
   if (rond && Rz > G.rayonZone + 5) arbresAnneau(id, G.rayonZone, Rz, E0, N0);
