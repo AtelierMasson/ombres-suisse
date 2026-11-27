@@ -51,7 +51,7 @@ g. **Dessous, piles** : épaisseur constante par pont (0,6 m à portée/20) ; pi
 5. Piles et épaisseur (g), section en T éventuelle.
 6. Cas particuliers (tabliers jumeaux, superposés, arches) ; l'axe swissTLM3D (outils/ponts/recenser.py) comme a priori.
 
-## 4. État au 27 novembre 2026 (étapes 1 à 3, une partie de 4 et 5)
+## 4. État au 27 novembre 2026 (étapes 1 à 5, une partie de 6)
 
 Cause première des ponts « creux » : les faces du dessus de `pontsLegers` tournaient vers le bas (454 triangles sur 474
 à Lutry, de même à Zurich et à Lausanne) alors que la matière du terrain ne montre que la face avant : la chaussée
@@ -83,6 +83,33 @@ n'était pas dessinée, on voyait l'intérieur du tablier (rives et dessous) san
   bouts en biais) est mieux rendu par le modèle. Aucun des ponts d'essai ne passe en repli.
 - **Bord du modèle** : `decouperCercle` coupe la chaussée au cercle (elle dépassait de 25 m sur l'anneau, sans rives) ;
   une paroi ferme le pont coupé le long du cercle.
+- **Étape 4, modèle par pont** (`src/pontsAuto.js`) : `modeliserPonts(G, nuage)` est appelé dans `depuisPoints`, avant
+  la coupe au cercle et la surface ; il remplit `G.ponts` (un modèle par pont, schéma des JSON de pontsModeles.js :
+  `axe`, `largeur`, `epaisseur`, `appuis`, `arches`, complété de nœuds tous les mètres : rives, chaussée, dévers,
+  épaisseur, poids du raccord) et `G.pontsRepli` (cases des ponts rendus case par case). Un seul mailleur,
+  `maillagePont` (pontsModeles.js), pour les ponts automatiques et faits main (un JSON est d'abord ramené à des nœuds
+  tous les mètres) ; `pontsLegers` (maillages.js) n'est plus qu'un appel à ce mailleur. Un pont automatique dont plus
+  de la moitié des cases est recouverte par un pont fait main est écarté.
+- **Gravure** : de la fin des cases du tablier jusqu'au joint, le sol est ramené 5 cm sous la chaussée (fondu latéral
+  de 2 m, jamais relevé, jamais entaillé de plus de 1,5 m) ; près du joint, la cible remonte vers le terrain, qui
+  affleure lisse. Plus de terrain qui perce la chaussée avant le joint (voir Mesures).
+- **Pli de rive** : au raccord, la chaussée glisse vers le terrain selon une droite en travers ajustée sur les seuls
+  points proches du terrain (moins de 1,5 m) ; un point au-dessus d'un talus ou d'un mur suit la même droite.
+- **Paroi au cercle pour les ponts faits main** : même paroi que les ponts automatiques (`opts.rayon`).
+- **Étape 5** : épaisseur constante par pont (médiane des stations), sauf tablier à hauteur variable (plus de 0,8 m
+  entre les déciles), qui garde son épaisseur lissée ; section en T (dalle en encorbellement sur une poutre) pour un
+  tablier ajouré d'au moins 1,2 m d'épaisseur et 7 m de large ; piles regroupées en (s, t) (stations voisines, puis
+  colonnes séparées d'au moins 1,5 m en travers : deux colonnes côte à côte à Chauderon) et espacement régularisé
+  (trois piles ou plus presque également espacées remises sur une suite régulière) ; seuil de hauteur gardé à 40 % de
+  la hauteur libre (à 50 %, une pile de la Lutrive disparaissait). Arches surbaissées : dans une travée entre deux
+  piles, points d'ouvrage (classes 1, 17, 26, 27) à moins de 6 m sous la chaussée près des piles et aucun au milieu
+  (clé cachée sous le tablier) : arc parabolique ajusté, clé juste sous le tablier. Chauderon (arcs Melan) : 4
+  arches.
+- **Étape 6, tabliers jumeaux** : `scinderJumeaux` cherche, tranche par tranche, une fente d'au moins 1 m dans les
+  cases relevées avant fermeture (`G.pontBrut`) ou un saut de niveau de plus de 0,8 m ; présente sur 60 % des
+  tranches à la même place, le pont est scindé. Aux viaducs de la Lutrive, le relevé ne montre ni fente (à 0,5 m) ni
+  marche entre les deux chaussées : le pont reste une seule chaussée de 27 m, qui est bien ce que voit le laser.
+- **Dessous** : triangles d'aire nulle retirés (leur normale nulle dessinait des carrés noirs dans l'occlusion).
 
 ### Mesures (avant → après)
 Part des cases du tablier couvertes par une face du dessus visible ; écart médian chaussée / relevé.
@@ -97,17 +124,32 @@ Part des cases du tablier couvertes par une face du dessus visible ; écart méd
 | Zurich, Münsterbrücke (lien « Quaibrücke », au bord du cercle) | 1 % → 99 % | 4 → 1 cm |
 | A9, viaducs de la Lutrive (430 m) | 1 % → 98 % et 100 % | 6 → 1 cm |
 
+Mesures du soir (banc Playwright, rayon 300 m) : mêmes chiffres (à 1 cm près) avant et après les étapes 4 à 6, mesurés sur le
+maillage affiché (cases du tablier dans le cercle couvertes par une face du dessus non cachée par le terrain ; écart
+médian entre cette face et le relevé). « Perce » : part des cases sous la chaussée, entre la fin du tablier relevé et
+le joint (poids du raccord < 0,4), où le terrain affiché dépasse la chaussée de plus de 2 cm, sans → avec gravure.
+
+| Pont | Couvert | Écart | Perce (sans → avec gravure) | Piles, arches |
+|---|---|---|---|---|
+| Lutry, pont courbe de 172 m | 97,1 % → 97,1 % | 6 → 6 cm | 6,7 → 0 % | — |
+| Lutry, pont coupé par le cercle | 97,1 % → 97,1 % | 5 → 5 cm | 0 → 0 % | — |
+| Zurich, Dreikönigstrasse | 99,2 % → 99,2 % | 3 → 4 cm | 5,5 → 0,5 % | — |
+| Zurich, Bleicherweg | 85,3 % → 85,3 % | 3 → 3 cm | 15,9 → 0 % | — |
+| Lausanne, Chauderon | 98,6 % → 98,6 % | 6 → 6 cm | 5,3 → 0,5 % | 12 colonnes régulières (32 m), 4 arches |
+| Zurich, Münsterbrücke (au bord du cercle) | 97,4 % → 97,4 % | 3 → 3 cm | non mesuré → 0 % | — |
+| A9, viaducs de la Lutrive | 97,3 % et 98,7 % (inchangé) | 4 → 4 cm | 10,9 → 0,8 % | 2 piles (laser : peu de points sous un tablier à 45 m) |
+
+Aucun pont d'essai en repli. Le « couvert » du Bleicherweg (85 %) et l'écart en centimètres diffèrent du premier
+tableau (autre façon de compter) ; ils ne bougent pas avec ces changements.
+
 ### Reste
-- Étape 4 : `modeliserPonts(G, nuage)` → `G.ponts` avant la coupe au cercle, un seul mailleur avec `pontsModeles.js`,
-  et le profil gravé dans `G.sol` avant le joint. Aujourd'hui le terrain garde sa forme : là où il dépasse la
-  chaussée de quelques centimètres près du joint, c'est lui qu'on voit (même texture, léger ressaut).
-- Rive au-dessus d'un talus ou d'un mur au raccord (plus de 1,5 m d'écart) : le point reste au niveau du profil, la
-  chaussée fait un pli vers ses voisins.
-- Au cercle, le pont du relevé s'arrête net et celui de swissTLM3D (anneau) reprend avec une autre géométrie : marche
-  visible. Les ponts faits main (`maillagePont`) ne sont pas fermés par une paroi au cercle.
-- Étape 5 : piles regroupées en (s, t) et espacement régularisé, épaisseur constante, section en T ; arches (Chauderon
-  est rendu en poutre droite sur piles, comme avant).
-- Étape 6 : tabliers jumeaux soudés (viaducs de la Lutrive : une seule chaussée de 27 m), ponts superposés, axe
-  swissTLM3D comme a priori.
-- Hors ponts, vu aux viaducs de la Lutrive : le ruisseau s'étale en une grande nappe d'eau inclinée (présente avant
-  ces changements).
+- Au cercle, le pont du relevé s'arrête net (paroi) et celui de swissTLM3D (anneau) reprend avec une autre géométrie :
+  marche visible. Les tuiles swissTLM3D arrivent après la maquette, dans un autre repère de calage ; raccorder les deux
+  demanderait de lire ces tuiles (hauteur et largeur au cercle) ou de prolonger notre pont dans l'anneau. Non traité.
+- Ponts superposés (une valeur par case : le pont du dessous est coupé par celui du dessus ; réunir deux bouts libres
+  alignés) : non traité.
+- Axe swissTLM3D comme a priori (outils/ponts/recenser.py) : non traité ; il aiderait aussi à scinder des tabliers
+  jumeaux sans fente visible (deux axes de chaussée) et les piles sous un tablier très haut, que le laser voit mal.
+- Hors ponts, vu aux viaducs de la Lutrive : le ruisseau s'étale en une grande nappe d'eau inclinée qui recouvre le
+  fond du vallon (grille.js, propagation de l'eau dans les cases sans point). Non corrigé : la règle sert aussi aux
+  lacs (peu de points sur l'eau) ; une borne sûre demande de distinguer lac et ruisseau en pente.
