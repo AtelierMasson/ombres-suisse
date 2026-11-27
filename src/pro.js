@@ -510,6 +510,8 @@ export function brancherPro(o) {
     },
     /** Dessin d'un volume en cours (les clics sur la maquette lui reviennent). */
     dessine: () => !!dessin || performance.now() - finAt < 400,
+    /** Maquette refaite sur un autre terrain (onglet Affichage) : les bâtiments masqués le restent. */
+    apresTerrain() { if (P.masques.size) appliquer(); },
     /** Lieu chargé : un projet en attente (ouvert depuis la liste) est appliqué. */
     apresChargement() { if (P.aOuvrir) { const p = P.aOuvrir; P.aOuvrir = null; ouvrir(p); } else if (P.projet && location.hash !== P.projet.hash) { P.projet = null; listeProjets(); } },
   };

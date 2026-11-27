@@ -104,7 +104,7 @@ export class Swiss3D {
   /** (Re)charge les tuiles autour du lieu courant ({ E, N } : centre MN95 de la scène). */
   charger({ E, N }) {
     this.vider();
-    const s = this.s, G = s.G, rad = Math.PI / 180, h = s.zRef + GEOIDE;
+    const s = this.s, rad = Math.PI / 180, h = s.zRef + GEOIDE;
     const t = this.tuiles = new TilesRenderer(TUILES);
     t.errorTarget = 6;
     t.registerPlugin(new GLTFExtensionsPlugin({ dracoLoader: decodeur() }));
@@ -137,10 +137,10 @@ export class Swiss3D {
         o.layers.set(k.batVoir ? 0 : 2);
         o.castShadow = k.batOmbre;
         o.receiveShadow = true;
-        this.relever(o, G);
+        this.relever(o, s.G); // grille du moment : celle de la vue de base, puis celle du relevé après la bascule
       });
-      this.caler(G);
-      if (!this.calage) this.calerSol(G);
+      this.caler(s.G);
+      if (!this.calage) this.calerSol(s.G);
       s.appliquerCalques(); // tuiles nouvelles : calque et ombre selon l'affichage
       s.majBords();
       s.ombres();

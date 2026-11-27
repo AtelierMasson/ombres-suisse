@@ -236,6 +236,14 @@
         </div>
         <div class="cellule">
           <h3 class="cellule-titre" data-i18n="aff.gSol">Sol</h3>
+          <!-- terrain de la maquette (main.js, choixTerrain) : swisstopo (vue de base), relevé 0,5 m, relevé adaptatif (à venir) -->
+          <div class="small mb-1" data-i18n="aff.terrain">Terrain</div>
+          <div class="btn-group btn-group-sm w-100 mb-1" role="group" data-i18n-aria-label="aff.terrainAria" aria-label="Terrain de la maquette">
+            <input type="radio" class="btn-check" name="terrain" id="tSwiss" value="swisstopo"><label class="btn btn-outline-secondary" for="tSwiss" data-i18n="aff.terrainSwiss" data-i18n-title="aff.terrainSwissTitre" title="Terrain swisstopo (swissALTI3D, 0,5 m ou 2 m) : rapide, celui de la vue de base">swisstopo</label>
+            <input type="radio" class="btn-check" name="terrain" id="tReleve" value="releve" checked><label class="btn btn-outline-secondary" for="tReleve" data-i18n="aff.terrainReleve" data-i18n-title="aff.terrainReleveTitre" title="Terrain calculé depuis le nuage de points du relevé laser, grille de 0,5 m : le plus précis">Relevé 0,5 m</label>
+            <input type="radio" class="btn-check" name="terrain" id="tAdaptatif" value="adaptatif" disabled><label class="btn btn-outline-secondary" for="tAdaptatif" data-i18n="aff.terrainAdaptatif" data-i18n-title="aff.terrainAdaptatifTitre" title="Relevé adaptatif : maillage irrégulier tiré des points du sol, serré aux bordures et talus (bientôt disponible)">Adaptatif</label>
+          </div>
+          <div class="small text-secondary mb-1" id="noteTerrain" data-i18n="aff.terrainNote" hidden>Le terrain du relevé est prêt une fois le nuage de points chargé.</div>
           <table class="table-calques"><tbody>
             <tr><th scope="row"><label for="vReel" data-i18n="aff.reel" data-i18n-title="aff.reelTitre" title="Orthophoto SWISSIMAGE posée sur le terrain, un peu éclaircie">Photo aérienne au sol</label></th>
               <td><input class="form-check-input oeil" type="checkbox" id="vReel"></td></tr>
