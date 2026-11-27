@@ -40,18 +40,18 @@ $pdo->prepare('INSERT INTO jetons (jeton, email, expire) VALUES (?, ?, UTC_TIMES
 $lien = API_URL . '/session.php?' . http_build_query(['jeton' => $jeton, 'langue' => $l]);
 // e-mail sobre : texte et HTML (bouton « Se connecter »), sans nom d'éditeur, juste topograph.ch
 $textes = [
-    'fr' => ['Votre lien de connexion à Topograph', 'Bonjour,', 'Voici votre lien pour vous connecter à Topograph.', 'Se connecter',
-        "Ce lien est valable 15 minutes et ne sert qu'une fois. Si vous n'avez rien demandé, ignorez simplement ce message.",
-        'Le bouton ne fonctionne pas ? Copiez ce lien dans votre navigateur :'],
-    'de' => ['Ihr Anmeldelink für Topograph', 'Guten Tag', 'Hier ist Ihr Link, um sich bei Topograph anzumelden.', 'Anmelden',
-        'Dieser Link ist 15 Minuten gültig und nur einmal verwendbar. Falls Sie nichts angefordert haben, ignorieren Sie diese Nachricht einfach.',
-        'Der Knopf funktioniert nicht? Kopieren Sie diesen Link in Ihren Browser:'],
-    'it' => ['Il suo link di accesso a Topograph', 'Buongiorno,', 'Ecco il suo link per accedere a Topograph.', 'Accedi',
-        'Questo link è valido 15 minuti e si usa una sola volta. Se non ha richiesto nulla, ignori semplicemente questo messaggio.',
-        'Il pulsante non funziona? Copi questo link nel browser:'],
-    'en' => ['Your Topograph sign-in link', 'Hello,', 'Here is your link to sign in to Topograph.', 'Sign in',
-        'This link is valid for 15 minutes and can be used once. If you did not request it, simply ignore this message.',
-        "The button doesn't work? Copy this link into your browser:"],
+    'fr' => ['Votre lien de connexion à Topograph', 'Bonjour,', 'Utilisez ce lien pour vous connecter à Topograph.', 'Se connecter',
+        "Ce lien est valable 15 minutes et ne peut être utilisé qu'une seule fois. Si vous n'avez pas demandé ce lien, vous pouvez ignorer ce message.",
+        'Si le bouton ne fonctionne pas, copiez ce lien dans la barre d’adresse de votre navigateur :'],
+    'de' => ['Ihr Anmeldelink für Topograph', 'Guten Tag', 'Mit diesem Link melden Sie sich bei Topograph an.', 'Anmelden',
+        'Dieser Link ist 15 Minuten gültig und nur einmal verwendbar. Falls Sie diesen Link nicht angefordert haben, können Sie diese Nachricht ignorieren.',
+        'Falls die Schaltfläche nicht funktioniert, kopieren Sie diesen Link in die Adressleiste Ihres Browsers:'],
+    'it' => ['Il suo link di accesso a Topograph', 'Buongiorno,', 'Usi questo link per accedere a Topograph.', 'Accedere',
+        'Il link è valido per 15 minuti e può essere utilizzato una sola volta. Se non lo ha richiesto, può ignorare questo messaggio.',
+        'Se il pulsante non funziona, copi questo link nella barra degli indirizzi del browser:'],
+    'en' => ['Your Topograph sign-in link', 'Hello,', 'Use this link to sign in to Topograph.', 'Sign in',
+        'This link is valid for 15 minutes and can only be used once. If you did not request it, you can ignore this message.',
+        "If the button does not work, copy this link into your browser's address bar:"],
 ];
 [$sujet, $salut, $phrase, $bouton, $note, $secours] = $textes[$l];
 $h = fn(string $s) => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
