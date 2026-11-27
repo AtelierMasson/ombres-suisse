@@ -1,8 +1,7 @@
 <?php
 // Tableau d'administration, réservé aux comptes listés dans ADMIN_EMAILS (config.php).
 // GET  → 200 { resume, inscriptions, ventes, comptes, usage } ; 401 non connecté ; 403 pas administrateur.
-// POST { action: "pro", email, pro: true|false } → offre ou retire le Pro offert (geste commercial, test), indépendant
-// de l'abonnement.
+// POST { action: "pro", email, pro: true|false } → offre ou retire le statut Pro (geste commercial, test).
 declare(strict_types=1);
 require __DIR__ . '/_commun.php';
 
@@ -31,12 +30,7 @@ $tous = fn(string $sql, array $p = []) => (function () use ($bd, $sql, $p) { $q 
 
 $resume = [
     'comptes'        => (int) $un('SELECT COUNT(*) FROM comptes'),
-    'pro'            => (int) $un('SELECT COUNT(*) FROM comptes c WHERE c.pro = 1 OR ' . SQL_PRO_ABONNEMENT),
-    'offerts'        => (int) $un('SELECT COUNT(*) FROM comptes WHERE pro = 1'),
-    'essais'         => (int) $un("SELECT COUNT(*) FROM abonnements WHERE statut = 'trialing'"),
-    'abonnes'        => (int) $un("SELECT COUNT(*) FROM abonnements WHERE statut IN ('active', 'past_due')"),
-    'annuels'        => (int) $un("SELECT COUNT(*) FROM abonnements WHERE statut IN ('trialing', 'active', 'past_due') AND intervalle = 'year'"),
-    'resilies'       => (int) $un("SELECT COUNT(*) FROM abonnements WHERE statut IN ('trialing', 'active') AND resilie = 1"),
+    'pro'            => (int) $un('SELECT COUNT(*) FROM comptes WHERE pro = 1'),
     'inscrits30'     => (int) $un('SELECT COUNT(*) FROM comptes WHERE cree_le > UTC_TIMESTAMP() - INTERVAL 30 DAY'),
     'ventes'         => (int) $un("SELECT COUNT(*) FROM achats WHERE etat = 'paye'"),
     'chiffre'        => (int) $un("SELECT COALESCE(SUM(montant), 0) FROM achats WHERE etat = 'paye'"),
@@ -50,10 +44,7 @@ json(200, [
     'ventesJour'   => $tous("SELECT DATE(cree_le) AS jour, COUNT(*) AS n, SUM(montant) AS montant FROM achats WHERE etat = 'paye' AND cree_le > UTC_TIMESTAMP() - INTERVAL 90 DAY GROUP BY jour ORDER BY jour"),
     'usage'        => $tous('SELECT jour, evenement, n FROM compteurs WHERE jour > UTC_DATE() - INTERVAL 90 DAY ORDER BY jour'),
     'ventes'       => $tous('SELECT a.id, c.email, a.montant, a.devise, a.etat, a.cree_le FROM achats a JOIN comptes c ON c.id = a.compte_id ORDER BY a.cree_le DESC LIMIT 100'),
-    'comptes'      => $tous('SELECT c.email, c.pro, c.achete_le, c.cree_le, c.prenom, c.nom, c.societe, c.adresse, c.npa, c.localite, c.pays, c.telephone,
-                        (SELECT CONCAT(a.statut, IF(a.intervalle IS NULL, \'\', CONCAT(\' \', a.intervalle)), IF(a.resilie, \' (résilié)\', \'\'))
-                         FROM abonnements a WHERE a.compte_id = c.id ORDER BY a.cree_le DESC LIMIT 1) AS abonnement
-                      FROM comptes c ORDER BY c.cree_le DESC LIMIT 500'),
+    'comptes'      => $tous('SELECT email, pro, achete_le, cree_le, prenom, nom, societe, adresse, npa, localite, pays, telephone FROM comptes ORDER BY cree_le DESC LIMIT 500'),
     // boîte à suggestions (suggestion.php) : les 200 dernières, la plus récente d'abord
     'suggestions'  => (function () {
         $f = dirname(__DIR__, 2) . '/donnees-topograph/suggestions.jsonl';
