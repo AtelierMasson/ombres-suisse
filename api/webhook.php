@@ -87,7 +87,8 @@ if (!$dejaPaye) {
         $T = textes_achat($l);
         $fin = date('d.m.Y', time() + JOURS_RETRACTATION * 86400);
         $r = ['{montant}' => montant_texte($montant, $devise), '{date}' => $fin];
-        email_sobre($email, $l, $T['achatSujet'], array_map(fn($p) => strtr($p, $r), $T['achat']));
+        email_sobre($email, $l, $T['achatSujet'], array_map(fn($p) => strtr($p, $r), $T['achat']),
+            [$T['achatBouton'], SITE_URL . '/?lang=' . $l], array_map(fn($p) => strtr($p, $r), $T['achatNotes']));
     }
 }
 

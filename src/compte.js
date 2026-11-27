@@ -140,12 +140,6 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       contenu.push(dl);
       if (e.pro) {
         contenu.push(el("p", "compte-doux", t("compte.merci")));
-        // rétractation : 14 jours après le paiement, remboursement intégral, même après usage
-        if (e.retractation) {
-          const date = new Date(e.retractation).toLocaleDateString(langueDoc() + "-CH", { day: "numeric", month: "long", year: "numeric" });
-          contenu.push(el("p", "compte-doux small", t("compte.retractationInfo", { date })));
-          contenu.push(bouton2("btn btn-outline-secondary btn-sm w-100", t("compte.retracter"), "retracter"));
-        }
       }
       else {
         // offre Pro : titre, avantages, bouton et conditions dans un même encadré, bien visible
@@ -196,6 +190,14 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       }
       contenu.push(bouton2("btn btn-link btn-sm compte-deconnexion", t("compte.deconnecter"), "deconnecter"));
       contenu.push(bouton2("btn btn-link btn-sm compte-supprimer", t("compte.supprimer"), "supprimer"));
+      // rétractation (14 jours après le paiement) : discrète, en bas, sous « Supprimer mon compte »
+      if (e.pro && e.retractation) {
+        const date = new Date(e.retractation).toLocaleDateString(langueDoc() + "-CH", { day: "numeric", month: "long", year: "numeric" });
+        const r = bouton2("btn btn-link btn-sm compte-retracter", t("compte.retracter"), "retracter");
+        r.title = t("compte.retractationInfo", { date });
+        const d = el("p", "compte-retracter-note", t("compte.retractationInfo", { date }));
+        contenu.push(r, d);
+      }
     }
     if (message) {
       const m = el("p", "compte-message", message);

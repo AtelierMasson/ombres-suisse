@@ -219,18 +219,23 @@ function smtp(string $de, string $a, string $message): void
     fclose($s);
 }
 
-/** E-mail sobre sans bouton (confirmation d'achat, de rétractation) : paragraphes en texte et en HTML, même style que la connexion. */
-function email_sobre(string $a, string $l, string $sujet, array $paragraphes): bool
+/**
+ * E-mail sobre, même graphisme que celui de connexion : paragraphes, bouton facultatif [libellé, lien] et note en petit
+ * (gris) sous le bouton. Texte et HTML.
+ */
+function email_sobre(string $a, string $l, string $sujet, array $paragraphes, ?array $bouton = null, array $notes = []): bool
 {
     $h = fn(string $s) => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
-    $texte = implode("\n\n", $paragraphes) . "\n\n—\ntopograph.ch";
+    $texte = implode("\n\n", $paragraphes) . ($bouton ? "\n\n{$bouton[0]} : {$bouton[1]}" : '') . ($notes ? "\n\n" . implode("\n\n", $notes) : '') . "\n\n—\ntopograph.ch";
     $corps = implode('', array_map(fn($p) => '<p style="margin:0 0 14px">' . nl2br($h($p)) . '</p>', $paragraphes));
     $html = '<!doctype html><html lang="' . $h($l) . '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>' . $h($sujet) . '</title></head>'
         . '<body style="margin:0;padding:32px 12px;background:#f4f2ee;font-family:Helvetica,Arial,sans-serif;color:#1f2933">'
         . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">'
         . '<table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background:#ffffff;border:1px solid #e2e5e9;border-radius:10px">'
         . '<tr><td style="padding:28px 32px 8px;font-size:18px;font-weight:700">Topograph</td></tr>'
-        . '<tr><td style="padding:8px 32px 10px;font-size:15px;line-height:1.55">' . $corps . '</td></tr>'
+        . '<tr><td style="padding:8px 32px 0;font-size:15px;line-height:1.55">' . $corps . '</td></tr>'
+        . ($bouton ? '<tr><td style="padding:10px 32px 24px"><a href="' . $h($bouton[1]) . '" style="display:inline-block;background:#1f3b6b;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;padding:12px 22px;border-radius:7px">' . $h($bouton[0]) . '</a></td></tr>' : '')
+        . implode('', array_map(fn($n) => '<tr><td style="padding:0 32px 12px;font-size:12px;line-height:1.5;color:#66727f">' . nl2br($h($n)) . '</td></tr>', $notes))
         . '<tr><td style="padding:16px 32px 24px;border-top:1px solid #e2e5e9;font-size:12px;color:#66727f"><a href="https://topograph.ch" style="color:#66727f">topograph.ch</a></td></tr>'
         . '</table></td></tr></table></body></html>';
     return envoyer_email($a, $sujet, $texte, $html);
@@ -262,36 +267,36 @@ function textes_achat(string $l): array
     $T = [
         'fr' => [
             'achatSujet' => 'Votre achat de Topograph Pro',
-            'achat' => ['Bonjour,', 'Merci pour votre achat. Topograph Pro est activé sur votre compte (paiement unique de {montant}, sans abonnement).',
-                "Vous pouvez vous rétracter sans motif jusqu'au {date}, même si vous avez déjà utilisé Topograph Pro : dans « Mon compte » sur topograph.ch, bouton « Me rétracter et être remboursé », ou en répondant à contact@topograph.ch. Le montant est alors remboursé en entier et l'accès Pro retiré.",
-                'Le reçu de paiement vous est envoyé séparément par Stripe.'],
+            'achat' => ['Bonjour,', 'Merci pour votre achat. Topograph Pro est activé sur votre compte : paiement unique de {montant}, sans abonnement.'],
+            'achatBouton' => 'Ouvrir Topograph',
+            'achatNotes' => ['Le reçu de paiement vous est envoyé séparément par Stripe.', "Rétractation : vous pouvez vous rétracter sans motif jusqu'au {date}, même après usage, depuis « Mon compte » sur topograph.ch ou en écrivant à contact@topograph.ch. Le montant est alors remboursé en entier et l'accès Pro retiré."],
             'retractSujet' => 'Votre rétractation est confirmée',
             'retract' => ['Bonjour,', 'Nous avons bien reçu votre rétractation pour Topograph Pro.',
                 "Le remboursement de {montant} est lancé sur le moyen de paiement utilisé ; il apparaît en général sous 5 à 10 jours ouvrables. L'accès Pro a été retiré de votre compte ; votre compte gratuit reste ouvert."],
         ],
         'de' => [
             'achatSujet' => 'Ihr Kauf von Topograph Pro',
-            'achat' => ['Guten Tag', 'Vielen Dank für Ihren Kauf. Topograph Pro ist für Ihr Konto freigeschaltet (einmalige Zahlung von {montant}, kein Abonnement).',
-                'Sie können bis zum {date} ohne Angabe von Gründen widerrufen, auch wenn Sie Topograph Pro bereits genutzt haben: unter «Mein Konto» auf topograph.ch mit der Schaltfläche «Widerrufen und Rückerstattung erhalten» oder per Antwort an contact@topograph.ch. Der Betrag wird dann vollständig zurückerstattet und der Pro-Zugang entfernt.',
-                'Die Zahlungsquittung erhalten Sie separat von Stripe.'],
+            'achat' => ['Guten Tag', 'Vielen Dank für Ihren Kauf. Topograph Pro ist für Ihr Konto freigeschaltet: einmalige Zahlung von {montant}, kein Abonnement.'],
+            'achatBouton' => 'Topograph öffnen',
+            'achatNotes' => ['Die Zahlungsquittung erhalten Sie separat von Stripe.', 'Widerruf: Sie können bis zum {date} ohne Angabe von Gründen widerrufen, auch nach der Nutzung, unter «Mein Konto» auf topograph.ch oder per E-Mail an contact@topograph.ch. Der Betrag wird dann vollständig zurückerstattet und der Pro-Zugang entfernt.'],
             'retractSujet' => 'Ihr Widerruf ist bestätigt',
             'retract' => ['Guten Tag', 'Wir haben Ihren Widerruf für Topograph Pro erhalten.',
                 'Die Rückerstattung von {montant} auf das verwendete Zahlungsmittel ist veranlasst; sie erscheint in der Regel innert 5 bis 10 Arbeitstagen. Der Pro-Zugang wurde von Ihrem Konto entfernt; Ihr kostenloses Konto bleibt bestehen.'],
         ],
         'it' => [
             'achatSujet' => 'Il suo acquisto di Topograph Pro',
-            'achat' => ['Buongiorno,', 'Grazie per il suo acquisto. Topograph Pro è attivo sul suo conto (pagamento unico di {montant}, senza abbonamento).',
-                'Può recedere senza indicarne il motivo fino al {date}, anche se ha già utilizzato Topograph Pro: in «Il mio conto» su topograph.ch, pulsante «Recedere ed essere rimborsato», oppure rispondendo a contact@topograph.ch. L’importo viene allora rimborsato per intero e l’accesso Pro revocato.',
-                'La ricevuta di pagamento le viene inviata separatamente da Stripe.'],
+            'achat' => ['Buongiorno,', 'Grazie per il suo acquisto. Topograph Pro è attivo sul suo conto: pagamento unico di {montant}, senza abbonamento.'],
+            'achatBouton' => 'Aprire Topograph',
+            'achatNotes' => ['La ricevuta di pagamento le viene inviata separatamente da Stripe.', 'Recesso: può recedere senza indicarne il motivo fino al {date}, anche dopo l’uso, da «Il mio conto» su topograph.ch o scrivendo a contact@topograph.ch. L’importo viene allora rimborsato per intero e l’accesso Pro revocato.'],
             'retractSujet' => 'Il suo recesso è confermato',
             'retract' => ['Buongiorno,', 'Abbiamo ricevuto il suo recesso per Topograph Pro.',
                 'Il rimborso di {montant} sul mezzo di pagamento utilizzato è stato avviato; di solito appare entro 5–10 giorni lavorativi. L’accesso Pro è stato revocato; il suo conto gratuito resta attivo.'],
         ],
         'en' => [
             'achatSujet' => 'Your Topograph Pro purchase',
-            'achat' => ['Hello,', 'Thank you for your purchase. Topograph Pro is now active on your account (one-time payment of {montant}, no subscription).',
-                'You can withdraw without giving a reason until {date}, even if you have already used Topograph Pro: in "My account" on topograph.ch, button "Withdraw and get a refund", or by replying to contact@topograph.ch. The full amount is then refunded and Pro access removed.',
-                'Stripe sends the payment receipt separately.'],
+            'achat' => ['Hello,', 'Thank you for your purchase. Topograph Pro is now active on your account: one-time payment of {montant}, no subscription.'],
+            'achatBouton' => 'Open Topograph',
+            'achatNotes' => ['Stripe sends the payment receipt separately.', 'Withdrawal: you can withdraw without giving a reason until {date}, even after use, from "My account" on topograph.ch or by writing to contact@topograph.ch. The full amount is then refunded and Pro access removed.'],
             'retractSujet' => 'Your withdrawal is confirmed',
             'retract' => ['Hello,', 'We have received your withdrawal for Topograph Pro.',
                 'The refund of {montant} to the payment method used has been initiated; it usually appears within 5 to 10 business days. Pro access has been removed from your account; your free account remains open.'],
