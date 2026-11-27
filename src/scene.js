@@ -561,7 +561,8 @@ void main() {
     // plan en tuiles (cadastre, photo ou bruit, comme le sol de la maquette) : sur le paysage, et sur l'anneau du
     // grand cercle même sans paysage
     const couche = this.typeFond, avecAnneau = !!this.couches?.anneau && this.couches.anneau.visible !== false;
-    const tuiles = couche !== "uni" && ((!!L.maille && L.maille.visible) || avecAnneau);
+    const mondeVu = !!this.monde?.terrain?.group.visible;
+    const tuiles = couche !== "uni" && ((!!L.maille && L.maille.visible) || avecAnneau || mondeVu);
     if (tuiles) this.tuilesPlan.changerCouche(couche);
     if (tuiles !== this.tuilesPlan.actif) { this.tuilesPlan.actif = tuiles; if (tuiles) this.tuilesPlan.demander(); }
     L.mat.uniforms.planActif.value = tuiles ? 1 : 0;
@@ -569,7 +570,7 @@ void main() {
     if (!this.modeVue) {
       // avec le paysage : plan lointain à 150 km, plan proche reculé avec la distance (précision au loin), ciel centré
       // sur la caméra (la voûte de 9 km ne doit pas être quittée en dézoomant)
-      const cam = this.camera, avecLoin = !!(L.maille && L.voir);
+      const cam = this.camera, avecLoin = !!(L.maille && L.voir) || mondeVu;
       // le plan proche suit ce qui est le plus près : la maquette ou le point visé (après un grand dézoom, le point
       // visé peut être à des kilomètres alors que la caméra revient près de la maquette)
       const R = this.G?.R || 150, versMaquette = Math.max(0, cam.position.length() - R * 1.5);

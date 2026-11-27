@@ -32,9 +32,12 @@ export function matriceVersScene(E, N, h) {
   const enu = WGS84_ELLIPSOID.getEastNorthUpFrame(c.lat, c.lon, c.height, new THREE.Matrix4());
   const inv = enu.clone().invert(), o = V(E, N).applyMatrix4(inv);
   const ve = V(E + 100, N).applyMatrix4(inv).sub(o).divideScalar(100), vn = V(E, N + 100).applyMatrix4(inv).sub(o).divideScalar(100);
-  // [ve vn] : MN95 local -> ENU ; inverse : ENU -> MN95 (dx, dy) ; scène : x = dx, y = haut, z = -dy
-  const det = ve.x * vn.y - vn.x * ve.y, a = vn.y / det, b = -vn.x / det, cc = -ve.y / det, d = ve.x / det;
-  return new THREE.Matrix4().set(a, b, 0, -(a * o.x + b * o.y), 0, 0, 1, -o.z, -cc, -d, 0, cc * o.x + d * o.y, 0, 0, 0, 1).multiply(inv);
+  // [ve vn] : MN95 local -> ENU ; inverse : ENU -> MN95 (dx, dy) ; scène : x = dx, y = haut, z = -dy. La projection est
+  // conforme : on garde la similitude la plus proche (rotation + échelle uniforme, appliquée aussi à la hauteur, soit
+  // ~1e-4 : 5 cm sur 500 m de dénivelé) ; une échelle non uniforme fausse l'erreur écran de 3d-tiles-renderer.
+  const det = ve.x * vn.y - vn.x * ve.y, a0 = vn.y / det, b0 = -vn.x / det, c0 = -ve.y / det, d0 = ve.x / det;
+  const a = (a0 + d0) / 2, b = (b0 - c0) / 2, k = Math.hypot(a, b);
+  return new THREE.Matrix4().set(a, b, 0, -(a * o.x + b * o.y), 0, 0, k, -k * o.z, b, -a, 0, -(b * o.x - a * o.y), 0, 0, 0, 1).multiply(inv);
 }
 
 // découpe du terrain du monde là où la maquette (ou le terrain fin) le remplace : disque de rayon `trou` autour de
@@ -112,7 +115,7 @@ export class Monde {
         o.receiveShadow = true; o.castShadow = false;
       });
     });
-    t.addEventListener("tiles-load-end", () => { this.caler(); s.demander(3); });
+    t.addEventListener("tiles-load-end", () => s.demander(3));
     return t;
   }
 
@@ -130,7 +133,8 @@ export class Monde {
       const a = k / 12 * Math.PI * 2, x = Math.cos(a) * R, y = Math.sin(a) * R, z = solEn(x, y);
       if (isNaN(z)) continue;
       r.set(new THREE.Vector3(x, 20000, -y), bas);
-      const t = r.intersectObject(this.terrain.group, true)[0];
+      // seulement les tuiles fines (rayon < 800 m, niveaux ≥ ~14) : une tuile grossière passe sous la surface (flèche de ~40 km au niveau 0)
+      const t = r.intersectObject(this.terrain.group, true).find(i => (i.object.geometry.boundingSphere?.radius ?? 1e9) < 800);
       if (t) e.push(z - this.zRef - (t.point.y - this.racine.position.y));
     }
     if (e.length < 8) return;
@@ -157,6 +161,9 @@ export class Monde {
     this.s.camera.updateMatrixWorld();
     t.setResolutionFromRenderer(this.s.camera, this.s.renderer);
     t.update();
+    // calage : quelques fois au début (les tuiles fines arrivent), puis rarement
+    const maintenant = performance.now();
+    if (this.solEn && maintenant - (this.dernierCalage || 0) > (this.calage.n < 6 ? 1500 : 15000)) { this.dernierCalage = maintenant; this.caler(); }
     const st = t.stats, n = st.downloading + st.parsing + st.queued;
     if (n > 0) this.s.demander(2);
     this.enCours = n;

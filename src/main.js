@@ -151,7 +151,7 @@ function accueil() {
 }
 // vol de démonstration (#vol=gruyeres) : plan drone lent, rendu en direct (vol.js) ; à terme, le décor de l'accueil
 let arreterVol = null;
-async function vol(cle) {
+async function vol(cle, monde = 0) {
   const id = ++tache;
   chargement?.abort();
   annulerCalcul();
@@ -164,7 +164,7 @@ async function vol(cle) {
   pro.reinitialiser();
   scene.decalage = 0.17; scene.taille();
   try {
-    const arret = await lancerVol(scene, cle, { etat, actif: () => id === tache });
+    const arret = await lancerVol(scene, cle, { etat, actif: () => id === tache, monde });
     if (id === tache) arreterVol = arret; else arret();
   } catch (e) { console.warn("Vol :", e); etat(1, ""); }
 }
@@ -348,7 +348,7 @@ async function depuisAdresse(o = null) {
   // mode accueil (`o.accueil` = { E, N, R }) : le décor de la page d'entrée, chargé comme un lieu, sans panneau ni parcelle
   const ACC = o?.accueil || null;
   const h = ACC ? new URLSearchParams(`e=${ACC.E}&n=${ACC.N}`) : new URLSearchParams(location.hash.slice(1));
-  if (!ACC && h.get("vol")) return vol(h.get("vol"));
+  if (!ACC && h.get("vol")) return vol(h.get("vol"), +h.get("monde") || 0);
   if (!ACC && !h.get("e")) return accueil();
   const et = ACC ? () => {} : etat;
   const E = +h.get("e"), N = +h.get("n"), id = ++tache;

@@ -141,8 +141,12 @@ const annee = f => +f.id.split("_")[1];
 async function tuilesJeu(jeu, cles) {
   const idx = await lireIndex(), [collection, motif] = JEUX[jeu];
   const I = idx?.jeux?.[jeu];
+  // index partiel (boîte d'essai) : hors de sa boîte, on demande à STAC
+  const dansIndex = (e, n) => !idx.boite || (e * 1000 >= idx.boite[0] && (e + 1) * 1000 <= idx.boite[2] && n * 1000 >= idx.boite[1] && (n + 1) * 1000 <= idx.boite[3]);
   if (I) for (const k of cles) {
-    const [e, n] = k.split("-").map(Number), ligne = I.lignes[e], a = ligne && ligne[n - ligne[0] + 1];
+    const [e, n] = k.split("-").map(Number);
+    if (!dansIndex(e, n)) continue;
+    const ligne = I.lignes[e], a = ligne && ligne[n - ligne[0] + 1];
     vues.set(`${jeu}|${k}`, a ? { url: (I.exceptions?.[k] || I.gabarit).replaceAll("{a}", 2000 + a).replaceAll("{k}", k), annee: 2000 + a, cle: k } : null);
   }
   const manquent = cles.filter(k => !vues.has(`${jeu}|${k}`));

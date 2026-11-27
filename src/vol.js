@@ -4,8 +4,9 @@
 import * as THREE from "three";
 import { grilleVide, solEn, terrainAutour, majSurface, remplir } from "./grille.js";
 import { tuilesAlti2m } from "./geo.js";
-import { reliefLointain } from "./lointain.js";
+import { reliefLointain, materiauLointain } from "./lointain.js";
 import { materiauPoints } from "./maillages.js";
+import { Monde } from "./monde.js";
 
 /**
  * Lieux et trajectoires. Coordonnées MN95 du centre ; une trajectoire = des clés [x est, y nord, hauteur] (m, depuis le
@@ -29,18 +30,49 @@ function courbe(cles) {
 }
 
 /**
- * Lance le vol `cle` dans `scene`. `o.etat(f, texte)` : progression ; `o.actif()` : faux si l'on a quitté le vol entre-temps.
+ * Lance le vol `cle` dans `scene`. `o.etat(f, texte)` : progression ; `o.actif()` : faux si l'on a quitté le vol entre-temps ;
+ * `o.monde` : 1 = terrain swisstopo du monde partout (prototype, monde.js), 2 = monde autour du terrain 2 m du centre.
  * Renvoie une fonction qui arrête le vol.
  */
 export async function lancerVol(scene, cle, o) {
-  const V = VOLS[cle] || VOLS.gruyeres, { E, N } = V, debut = performance.now(), temps = scene.tempsVol = {};
-  const marque = nom => { temps[nom] = Math.round(performance.now() - debut); };
-  // terrain 2 m jusqu'à 1,5 km (maquette au centre, puis anneau fin du paysage)
-  const RF = 1500;
+  const V = VOLS[cle] || VOLS.gruyeres, temps = scene.tempsVol = {}, debut = performance.now();
+  const marque = nom => { if (!(nom in temps)) temps[nom] = Math.round(performance.now() - debut); };
+  const fin = await decor(scene, V, o, marque);
+  if (!fin) return () => {};
+  const { voirAvant, jeuAvant } = fin;
+  o.etat(1, "");
+  // caméra : aller-retour lent, adouci aux deux bouts ; la caméra ne s'arrête jamais tout à fait
+  const pos = courbe(V.camera), cib = courbe(V.cible), ctl = scene.controls;
+  ctl.enabled = false; ctl.autoRotate = false;
+  let t0 = null, arret = false;
+  scene.animation = t => {
+    if (arret) return;
+    t0 ??= t;
+    const phase = ((t - t0) / 1000 / V.duree) % 2, u = 0.5 - 0.5 * Math.cos(Math.PI * (phase < 1 ? phase : 2 - phase));
+    scene.camera.position.copy(pos(u));
+    ctl.target.copy(cib(u));
+    scene.camera.lookAt(ctl.target);
+    scene.demander(1);
+    // mesure : première image du vol, puis bâtiments et arbres visibles tous chargés
+    if (!temps.image) marque("image");
+    if (!temps.tuiles && scene.swiss?.enCours === 0 && scene.swiss.tuiles?.stats.loaded > 0 && scene.swiss.arbres?.stats.loaded > 0) marque("tuiles");
+  };
+  return () => { arret = true; scene.vol = false; scene.monde?.cacherTerrain(); scene.reglerLointain({ voir: voirAvant }); scene.calques.jeu = jeuAvant; ctl.enabled = true; scene.animation = null; };
+}
+
+/**
+ * Décor d'un vol ou du paysage navigable autour de V = { nom, E, N, R, soleil } : grille 2 m au centre (référence
+ * d'altitude et calage des bâtiments), bâtiments et arbres swisstopo en tuiles, ombres, puis paysage : relief
+ * Terrarium (sans monde) ou terrain swisstopo du monde (o.monde). Renvoie null si l'on a quitté entre-temps.
+ */
+async function decor(scene, V, o, marque) {
+  const { E, N } = V;
+  // terrain 2 m jusqu'à 1,5 km (maquette au centre, puis anneau fin du paysage) ; avec le monde, seulement la maquette
+  const RF = o.monde ? V.R + 100 : 1500;
   o.etat(0.1, `${V.nom} · terrain`);
   const fin = await terrainAutour(await tuilesAlti2m([E - RF, N - RF, E + RF, N + RF]), E, N, RF);
-  marque("terrain");
-  if (!o.actif()) return () => {};
+  marque("alti");
+  if (!o.actif()) return null;
   const G = grilleVide(V.R, 2), { n, c } = G;
   for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
     const x = -V.R + (i + 0.5) * c, y = -V.R + (j + 0.5) * c;
@@ -79,28 +111,24 @@ export async function lancerVol(scene, cle, o) {
   sc.updateProjectionMatrix();
   const az = V.soleil.az * Math.PI / 180, h = V.soleil.h * Math.PI / 180;
   scene.placerSoleil([Math.sin(az) * Math.cos(h), Math.sin(h), -Math.cos(az) * Math.cos(h)], true);
-  // paysage jusqu'à 50 km (sans bloquer)
-  const idScene = scene.idScene;
-  reliefLointain(E, N, G.R, scene.zRef, (x, y) => solEn(G, x, y), fin)
-    .then(g => { marque("paysage"); return o.actif() && scene.afficherLointain(g, idScene, { E0: E, N0: N }); })
-    .catch(e => console.warn("Relief lointain :", e.message));
+  if (o.monde) {
+    // monde persistant : terrain swisstopo (quantized-mesh) dans le repère de la scène, calé sur la grille 2 m du centre
+    const m = scene.monde ||= new Monde(scene);
+    m.placer(E, N, scene.zRef);
+    m.solEn = (x, y) => solEn(G, x, y);
+    // matière du paysage (mêmes uniformes : plan drapé, couleurs, brume), dans une instance propre au monde (trou)
+    m.montrerTerrain(scene.matMonde ||= materiauLointain(scene.loin.mat.uniforms), { trou: o.monde === 2 ? V.R - 1 : 0 });
+    if (o.monde !== 2) k.terrain.visible = false; // le monde seul : qualité du terrain swisstopo jugée telle quelle
+    // mesure : terrain fin présent autour du centre (premier calage sur les tuiles fines)
+    const suivi = () => { if (!o.actif()) return; if (m.calage.n > 0) { marque("terrain"); temps.calage = m.calage; } else setTimeout(suivi, 200); };
+    suivi();
+  } else {
+    // paysage jusqu'à 50 km (sans bloquer)
+    const idScene = scene.idScene;
+    reliefLointain(E, N, G.R, scene.zRef, (x, y) => solEn(G, x, y), fin)
+      .then(g => { marque("paysage"); return o.actif() && scene.afficherLointain(g, idScene, { E0: E, N0: N }); })
+      .catch(e => console.warn("Relief lointain :", e.message));
+  }
   marque("maquette");
-  o.etat(1, "");
-  // caméra : aller-retour lent, adouci aux deux bouts ; la caméra ne s'arrête jamais tout à fait
-  const pos = courbe(V.camera), cib = courbe(V.cible), ctl = scene.controls;
-  ctl.enabled = false; ctl.autoRotate = false;
-  let t0 = null, arret = false;
-  scene.animation = t => {
-    if (arret) return;
-    t0 ??= t;
-    const phase = ((t - t0) / 1000 / V.duree) % 2, u = 0.5 - 0.5 * Math.cos(Math.PI * (phase < 1 ? phase : 2 - phase));
-    scene.camera.position.copy(pos(u));
-    ctl.target.copy(cib(u));
-    scene.camera.lookAt(ctl.target);
-    scene.demander(1);
-    // mesure : première image du vol, puis bâtiments et arbres visibles tous chargés
-    if (!temps.image) marque("image");
-    if (!temps.tuiles && scene.swiss?.enCours === 0 && scene.swiss.tuiles?.stats.loaded > 0 && scene.swiss.arbres?.stats.loaded > 0) marque("tuiles");
-  };
-  return () => { arret = true; scene.vol = false; scene.reglerLointain({ voir: voirAvant }); scene.calques.jeu = jeuAvant; ctl.enabled = true; scene.animation = null; };
+  return { G, voirAvant, jeuAvant };
 }
