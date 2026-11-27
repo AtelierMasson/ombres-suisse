@@ -3,7 +3,11 @@
 // mode Voyage centré sur le pont (#e=…&n=…&t=Voyage), puis :
 //   await renduCale({ position, vise, haut, fov_vertical }, { E0, N0, largeur: 1920, hauteur: 1440, nom: "poya-rendu.jpg" })
 async function renduCale(cam, { E0, N0, largeur, hauteur, nom = "rendu.jpg", sansArbres = false }) {
+  // chargement rapide : une vue de base (terrain 2 m, sans relevé) s'affiche d'abord ; le rendu attend la maquette du
+  // relevé (sinon tablier et piles manquaient : Soleure, Vulpera, Krummbach)
+  for (let i = 0; i < 240 && !(window.__scene?.G && !window.__scene.G.provisoire && window.__scene.tempsVol?.maquette); i++) await new Promise(r => setTimeout(r, 500));
   const s = window.__scene, el = s.el, zr = s.zRef;
+  if (!s.G || s.G.provisoire) throw new Error("maquette du relevé pas encore chargée : rendu annulé");
   const v = ([E, N, Z]) => [E - E0, Z - zr, -(N - N0)];
   // la vue prend les proportions de la photo (au plus 1400 px de large à l'écran)
   const k = Math.min(1, 1400 / largeur, 900 / hauteur), avant = el.getAttribute("style") || "";
@@ -18,6 +22,8 @@ async function renduCale(cam, { E0, N0, largeur, hauteur, nom = "rendu.jpg", san
   c.lookAt(vx, vy, vz); c.updateProjectionMatrix();
   s.controls.target.set(vx, vy, vz);
   // laisser les tuiles et le paysage arriver, puis rendre sans que les contrôles ne bougent la caméra
+  // tuiles swisstopo et paysage autour de la nouvelle vue
+  for (let i = 0; i < 40 && (s.swiss?.enCours > 0); i++) await new Promise(r => setTimeout(r, 250));
   await new Promise(r => setTimeout(r, 2500));
   c.position.set(px, py, pz); c.up.set(h[0], h[2], -h[1]); c.lookAt(vx, vy, vz); c.updateProjectionMatrix();
   s.rendre();

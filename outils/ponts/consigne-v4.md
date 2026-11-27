@@ -35,7 +35,8 @@ Référence de précision : `outils/ponts/modeles/poya.json` (pont de la Poya). 
 5. **Photo calée (niveau A seulement)** : `calage.json` (6–10 points), `python3 -I outils/ponts/caler_photo.py …`
    (> 15 px de résidu = point à corriger), rendu dans ton onglet
    (`http://localhost:5174/#e=E&n=N&t=Voyage`, puis `await import('/outils/ponts/rendu_cale.js')` et `renduCale(…)` ;
-   le récepteur du port 5391 tourne déjà, ne le relance pas), `superposer.py`. Lis les écarts élément par élément
+   le récepteur du port 5391 tourne déjà, ne le relance pas ; `renduCale` attend la maquette du relevé, passe
+   `sansArbres: true` si des arbres masquent l'ouvrage), `superposer.py`. Lis les écarts élément par élément
    (pylônes, têtes et pieds de piles, épaisseur du tablier, arcs), corrige, 2 tours au plus.
    Fichiers : `~/Downloads/ombres-suisse-donnees/ponts-photos/<id>/` et `…/ponts-comparaisons/<id>.jpg`.
    **Obligatoire au niveau A** : si les photos sont des gros plans, cherche une vue d'ensemble (Commons catégorie du
