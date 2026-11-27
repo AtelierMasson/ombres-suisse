@@ -499,8 +499,8 @@ body.accueil #fiche { display: none; }
 @media (prefers-reduced-motion: reduce) { .anneau.inconnu { animation: none; } .anneau .rempli { transition: none; } }
 
 /* outils Pro pour un compte gratuit : visibles mais grisés ; un clic ouvre l'offre */
-#outilsPro.pro-verrouille, #outilsExport.pro-verrouille { position: relative; opacity: .45; filter: grayscale(1); cursor: pointer; user-select: none; }
-#outilsPro.pro-verrouille *, #outilsExport.pro-verrouille * { pointer-events: none; }
+#outilsPro.pro-verrouille, #outilsExport.pro-verrouille, #outilsPiscinePro.pro-verrouille { position: relative; opacity: .45; filter: grayscale(1); cursor: pointer; user-select: none; }
+#outilsPro.pro-verrouille *, #outilsExport.pro-verrouille *, #outilsPiscinePro.pro-verrouille * { pointer-events: none; }
 
 /* bouton réservé au Pro, pour un compte gratuit : grisé (un clic ouvre l'offre) */
 .pro-grise { opacity: .5; filter: grayscale(1); }
@@ -577,3 +577,28 @@ body.choix-centre #vue canvas { cursor: crosshair !important; }
   body:not(.accueil) #colonne { bottom: 0; }
   body:not(.accueil) #pied, body:not(.accueil) #bas { left: var(--large); }
 }
+
+/* section Piscine de l'onglet Soleil (zonesSoleil.js) */
+.liste-piscines li { display: flex; align-items: center; gap: 6px; padding: 2px 4px; border-radius: 4px; }
+.liste-piscines li.choisie { background: var(--accent-clair); }
+.liste-piscines .nom-zone { flex: 1; min-width: 0; text-align: left; border: 0; background: none; padding: 0; color: var(--texte); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.liste-piscines li.choisie .nom-zone { font-weight: 600; color: var(--accent); }
+.liste-piscines .btn-zone { border: 0; background: none; padding: 0 2px; color: var(--doux); line-height: 1; }
+.liste-piscines .btn-zone:hover { color: var(--texte); }
+.graphique-piscine svg { display: block; width: 100%; height: auto; color: var(--doux); }
+.legende-piscine { display: flex; gap: 12px; font-size: 10.5px; }
+.legende-piscine span { display: inline-flex; align-items: center; gap: 4px; }
+.legende-piscine i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; }
+.image-piscine canvas { display: block; width: 100%; height: auto; border-radius: 4px; margin: 3px 0 4px; }
+.note-piscine { font-size: 10.5px; line-height: 1.4; }
+.reglages-piscine { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 6px; }
+.reglages-piscine label { display: grid; gap: 1px; color: var(--doux); font-size: 11px; }
+.semaines-seuil { display: flex; gap: 2px; margin: 3px 0 1px; }
+.semaines-seuil span { flex: 1; height: 14px; border-radius: 2px; }
+.semaines-seuil .chaud { background: #d0571f; }
+.semaines-seuil .froid { background: #8fb3d9; }
+.tableau-semaines, .tableau-chauffage { font-variant-numeric: tabular-nums; }
+.tableau-semaines td, .tableau-semaines th, .tableau-chauffage td, .tableau-chauffage th { padding: 1px 4px; background: transparent; color: var(--texte); }
+.tableau-chauffage tr.total td { font-weight: 600; }
+#outilsPiscinePro .badge-pro { font-size: 10px; font-weight: 700; color: var(--pro); letter-spacing: .04em; }
+#piscineCotes[hidden] { display: none !important; }

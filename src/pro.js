@@ -483,7 +483,7 @@ export function brancherPro(o) {
   const basculer = () => {
     const ok = autorise(), avant = $("#vPro").checked;
     $("#vPro").checked = ok;
-    for (const id of ["#outilsPro", "#outilsExport"]) {
+    for (const id of ["#outilsPro", "#outilsExport", "#outilsPiscinePro"]) {
       $(id).hidden = false;
       $(id).classList.toggle("pro-verrouille", !ok);
       $(id).setAttribute("aria-disabled", String(!ok));
@@ -492,7 +492,7 @@ export function brancherPro(o) {
     if (ok !== avant) { $("#vPro").dispatchEvent(new Event("change")); if (ok) o.compter?.("pro_ouvert"); }
     maj();
   };
-  for (const id of ["#outilsPro", "#outilsExport"]) $(id).addEventListener("click", e => {
+  for (const id of ["#outilsPro", "#outilsExport", "#outilsPiscinePro"]) $(id).addEventListener("click", e => {
     if (!$(id).classList.contains("pro-verrouille")) return;
     e.preventDefault(); e.stopPropagation();
     o.compte?.exigerPro?.(t("compte.raisonPro"));
