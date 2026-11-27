@@ -3,7 +3,7 @@
 // Les champs mettent la maquette à jour aussitôt ; la souris (déplacer, tourner, tirer une face) les met à jour en retour.
 import { t, nombre } from "./i18n.js";
 import { solEn } from "./grille.js";
-import { cadre, coinsDe, corniche, hauteurToit, reglerCorniche, reglerEtages, reglerFaite, distanceSegments, dansPolygone } from "./projet.js";
+import { cadre, coinsDe, corniche, hauteurToit, reglerCorniche, reglerEtages, reglerFaite, distanceSegments, dansPolygone, reglerEtage, etageCourant } from "./projet.js";
 
 const fr = (v, d = 1) => nombre(v, d);
 const deg = r => ((r * 180 / Math.PI) % 360 + 360) % 360;
@@ -91,7 +91,11 @@ export function ficheVolume(conteneur, o) {
         ${champ("volume.corniche", t("volume.cornicheTitre"), 'min="1" max="300" step="0.1"')}
         ${champ("volume.faite", t("volume.faiteTitre"), 'min="1" max="400" step="0.1"')}
       </div>
-      <div class="fv-etages">${E.map((h, k) => `<label title="${t("volume.etageTitre", { n: k })}"><span>${k === 0 ? t("volume.rez") : t("volume.etageN", { n: k })}</span><input type="number" class="form-control form-control-sm" data-etage="${k}" min="1" max="20" step="0.1"></label>`).join("")}</div>
+      <div class="fv-etages">
+        <label title="${t("volume.rezTitre")}"><span>${t("volume.rez")}</span><input type="number" class="form-control form-control-sm" data-etage="rez" min="1" max="20" step="0.1"></label>
+        ${E.length > 2 ? `<label title="${t("volume.courantTitre")}"><span>${t("volume.courant")}</span><input type="number" class="form-control form-control-sm" data-etage="courant" min="1" max="20" step="0.1"></label>` : ""}
+        ${E.length > 1 ? `<label title="${t("volume.dernierTitre")}"><span>${t("volume.dernier")}</span><input type="number" class="form-control form-control-sm" data-etage="dernier" min="1" max="20" step="0.1"></label>` : ""}
+      </div>
       <div class="fv-grille fv-toit">
         <label class="fv-champ"><span>${t("volume.toit")}</span><select class="form-select form-select-sm" data-k="toit">
           <option value="plat">${t("projet.plat")}</option><option value="deux">${t("projet.deuxPans")}</option><option value="quatre">${t("volume.quatrePans")}</option></select></label>
@@ -113,7 +117,7 @@ export function ficheVolume(conteneur, o) {
   /** Valeurs du volume dans les champs (sauf celui qu'on est en train de saisir), mesures et distances. */
   function rafraichir() {
     if (!v) return;
-    if (conteneur.querySelectorAll("[data-etage]").length !== v.etages.length) return construire();
+    if (conteneur.querySelectorAll("[data-etage]").length !== Math.min(3, v.etages.length)) return construire();
     const F = cadre(v), actif = document.activeElement, hc = corniche(v), ht = hauteurToit(v);
     const val = {
       "volume.largeur": F.L, "volume.profondeur": F.P, "volume.rotation": deg(F.angle), "volume.est": o.S.E0 + F.cx, "volume.nord": o.S.N0 + F.cy,
@@ -127,7 +131,8 @@ export function ficheVolume(conteneur, o) {
       if (x == null) continue;
       i.value = typeof x === "number" ? (i.step === "1" || i.dataset.k === "opacite" ? Math.round(x * 10) / 10 : (Math.round(x * 10) / 10).toFixed(1)) : x;
     }
-    for (const i of conteneur.querySelectorAll("[data-etage]")) if (i !== actif) i.value = (+v.etages[+i.dataset.etage]).toFixed(1);
+    const valEtage = { rez: v.etages[0], courant: etageCourant(v), dernier: v.etages[v.etages.length - 1] };
+    for (const i of conteneur.querySelectorAll("[data-etage]")) if (i !== actif) i.value = (+valEtage[i.dataset.etage]).toFixed(1);
     conteneur.querySelector(".fv-opacite output").textContent = `${val.opacite} %`;
     const plat = v.toit === "plat";
     conteneur.querySelector('[data-k="volume.faite"]').disabled = plat;
@@ -159,7 +164,7 @@ export function ficheVolume(conteneur, o) {
   function appliquer(i, final) {
     if (!v) return;
     const k = i.dataset.k, x = +i.value;
-    if (i.dataset.etage != null) { if (x >= 1) { v.etages[+i.dataset.etage] = Math.round(x * 100) / 100; v.hauteur = corniche(v); } }
+    if (i.dataset.etage != null) { if (x >= 1) reglerEtage(v, i.dataset.etage, x); }
     else if (k === "toit" || k === "sensFaite" || k === "unitePente") v[k] = i.value;
     else if (i.value === "" || !isFinite(x)) return;
     else if (k === "opacite") v.opacite = Math.max(0.1, Math.min(1, x / 100));

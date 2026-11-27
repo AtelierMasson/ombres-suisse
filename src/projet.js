@@ -72,28 +72,42 @@ export function normaliserVolume(v, G) {
 /** Hauteur à la corniche (m au-dessus de la base) : somme des étages. */
 export const corniche = v => r2((v.etages || [v.hauteur || 9]).reduce((s, e) => s + e, 0));
 
-/**
- * Change la hauteur à la corniche : les étages du bas restent, le dernier prend la différence ; s'il devient plus d'une
- * fois et demie plus haut qu'un étage courant, des étages s'ajoutent (moins de la moitié : le dernier disparaît).
- */
-export function reglerCorniche(v, h) {
-  h = Math.max(1, Math.min(300, h));
-  const somme = E => E.reduce((s, e) => s + e, 0), courant = v.etages.length > 1 ? v.etages[v.etages.length - 2] : 3;
-  const bas = v.etages.slice(0, -1);
-  while (bas.length && h - somme(bas) < courant * 0.5) bas.pop();
-  let reste = h - somme(bas);
-  while (reste > courant * 1.5 && bas.length < 79) { bas.push(courant); reste -= courant; }
-  v.etages = [...bas, r2(reste)];
+/** Hauteur d'un étage courant (les étages entre le rez et le dernier sont tous égaux). */
+export const etageCourant = v => v.etages.length > 2 ? v.etages[1] : 3;
+
+/** Étages : rez, n − 2 étages courants égaux, dernier ; la corniche suit. */
+function poserEtages(v, rez, courant, dernier, n) {
+  n = Math.max(1, Math.min(80, Math.round(n)));
+  v.etages = n === 1 ? [r2(rez)] : [r2(rez), ...Array(n - 2).fill(r2(courant)), r2(dernier)];
   v.hauteur = corniche(v);
 }
 
-/** Nombre d'étages : les nouveaux reprennent la hauteur du dernier ; la corniche suit. */
+/**
+ * Change la hauteur à la corniche : rez et dernier étage gardés, le nombre d'étages courants s'ajuste et ils restent
+ * tous de même hauteur (la différence est répartie entre eux).
+ */
+export function reglerCorniche(v, h) {
+  h = Math.max(1, Math.min(300, h));
+  const E = v.etages, rez = E[0], dernier = E.length > 1 ? E[E.length - 1] : rez, c = etageCourant(v);
+  if (E.length === 1 || h < rez + dernier + 1) { poserEtages(v, h, c, c, 1); return; }
+  const reste = h - rez - dernier, m = Math.max(0, Math.round(reste / c));
+  if (m === 0) { poserEtages(v, rez, c, h - rez, 2); return; }
+  poserEtages(v, rez, reste / m, dernier, m + 2);
+}
+
+/** Nombre d'étages : les nouveaux étages courants reprennent la hauteur courante ; rez et dernier restent. */
 export function reglerEtages(v, n) {
-  n = Math.max(1, Math.min(80, Math.round(n)));
-  const E = v.etages, dernier = E[E.length - 1] || 3;
-  while (E.length < n) E.push(dernier);
-  E.length = n;
-  v.hauteur = corniche(v);
+  const E = v.etages, rez = E[0], dernier = E.length > 1 ? E[E.length - 1] : rez;
+  poserEtages(v, rez, etageCourant(v), dernier, n);
+}
+
+/** Règle le rez, la hauteur des étages courants ou le dernier étage. */
+export function reglerEtage(v, quoi, h) {
+  h = Math.max(1, Math.min(20, h));
+  const E = v.etages, n = E.length, rez = E[0], dernier = n > 1 ? E[n - 1] : rez;
+  if (quoi === "rez") poserEtages(v, h, etageCourant(v), n > 1 ? dernier : h, n);
+  else if (quoi === "courant") poserEtages(v, rez, h, dernier, n);
+  else poserEtages(v, rez, etageCourant(v), h, n);
 }
 
 /** Axe du faîtage et demi-portées : { axe: "u" | "n", A (demi-longueur le long du faîte), B (demi-portée) }. */
@@ -155,11 +169,13 @@ export function volumeGeometrie(v, G, zRef) {
 }
 
 /** Traits des étages sur les façades (segments, repère de la scène), à 4 cm devant les murs. */
-export function traitsEtages(v, zRef) {
-  if (!v.etages || v.etages.length < 2 || !(v.base > -1000)) return null;
+export function traitsEtages(v, zRef, G = null) {
+  if (!v.etages || !(v.base > -1000) || (v.etages.length < 2 && !(G && v.base > solMinimum(v, G) + 0.1))) return null;
   const { cx, cy, L, P, u, n } = cadre(v), e = 0.04, pos = [];
   const coins = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([s, t]) => [cx + s * (L / 2 + e) * u[0] + t * (P / 2 + e) * n[0], cy + s * (L / 2 + e) * u[1] + t * (P / 2 + e) * n[1]]);
   let z = v.base - zRef;
+  // base au-dessus du terrain : un trait marque le pied du rez (les murs descendent plus bas, jusqu'au terrain)
+  if (G && v.base > solMinimum(v, G) + 0.1) for (let i = 0; i < 4; i++) { const a = coins[i], b = coins[(i + 1) % 4]; pos.push(a[0], z, -a[1], b[0], z, -b[1]); }
   for (let k = 0; k + 1 < v.etages.length; k++) {
     z += v.etages[k];
     for (let i = 0; i < 4; i++) { const a = coins[i], b = coins[(i + 1) % 4]; pos.push(a[0], z, -a[1], b[0], z, -b[1]); }

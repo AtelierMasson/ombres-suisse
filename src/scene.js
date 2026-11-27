@@ -1366,7 +1366,7 @@ void main() {
           m.renderOrder = 3; m.add(p);
         }
         // étages : traits sur les façades (hors des clics et du calcul des hauteurs, qui ne voient que les maillages)
-        const e = traitsEtages(v, this.zRef);
+        const e = traitsEtages(v, this.zRef, this.G);
         if (e) {
           const ge = new THREE.BufferGeometry(); ge.setAttribute("position", new THREE.BufferAttribute(e, 3));
           const l = new THREE.LineSegments(ge, this.mat.projets.get("etages"));
