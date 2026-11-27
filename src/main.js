@@ -3,6 +3,7 @@ import "./style.css";
 document.documentElement.classList.add("pret"); // styles chargés : la page peut s'afficher
 import { textureHeures } from "./heures.js";
 import { pontsAutour } from "./pontsModeles.js";
+import { routesAutour } from "./routesTLM.js";
 import { brancherLieux } from "./lieux.js";
 import { brancherCalendrier } from "./calendrier.js";
 import { brancherFiche } from "./fiche.js";
@@ -478,6 +479,7 @@ async function depuisAdresse(o = null) {
     };
     // ponts du lieu : ne dépendent que du centre, demandés pendant le relevé (D2)
     const ponts = pontsAutour(E0, N0, R).catch(() => []);
+    const routes = routesAutour(E0, N0, R).catch(() => []);
     // relevé laser (nuage COPC) : téléchargé en arrière-plan, niveaux grossiers d'abord (nuage.js)
     const releve = (async () => {
       const copc = await tuilesNuage(boite);
@@ -543,7 +545,7 @@ async function depuisAdresse(o = null) {
       scene.typeFond = ACC ? "uni" : typeFond();
       // accueil : brume douce (le réglage de l'utilisateur revient en quittant l'accueil)
       if (ACC) { scene.loin.facteurBrume = 0.6; scene.loin.brume = true; }
-      scene.pontsModeles = await ponts; scene.lieuPonts = { E: E0, N: N0 };
+      scene.pontsModeles = await ponts; scene.lieuPonts = { E: E0, N: N0 }; scene.routesTLM = await routes;
       if (id !== tache) return;
       const vueAvant = voyage ? { p: scene.camera.position.clone(), c: scene.controls.target.clone(), z: scene.zRef } : null;
       // vue gardée pendant le chargement visible (la caméra s'est placée sur les points du nouveau lieu)

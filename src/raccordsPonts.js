@@ -10,7 +10,8 @@
 // dépasser le dessous du tablier : face de culée) est un trou que le tablier couvre. La grille G.sol reste la référence
 // des calculs (ombres, heures).
 import { solEn } from "./grille.js";
-import { normaliser, noeudEn } from "./pontsModeles.js";
+import { normaliser, noeudEn, chausseeEn } from "./pontsModeles.js";
+import { directionRoute } from "./routesTLM.js";
 
 /** Rampe d'accès (m) : prolongement du tablier, de RAMPE_MIN (bout au niveau du terrain) à RAMPE_MAX (écart de 5 m
  *  et plus entre le prolongement du tablier et le terrain), + 2 m par mètre d'écart. */
@@ -20,126 +21,186 @@ export const MARGE_RACCORD = 1;
 /** Accotements (m) : de part et d'autre de la route d'accès, talus jusqu'au terrain, de ACCOTEMENT à ACCOTEMENT_MAX m
  *  de large ; TALUS : largeur par mètre de hauteur (1,5 : talus de remblai courant). */
 const ACCOTEMENT = 1.5, ACCOTEMENT_MAX = 8, TALUS = 1.5;
+/** Écart d'angle maximal entre l'axe du pont et la route d'accès (vers l'axe swissTLM3D de la route). */
+const ROUTE_ANGLE_MAX = 30 * Math.PI / 180;
 const DEDANS = 0.3, DANS_TABLIER = 10, LIBRE_PLEIN = 1.2, SOUS_RIVE = 0.05, HAUT_MAX = 8;
 const lisse = u => { const v = Math.min(1, Math.max(0, u)); return v * v * (3 - 2 * v); };
 
 /**
- * Raccords des bouts de ponts : [{ X, Y, Z (sommets ajoutés, x est, y nord relatifs, z absolu), trou (indices du
- * contour du trou, boucle), tri (triangles de la route d'accès et des accotements, indices), zone ([[x, y], …] :
- * contour du trou), u (direction vers l'extérieur), joint ([x, y] : milieu du joint), zJoint (chaussée au joint) }].
- * `sol(x, y)` : altitude du terrain donnée au maillage des ponts (même fonction, pour un joint identique au tablier).
+ * Bouts de tablier de tous les ponts, faits main (`modeles`, JSON en MN95, recentrés sur E0, N0) et reconstruits du relevé
+ * (`auto` : G.ponts, relatifs), décrits de la même façon : { source ("main" | "auto"), nom, N (nœuds du tablier), K, i0
+ * (nœud du joint), sg (+1 vers l'intérieur depuis le début, −1 depuis la fin), largeur }. Un pont reconstruit recouvert
+ * par un pont fait main (il ne sera pas maillé) est écarté. Un pont reconstruit dont le bout plonge sous le terrain (joint
+ * avec la route au niveau du sol) a son joint au nœud où la chaussée rejoint le terrain, pas au bout plongé.
  */
-export function raccordsPonts(G, modeles, E0, N0, sol = (x, y) => solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y)))) {
-  const out = [];
+export function boutsPonts(G, modeles, E0, N0, sol, auto, ignorer) {
+  const bouts = [];
+  for (const P of modeles || []) {
+    let M;
+    try { M = normaliser(P, E0, N0, sol); } catch { ignorer("modèle illisible"); continue; }
+    const K = M.noeuds.s.length;
+    if (K < 3) { ignorer("pont trop court"); continue; }
+    for (const b of [0, 1]) bouts.push({ source: "main", nom: P.nom, N: M.noeuds, K, i0: b ? K - 1 : 0, sg: b ? -1 : 1, largeur: M.largeur });
+  }
+  for (const M of auto || []) {
+    const N = M.noeuds, K = N?.s?.length || 0;
+    if (K < 3) { ignorer("pont reconstruit trop court"); continue; }
+    // recouvert par un pont fait main (même test que scene.construire : chaussée à moins de 4 m)
+    let recouvert = false;
+    for (let k = 0; k < M.cellules.length && !recouvert; k += 7) {
+      const p = M.cellules[k], x = G.x0 + (p % G.n + 0.5) * G.c, y = G.x0 + (Math.floor(p / G.n) + 0.5) * G.c;
+      recouvert = (modeles || []).some(P => Math.abs(chausseeEn(P, E0, N0, x, y, 6) - G.pont[p]) < 4);
+    }
+    if (recouvert) { ignorer("pont reconstruit sous un pont fait main", 2); continue; }
+    for (const b of [0, 1]) {
+      const sg = b ? -1 : 1, fin = b ? K - 1 : 0;
+      let i0 = fin;
+      if (!M.libre?.[b]) while (i0 + 3 * sg >= 0 && i0 + 3 * sg < K && N.w[i0 + sg] > 0.999 && Math.abs(N.s[i0 + sg] - N.s[fin]) < 4) i0 += sg;
+      bouts.push({ source: "auto", nom: "pont reconstruit", N, K, i0, sg, largeur: M.largeur });
+    }
+  }
+  return bouts;
+}
+
+/**
+ * Raccords des bouts de ponts, faits main et reconstruits, par une seule règle : [{ X, Y, Z (sommets ajoutés, x est, y nord
+ * relatifs, z absolu), trou (indices du contour du trou, boucle), tri (triangles de la route d'accès et des talus),
+ * zone ([[x, y], …] : contour du trou), u (axe du pont vers l'extérieur), d (direction de la route), joint ([x, y] : milieu
+ * du joint), zJoint, jointPts (polyligne du joint, rive g → rive d, [x, y, z]), source }].
+ * Joint : la polyligne du dessus de la section du bout, de la rive gauche à la rive droite (ses deux coins, plus des
+ * points intermédiaires sur la même droite, dévers compris). Route d'accès : part du joint dans l'axe du pont, tourne
+ * vers l'axe de la route swissTLM3D (`routes`, routesTLM.js ; au plus ROUTE_ANGLE_MAX), prolonge pente et dévers du
+ * tablier et rejoint le terrain sur RAMPE_MIN à RAMPE_MAX m. Bouts ignorés (`stats.ignores`, par raison) : très au-dessus
+ * du terrain (falaise, vallée), sous le terrain (tunnel), hors de la maquette, route aussitôt bloquée (eau, bâtiment).
+ * `sol(x, y)` : altitude du terrain donnée au maillage des ponts.
+ */
+export function raccordsPonts(G, modeles, E0, N0, sol = (x, y) => solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y))), { auto = G.ponts, routes = null, stats = null } = {}) {
+  const out = [], st = stats || {};
+  st.raccordes = 0; st.ignores = {}; st.tlm = 0;
+  const ignorer = (raison, n = 1) => { st.ignores[raison] = (st.ignores[raison] || 0) + n; };
   const cellule = (x, y) => { const i = Math.floor((x - G.x0) / G.c), j = Math.floor((y - G.x0) / G.c); return i < 0 || j < 0 || i >= G.n || j >= G.n ? -1 : j * G.n + i; };
   const Rz = G.rayonZone || Infinity, lim = G.n * G.c / 2 - 2;
   const dedans = (x, y) => Math.hypot(x, y) < Rz - 2 && Math.abs(x) < lim && Math.abs(y) < lim;
   const libreEn = (x, y) => { const p = cellule(x, y); return dedans(x, y) && p >= 0 && !(G.bat && !isNaN(G.bat[p])) && !(G.eau && !isNaN(G.eau[p])); };
-  for (const P of modeles || []) {
-    let M;
-    try { M = normaliser(P, E0, N0, sol); } catch { continue; }
-    const N = M.noeuds, K = N.s.length, nT = Math.max(2, Math.min(6, Math.round(M.largeur / 3.5)));
-    if (K < 3) continue;
-    // points du dessus d'une section (comme maillagePont : nT + 1 points de la rive g à la rive d) et tablier plein ?
+  for (const Bt of boutsPonts(G, modeles, E0, N0, sol, auto, ignorer)) {
+    const { N, K, i0, sg } = Bt, nT = Math.max(2, Math.min(6, Math.round(Bt.largeur / 3.5)));
+    // points du dessus d'une section (nT + 1 points de la rive g à la rive d) ; hauteur libre au-dessus du terrain
     const dessus = idx => {
       const A = noeudEn(N, N.s[idx]), m = (A.g + A.d) / 2, pts = [];
-      let libre = Infinity;
+      let libre = Infinity, enfoui = -Infinity;
       for (let k = 0; k <= nT; k++) {
-        const t = A.g + (A.d - A.g) * k / nT, x = A.x + A.nx * t, y = A.y + A.ny * t, z = A.z + A.devers * (t - m);
-        libre = Math.min(libre, z - sol(x, y));
+        const t = A.g + (A.d - A.g) * k / nT, x = A.x + A.nx * t, y = A.y + A.ny * t, z = A.z + A.devers * (t - m), zs = sol(x, y);
+        libre = Math.min(libre, z - zs); enfoui = Math.max(enfoui, zs - z);
         pts.push([x, y, z]);
       }
-      return { pts, plein: libre < LIBRE_PLEIN, libre };
+      return { pts, plein: libre < LIBRE_PLEIN, libre, enfoui };
     };
-    for (const bout of [0, 1]) {
-      const i0 = bout ? K - 1 : 0, sg = bout ? -1 : 1;
-      const J = dessus(i0);
-      // bout libre très au-dessus du terrain (falaise, vallée) ou hors maquette : pas de raccord
-      if (!(J.libre < HAUT_MAX) || !J.pts.every(([x, y]) => dedans(x, y))) continue;
-      // direction vers l'extérieur (prolongement de l'axe) et pente de la chaussée au bout
-      const A = noeudEn(N, N.s[i0]), B = noeudEn(N, N.s[i0 + sg * 2]);
-      let ux = A.x - B.x, uy = A.y - B.y; const lu = Math.hypot(ux, uy) || 1; ux /= lu; uy /= lu;
-      const pente = (A.z - B.z) / lu;
-      // rives du tablier vers l'intérieur, tant qu'il est plein (au plus DANS_TABLIER m, jamais au-delà du milieu)
-      const rives = [];
-      let fond = i0;
-      if (J.plein) for (let q = 1; q < K; q++) {
-        const idx = i0 + sg * q;
-        if (idx <= 0 || idx >= K - 1 || Math.abs(N.s[idx] - N.s[i0]) > Math.min(DANS_TABLIER, N.s[K - 1] / 2 - 1)) break;
-        const S = dessus(idx);
-        if (!S.plein || !S.pts.every(([x, y]) => dedans(x, y))) break;
-        rives.push([S.pts[0], S.pts[nT]]); fond = idx;
-      }
-      // route d'accès : le tablier prolongé (même direction, même pente, même dévers), qui glisse en douceur vers le
-      // terrain (pente continue : lissage en S) sur RAMPE_MIN à RAMPE_MAX m selon l'écart de hauteur ; accotements en
-      // talus de ACCOTEMENT m jusqu'au terrain de part et d'autre
-      const jc = [(J.pts[0][0] + J.pts[nT][0]) / 2, (J.pts[0][1] + J.pts[nT][1]) / 2], zc = (J.pts[0][2] + J.pts[nT][2]) / 2;
-      const ecart = Math.abs(zc + pente * RAMPE_MAX - sol(jc[0] + ux * RAMPE_MAX, jc[1] + uy * RAMPE_MAX));
-      const Lr = Math.min(RAMPE_MAX, Math.max(RAMPE_MIN, Math.ceil(RAMPE_MIN + 2 * ecart)));
-      const vx = J.pts[nT][0] - J.pts[0][0], vy = J.pts[nT][1] - J.pts[0][1], lv = Math.hypot(vx, vy) || 1, ex = vx / lv, ey = vy / lv;
-      // accotements (de la route et des rives) : du bord, en (sx, sy), talus jusqu'au terrain ; plus larges quand le bord
-      // est haut au-dessus (ou bas au-dessous) du terrain : pente TALUS, de ACCOTEMENT à ACCOTEMENT_MAX m
-      const bas = ([x, y, z], sx, sy) => {
-        let w = ACCOTEMENT;
-        for (let it = 0; it < 3; it++) w = Math.min(ACCOTEMENT_MAX, Math.max(ACCOTEMENT, TALUS * Math.abs(z - sol(x + sx * w, y + sy * w))));
-        for (; w > 0.3 && !dedans(x + sx * w, y + sy * w); w /= 2);
-        const xa = x + sx * w, ya = y + sy * w;
-        return [xa, ya, sol(xa, ya)];
-      };
-      const route = [];
-      for (let l = 0; l <= Lr; l++) {
-        const w = 1 - lisse(l / Lr), sec = [];
-        for (const [x0, y0, z0] of J.pts) {
-          const x = x0 + ux * l, y = y0 + uy * l, zg = sol(x, y);
-          sec.push(l ? [x, y, zg + (z0 + pente * l - zg) * w] : [x0, y0, z0]);
-        }
-        // la route s'arrête au bord de la maquette, ou quand son milieu rencontre l'eau ou un bâtiment (ses bords
-        // peuvent frôler une façade : en ville, la rue est bordée de maisons)
-        if (l && !sec.every(([x, y], k) => k === 0 || k === nT ? dedans(x, y) : libreEn(x, y))) break;
-        route.push([bas(sec[0], -ex, -ey), ...sec, bas(sec[nT], ex, ey)]);
-      }
-      if (route.length < 2) continue;
-      // sommets : route (section par section, accotements compris), puis rives ; z des rives sous la chaussée
-      const X = [], Y = [], Z = [], pose = (x, y, z) => { X.push(x); Y.push(y); Z.push(z); return X.length - 1; };
-      const idR = route.map(sec => sec.map(([x, y, z]) => pose(x, y, z)));
-      // rives : toujours collées au bord du tablier (juste sous la chaussée), avec leur talus vers l'extérieur (cône de
-      // remblai de la culée, comme les accotements de la route) : pas de fente sous le tablier, pas de mur raide
-      const idV = rives.map(([g, d]) => {
-        const G0 = [g[0], g[1], g[2] - SOUS_RIVE], D0 = [d[0], d[1], d[2] - SOUS_RIVE];
-        const l = Math.hypot(D0[0] - G0[0], D0[1] - G0[1]) || 1, sx = (D0[0] - G0[0]) / l, sy = (D0[1] - G0[1]) / l;
-        return [pose(...G0), pose(...D0), pose(...bas(G0, -sx, -sy)), pose(...bas(D0, sx, sy))];
-      });
-      // fond du raccord, sous le tablier (section du joint, ou de la dernière rive) : DEDANS m vers l'intérieur, au niveau du
-      // terrain, mais jamais au-dessus de la chaussée ni plus bas que le dessous du tablier : le terrain sous le pont reste
-      // en place et monte au plus jusqu'au dessous du tablier (face de culée), sans jour vu d'en dessous
-      const F = dessus(fond), Af = noeudEn(N, N.s[fond]);
-      const idF = F.pts.map(([x, y, z]) => {
-        const xf = x - ux * DEDANS, yf = y - uy * DEDANS;
-        return pose(xf, yf, Math.max(Math.min(z - SOUS_RIVE, sol(xf, yf)), z - Af.ep));
-      });
-      // triangles : bandes de la route et des accotements (colonnes 0 … nT + 2 ; joint : colonnes 1 … nT + 1), puis talus
-      // des rives (du joint vers le fond)
-      const tri = [], nC = nT + 2;
-      for (let i = 0; i < idR.length - 1; i++) for (let k = 0; k < nC; k++) {
-        const a = idR[i][k], b = idR[i][k + 1], c = idR[i + 1][k + 1], d = idR[i + 1][k];
-        tri.push(a, b, c, a, c, d);
-      }
-      for (let q = 0; q < idV.length; q++) {
-        const [rg, rd, tg, td] = idV[q], [pg, pd, ptg, ptd] = q ? idV[q - 1] : [idR[0][1], idR[0][nC - 1], idR[0][0], idR[0][nC]];
-        tri.push(pg, ptg, tg, pg, tg, rg, pd, rd, td, pd, td, ptd);
-      }
-      // contour : rive g et son talus au fond, talus g (vers le joint), accotement g, bout de la route, accotement d,
-      // talus d (vers le fond), rive d au fond (sans rives : coins du joint), puis le fond sous le tablier, de d à g ; le
-      // dessus du tablier entre le joint et le fond reste un trou (le tablier le couvre)
-      const n = idR.length - 1, trou = [], nV = idV.length;
-      if (nV) { trou.push(idV[nV - 1][0]); for (let q = nV - 1; q >= 0; q--) trou.push(idV[q][2]); } else trou.push(idR[0][1]);
-      for (let i = 0; i <= n; i++) trou.push(idR[i][0]);
-      for (let k = 1; k < nC; k++) trou.push(idR[n][k]);
-      for (let i = n; i >= 0; i--) trou.push(idR[i][nC]);
-      if (nV) { for (let q = 0; q < nV; q++) trou.push(idV[q][3]); trou.push(idV[nV - 1][1]); } else trou.push(idR[0][nC - 1]);
-      for (let k = nT; k >= 0; k--) trou.push(idF[k]);
-      out.push({ X, Y, Z, trou, tri, zone: trou.map(v => [X[v], Y[v]]), u: [ux, uy], joint: jc, zJoint: zc });
+    const J = dessus(i0);
+    // exceptions, par règles simples
+    if (!J.pts.every(([x, y]) => dedans(x, y))) { ignorer("hors de la maquette"); continue; }
+    if (!(J.libre < HAUT_MAX)) { ignorer("bout très au-dessus du terrain (falaise, vallée)"); continue; }
+    if (J.enfoui > HAUT_MAX / 2) { ignorer("bout sous le terrain (tunnel, tranchée couverte)"); continue; }
+    // axe du pont vers l'extérieur et pente de la chaussée au bout
+    const A = noeudEn(N, N.s[i0]), B = noeudEn(N, N.s[Math.max(0, Math.min(K - 1, i0 + sg * 2))]);
+    let ux = A.x - B.x, uy = A.y - B.y; const lu = Math.hypot(ux, uy) || 1; ux /= lu; uy /= lu;
+    const pente = (A.z - B.z) / lu;
+    // rives du tablier vers l'intérieur, tant qu'il est plein (au plus DANS_TABLIER m, jamais au-delà du milieu)
+    const rives = [];
+    let fond = i0;
+    if (J.plein) for (let q = 1; q < K; q++) {
+      const idx = i0 + sg * q;
+      if (idx <= 0 || idx >= K - 1 || Math.abs(N.s[idx] - N.s[i0]) > Math.min(DANS_TABLIER, Math.abs(N.s[K - 1] - N.s[0]) / 2 - 1)) break;
+      const S = dessus(idx);
+      if (!S.plein || !S.pts.every(([x, y]) => dedans(x, y))) break;
+      rives.push([S.pts[0], S.pts[nT]]); fond = idx;
     }
+    // joint : milieu, largeur (vecteur rive g → rive d) ; chaque point du joint repéré en travers (t) et en long (a)
+    const jc = [(J.pts[0][0] + J.pts[nT][0]) / 2, (J.pts[0][1] + J.pts[nT][1]) / 2], zc = (J.pts[0][2] + J.pts[nT][2]) / 2;
+    const vx = J.pts[nT][0] - J.pts[0][0], vy = J.pts[nT][1] - J.pts[0][1], lv = Math.hypot(vx, vy) || 1, ex = vx / lv, ey = vy / lv;
+    const loc = J.pts.map(([x, y]) => [(x - jc[0]) * ex + (y - jc[1]) * ey, (x - jc[0]) * ux + (y - jc[1]) * uy]);
+    // direction de la route : axe swissTLM3D au bout du pont (sinon l'axe du pont), écart d'angle borné
+    const T = directionRoute(routes, jc, [ux, uy]);
+    let dA = 0;
+    if (T) {
+      st.tlm++;
+      dA = Math.atan2(ux * T.d[1] - uy * T.d[0], ux * T.d[0] + uy * T.d[1]);
+      dA = Math.max(-ROUTE_ANGLE_MAX, Math.min(ROUTE_ANGLE_MAX, dA));
+    }
+    const ecart = Math.abs(zc + pente * RAMPE_MAX - sol(jc[0] + ux * RAMPE_MAX, jc[1] + uy * RAMPE_MAX));
+    const Lr = Math.min(RAMPE_MAX, Math.max(RAMPE_MIN, Math.ceil(RAMPE_MIN + 2 * ecart)));
+    // accotements (de la route et des rives) : du bord, en (sx, sy), talus jusqu'au terrain ; plus larges quand le bord
+    // est haut au-dessus (ou bas au-dessous) du terrain : pente TALUS, de ACCOTEMENT à ACCOTEMENT_MAX m
+    const bas = ([x, y, z], sx, sy) => {
+      let w = ACCOTEMENT;
+      for (let it = 0; it < 3; it++) w = Math.min(ACCOTEMENT_MAX, Math.max(ACCOTEMENT, TALUS * Math.abs(z - sol(x + sx * w, y + sy * w))));
+      for (; w > 0.3 && !dedans(x + sx * w, y + sy * w); w /= 2);
+      const xa = x + sx * w, ya = y + sy * w;
+      return [xa, ya, sol(xa, ya)];
+    };
+    // route d'accès, mètre par mètre : axe qui part dans le prolongement du pont et tourne en douceur vers la route TLM
+    // (sur la première moitié), sections perpendiculaires à l'axe ; chaussée = tablier prolongé (pente, dévers) qui glisse
+    // vers le terrain (lissage en S : pente continue au joint)
+    const route = [];
+    let cx = jc[0], cy = jc[1];
+    for (let l = 0; l <= Lr; l++) {
+      const ang = dA * lisse(l / (Lr / 2)), dx = ux * Math.cos(ang) - uy * Math.sin(ang), dy = ux * Math.sin(ang) + uy * Math.cos(ang);
+      if (l) { const am = dA * lisse((l - 0.5) / (Lr / 2)); cx += ux * Math.cos(am) - uy * Math.sin(am); cy += ux * Math.sin(am) + uy * Math.cos(am); }
+      const sx = dy, sy = -dx; // en travers (rive g → rive d), dans le sens de (ex, ey) au joint
+      const w = 1 - lisse(l / Lr), sec = [];
+      for (let k = 0; k <= nT; k++) {
+        if (!l) { sec.push(J.pts[k]); continue; }
+        const [t, a] = loc[k], x = cx + sx * t * Math.sign(sx * ex + sy * ey || 1) + dx * a, y = cy + sy * t * Math.sign(sx * ex + sy * ey || 1) + dy * a, zg = sol(x, y);
+        sec.push([x, y, zg + (J.pts[k][2] + pente * l - zg) * w]);
+      }
+      // la route s'arrête au bord de la maquette, ou quand son milieu rencontre l'eau ou un bâtiment (ses bords
+      // peuvent frôler une façade : en ville, la rue est bordée de maisons)
+      if (l && !sec.every(([x, y], k) => k === 0 || k === nT ? dedans(x, y) : libreEn(x, y))) break;
+      const gx = sec[0][0] - sec[nT][0], gy = sec[0][1] - sec[nT][1], gl = Math.hypot(gx, gy) || 1;
+      route.push([bas(sec[0], gx / gl, gy / gl), ...sec, bas(sec[nT], -gx / gl, -gy / gl)]);
+    }
+    if (route.length < 2) { ignorer("route d'accès bloquée (eau, bâtiment)"); continue; }
+    // sommets : route (section par section, accotements compris), puis rives, puis fond
+    const X = [], Y = [], Z = [], pose = (x, y, z) => { X.push(x); Y.push(y); Z.push(z); return X.length - 1; };
+    const idR = route.map(sec => sec.map(([x, y, z]) => pose(x, y, z)));
+    // rives : toujours collées au bord du tablier (juste sous la chaussée), avec leur talus vers l'extérieur (cône de
+    // remblai de la culée, comme les accotements de la route) : pas de fente sous le tablier, pas de mur raide
+    const idV = rives.map(([g, d]) => {
+      const G0 = [g[0], g[1], g[2] - SOUS_RIVE], D0 = [d[0], d[1], d[2] - SOUS_RIVE];
+      const l = Math.hypot(D0[0] - G0[0], D0[1] - G0[1]) || 1, sx = (D0[0] - G0[0]) / l, sy = (D0[1] - G0[1]) / l;
+      return [pose(...G0), pose(...D0), pose(...bas(G0, -sx, -sy)), pose(...bas(D0, sx, sy))];
+    });
+    // fond du raccord, sous le tablier (section du joint, ou de la dernière rive) : DEDANS m vers l'intérieur, au niveau du
+    // terrain, mais jamais au-dessus de la chaussée ni plus bas que le dessous du tablier : le terrain sous le pont reste
+    // en place et monte au plus jusqu'au dessous du tablier (face de culée), sans jour vu d'en dessous
+    const F = dessus(fond), Af = noeudEn(N, N.s[fond]);
+    const idF = F.pts.map(([x, y, z]) => {
+      const xf = x - ux * DEDANS, yf = y - uy * DEDANS;
+      return pose(xf, yf, Math.max(Math.min(z - SOUS_RIVE, sol(xf, yf)), z - Af.ep));
+    });
+    // triangles : bandes de la route et des accotements (colonnes 0 … nT + 2 ; joint : colonnes 1 … nT + 1), puis talus
+    // des rives (du joint vers le fond)
+    const tri = [], nC = nT + 2;
+    for (let i = 0; i < idR.length - 1; i++) for (let k = 0; k < nC; k++) {
+      const a = idR[i][k], b = idR[i][k + 1], c = idR[i + 1][k + 1], d = idR[i + 1][k];
+      tri.push(a, b, c, a, c, d);
+    }
+    for (let q = 0; q < idV.length; q++) {
+      const [rg, rd, tg, td] = idV[q], [pg, pd, ptg, ptd] = q ? idV[q - 1] : [idR[0][1], idR[0][nC - 1], idR[0][0], idR[0][nC]];
+      tri.push(pg, ptg, tg, pg, tg, rg, pd, rd, td, pd, td, ptd);
+    }
+    // contour : rive g et son talus au fond, talus g (vers le joint), accotement g, bout de la route, accotement d,
+    // talus d (vers le fond), rive d au fond (sans rives : coins du joint), puis le fond sous le tablier, de d à g ; le
+    // dessus du tablier entre le joint et le fond reste un trou (le tablier le couvre)
+    const n = idR.length - 1, trou = [], nV = idV.length;
+    if (nV) { trou.push(idV[nV - 1][0]); for (let q = nV - 1; q >= 0; q--) trou.push(idV[q][2]); } else trou.push(idR[0][1]);
+    for (let i = 0; i <= n; i++) trou.push(idR[i][0]);
+    for (let k = 1; k < nC; k++) trou.push(idR[n][k]);
+    for (let i = n; i >= 0; i--) trou.push(idR[i][nC]);
+    if (nV) { for (let q = 0; q < nV; q++) trou.push(idV[q][3]); trou.push(idV[nV - 1][1]); } else trou.push(idR[0][nC - 1]);
+    for (let k = nT; k >= 0; k--) trou.push(idF[k]);
+    const cd = Math.cos(dA), sd = Math.sin(dA);
+    out.push({ X, Y, Z, trou, tri, zone: trou.map(v => [X[v], Y[v]]), u: [ux, uy], d: [ux * cd - uy * sd, ux * sd + uy * cd], joint: jc, zJoint: zc, jointPts: J.pts, source: Bt.source, nom: Bt.nom, longueur: n, tlm: T ? { ecart: +T.ecart.toFixed(1), boutTLM: T.boutTLM, angle: Math.round(dA * 180 / Math.PI) } : null });
+    st.raccordes++;
   }
   return out;
 }

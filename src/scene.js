@@ -787,14 +787,15 @@ void main() {
     this.G = G;
     // sol sous les ponts faits main : abaissé là où il bouchait l'ouvrage jusqu'au tablier (pontsModeles.js)
     if (this.pontsModeles?.length && !G.provisoire && creuserSousPonts(G, this.pontsModeles, this.lieuPonts?.E ?? 0, this.lieuPonts?.N ?? 0)) majSurface(G);
-    // arrivées des ponts faits main : sommets exacts du joint, des rives et de la route d'accès, raccordés au terrain
-    // affiché (grille ou TIN) comme les piscines (raccordsPonts.js) ; G.sol (calculs) n'en dépend pas
-    // la route d'accès est reportée dans G.sol, puis les raccords recalculés sur ce sol (celui que verra le tablier)
+    // arrivées de tous les ponts (faits main et reconstruits du relevé, G.ponts) : sommets exacts du joint, des rives et
+    // de la route d'accès (orientée sur l'axe swissTLM3D de la route), raccordés au terrain affiché (grille ou TIN) comme
+    // les piscines (raccordsPonts.js). La route d'accès est reportée dans G.sol, puis les raccords recalculés sur ce sol
     G.raccordsPonts = null;
-    if (this.pontsModeles?.length && !G.provisoire) {
-      const [Er, Nr] = [this.lieuPonts?.E ?? 0, this.lieuPonts?.N ?? 0];
-      G.raccordsPonts = raccordsPonts(G, this.pontsModeles, Er, Nr);
-      if (raccordsAuSol(G, G.raccordsPonts)) { majSurface(G); G.raccordsPonts = raccordsPonts(G, this.pontsModeles, Er, Nr); }
+    if ((this.pontsModeles?.length || G.ponts?.length) && !G.provisoire) {
+      const [Er, Nr] = [this.lieuPonts?.E ?? 0, this.lieuPonts?.N ?? 0], opts = { routes: this.routesTLM, stats: {} };
+      G.raccordsPonts = raccordsPonts(G, this.pontsModeles, Er, Nr, undefined, opts);
+      if (raccordsAuSol(G, G.raccordsPonts)) { majSurface(G); G.raccordsPonts = raccordsPonts(G, this.pontsModeles, Er, Nr, undefined, opts); }
+      if (import.meta.env?.DEV) console.info(`Raccords des ponts : ${opts.stats.raccordes} bouts raccordés (${opts.stats.tlm} orientés sur la route swissTLM3D), ignorés :`, opts.stats.ignores);
     }
     // le nuage est gardé (tableaux typés X, Y, Z, C) : nuage brut construit à la demande, points proches de la coupe
     this.nuage = nuage;
@@ -831,7 +832,9 @@ void main() {
     // la canopée (grille) porte l'ombre des points ; sans points, styleArbres() construit des couronnes lissées
     const canopee = maille(nappeCanopee(G, this.zRef), m.canopee, true, false);
     // arbres toujours en points : sans relevé classé (repli raster), points tirés de la grille de végétation
-    const arbres = nuage ? nuagePoints(nuage, G, this.zRef, "arbres", 0.5, 0.9) : nuagePoints(pointsVegetation(G), G, this.zRef, "arbres", 1, 0.9);
+    // tous les points du relevé (comme l'anneau, lodAnneau.js, près de la caméra) : même densité partout, seule la
+    // distance à la caméra allège (shader, « allege »)
+    const arbres = nuage ? nuagePoints(nuage, G, this.zRef, "arbres", 1, 0.9) : nuagePoints(pointsVegetation(G), G, this.zRef, "arbres", 1, 0.9);
     const limite = contourParcelle(parcelle, G, this.zRef, m.parcelle);
     // lacs et étangs : un vrai plan, au niveau de l'eau
     const ge = plansEau(G, this.zRef), eau = ge ? maille(ge, m.eau, false, false) : null; // sans ombre portée (moiré)
@@ -865,7 +868,7 @@ void main() {
         if (modeles.some(P => Math.abs(chausseeEn(P, Ep, Np, x, y, 6) - pont[p]) < 4)) pont[p] = NaN;
       }
       // et sur la route d'accès des raccords (bouts de tablier relevé au-delà du joint)
-      effacerPontsAuRaccord(G, pont, G.raccordsPonts);
+      effacerPontsAuRaccord(G, pont, G.raccordsPonts?.filter(R => R.source === "main"));
       Gp = { ...G, pont };
     }
     const gp = this.pontsDetailles ? tabliersPonts(Gp, this.zRef) : pontsLegers(Gp, this.zRef, nuage) || tabliersPonts(Gp, this.zRef);
