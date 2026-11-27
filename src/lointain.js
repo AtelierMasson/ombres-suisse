@@ -127,6 +127,10 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMa
 // la couleur vient du plan cadastral drapé (deux finesses), des lacs et du même grain de papier.
 const DECLARATIONS = /* glsl */`
 uniform vec3 sol, lac;
+uniform sampler2D tRelief;
+uniform vec3 cRelief, dirSoleil; // carte des altitudes : centre (x, y nord), demi-côté ; direction du soleil (scène)
+uniform float reliefActif;
+uniform vec3 soleilPaysage;
 uniform float planActif; // plan cadastral en tuiles, peint dans deux images centrées sur la vue (plan.js)
 uniform sampler2D tPlanP, tPlanL; // proche (fine) et large
 uniform vec3 cPlanP, cPlanL;      // centre (x, y nord) et demi-côté de chaque image (0 : vide)
@@ -138,6 +142,29 @@ float bruit3(vec3 x) {
   return mix(mix(mix(hachage(i), hachage(i + vec3(1, 0, 0)), f.x), mix(hachage(i + vec3(0, 1, 0)), hachage(i + vec3(1, 1, 0)), f.x), f.y),
              mix(mix(hachage(i + vec3(0, 0, 1)), hachage(i + vec3(1, 0, 1)), f.x), mix(hachage(i + vec3(0, 1, 1)), hachage(i + vec3(1, 1, 1)), f.x), f.y), f.z);
 }`;
+// Ombre des montagnes : depuis chaque point, on remonte vers le soleil dans la carte des altitudes (pas croissants,
+// jusqu'à ~25 km) ; si le relief passe au-dessus du rayon, la lumière directe est coupée (pénombre de ±15 m).
+const OMBRE_RELIEF = /* glsl */`
+  if (reliefActif > 0.5 && dirSoleil.y > 0.0) {
+    vec2 dS = vec2(dirSoleil.x, -dirSoleil.z);
+    float lS = length(dS);
+    if (lS > 1e-4) {
+      dS /= lS;
+      float pente = dirSoleil.y / lS, oR = 1.0, tR = 25.0;
+      vec2 qR = vec2(vMonde.x, -vMonde.z);
+      for (int k = 0; k < 48; k++) {
+        vec2 uvR = (qR + dS * tR - cRelief.xy) / (2.0 * cRelief.z) + 0.5;
+        if (uvR.x < 0.0 || uvR.y < 0.0 || uvR.x > 1.0 || uvR.y > 1.0) break;
+        float hR = texture2D(tRelief, uvR).r;
+        oR = min(oR, smoothstep(-15.0, 15.0, vMonde.y + tR * pente - hR));
+        if (oR <= 0.0) break;
+        tR = tR * 1.1 + 25.0;
+      }
+      reflectedLight.directDiffuse *= oR; reflectedLight.directSpecular *= oR;
+      vec3 dV = normalize((viewMatrix * vec4(dirSoleil, 0.0)).xyz);
+      reflectedLight.directDiffuse += soleilPaysage * max(dot(normal, dV), 0.0) * RECIPROCAL_PI * material.diffuseColor * oR;
+    }
+  }`;
 const COULEUR = /* glsl */`
   vec3 base = sol;
   float plan = 0.0; // part du plan cadastral (qui dessine déjà les lacs, à leur vraie rive)
@@ -179,6 +206,11 @@ export function materiauLointain(partages = null, { degrade = false } = {}) {
   const uniforms = partages || {
     sol: { value: new THREE.Color() }, lac: { value: new THREE.Color() },
     tPlanP: { value: null }, tPlanL: { value: null }, cPlanP: { value: new THREE.Vector3() }, cPlanL: { value: new THREE.Vector3() }, planActif: { value: 0 },
+    // ombre portée par le relief (montagnes) : carte des altitudes autour du lieu, direction du soleil (scene.js)
+    tRelief: { value: null }, cRelief: { value: new THREE.Vector3() }, dirSoleil: { value: new THREE.Vector3(0, 1, 0) }, reliefActif: { value: 0 },
+    // soleil caché au lieu (derrière une montagne) mais encore levé : le paysage garde sa propre lumière directe,
+    // coupée seulement là où le relief fait de l'ombre (la lumière de la scène, elle, est éteinte)
+    soleilPaysage: { value: new THREE.Color(0, 0, 0) },
   };
   const mat = new THREE.MeshStandardMaterial({ roughness: 1 });
   mat.uniforms = uniforms; // réglés par la scène (couleurs du thème, plans drapés)
@@ -190,8 +222,29 @@ export function materiauLointain(partages = null, { degrade = false } = {}) {
       .replace("#include <begin_vertex>", "#include <begin_vertex>\nvMonde = (modelMatrix * vec4(transformed, 1.0)).xyz; vEau = eau;");
     sh.fragmentShader = sh.fragmentShader
       .replace("#include <common>", "#include <common>\n" + DECLARATIONS + (degrade ? RAMPE_GLSL : ""))
-      .replace("#include <map_fragment>", "#include <map_fragment>\n" + COULEUR + (degrade ? DEGRADE_GLSL : ""));
+      .replace("#include <map_fragment>", "#include <map_fragment>\n" + COULEUR + (degrade ? DEGRADE_GLSL : ""))
+      .replace("#include <lights_fragment_end>", "#include <lights_fragment_end>\n" + OMBRE_RELIEF);
   };
   mat.customProgramCacheKey = () => degrade ? "paysage-degrade" : "paysage";
   return mat;
+}
+
+/**
+ * Carte des altitudes du paysage (repère de la scène, courbure comprise) sur ±`demi` m autour du lieu, pour l'ombre des
+ * montagnes : `altitude(x, y nord)` (userData.altitude du maillage). Calculée par tranches pour ne pas figer la vue.
+ */
+export async function carteRelief(altitude, demi = 25000, n = 512) {
+  const h = new Float32Array(n * n), c = 2 * demi / n;
+  for (let j = 0; j < n; j++) {
+    for (let i = 0; i < n; i++) {
+      const a = altitude(-demi + (i + 0.5) * c, -demi + (j + 0.5) * c);
+      h[j * n + i] = isNaN(a) ? -1e4 : a;
+    }
+    if (j % 32 === 31) await new Promise(r => setTimeout(r, 0));
+  }
+  const t = new THREE.DataTexture(THREE.DataUtils ? Uint16Array.from(h, v => THREE.DataUtils.toHalfFloat(v)) : h, n, n, THREE.RedFormat,
+    THREE.DataUtils ? THREE.HalfFloatType : THREE.FloatType);
+  t.magFilter = t.minFilter = THREE.LinearFilter;
+  t.needsUpdate = true;
+  return t;
 }

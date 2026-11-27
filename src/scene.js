@@ -32,7 +32,7 @@ function traitNet() {
   });
   return m;
 }
-import { materiauLointain } from "./lointain.js";
+import { carteRelief, materiauLointain } from "./lointain.js";
 import { TuilesPlan } from "./plan.js";
 import { volumeGeometrie } from "./projet.js";
 
@@ -461,6 +461,15 @@ void main() {
     this.scene.fog.density = this.densiteBrume();
     this.majLointain();
     this.demander();
+    // ombre des montagnes sur le paysage : carte des altitudes calculée ensuite, sans retarder l'affichage
+    const u = L.mat.uniforms;
+    u.reliefActif.value = 0;
+    if (g.userData.altitude) carteRelief(g.userData.altitude).then(t => {
+      if (idScene !== this.idScene) { t.dispose(); return; }
+      u.tRelief.value?.dispose();
+      u.tRelief.value = t; u.cRelief.value.set(0, 0, 25000); u.reliefActif.value = 1;
+      this.demander(2);
+    });
   }
 
   /** Relief lointain visible ou non, brume avec la distance ou non (maquette et paysage). */
@@ -1797,6 +1806,11 @@ void main() {
     u.zenith.value.set(T.ciel.nuitZenith).lerp(new THREE.Color(T.ciel.zenith), jour).lerp(new THREE.Color("#8c84c4"), 0.35 * lueur);
     u.horizon.value.set(T.ciel.nuitHorizon).lerp(new THREE.Color(T.ciel.horizon), jour).lerp(couleurSoleil(Math.max(0, h)).lerp(new THREE.Color("#f59ab4"), 0.45), 0.75 * lueur); // horizon rose orangé
     u.soleil.value.copy(d).normalize();
+    this.loin.mat.uniforms.dirSoleil.value.copy(d).normalize(); // ombre des montagnes sur le paysage
+    // lieu à l'ombre d'une montagne, soleil encore levé : le paysage reste éclairé là où le relief ne l'ombrage pas
+    const leve = !visible && dir[1] > 0;
+    this.loin.mat.uniforms.soleilPaysage.value.copy(couleurSoleil(h)).lerp(new THREE.Color(T.lumiere.soleil), Math.min(1, Math.max(0, (h - 25) / 20)))
+      .multiplyScalar(leve ? 2.6 * (0.35 + 0.65 * (1 - Math.exp(-Math.max(0, h) / 6))) : 0);
     u.force.value = visible ? 1 : 0;
     this.scene.fog.color.copy(u.horizon.value);
     this.majLointain();
