@@ -1636,15 +1636,37 @@ void main() {
       if (!c.garderVue) { this.camera.position.set(-R * 0.9, R * 0.75, R * 1.1); this.controls.target.set(0, 0, 0); this.controls.update(); }
     }
     const COUL = { 2: [205, 190, 160], 3: [110, 150, 80], 4: [100, 145, 75], 5: [90, 135, 70], 6: [170, 165, 160], 9: [120, 170, 185], 17: [150, 150, 150] };
-    const pas = Math.max(1, Math.round(n / 40000)); // au plus ~40 000 points par bloc (le dessin reste léger)
-    for (let k = 0; k < n && c.n < cap; k += pas) {
+    // au plus ~40 000 points par bloc (le dessin reste léger), tirés au hasard plutôt qu'à pas régulier
+    const part = Math.min(1, 40000 / n);
+    c.vis ??= 0;
+    for (let k = 0; k < n && c.n < cap; k++) {
+      if (part < 1 && Math.random() > part) continue;
       const q = c.n++, cl = COUL[C[k]] || [160, 160, 165];
       pos[3 * q] = X[k]; pos[3 * q + 1] = Z[k] - c.z0; pos[3 * q + 2] = -Y[k];
       col[3 * q] = cl[0]; col[3 * q + 1] = cl[1]; col[3 * q + 2] = cl[2];
+      // mélange avec tous les points pas encore montrés (tous blocs confondus) : ils apparaissent partout à la fois,
+      // pas par carrés de bloc
+      const j = c.vis + Math.floor(Math.random() * (q - c.vis + 1));
+      if (j !== q) for (const [a, d] of [[pos, 3], [col, 3]]) for (let e = 0; e < d; e++) { const t = a[3 * j + e]; a[3 * j + e] = a[3 * q + e]; a[3 * q + e] = t; }
     }
     geo.attributes.position.needsUpdate = geo.attributes.color.needsUpdate = true;
-    geo.setDrawRange(0, c.n);
-    this.demander(2);
+    // révélation progressive : à chaque image, une part des points en attente (fluide, sans à-coups de bloc)
+    if (!c.revele) {
+      c.revele = true;
+      let avant = performance.now();
+      const pas = t => {
+        if (this.chargementPts !== c) return;
+        const dt = Math.min(0.1, (t - avant) / 1000); avant = t;
+        const reste = c.n - c.vis;
+        if (reste > 0) {
+          c.vis = Math.min(c.n, c.vis + Math.max(300, Math.ceil(reste * dt / 0.7)));
+          geo.setDrawRange(0, c.vis);
+          this.demander(2);
+        }
+        requestAnimationFrame(pas);
+      };
+      requestAnimationFrame(pas);
+    }
   }
   /** Fin du chargement visible : les points s'effacent (en douceur) et la maquette reparaît. */
   finChargement(fondu = false) {
