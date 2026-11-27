@@ -15,7 +15,7 @@ export function brancherPub(compte) {
     // tant qu'aucune annonce n'est servie (site en examen chez Google, pas d'annonce), la zone reste en place mais
     // repliée (hauteur nulle) : cachée, elle n'aurait pas de largeur et Google ne saurait quelle taille servir
     zone.hidden = !montrer;
-    zone.classList.toggle("pub-attente", !rempli);
+    zone.classList.toggle("pub-remplie", rempli);
     if (!montrer || charge) return;
     charge = true;
     const s = document.createElement("script");
@@ -24,9 +24,12 @@ export function brancherPub(compte) {
     document.head.append(s);
     const ins = document.createElement("ins");
     ins.className = "adsbygoogle";
-    Object.assign(ins.dataset, { adClient: CLIENT, adSlot: SLOT, adFormat: "auto", fullWidthResponsive: "true" });
-    ins.style.display = "block";
-    zone.append(ins);
+    // bannière horizontale dans la place réservée (90 px de haut) ; un cadre discret tant qu'aucune annonce n'est servie
+    Object.assign(ins.dataset, { adClient: CLIENT, adSlot: SLOT, adFormat: "horizontal", fullWidthResponsive: "false" });
+    const place = document.createElement("div");
+    place.className = "pub-place";
+    place.append(ins);
+    zone.append(place);
     // Google écrit data-ad-status="filled" (annonce servie) ou "unfilled" sur l'emplacement
     new MutationObserver(() => { rempli = ins.dataset.adStatus === "filled"; maj(); }).observe(ins, { attributes: true, attributeFilter: ["data-ad-status"] });
     (window.adsbygoogle = window.adsbygoogle || []).push({});
