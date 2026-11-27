@@ -114,14 +114,17 @@ function decoupeZone(mat, zone = ZONE) {
  * uniforme partagé) pour ne pas déborder du socle.
  */
 const RAYON_EAU = { value: 1e9 };
-function matEau() {
+// eau de l'anneau : sa propre limite extérieure, et une limite intérieure (le raccord avec l'eau de la maquette fine)
+const RAYON_EAU_ANNEAU = { value: 1e9 }, RAYON_EAU_INT = { value: 0 };
+function matEau(rayon = RAYON_EAU, rayonInt = null) {
   const m = new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0.05, transparent: true, opacity: 0.93 }); // le fond (paliers, jointures des tuiles) se voyait trop à travers
   m.onBeforeCompile = sh => {
-    sh.uniforms.rayonEau = RAYON_EAU;
+    sh.uniforms.rayonEau = rayon;
+    sh.uniforms.rayonEauInt = rayonInt || { value: 0 };
     sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec2 vEauXZ;")
       .replace("#include <project_vertex>", "#include <project_vertex>\nvEauXZ = (modelMatrix * vec4(transformed, 1.0)).xz;");
     sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nvarying vec2 vEauXZ;\nuniform float rayonEau;")
-      .replace("void main() {", "void main() {\n  if (length(vEauXZ) > rayonEau) discard;");
+      .replace("void main() {", "uniform float rayonEauInt;\nvoid main() {\n  float rE = length(vEauXZ);\n  if (rE > rayonEau || rE < rayonEauInt) discard;");
   };
   m.customProgramCacheKey = () => "eauCercle";
   return m;
@@ -549,6 +552,7 @@ void main() {
     // socle de la même matière que le terrain et les bâtiments
     m.socle.color.set(T.sol); m.canopee.color.set(T.arbres[1]); m.parcelle.color.set(T.parcelle);
     m.eau.color.set(T.eau || (T.sombre ? "#2f5d6e" : "#8fc1c9")); // bleu-vert
+    m.eauAnneau?.color.copy(m.eau.color);
     m.trait.color.set(T.coupe.trait); m.trait.jonction.uniforms.couleur.value.set(T.coupe.trait); m.poignee.color.set(T.coupe.trait); // poignées A et B à l'encre du trait de coupe, discrètes
     CONTACT.teinteSel.value.set(T.parcelle);
     this.couches?.selection?.material.color.set(T.parcelle);
@@ -638,7 +642,7 @@ void main() {
     const arbres = nuage ? nuagePoints(nuage, G, this.zRef, "arbres", 0.5, 0.9) : nuagePoints(pointsVegetation(G), G, this.zRef, "arbres", 1, 0.9);
     const limite = contourParcelle(parcelle, G, this.zRef, m.parcelle);
     // lacs et étangs : un vrai plan, au niveau de l'eau
-    const ge = plansEau(G, this.zRef), eau = ge ? maille(ge, m.eau, false, true) : null;
+    const ge = plansEau(G, this.zRef), eau = ge ? maille(ge, m.eau, false, false) : null; // sans ombre portée (moiré)
     // bordure du lac au bord du cercle : bande d'eau du fond jusqu'à la surface (l'épaisseur du lac se lit dans la coupe)
     const gb = eau ? bordEauRond(G, this.zRef) : null;
     if (gb) { const mb = new THREE.Mesh(gb, this.mat.eauBord = Object.assign(m.eau.clone(), { side: THREE.DoubleSide })); mb.raycast = () => {}; eau.add(mb); }
@@ -865,7 +869,15 @@ void main() {
       if (isNaN(z)) return solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y)));
       // lac : le terrain à 2 m donne la surface de l'eau ; le fond mesuré (ou 3 m plus bas) la remplace
       // la surface du lac du terrain à 2 m est un peu plus haute que le niveau mesuré par le laser (~0,5 m)
-      if (lac && z <= lac.niveau + 0.8) { const f = lac.fond?.(E + x, N + y); z = f < lac.niveau - 0.1 ? f : lac.niveau - 3; }
+      if (lac && z <= lac.niveau + 0.8) {
+        const f = lac.fond?.(E + x, N + y);
+        if (f < lac.niveau - 0.1) z = f;
+        else {
+          // sans fond mesuré : le fond de la maquette fine au bord, dans la même direction (pas de bourrelet au raccord)
+          const r = Math.hypot(x, y) || 1, b = solEn(G, x * (Rint - 1) / r, y * (Rint - 1) / r);
+          z = b < lac.niveau - 0.5 ? b : lac.niveau - 3;
+        }
+      }
       return z;
     };
     this.altAnneau = altFin;
@@ -905,12 +917,15 @@ void main() {
     // la paroi s'arrête au fond du lac : au-dessus, la bordure est de l'eau (bande translucide, plus bas)
     c.socleAnneau = new THREE.Mesh(socleRond(Rext, (x, y) => altFin(x, y), this.zRef, Math.min(zBasA, Math.min(...[0, 1, 2, 3].map(k => altFin(Math.cos(k) * Rext, Math.sin(k) * Rext))) - this.zRef - 5)), this.mat.socle);
     // eau de l'anneau : un plan au niveau du lac, coupé au cercle extérieur ; le terrain plus haut le cache
+    RAYON_EAU.value = G.rayonZone ? G.rayonZone - 0.02 : 1e9; // sans lac dans l'anneau : l'eau fine va jusqu'au cercle
     if (lac) {
       const nA2 = 512, pts = [], lvl = lac.niveau - this.zRef;
       for (let a = 0; a < nA2; a++) {
         const t0 = a / nA2 * 2 * Math.PI, t1 = (a + 1) / nA2 * 2 * Math.PI;
         const P = (t, r) => [Math.cos(t) * r, lvl, -Math.sin(t) * r];
-        pts.push(...P(t0, Rint - 1), ...P(t0, Rext), ...P(t1, Rext), ...P(t0, Rint - 1), ...P(t1, Rext), ...P(t1, Rint - 1));
+        // raccord avec l'eau fine sur un cercle commun, 0,75 m en deçà du cercle fin (l'eau fine finit en escalier de
+        // cases : des lames sombres restaient entre les deux)
+        pts.push(...P(t0, Rint - 2), ...P(t0, Rext), ...P(t1, Rext), ...P(t0, Rint - 2), ...P(t1, Rext), ...P(t1, Rint - 2));
       }
       const ge = new THREE.BufferGeometry();
       ge.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
@@ -933,11 +948,14 @@ void main() {
         gb.computeVertexNormals();
         ge.userData.bord = gb;
       }
-      c.eauAnneau = new THREE.Mesh(ge, this.mat.eau);
+      this.mat.eauAnneau ||= matEau(RAYON_EAU_ANNEAU, RAYON_EAU_INT);
+      this.mat.eauAnneau.color.copy(this.mat.eau.color);
+      c.eauAnneau = new THREE.Mesh(ge, this.mat.eauAnneau);
       if (ge.userData.bord) { const mb = new THREE.Mesh(ge.userData.bord, this.mat.eauBord = Object.assign(this.mat.eau.clone(), { side: THREE.DoubleSide })); mb.raycast = () => {}; c.eauAnneau.add(mb); }
-      c.eauAnneau.receiveShadow = true;
+      c.eauAnneau.receiveShadow = false; // pas d'ombre portée sur l'eau : sur ce grand plan plat, elle faisait du moiré
       this.groupe.add(c.eauAnneau);
-      RAYON_EAU.value = Rext - 0.02;
+      RAYON_EAU_ANNEAU.value = Rext - 0.02; RAYON_EAU_INT.value = Rint - 0.75;
+      RAYON_EAU.value = Rint - 0.75; // l'eau fine s'arrête là où commence celle de l'anneau
     }
     this.groupe.add(c.socleAnneau);
     // ombres sur tout l'anneau
