@@ -37,6 +37,7 @@ const versWgs = (e, n) => {
   return [(2.6779094 + 4.728982 * y + 0.791484 * y * x + 0.1306 * y * x * x - 0.0436 * y ** 3) * 100 / 36,
     (16.9023892 + 3.238272 * x - 0.270978 * y * y - 0.002528 * x * x - 0.0447 * y * y * x - 0.014 * x ** 3) * 100 / 36];
 };
+const ZMAX = +(process.env.ZMAX ?? Infinity);
 const CACHE = process.env.CACHE, enCache = CACHE && existsSync(CACHE);
 const tuiles = new Map(), pts = []; // pts : [x, y, z, classe, s, o]
 if (enCache) { const c = JSON.parse(readFileSync(CACHE, "utf8")); for (const q of c.pts) pts.push(q); for (const [k, v] of c.tuiles) tuiles.set(k, v); }
@@ -71,6 +72,7 @@ for (const { url } of tuiles.values()) {
       if (x < boite[0] || x > boite[2] || y < boite[1] || y > boite[3]) continue;
       const [s, o] = projeter(x, y);
       if (s < -15 || s > L + 15 || Math.abs(o) > marge) continue;
+      if (gz(i) > ZMAX) continue;
       pts.push([x, y, gz(i), gc(i), s, o]);
     }
   }

@@ -11,7 +11,7 @@ Référence de précision : `outils/ponts/modeles/poya.json` (pont de la Poya). 
   Wikimedia Commons de préférence ; ouvre-les avec Read. Pont au-dessus d'une autoroute ou d'une route : cherche en
   priorité une vue prise depuis la chaussée dessous (Commons, catégorie du pont ou de la route ; Mapillary si un
   jeton est fourni dans `MAPILLARY_TOKEN`). Pas d'images Google Street View (conditions d'utilisation).
-- Pas de navigateur au niveau B. Au niveau A, un seul onglet à toi (jamais l'onglet « seed »), fermé à la fin.
+- Pas de navigateur au niveau B. Au niveau A, un seul onglet à toi (jamais l'onglet « seed ») : **ferme-le dès que tu n'en as plus besoin** (tabs_close).
 
 ## Étapes
 1. **Relevé** : `node outils/ponts/preparer.mjs E N [rayon] > outils/ponts/resumes/<id>.txt` (rayon ≈ demi-longueur +

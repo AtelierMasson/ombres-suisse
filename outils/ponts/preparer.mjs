@@ -8,6 +8,7 @@ import { createLazPerf } from "laz-perf/lib/node/index.js";
 
 const [E, N, R = 150] = process.argv.slice(2).map(Number);
 if (!E || !N) { console.error("usage : node outils/ponts/preparer.mjs E N [rayon]"); process.exit(1); }
+const ZMAX = +(process.env.ZMAX ?? Infinity);
 const boite = [E - R, N - R, E + R, N + R];
 
 // ---------------------------------------------------------------- tuiles COPC (STAC swisstopo)
@@ -46,6 +47,7 @@ for (const { url } of parTuile.values()) {
     for (let i = 0; i < v.pointCount; i++) {
       const x = gx(i), y = gy(i);
       if (x < boite[0] || x > boite[2] || y < boite[1] || y > boite[3]) continue;
+      if (gz(i) > ZMAX) continue; // ZMAX=570 : écarte un ouvrage plus haut (p. ex. pont qui en survole un autre)
       P.push([x - E, y - N, gz(i), gc(i)]);
     }
   }
