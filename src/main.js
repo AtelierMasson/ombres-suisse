@@ -31,6 +31,7 @@ brancherSuggestion();
 import { brancherPro } from "./pro.js";
 import { brancherCompte } from "./compte.js";
 import { brancherPub } from "./pub.js";
+import { brancherInterface } from "./interface.js";
 import "./compte.css";
 
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
@@ -41,7 +42,7 @@ brancherSelecteur($("#langues"));
 // et tout reste ouvert
 const compte = brancherCompte({ api: "/api", t });
 brancherPub(compte); // publicité de la version gratuite (aucune pour les comptes Pro)
-compte.monter($("#langues"));
+compte.monter($("#zoneCompte")); // « Mon compte », à droite de la barre du haut
 // compteurs d'usage anonymes (tableau d'administration) : un simple total par jour et par action, envoyé seulement
 // quand l'API du site est en service ; aucune adresse, aucun lieu, aucun compte
 function compter(type) {
@@ -848,7 +849,7 @@ scene.couperModele = $("#vCouperModele").checked;
 $("#vCouperModele").addEventListener("change", e => { scene.couperModele = e.target.checked; if (S.coupe) scene.definirCoupe(S.coupe.P, autresCoupes()); });
 // la carte de la coupe prend toute la largeur en bas : le panneau s'arrête au-dessus, le profil suit la largeur
 new ResizeObserver(() => {
-  const h = $("#coupe").hidden ? 0 : $("#coupe").offsetHeight + 12;
+  const h = $("#coupe").hidden ? 0 : $("#coupe").offsetHeight;
   document.body.style.setProperty("--coupe-h", `${h}px`);
 }).observe($("#coupe"));
 {
@@ -987,8 +988,11 @@ function afficherResultat() {
   }
   $("#heures").hidden = false;
   $("#heuresMax").textContent = duree(max) + parJour;
-  $("#heuresStats").innerHTML = (k ? t("heures.stats", { lieu: t(sans ? "heures.autourPoint" : "heures.parcelle"), titre: P.titre, moyenne: duree(s / k) + parJour, min: duree(mn), max: duree(mx) }) : "")
-    + `<span class="text-secondary">${t("heures.resume", { titre: P.titre, max: duree(P.max) + parJour, carreaux: entier(S.facades.carreaux.length), s: nombre(ms / 1000, 1) })}</span>`;
+  // moyenne, minimum et maximum en trois mesures côte à côte, puis le résumé du calcul
+  $("#heuresStats").innerHTML = (k ? `<div class="mesures-lieu">${t("heures.statsLieu", { lieu: t(sans ? "heures.autourPoint" : "heures.parcelle"), titre: P.titre })}</div>`
+      + `<dl class="mesures"><div><dt>${t("heures.moyenne")}</dt><dd class="principale">${duree(s / k) + parJour}</dd></div>`
+      + `<div><dt>${t("heures.min")}</dt><dd>${duree(mn)}</dd></div><div><dt>${t("heures.max")}</dt><dd>${duree(mx)}</dd></div></dl>` : "")
+    + `<span class="text-secondary resume">${t("heures.resume", { titre: P.titre, max: duree(P.max) + parJour, carreaux: entier(S.facades.carreaux.length), s: nombre(ms / 1000, 1) })}</span>`;
   $("#vHeures").checked = true;
   appliquerAffichage();
 }
@@ -1086,6 +1090,8 @@ function ouvrirCoupes(liste) {
   for (const c of liste) { S.coupe = null; majCoupe(c.A, c.B); }
 }
 
+// onglets de la colonne, puces de la vue, zoom et plein écran, feuille du bas sur mobile (interface.js)
+brancherInterface({ scene, compte });
 majSoleil();
 depuisAdresse();
 if (import.meta.env.DEV) window.ombres = { scene, S }; // pour l'inspection pendant le développement

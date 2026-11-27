@@ -3,6 +3,7 @@
 import { ficheVolumes, volumesParcelle } from "./volumes.js";
 import { FORMATS, exporterSite, estimer, sansAccent, nomFichier } from "./export.js";
 import { dessinCoupe, coupeDxf, coupeSvg, coupePdf } from "./exportCoupe.js";
+import { ouvrirImpression3D } from "./impression3dFenetre.js";
 import { t, nombre, entier, date } from "./i18n.js";
 import { rectangle, dimensions, listerProjets, enregistrerProjet, supprimerProjet } from "./projet.js";
 import { importerModele } from "./importer.js";
@@ -379,6 +380,36 @@ export function brancherPro(o) {
   $("#btnTelecharger").onclick = () => exporter(format(), choix(), $("#xMn95").checked);
   // « maquette complète » : tout le contenu, origine locale ; terrain à 1 m (2 m en DXF, format bien plus lourd)
   $$("[data-tout]").forEach(b => b.onclick = () => exporter(b.dataset.tout, { terrain: true, maille: b.dataset.tout === "dxf" ? 2 : 1, socle: true, batiments: true, arbres: true, parcelle: true, courbes: false }, false));
+
+  /* ---------------------------------------------------------------- impression 3D (STL fermé, aperçu) */
+  // bouton ajouté sous les exports de la maquette complète
+  {
+    const ancre = document.querySelector("[data-tout]")?.parentElement;
+    if (ancre && !document.getElementById("btnImpression3d")) {
+      const b = document.createElement("button");
+      b.type = "button"; b.id = "btnImpression3d"; b.className = "btn btn-sm btn-outline-primary w-100 mt-2";
+      b.textContent = t("impr.bouton"); b.title = t("impr.boutonTitre");
+      ancre.after(b);
+      b.onclick = () => {
+        if (!pret()) return;
+        if (o.compte?.disponible() && !o.compte.etat().pro && !o.compte.exigerPro(t("impr.raison"))) return;
+        const lieu = $("#lieu").textContent || "site";
+        ouvrirImpression3D({
+          G: S.G,
+          // bâtiments tels qu'affichés (relevé, swisstopo ou Advanced), avec les volumes du projet ; démolitions comprises
+          bat: () => {
+            const j = jeuExport(), base = j === "swiss" || j === "roofer" ? scene.grilleComparaison(j) : S.G.bat, hv = scene.hauteursVolumes?.();
+            if (!hv) return base;
+            const g = new Float32Array(hv.length);
+            for (let p = 0; p < g.length; p++) { const a = base && !isNaN(base[p]) ? base[p] : -Infinity, v = isNaN(hv[p]) ? -Infinity : hv[p]; g[p] = Math.max(a, v); if (g[p] === -Infinity) g[p] = NaN; }
+            return g;
+          },
+          nom: taille => nomFichier({ lieu, parcelle: S.parcelle, contenu: `impression3d-${taille}mm`, ext: "stl" }),
+          telecharger: (blob, nom) => { telecharger(blob, nom); o.compter?.("export"); },
+        });
+      };
+    }
+  }
 
   /* ---------------------------------------------------------------- export de la coupe */
   $$("[data-coupe]").forEach(b => b.onclick = async () => {

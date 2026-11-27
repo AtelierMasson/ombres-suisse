@@ -11,47 +11,78 @@
 <style>html:not(.pret) body { visibility: hidden; }</style>
 </head>
 <body class="accueil" data-theme="maquette">
-<main id="vue"></main>
+<!-- icônes de l'interface (trait, couleur du texte) : <svg class="ico"><use href="#i-…"/></svg> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <symbol id="i-loupe" viewBox="0 0 24 24"><path d="M16 16l5 5M18 10a8 8 0 1 1-16 0 8 8 0 1 1 16 0"/></symbol>
+  <symbol id="i-repere" viewBox="0 0 24 24"><path d="M19 9c0 5-7 12-7 12S5 14 5 9a7 7 0 0 1 14 0zM14 9a2 2 0 1 0-4 0 2 2 0 1 0 4 0"/></symbol>
+  <symbol id="i-soleil" viewBox="0 0 24 24"><path d="M16.5 12a4.5 4.5 0 1 0-9 0 4.5 4.5 0 1 0 9 0M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/></symbol>
+  <symbol id="i-coupe" viewBox="0 0 24 24"><path d="M3 20h18M3 16l5-3 5 1 7-8M6 3v14M17 3v14"/></symbol>
+  <symbol id="i-couches" viewBox="0 0 24 24"><path d="M3 9l9-5 9 5-9 5zM3 13l9 5 9-5M3 17l9 5 9-5"/></symbol>
+  <symbol id="i-cadenas" viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0 1 10 0v3M5 10h14v11H5zM12 14v3"/></symbol>
+  <symbol id="i-mallette" viewBox="0 0 24 24"><path d="M3 8h18v12H3zM8 8V5h8v3M3 13h18"/></symbol>
+  <symbol id="i-outils" viewBox="0 0 24 24"><path d="M3 6h7m5 0h6M3 12h12m5 0h1M3 18h3m5 0h10M10 3v6m5 0v6m-9 0v6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M4 12h16M12 4v16"/></symbol>
+  <symbol id="i-moins" viewBox="0 0 24 24"><path d="M4 12h16"/></symbol>
+  <symbol id="i-ecran" viewBox="0 0 24 24"><path d="M3 9V4h5m8 0h5v5m0 6v5h-5m-8 0H3v-5"/></symbol>
+  <symbol id="i-calendrier" viewBox="0 0 24 24"><path d="M3 5h18v16H3zM3 10h18M8 2v6m8-6v6"/></symbol>
+  <symbol id="i-bulle" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+  <symbol id="i-coche" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-personne" viewBox="0 0 24 24"><path d="M8 8a4 4 0 1 0 8 0 4 4 0 0 0-8 0M4 21a8 8 0 0 1 16 0"/></symbol>
+</defs></svg>
 
 <nav id="haut">
   <a class="marque" href="#" data-i18n-title="haut.accueil" title="Retour à l'accueil">
-    Topograph<span class="beta">beta</span>
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="#f5b301"/><path d="M6 28 L18 16 L28 28Z" class="toit"/></svg>
+    <span class="marque-nom">Topograph</span><span class="beta">beta</span>
   </a>
   <div class="recherche position-relative flex-grow-1">
+    <svg class="ico loupe" aria-hidden="true"><use href="#i-loupe"/></svg>
     <input id="q" class="form-control" type="search" data-i18n-placeholder="recherche.placeholder" placeholder="Adresse, parcelle ou coordonnées GPS (ex. « Lutry 3947 »)" autocomplete="off">
     <div class="suggestions list-group position-absolute w-100 shadow" hidden></div>
   </div>
-  <!-- lieu affiché : une ligne, à côté de la recherche (la source du relevé en info-bulle) -->
-  <div id="infos">
+  <!-- lieu affiché : une puce, à côté de la recherche (la source du relevé en info-bulle) -->
+  <div id="infos" class="puce-lieu">
+    <svg class="ico" aria-hidden="true"><use href="#i-repere"/></svg>
     <div class="infos-texte"><span class="text-secondary" id="lieuType"></span> <b id="lieu"></b><span id="source" hidden></span></div>
-    <button class="btn btn-sm btn-outline-secondary" id="btnLieu" type="button">☆</button>
-    <button class="btn btn-sm btn-outline-secondary" id="btnPartager" data-i18n="panneau.lien" data-i18n-title="panneau.lienTitre" title="Copier le lien">Lien</button>
   </div>
-  <!-- suggestion : un message libre pour Atelier Masson -->
-  <div class="position-relative" id="boiteSuggestion">
-    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnSuggestion" aria-expanded="false" aria-controls="suggestion" data-i18n="suggestion.bouton">Suggestion</button>
-    <form id="suggestion" class="card shadow" hidden>
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2"><b class="small" data-i18n="suggestion.titre">Une idée, un problème ?</b>
-          <button type="button" class="btn-close btn-sm" id="suggestionFermer" data-i18n-aria-label="suggestion.fermer" aria-label="Fermer"></button></div>
-        <textarea class="form-control form-control-sm mb-2" id="suggestionTexte" rows="4" maxlength="3000" required data-i18n-placeholder="suggestion.placeholder" placeholder="Écrivez votre suggestion…"></textarea>
-        <input type="email" class="form-control form-control-sm mb-2" id="suggestionEmail" data-i18n-placeholder="suggestion.email" placeholder="E-mail (facultatif, pour une réponse)">
-        <input type="text" id="suggestionPiege" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
-        <div class="d-flex align-items-center gap-2">
-          <button type="submit" class="btn btn-sm btn-primary" id="suggestionEnvoyer" data-i18n="suggestion.envoyer">Envoyer</button>
-          <span class="small text-secondary" id="suggestionEtat" aria-live="polite"></span>
+  <!-- état du chargement : une puce avec un anneau de progression (main.js écrit dans #telechargement), « À jour » sinon -->
+  <div id="etatChargement" aria-live="polite">
+    <div id="telechargement" hidden role="progressbar" aria-valuemin="0" aria-valuemax="100">
+      <svg class="anneau" viewBox="0 0 18 18" aria-hidden="true"><circle class="piste" cx="9" cy="9" r="6.5"/><circle class="rempli" cx="9" cy="9" r="6.5" pathLength="100"/></svg>
+      <span class="ligne"><span id="telechargementTexte"></span><span id="telechargementPct"></span></span>
+      <div id="telechargementGrille" aria-hidden="true"></div>
+    </div>
+    <span class="a-jour"><svg class="ico" aria-hidden="true"><use href="#i-coche"/></svg><span data-i18n="ui.aJour">À jour</span></span>
+  </div>
+  <div class="outils-haut">
+    <!-- suggestion : un message libre pour Atelier Masson -->
+    <div class="position-relative" id="boiteSuggestion">
+      <button type="button" class="btn-haut" id="btnSuggestion" aria-expanded="false" aria-controls="suggestion" data-i18n-title="suggestion.bouton" title="Suggestion"><svg class="ico" aria-hidden="true"><use href="#i-bulle"/></svg><span class="texte" data-i18n="suggestion.bouton">Suggestion</span></button>
+      <form id="suggestion" class="card shadow" hidden>
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2"><b class="small" data-i18n="suggestion.titre">Une idée, un problème ?</b>
+            <button type="button" class="btn-close btn-sm" id="suggestionFermer" data-i18n-aria-label="suggestion.fermer" aria-label="Fermer"></button></div>
+          <textarea class="form-control form-control-sm mb-2" id="suggestionTexte" rows="4" maxlength="3000" required data-i18n-placeholder="suggestion.placeholder" placeholder="Écrivez votre suggestion…"></textarea>
+          <input type="email" class="form-control form-control-sm mb-2" id="suggestionEmail" data-i18n-placeholder="suggestion.email" placeholder="E-mail (facultatif, pour une réponse)">
+          <input type="text" id="suggestionPiege" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+          <div class="d-flex align-items-center gap-2">
+            <button type="submit" class="btn btn-sm btn-primary" id="suggestionEnvoyer" data-i18n="suggestion.envoyer">Envoyer</button>
+            <span class="small text-secondary" id="suggestionEtat" aria-live="polite"></span>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
+    <div id="langues"></div>
+    <div id="themes" role="group" data-i18n-aria-label="themes.aria" aria-label="Mode jour ou nuit"></div>
+    <div id="zoneCompte"></div>
   </div>
-  <div id="langues"></div>
-  <div id="themes" role="group" data-i18n-aria-label="themes.aria" aria-label="Mode jour ou nuit"></div>
 </nav>
 
 <section id="accueil">
   <div class="carte-accueil">
     <h1 data-i18n="accueil.titre">Par où commencer ?</h1>
     <div class="recherche position-relative">
+      <svg class="ico loupe" aria-hidden="true"><use href="#i-loupe"/></svg>
       <input id="q2" class="form-control form-control-lg" type="search" data-i18n-placeholder="recherche.placeholderAccueil" placeholder="Adresse, parcelle ou GPS (ex. « Lutry 3947 »)" autocomplete="off">
       <div class="suggestions list-group position-absolute w-100 shadow" hidden></div>
     </div>
@@ -77,132 +108,168 @@
   </div>
 </section>
 
-<div id="colonne">
-<aside id="panneau" class="card" hidden>
-  <div class="card-body">
-    <div id="commandes" hidden>
-      <section id="temps">
-        <div class="titre"><span data-i18n="soleil.titre">Soleil</span> <span class="text-secondary fw-normal" style="text-transform: none" id="horizonTexte"></span></div>
-        <div id="diagramme" hidden>
-          <svg id="svgSoleil" data-i18n-aria-label="soleil.diagrammeAria" aria-label="Course du soleil et horizon : cliquez ou glissez pour choisir l'heure"></svg>
-          <!-- coins du graphique : animation de la journée, et petit calendrier (le champ date, transparent, couvre le bouton) -->
-          <button type="button" class="coin coin-gauche" id="btnLecture" data-i18n-title="soleil.animer" title="Animer la journée" aria-label="Animer la journée"><svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" focusable="false" fill="currentColor" style="display:block"><path d="M4.5 2.8v10.4l8.6-5.2z"/></svg></button>
-          <button type="button" class="coin coin-droit" id="btnJour" data-i18n-title="soleil.choisirJour" title="Choisir le jour">
-            <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><rect x="1.5" y="3" width="13" height="11.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 6.5h13M5 1.5v3M11 1.5v3" stroke="currentColor" stroke-width="1.4"/></svg>
-            <span id="jourTexte"></span>
-          </button>
-          <input type="date" id="jour" class="champ-jour" tabindex="-1" data-i18n-aria-label="soleil.date" aria-label="Date">
-          <div class="legende small text-secondary" data-i18n-html="soleil.legende"><span><i class="l-course"></i>Ce jour</span><span><i class="l-saison"></i>21 juin · 21 déc.</span></div>
-          <input type="range" id="heure" min="0" max="1439" step="5" data-i18n-aria-label="soleil.heure" aria-label="Heure" hidden>
-          <span id="heureTexte" hidden></span><span id="soleilTexte" hidden></span>
-        </div>
-      </section>
-      <section id="ensoleillement">
-        <div class="titre" data-i18n="heures.titre">Heures de soleil</div>
-        <div class="d-flex gap-1 align-items-stretch">
-        <div class="btn-group btn-group-sm flex-fill" role="group" data-i18n-aria-label="heures.periode" aria-label="Période">
-          <input type="radio" class="btn-check" name="periode" id="pJour" value="jour" checked><label class="btn btn-outline-secondary" for="pJour" data-i18n="heures.jour">Jour</label>
-          <input type="radio" class="btn-check" name="periode" id="pMois" value="mois"><label class="btn btn-outline-secondary" for="pMois" data-i18n="heures.mois">Mois</label>
-          <input type="radio" class="btn-check" name="periode" id="pAnnee" value="annee"><label class="btn btn-outline-secondary" for="pAnnee" data-i18n="heures.annee">Année</label>
-        </div>
-        <button class="btn btn-sm btn-primary" id="btnHeures" data-i18n="heures.calculer">Calculer</button>
-        </div>
-        <div id="heures" class="small mt-2" hidden>
-          <div class="degrade"></div>
-          <div class="d-flex justify-content-between text-secondary"><span data-i18n="heures.zero">0 h</span><span id="heuresMax"></span></div>
-          <div id="heuresStats" class="mt-1"></div>
-          <div class="form-check form-switch mt-1"><input class="form-check-input" type="checkbox" id="vHeures" checked><label class="form-check-label small" for="vHeures" data-i18n="heures.carte">Afficher la carte</label></div>
-        </div>
-      </section>
-
-
-
-      <section id="sectionCoupe" class="mt-2">
-        <div class="titre" data-i18n="coupe.titre">Coupe</div>
-        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vCoupe"><label class="form-check-label small" for="vCoupe" data-i18n="coupe.activer">Couper le terrain et les bâtiments</label></div>
-        <div id="outilsCoupe" hidden>
-          <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vCouperModele"><label class="form-check-label small" for="vCouperModele" data-i18n-html="coupe.couperModele">Couper la maquette <span class="text-secondary">(sinon, ligne de coupe seule)</span></label></div>
-          <button class="btn btn-sm btn-outline-secondary w-100 mt-1" id="btnTracer" data-i18n="coupe.tracer">Tracer la coupe (2 clics)</button>
-          <div class="small text-secondary mt-1" id="aideCoupe" data-i18n="coupe.aide">Déplacez les poignées A et B sur le modèle, ou tracez une nouvelle ligne.</div>
-          <div class="d-flex gap-2 align-items-center mt-2">
-            <label class="small flex-fill" for="distPoints" data-i18n="coupe.points">Points du nuage proches de la coupe</label>
-            <select class="form-select form-select-sm w-auto" id="distPoints" data-i18n-aria-label="coupe.pointsAria" aria-label="Points du nuage à moins de cette distance de la coupe">
-              <option value="0" selected data-i18n="coupe.distAucun">Aucun</option><option value="0.25" data-i18n="coupe.dist025">à moins de 0,25 m</option><option value="0.5" data-i18n="coupe.dist05">à moins de 0,5 m</option>
-              <option value="1" data-i18n="coupe.dist1">à moins de 1 m</option><option value="2" data-i18n="coupe.dist2">à moins de 2 m</option><option value="5" data-i18n="coupe.dist5">à moins de 5 m</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-
+<!-- colonne de gauche (pleine hauteur ; feuille du bas sur mobile) : lieu, onglets, réglages ; la publicité reste en bas -->
+<div id="colonne" data-onglet="soleil">
+  <div class="tete">
+    <span class="poignee" aria-hidden="true"></span>
+    <div class="tete-texte">
+      <h2 id="titreLieu"></h2>
+      <div class="sous-titre-lieu"><svg class="ico" aria-hidden="true"><use href="#i-repere"/></svg><span id="sousTitreLieu"></span></div>
     </div>
+    <button class="btn-icone" id="btnLieu" type="button">☆</button>
+    <button class="btn btn-sm btn-outline-secondary" id="btnPartager" type="button" data-i18n="panneau.lien" data-i18n-title="panneau.lienTitre" title="Copier le lien">Lien</button>
+    <button class="btn-outils" id="btnOutils" type="button" aria-expanded="false" aria-controls="corpsColonne"><svg class="ico" aria-hidden="true"><use href="#i-outils"/></svg><span data-i18n="ui.outils">Outils</span></button>
   </div>
-</aside>
-<!-- affichage : sa propre carte, sous le panneau principal -->
-<aside id="panneauAffichage" class="card" hidden>
-  <div class="card-body">
+  <div class="onglets" role="tablist" data-i18n-aria-label="ui.onglets" aria-label="Outils de la maquette">
+    <button type="button" role="tab" data-vers="soleil" aria-controls="corpsColonne"><svg class="ico" aria-hidden="true"><use href="#i-soleil"/></svg><span data-i18n="soleil.titre">Soleil</span></button>
+    <button type="button" role="tab" data-vers="coupe" aria-controls="corpsColonne"><svg class="ico" aria-hidden="true"><use href="#i-coupe"/></svg><span data-i18n="onglet.coupe">Coupe</span></button>
+    <button type="button" role="tab" data-vers="affichage" aria-controls="corpsColonne"><svg class="ico" aria-hidden="true"><use href="#i-couches"/></svg><span data-i18n="onglet.affichage">Affichage</span></button>
+    <button type="button" role="tab" data-vers="pro" class="pro" aria-controls="corpsColonne"><svg class="ico" aria-hidden="true"><use href="#i-cadenas"/></svg><span data-i18n="onglet.pro">Pro</span></button>
+  </div>
+  <div class="corps" id="corpsColonne" role="tabpanel">
+    <div class="vide small text-secondary" id="ongletVide" data-i18n="ui.chargement" hidden>Chargement de la maquette…</div>
+
+    <aside id="panneau" hidden>
+      <div id="commandes" hidden>
+        <section id="temps" class="cellule" data-onglet="soleil">
+          <h3 class="cellule-titre" data-i18n="soleil.course">Course du soleil</h3>
+          <div class="small text-secondary" id="horizonTexte"></div>
+          <div id="diagramme" hidden>
+            <!-- date (petit calendrier : le champ date, transparent, est sous le bouton), heure, animation de la journée -->
+            <div class="soleil-meta">
+              <button type="button" class="meta-jour" id="btnJour" data-i18n-title="soleil.choisirJour" title="Choisir le jour">
+                <svg class="ico" aria-hidden="true"><use href="#i-calendrier"/></svg>
+                <span id="jourTexte"></span>
+              </button>
+              <input type="date" id="jour" class="champ-jour" tabindex="-1" data-i18n-aria-label="soleil.date" aria-label="Date">
+              <span id="heureTexte"></span>
+              <button type="button" class="btn-lecture" id="btnLecture" data-i18n-title="soleil.animer" title="Animer la journée" aria-label="Animer la journée"><svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" focusable="false" fill="currentColor" style="display:block"><path d="M4.5 2.8v10.4l8.6-5.2z"/></svg></button>
+            </div>
+            <svg id="svgSoleil" data-i18n-aria-label="soleil.diagrammeAria" aria-label="Course du soleil et horizon : cliquez ou glissez pour choisir l'heure"></svg>
+            <div class="legende small text-secondary" data-i18n-html="soleil.legende"><span><i class="l-course"></i>Ce jour</span><span><i class="l-saison"></i>21 juin · 21 déc.</span></div>
+            <input type="range" id="heure" min="0" max="1439" step="5" data-i18n-aria-label="soleil.heure" aria-label="Heure" hidden>
+            <span id="soleilTexte" hidden></span>
+          </div>
+        </section>
+        <section id="ensoleillement" class="cellule" data-onglet="soleil">
+          <h3 class="cellule-titre" data-i18n="heures.titre">Heures de soleil</h3>
+          <div class="periode d-flex gap-1 align-items-center">
+            <div class="btn-group btn-group-sm flex-fill" role="group" data-i18n-aria-label="heures.periode" aria-label="Période">
+              <input type="radio" class="btn-check" name="periode" id="pJour" value="jour" checked><label class="btn btn-outline-secondary" for="pJour" data-i18n="heures.jour">Jour</label>
+              <input type="radio" class="btn-check" name="periode" id="pMois" value="mois"><label class="btn btn-outline-secondary" for="pMois" data-i18n="heures.mois">Mois</label>
+              <input type="radio" class="btn-check" name="periode" id="pAnnee" value="annee"><label class="btn btn-outline-secondary" for="pAnnee" data-i18n="heures.annee">Année</label>
+            </div>
+            <button class="btn btn-sm btn-primary" id="btnHeures" data-i18n="heures.calculer">Calculer</button>
+          </div>
+          <div id="heures" class="small mt-2" hidden>
+            <div id="heuresStats"></div>
+            <div class="degrade"></div>
+            <div class="d-flex justify-content-between text-secondary"><span data-i18n="heures.zero">0 h</span><span id="heuresMax"></span></div>
+            <div class="form-check form-switch mt-1"><input class="form-check-input" type="checkbox" id="vHeures" checked><label class="form-check-label small" for="vHeures" data-i18n="heures.carte">Afficher la carte</label></div>
+          </div>
+        </section>
+
+        <section id="sectionCoupe" class="cellule" data-onglet="coupe">
+          <h3 class="cellule-titre" data-i18n="coupe.titre">Coupe</h3>
+          <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vCoupe"><label class="form-check-label small" for="vCoupe" data-i18n="coupe.activer">Couper le terrain et les bâtiments</label></div>
+          <div id="outilsCoupe" hidden>
+            <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vCouperModele"><label class="form-check-label small" for="vCouperModele" data-i18n-html="coupe.couperModele">Couper la maquette <span class="text-secondary">(sinon, ligne de coupe seule)</span></label></div>
+            <button class="btn btn-sm btn-outline-secondary w-100 mt-1" id="btnTracer" data-i18n="coupe.tracer">Tracer la coupe (2 clics)</button>
+            <div class="small text-secondary mt-1" id="aideCoupe" data-i18n="coupe.aide">Déplacez les poignées A et B sur le modèle, ou tracez une nouvelle ligne.</div>
+            <div class="d-flex gap-2 align-items-center mt-2">
+              <label class="small flex-fill" for="distPoints" data-i18n="coupe.points">Points du nuage proches de la coupe</label>
+              <select class="form-select form-select-sm w-auto" id="distPoints" data-i18n-aria-label="coupe.pointsAria" aria-label="Points du nuage à moins de cette distance de la coupe">
+                <option value="0" selected data-i18n="coupe.distAucun">Aucun</option><option value="0.25" data-i18n="coupe.dist025">à moins de 0,25 m</option><option value="0.5" data-i18n="coupe.dist05">à moins de 0,5 m</option>
+                <option value="1" data-i18n="coupe.dist1">à moins de 1 m</option><option value="2" data-i18n="coupe.dist2">à moins de 2 m</option><option value="5" data-i18n="coupe.dist5">à moins de 5 m</option>
+              </select>
+            </div>
+          </div>
+          <p class="small text-secondary mt-2 mb-0" data-i18n="coupe.note">Le profil de la coupe s'ouvre sous la scène.</p>
+        </section>
+      </div>
+    </aside>
+
+    <!-- affichage : une carte par groupe de calques -->
+    <aside id="panneauAffichage" data-onglet="affichage" hidden>
       <section id="affichage">
-        <div class="titre" data-i18n="onglet.affichage">Affichage</div>
         <!-- rayon de la maquette ronde : relevé laser jusqu'à 300 m, puis anneau (terrain 2 m, tuiles swisstopo) -->
-        <div class="mb-2">
+        <div class="cellule">
           <label class="form-label small d-flex justify-content-between mb-0" for="rayonZone"><span data-i18n="zone.rayon">Rayon de la maquette</span><b id="rayonZoneVal"></b></label>
           <input type="range" class="form-range" id="rayonZone" min="100" max="1000" step="25">
           <div class="form-check form-switch small mt-1"><input class="form-check-input" type="checkbox" id="vRonde" checked><label class="form-check-label" for="vRonde" data-i18n="zone.ronde">Maquette ronde</label></div>
           <div class="small text-secondary" id="noteZone"></div>
         </div>
-    <!-- jeu de bâtiments : boutons radio cachés, pilotés par la case « Swiss3D » de la ligne Bâtiments (main.js) -->
-    <div class="btn-group btn-group-sm w-100 mb-1" role="group" hidden data-i18n-aria-label="aff.batimentsAria" aria-label="Bâtiments affichés">
-      <input type="radio" class="btn-check" name="batiments" id="bReleve" value="releve" checked><label class="btn btn-outline-secondary" for="bReleve" data-i18n="aff.normal" data-i18n-title="aff.normalTitre" title="Reconstruits ici à partir du relevé laser">Normal</label>
-      <input type="radio" class="btn-check" name="batiments" id="bSwiss" value="swiss"><label class="btn btn-outline-secondary" for="bSwiss" data-i18n-title="aff.swissTitre" title="swissBUILDINGS3D, modèles 3D de swisstopo">Swiss3D</label>
-      <input type="radio" class="btn-check" name="batiments" id="bRoofer" value="roofer"><label class="btn btn-outline-secondary" for="bRoofer" id="etiquetteRoofer" data-i18n-title="aff.rooferTitre" title="roofer (TU Delft), LoD2.2, calculé hors ligne pour quelques lieux d'essai">Advanced</label>
-      <input type="radio" class="btn-check" name="batiments" id="bAucun" value="aucun"><label class="btn btn-outline-secondary" for="bAucun" data-i18n="aff.aucun">None</label>
-    </div>
-    <div class="small text-secondary mb-1" id="noteBatiments" hidden></div>
-    <table class="table-calques">
-      <tbody>
-        <tr class="groupe"><th colspan="2" data-i18n="aff.gBati">Bâti</th></tr>
-        <tr><th scope="row"><label for="vBatVoir" data-i18n="aff.batiments">Bâtiments</label> <span class="choix-swiss">(<input class="form-check-input" type="checkbox" id="vSwiss" data-i18n-title="aff.swissCase" title="Modèles 3D swisstopo (swissBUILDINGS3D) au lieu des bâtiments reconstruits" data-i18n-aria-label="aff.swissCase" aria-label="Modèles 3D swisstopo (swissBUILDINGS3D) au lieu des bâtiments reconstruits"><label for="vSwiss">Swiss3D</label> <input class="form-check-input ms-1" type="checkbox" id="vAdvanced" data-i18n-title="aff.advancedCase" title="Toits reconstruits en détail (pans, faîtes) à partir du relevé laser et des emprises officielles, calculés dans votre navigateur" data-i18n-aria-label="aff.advancedCase" aria-label="Toits reconstruits en détail (pans, faîtes) à partir du relevé laser et des emprises officielles, calculés dans votre navigateur"><label for="vAdvanced">Advanced</label>)</span></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vBatVoir" checked data-i18n-aria-label="aff.batVoir" aria-label="Voir les bâtiments"></td>
-</tr>
-        <tr><th scope="row"><label for="vBatOmbre" data-i18n="aff.batOmbre">Ombre des bâtiments</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vBatOmbre" checked></td></tr>
-        <tr class="groupe"><th colspan="2" data-i18n="aff.gVeg">Végétation</th></tr>
-        <tr><th scope="row"><label for="vArbres" data-i18n="aff.arbres">Arbres</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vArbres" checked data-i18n-aria-label="aff.arbresVoir" aria-label="Voir les arbres"></td>
-</tr>
-        <tr><th scope="row"><label for="vArbresOmbre" data-i18n="aff.arbresOmbre">Ombre des arbres</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vArbresOmbre" checked></td></tr>
-        <tr class="groupe"><th colspan="2" data-i18n="aff.gSol">Sol</th></tr>
-        <tr><th scope="row"><label for="vReel" data-i18n="aff.reel" data-i18n-title="aff.reelTitre" title="Orthophoto SWISSIMAGE posée sur le terrain, un peu éclaircie">Photo aérienne au sol</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vReel"></td></tr>
-        <tr><th scope="row"><label for="vCadastre" data-i18n="aff.cadastre">Plan cadastral au sol</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vCadastre" checked></td></tr>
-        <tr><th scope="row"><label for="vParcelles" data-i18n="aff.parcelles">Parcellaire</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vParcelles" checked></td></tr>
-        <tr class="groupe"><th colspan="2" data-i18n="aff.gReleve">Relevé</th></tr>
-        <tr><th scope="row"><label for="vPoints" data-i18n="aff.points">Nuage de points brut</label> <span class="choix-swiss">(<input class="form-check-input" type="checkbox" id="vCouleursReelles" data-i18n-title="aff.couleursTitre" title="Couleur de chaque point prise sur l'orthophoto SWISSIMAGE, à la verticale (les façades prennent la couleur du toit ou du sol voisin)" data-i18n-aria-label="aff.couleursTitre" aria-label="Couleur de chaque point prise sur l'orthophoto SWISSIMAGE, à la verticale (les façades prennent la couleur du toit ou du sol voisin)"><label for="vCouleursReelles" data-i18n="aff.couleurs">couleurs réelles</label>)</span></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vPoints"></td></tr>
-        <tr><th scope="row"><label for="vDegrade" data-i18n="aff.degrade">Couleur selon la hauteur</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vDegrade"></td></tr>
-        <tr class="groupe"><th colspan="2" data-i18n="aff.gPaysage">Paysage et rendu</th></tr>
-        <tr><th scope="row"><label for="vLointain" data-i18n="aff.lointain" data-i18n-title="aff.lointainTitre" title="Collines, montagnes et lacs jusqu'à 50 km autour, d'après le relief libre Terrain Tiles">Paysage</label></th>
-          <td><input class="form-check-input oeil" type="checkbox" id="vLointain"></td></tr>
-        <tr class="ligne-curseur"><td colspan="2"><label class="d-flex justify-content-between small mb-0" for="brume" data-i18n-title="aff.brumeTitre" title="Le paysage s'estompe avec la distance"><span data-i18n="aff.brume">Brume</span><b id="brumeVal"></b></label>
-          <input type="range" class="form-range" id="brume" min="0" max="100" step="5" value="0"></td></tr>
-        <tr class="ligne-curseur"><td colspan="2"><label class="d-flex justify-content-between small mb-0" for="qualite" data-i18n-title="aff.effetsTitre" title="Occlusion ambiante, rebond de lumière et finesse de l'image"><span data-i18n="aff.effets">Qualité du rendu</span><b id="qualiteVal"></b></label>
-          <input type="range" class="form-range" id="qualite" min="0" max="3" step="1" value="2"></td></tr>
-      </tbody>
-    </table>
+        <div class="cellule">
+          <h3 class="cellule-titre" data-i18n="aff.gBati">Bâti</h3>
+          <!-- jeu de bâtiments : boutons radio cachés, pilotés par les cases « Swiss3D » et « Advanced » de la ligne Bâtiments (main.js) -->
+          <div class="btn-group btn-group-sm w-100 mb-1" role="group" hidden data-i18n-aria-label="aff.batimentsAria" aria-label="Bâtiments affichés">
+            <input type="radio" class="btn-check" name="batiments" id="bReleve" value="releve" checked><label class="btn btn-outline-secondary" for="bReleve" data-i18n="aff.normal" data-i18n-title="aff.normalTitre" title="Reconstruits ici à partir du relevé laser">Normal</label>
+            <input type="radio" class="btn-check" name="batiments" id="bSwiss" value="swiss"><label class="btn btn-outline-secondary" for="bSwiss" data-i18n-title="aff.swissTitre" title="swissBUILDINGS3D, modèles 3D de swisstopo">Swiss3D</label>
+            <input type="radio" class="btn-check" name="batiments" id="bRoofer" value="roofer"><label class="btn btn-outline-secondary" for="bRoofer" id="etiquetteRoofer" data-i18n-title="aff.rooferTitre" title="roofer (TU Delft), LoD2.2, calculé hors ligne pour quelques lieux d'essai">Advanced</label>
+            <input type="radio" class="btn-check" name="batiments" id="bAucun" value="aucun"><label class="btn btn-outline-secondary" for="bAucun" data-i18n="aff.aucun">None</label>
+          </div>
+          <div class="small text-secondary mb-1" id="noteBatiments" hidden></div>
+          <table class="table-calques"><tbody>
+            <tr><th scope="row"><label for="vBatVoir" data-i18n="aff.batiments">Bâtiments</label> <span class="choix-swiss">(<input class="form-check-input" type="checkbox" id="vSwiss" data-i18n-title="aff.swissCase" title="Modèles 3D swisstopo (swissBUILDINGS3D) au lieu des bâtiments reconstruits" data-i18n-aria-label="aff.swissCase" aria-label="Modèles 3D swisstopo (swissBUILDINGS3D) au lieu des bâtiments reconstruits"><label for="vSwiss">Swiss3D</label> <input class="form-check-input ms-1" type="checkbox" id="vAdvanced" data-i18n-title="aff.advancedCase" title="Toits reconstruits en détail (pans, faîtes) à partir du relevé laser et des emprises officielles, calculés dans votre navigateur" data-i18n-aria-label="aff.advancedCase" aria-label="Toits reconstruits en détail (pans, faîtes) à partir du relevé laser et des emprises officielles, calculés dans votre navigateur"><label for="vAdvanced">Advanced</label>)</span></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vBatVoir" checked data-i18n-aria-label="aff.batVoir" aria-label="Voir les bâtiments"></td></tr>
+            <tr><th scope="row"><label for="vBatOmbre" data-i18n="aff.batOmbre">Ombre des bâtiments</label></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vBatOmbre" checked></td></tr>
+          </tbody></table>
+        </div>
+        <div class="cellule">
+          <h3 class="cellule-titre" data-i18n="aff.gVeg">Végétation</h3>
+          <table class="table-calques"><tbody>
+            <tr><th scope="row"><label for="vArbres" data-i18n="aff.arbres">Arbres</label></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vArbres" checked data-i18n-aria-label="aff.arbresVoir" aria-label="Voir les arbres"></td></tr>
+            <tr><th scope="row"><label for="vArbresOmbre" data-i18n="aff.arbresOmbre">Ombre des arbres</label></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vArbresOmbre" checked></td></tr>
+          </tbody></table>
+        </div>
+        <div class="cellule">
+          <h3 class="cellule-titre" data-i18n="aff.gSol">Sol</h3>
+          <table class="table-calques"><tbody>
+            <tr><th scope="row"><label for="vReel" data-i18n="aff.reel" data-i18n-title="aff.reelTitre" title="Orthophoto SWISSIMAGE posée sur le terrain, un peu éclaircie">Photo aérienne au sol</label></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vReel"></td></tr>
+            <tr><th scope="row"><label for="vCadastre" data-i18n="aff.cadastre">Plan cadastral au sol</label></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vCadastre" checked></td></tr>
+            <tr><th scope="row"><label for="vParcelles" data-i18n="aff.parcelles">Parcellaire</label></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vParcelles" checked></td></tr>
+          </tbody></table>
+        </div>
+        <div class="cellule">
+          <h3 class="cellule-titre" data-i18n="aff.gReleve">Relevé</h3>
+          <table class="table-calques"><tbody>
+            <tr><th scope="row"><label for="vPoints" data-i18n="aff.points">Nuage de points brut</label> <span class="choix-swiss">(<input class="form-check-input" type="checkbox" id="vCouleursReelles" data-i18n-title="aff.couleursTitre" title="Couleur de chaque point prise sur l'orthophoto SWISSIMAGE, à la verticale (les façades prennent la couleur du toit ou du sol voisin)" data-i18n-aria-label="aff.couleursTitre" aria-label="Couleur de chaque point prise sur l'orthophoto SWISSIMAGE, à la verticale (les façades prennent la couleur du toit ou du sol voisin)"><label for="vCouleursReelles" data-i18n="aff.couleurs">couleurs réelles</label>)</span></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vPoints"></td></tr>
+            <tr><th scope="row"><label for="vDegrade" data-i18n="aff.degrade">Couleur selon la hauteur</label></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vDegrade"></td></tr>
+          </tbody></table>
+        </div>
+        <div class="cellule">
+          <h3 class="cellule-titre" data-i18n="aff.gPaysage">Paysage et rendu</h3>
+          <table class="table-calques"><tbody>
+            <tr><th scope="row"><label for="vLointain" data-i18n="aff.lointain" data-i18n-title="aff.lointainTitre" title="Collines, montagnes et lacs jusqu'à 50 km autour, d'après le relief libre Terrain Tiles">Paysage</label></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vLointain"></td></tr>
+            <tr class="ligne-curseur"><td colspan="2"><label class="d-flex justify-content-between small mb-0" for="brume" data-i18n-title="aff.brumeTitre" title="Le paysage s'estompe avec la distance"><span data-i18n="aff.brume">Brume</span><b id="brumeVal"></b></label>
+              <input type="range" class="form-range" id="brume" min="0" max="100" step="5" value="0"></td></tr>
+            <tr class="ligne-curseur"><td colspan="2"><label class="d-flex justify-content-between small mb-0" for="qualite" data-i18n-title="aff.effetsTitre" title="Occlusion ambiante, rebond de lumière et finesse de l'image"><span data-i18n="aff.effets">Qualité du rendu</span><b id="qualiteVal"></b></label>
+              <input type="range" class="form-range" id="qualite" min="0" max="3" step="1" value="2"></td></tr>
+          </tbody></table>
+        </div>
       </section>
-      <!-- publicité (version gratuite) : en bas des réglages, jamais pour les comptes Pro ni sur l'accueil (src/pub.js) -->
-      <section id="pub" class="pub" hidden><div class="pub-titre" data-i18n="pub.titre">Publicité</div></section>
-  </div>
-</aside>
-<!-- version pro : sa propre carte, sous le panneau principal -->
-<aside id="panneauPro" class="card" hidden>
-  <div class="card-body">
-      <section id="pro">
-        <div class="titre">Pro</div>
+    </aside>
+
+    <!-- version pro : offre (compte gratuit), puis le mode pro et ses outils -->
+    <aside id="panneauPro" data-onglet="pro" hidden>
+      <div id="offrePro" class="cellule offre-pro" hidden>
+        <h3 class="offre-titre" data-i18n="offre.titre">Topograph Pro</h3>
+        <p class="small text-secondary mb-2" data-i18n="offre.texte">Projets, volumes, exports et coupes PDF ou DXF. Sans publicité.</p>
+        <div class="offre-prix" data-i18n="offre.prix">CHF 39.–</div>
+        <p class="small text-secondary mb-2" data-i18n="offre.note">Paiement unique, sans abonnement. L'accès reste actif tant que Topograph est en service.</p>
+        <button type="button" class="btn btn-sm btn-primary w-100" id="btnOffre"><svg class="ico" aria-hidden="true"><use href="#i-personne"/></svg> <span data-i18n="offre.bouton">Voir mon compte</span></button>
+      </div>
+      <section id="pro" class="cellule">
+        <h3 class="cellule-titre" data-i18n="onglet.pro">Pro</h3>
         <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPro"><label class="form-check-label small" for="vPro" data-i18n-html="pro.mode"><b>Mode pro</b> <span class="text-secondary">(masquer des bâtiments, ajouter des volumes, exporter)</span></label></div>
         <div class="small text-secondary" id="etatPro"></div>
         <div id="outilsPro" hidden>
@@ -228,7 +295,6 @@
           </div>
           <div class="sous-titre" data-i18n="pro.elements">Ajoutés et masqués</div>
           <div id="listeVolumes"></div>
-
 
           <div class="sous-titre" data-i18n="pro.exporter">Exporter la maquette complète</div>
           <div class="d-flex gap-1">
@@ -268,10 +334,36 @@
           <div class="small text-secondary mt-1" id="resultatExport"></div>
         </div>
       </section>
+    </aside>
   </div>
-</aside>
+  <!-- publicité (version gratuite) : fixée en bas de la colonne, quel que soit l'onglet ; jamais pour les comptes Pro ni sur l'accueil (src/pub.js) -->
+  <section id="pub" class="pub" hidden><div class="pub-titre" data-i18n="pub.titre">Publicité</div></section>
 </div>
 
+<!-- scène 3D et ce qui flotte dessus (le cadre passe en plein écran) -->
+<div id="cadre">
+  <main id="vue"></main>
+  <button type="button" id="puceVue" class="puce-vue" data-i18n-title="ui.puceTitre" title="Réglages d'affichage">
+    <svg class="ico" aria-hidden="true"><use href="#i-couches"/></svg>
+    <span class="puce-vue-texte"><span id="puceVueTexte" data-i18n="ui.maquette">Maquette</span>
+      <span class="cle" id="puceVueCle" hidden><span data-i18n="heures.zero">0 h</span><i></i><span id="puceVueMax"></span></span></span>
+  </button>
+  <div class="outils-vue">
+    <div id="orientation" data-i18n-title="boussole.titre" title="Orientation : cliquez un axe pour le plan ou une élévation, le centre pour revenir en 3D ; glissez pour tourner">
+      <svg id="boussole" viewBox="-50 -50 100 100" role="group" data-i18n-aria-label="boussole.aria" aria-label="Boussole d'orientation"></svg>
+    </div>
+    <div class="navigation" role="group" data-i18n-aria-label="ui.navigation" aria-label="Navigation">
+      <button type="button" id="btnZoomPlus" data-i18n-title="ui.zoomPlus" title="Zoom avant" data-i18n-aria-label="ui.zoomPlus" aria-label="Zoom avant"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg></button>
+      <button type="button" id="btnZoomMoins" data-i18n-title="ui.zoomMoins" title="Zoom arrière" data-i18n-aria-label="ui.zoomMoins" aria-label="Zoom arrière"><svg class="ico" aria-hidden="true"><use href="#i-moins"/></svg></button>
+      <button type="button" id="btnPleinEcran" data-i18n-title="ui.pleinEcran" title="Plein écran" data-i18n-aria-label="ui.pleinEcran" aria-label="Plein écran" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-ecran"/></svg></button>
+    </div>
+  </div>
+  <div id="message" class="alert alert-warning py-1 px-2 small" hidden></div>
+  <div id="ailleurs" class="shadow" hidden><span id="ailleursNom"></span><button type="button" class="btn btn-sm btn-primary" id="btnAilleurs" data-i18n="ailleurs.construire">Nouvelle cible</button></div>
+  <button type="button" id="retour" class="btn btn-sm shadow" hidden data-i18n="retour.adresse">Retour à l'adresse</button>
+</div>
+
+<!-- coupe : sous la scène, sur toute la largeur -->
 <div id="bas">
   <div id="coupe" class="card" hidden>
     <div class="card-body p-2">
@@ -282,22 +374,10 @@
       <div class="legende small text-secondary px-1" id="legendePoints" hidden data-i18n-html="coupe.legendePoints">Points du nuage : <span class="l-pt pt0"></span>sol <span class="l-pt pt1"></span>végétation <span class="l-pt pt2"></span>bâtiment <span class="l-pt pt3"></span>autre</div>
     </div>
   </div>
-  </div>
 </div>
-
-<div id="orientation" data-i18n-title="boussole.titre" title="Orientation : cliquez un axe pour le plan ou une élévation, le centre pour revenir en 3D ; glissez pour tourner">
-  <svg id="boussole" viewBox="-50 -50 100 100" role="group" data-i18n-aria-label="boussole.aria" aria-label="Boussole d'orientation"></svg>
-</div>
-<div id="telechargement" class="shadow" hidden role="progressbar" aria-live="polite" aria-valuemin="0" aria-valuemax="100">
-  <div class="ligne"><span id="telechargementTexte"></span><span id="telechargementPct"></span></div>
-  <div id="telechargementGrille" aria-hidden="true"></div>
-</div>
-<div id="message" class="alert alert-warning py-1 px-2 small" hidden></div>
-<div id="ailleurs" class="shadow" hidden><span id="ailleursNom"></span><button type="button" class="btn btn-sm btn-primary" id="btnAilleurs" data-i18n="ailleurs.construire">Nouvelle cible</button></div>
-<button type="button" id="retour" class="btn btn-sm shadow" hidden data-i18n="retour.adresse">Retour à l'adresse</button>
 
 <footer id="pied" class="small"><span class="sources" data-i18n="pied.sources">© swisstopo (swissSURFACE3D, swissALTI3D, swissBUILDINGS3D, cadastre) · relief lointain : Terrain Tiles (AWS, Mapzen). Résultats indicatifs.</span>
-  <span class="liens">Atelier Masson · <a href="#" data-legal="mentions" data-i18n="legal.mentions">Mentions légales</a> · <a href="#" data-legal="confidentialite" data-i18n="legal.confidentialite">Confidentialité</a> · <a href="#" data-legal="conditions" data-i18n="legal.conditions">Conditions</a> · <a href="#" data-legal="contact" data-i18n="legal.contact">Contact</a></span></footer>
+  <span class="liens"><span class="editeur">Atelier Masson · </span><a href="#" data-legal="mentions" data-i18n="legal.mentions">Mentions légales</a> · <a href="#" data-legal="confidentialite" data-i18n="legal.confidentialite">Confidentialité</a> · <a href="#" data-legal="conditions" data-i18n="legal.conditions">Conditions</a> · <a href="#" data-legal="contact" data-i18n="legal.contact">Contact</a></span></footer>
 
 <dialog id="legal" aria-labelledby="legalTitre">
   <button type="button" class="btn-close" data-i18n-aria-label="legal.fermer" aria-label="Fermer" data-fermer></button>

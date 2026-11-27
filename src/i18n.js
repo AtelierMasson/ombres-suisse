@@ -63,30 +63,28 @@ export function traduirePage(racine = document) {
   }
 }
 
-/** Sélecteur « FR DE IT EN » : liens texte ; le choix est mémorisé et la page rechargée dans la nouvelle langue. */
+/** Sélecteur de langue compact (« FR ▾ ») : le choix est mémorisé et la page rechargée dans la nouvelle langue. */
 export function brancherSelecteur(conteneur) {
-  const bloc = document.createElement("span");
-  bloc.className = "langues";
+  const choix = document.createElement("select");
+  choix.className = "form-select form-select-sm langues";
+  choix.setAttribute("aria-label", t("ui.langue"));
+  choix.title = t("ui.langue");
   for (const l of LANGUES) {
-    const a = document.createElement("a");
-    const u = new URL(location.href);
-    u.searchParams.set("lang", l);
-    a.href = u.pathname + u.search + u.hash;
-    a.hreflang = a.lang = l;
-    a.textContent = l.toUpperCase();
-    a.title = DICOS[l]["langue.nom"];
-    if (l === langue) { a.className = "actif"; a.setAttribute("aria-current", "true"); }
-    a.addEventListener("click", e => {
-      e.preventDefault();
-      if (l === langue) return;
-      try { localStorage.setItem(CLE, l); } catch { /* stockage indisponible */ }
-      // ?lang= n'est gardé dans l'adresse que s'il y était déjà ; l'emplacement (#…) est conservé
-      const v = new URL(location.href);
-      if (v.searchParams.has("lang")) { v.searchParams.set("lang", l); location.href = v.href; }
-      else location.reload();
-    });
-    bloc.append(a);
-    if (l !== LANGUES.at(-1)) bloc.append(" ");
+    const o = document.createElement("option");
+    o.value = l; o.lang = l;
+    o.textContent = l.toUpperCase();
+    o.title = DICOS[l]["langue.nom"];
+    o.selected = l === langue;
+    choix.append(o);
   }
-  conteneur.append(bloc);
+  choix.addEventListener("change", () => {
+    const l = choix.value;
+    if (l === langue) return;
+    try { localStorage.setItem(CLE, l); } catch { /* stockage indisponible */ }
+    // ?lang= n'est gardé dans l'adresse que s'il y était déjà ; l'emplacement (#…) est conservé
+    const v = new URL(location.href);
+    if (v.searchParams.has("lang")) { v.searchParams.set("lang", l); location.href = v.href; }
+    else location.reload();
+  });
+  conteneur.append(choix);
 }
