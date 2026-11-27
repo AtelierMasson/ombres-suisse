@@ -291,6 +291,12 @@
               <td><input class="form-check-input oeil" type="checkbox" id="vLointain"></td></tr>
             <tr class="ligne-curseur"><td colspan="2"><label class="d-flex justify-content-between small mb-0" for="brume" data-i18n-title="aff.brumeTitre" title="Le paysage s'estompe avec la distance"><span data-i18n="aff.brume">Brume</span><b id="brumeVal"></b></label>
               <input type="range" class="form-range" id="brume" min="0" max="100" step="5" value="0"></td></tr>
+            <tr><th scope="row"><label for="vBrumeCine" data-i18n="aff.brumeCine" data-i18n-title="aff.brumeCineTitre" title="Mer de brouillard au fond des vallées, nappes animées éclairées par le soleil (visuel seulement : les ombres et l'ensoleillement ne changent pas)">Brume cinématique</label></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vBrumeCine"></td></tr>
+            <tr class="ligne-curseur brume-cine" hidden><td colspan="2"><label class="d-flex justify-content-between small mb-0" for="brumeCineHaut" data-i18n-title="aff.brumeCineHautTitre" title="Hauteur du dessus de la nappe au-dessus du fond de la vallée"><span data-i18n="aff.brumeCineHaut">Hauteur de la nappe</span><b id="brumeCineHautVal"></b></label>
+              <input type="range" class="form-range" id="brumeCineHaut" min="20" max="800" step="10" value="150"></td></tr>
+            <tr class="ligne-curseur brume-cine" hidden><td colspan="2"><label class="d-flex justify-content-between small mb-0" for="brumeCineDens" data-i18n-title="aff.brumeCineDensTitre" title="Opacité de la nappe et densité de la brume au sol"><span data-i18n="aff.brumeCineDens">Densité de la nappe</span><b id="brumeCineDensVal"></b></label>
+              <input type="range" class="form-range" id="brumeCineDens" min="0" max="100" step="5" value="50"></td></tr>
             <tr class="ligne-curseur"><td colspan="2"><label class="d-flex justify-content-between small mb-0" for="qualite" data-i18n-title="aff.effetsTitre" title="Occlusion ambiante, rebond de lumière et finesse de l'image"><span data-i18n="aff.effets">Qualité du rendu</span><b id="qualiteVal"></b></label>
               <input type="range" class="form-range" id="qualite" min="0" max="3" step="1" value="2"></td></tr>
           </tbody></table>
