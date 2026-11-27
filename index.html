@@ -261,17 +261,31 @@
           <h3 class="cellule-titre" data-i18n="aff.gBati">Bâti</h3>
           <!-- jeu de bâtiments : boutons radio cachés, pilotés par les cases « Swiss3D » et « Advanced » de la ligne Bâtiments (main.js) -->
           <div class="btn-group btn-group-sm w-100 mb-1" role="group" hidden data-i18n-aria-label="aff.batimentsAria" aria-label="Bâtiments affichés">
-            <input type="radio" class="btn-check" name="batiments" id="bReleve" value="releve" checked><label class="btn btn-outline-secondary" for="bReleve" data-i18n="aff.normal" data-i18n-title="aff.normalTitre" title="Reconstruits ici à partir du relevé laser">Normal</label>
-            <input type="radio" class="btn-check" name="batiments" id="bSwiss" value="swiss"><label class="btn btn-outline-secondary" for="bSwiss" data-i18n-title="aff.swissTitre" title="swissBUILDINGS3D, modèles 3D de swisstopo">Swiss3D</label>
+            <input type="radio" class="btn-check" name="batiments" id="bReleve" value="releve"><label class="btn btn-outline-secondary" for="bReleve" data-i18n="aff.normal" data-i18n-title="aff.normalTitre" title="Reconstruits ici à partir du relevé laser">Normal</label>
+            <input type="radio" class="btn-check" name="batiments" id="bSwiss" value="swiss" checked><label class="btn btn-outline-secondary" for="bSwiss" data-i18n-title="aff.swissTitre" title="swissBUILDINGS3D, modèles 3D de swisstopo">Swiss3D</label>
             <input type="radio" class="btn-check" name="batiments" id="bRoofer" value="roofer"><label class="btn btn-outline-secondary" for="bRoofer" id="etiquetteRoofer" data-i18n-title="aff.rooferTitre" title="roofer (TU Delft), LoD2.2, calculé hors ligne pour quelques lieux d'essai">Advanced</label>
             <input type="radio" class="btn-check" name="batiments" id="bAucun" value="aucun"><label class="btn btn-outline-secondary" for="bAucun" data-i18n="aff.aucun">None</label>
           </div>
           <div class="small text-secondary mb-1" id="noteBatiments" hidden></div>
           <table class="table-calques"><tbody>
-            <tr><th scope="row"><label for="vBatVoir" data-i18n="aff.batiments">Bâtiments</label> <span class="choix-swiss">(<input class="form-check-input" type="checkbox" id="vSwiss" data-i18n-title="aff.swissCase" title="Modèles 3D swisstopo (swissBUILDINGS3D) au lieu des bâtiments reconstruits" data-i18n-aria-label="aff.swissCase" aria-label="Modèles 3D swisstopo (swissBUILDINGS3D) au lieu des bâtiments reconstruits"><label for="vSwiss">Swiss3D</label> <input class="form-check-input ms-1" type="checkbox" id="vAdvanced" data-i18n-title="aff.advancedCase" title="Toits reconstruits en détail (pans, faîtes) à partir du relevé laser et des emprises officielles, calculés dans votre navigateur" data-i18n-aria-label="aff.advancedCase" aria-label="Toits reconstruits en détail (pans, faîtes) à partir du relevé laser et des emprises officielles, calculés dans votre navigateur"><label for="vAdvanced">Advanced</label>)</span></th>
+            <tr><th scope="row"><label for="vBatVoir" data-i18n="aff.batiments">Bâtiments</label> <span class="choix-swiss">(<input class="form-check-input" type="checkbox" id="vSwiss" checked data-i18n-title="aff.swissCase" title="Modèles 3D swisstopo (swissBUILDINGS3D) au lieu des bâtiments reconstruits" data-i18n-aria-label="aff.swissCase" aria-label="Modèles 3D swisstopo (swissBUILDINGS3D) au lieu des bâtiments reconstruits"><label for="vSwiss">Swiss3D</label> <input class="form-check-input ms-1" type="checkbox" id="vAdvanced" data-i18n-title="aff.advancedCase" title="Toits reconstruits en détail (pans, faîtes) à partir du relevé laser et des emprises officielles, calculés dans votre navigateur" data-i18n-aria-label="aff.advancedCase" aria-label="Toits reconstruits en détail (pans, faîtes) à partir du relevé laser et des emprises officielles, calculés dans votre navigateur"><label for="vAdvanced">Advanced</label>)</span></th>
               <td><input class="form-check-input oeil" type="checkbox" id="vBatVoir" checked data-i18n-aria-label="aff.batVoir" aria-label="Voir les bâtiments"></td></tr>
             <tr><th scope="row"><label for="vBatOmbre" data-i18n="aff.batOmbre">Ombre des bâtiments</label></th>
               <td><input class="form-check-input oeil" type="checkbox" id="vBatOmbre" checked></td></tr>
+          </tbody></table>
+        </div>
+        <div class="cellule">
+          <h3 class="cellule-titre" data-i18n="aff.gAjouts">Nos ajouts</h3>
+          <!-- éléments ajoutés à la maquette par Topograph, chacun activable (main.js, scene.appliquerAjouts) -->
+          <table class="table-calques"><tbody>
+            <tr><th scope="row"><label for="vPontsModeles" data-i18n="aff.pontsModeles" data-i18n-title="aff.pontsModelesTitre" title="Ponts modélisés à la main d'après le relevé laser et des photos">Ponts modélisés</label></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vPontsModeles" checked></td></tr>
+            <tr><th scope="row"><label for="vPontsAuto" data-i18n="aff.pontsAuto" data-i18n-title="aff.pontsAutoTitre" title="Autres ponts, reconstruits automatiquement à partir du relevé laser">Ponts reconstruits</label></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vPontsAuto" checked></td></tr>
+            <tr><th scope="row"><label for="vPiscines" data-i18n="aff.piscines" data-i18n-title="aff.piscinesTitre" title="Piscines de la mensuration officielle, creusées dans le terrain">Piscines</label></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vPiscines" checked></td></tr>
+            <tr><th scope="row"><label for="vEauSurvol" data-i18n="aff.eauSurvol" data-i18n-title="aff.eauSurvolTitre" title="Rivières et lacs autour de la maquette (tracés swisstopo)">Eau autour de la maquette</label></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vEauSurvol" checked></td></tr>
           </tbody></table>
         </div>
         <div class="cellule">

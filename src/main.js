@@ -928,7 +928,7 @@ async function maillageAdvanced() {
 }
 scene.surTuilesSwiss = n => telechargement("swiss", n > 0 && !scene.vol && !document.body.classList.contains("accueil") ? t("etat.swiss", { n }) : null); // le vol et l'accueil chargent sans bandeau
 // bâtiments affichés : un seul jeu à la fois (relevé, swisstopo, roofer là où il a été calculé, ou aucun)
-function choixBatiments() { return $("input[name=batiments]:checked")?.value || "releve"; }
+function choixBatiments() { return $("input[name=batiments]:checked")?.value || "swiss"; } // Swiss3D par défaut
 /** Jeu de bâtiments montré : pendant la vue de base (pas encore de relevé), les Swiss3D, quel que soit le choix. */
 function jeuAffiche() { const c = choixBatiments(); return S.G?.provisoire && c !== "aucun" ? "swiss" : c; }
 const NOTES = {
@@ -1059,6 +1059,17 @@ $("#vLointain").addEventListener("change", e => {
 });
 $("#vDegrade").addEventListener("change", e => scene.degradeHauteur(e.target.checked));
 $("#vEssences").addEventListener("change", e => scene.essencesArbres(e.target.checked));
+// nos ajouts (ponts, piscines, eau autour) : chacun sa case, retenue par ce navigateur
+for (const [id, cle] of [["#vPontsModeles", "pontsModeles"], ["#vPontsAuto", "pontsAuto"], ["#vPiscines", "piscines"], ["#vEauSurvol", "eau"]]) {
+  const el = $(id), k = "ombres.ajout." + cle;
+  try { const v = localStorage.getItem(k); if (v !== null) el.checked = v === "1"; } catch { /* stockage indisponible */ }
+  scene.ajouts[cle] = el.checked;
+  el.addEventListener("change", () => {
+    scene.ajouts[cle] = el.checked;
+    try { localStorage.setItem(k, el.checked ? "1" : "0"); } catch { /* stockage indisponible */ }
+    scene.appliquerAjouts();
+  });
+}
 scene.surQualite = q => {
   if (q < 2) return;
   $("#qualite").value = 0; curseurs();

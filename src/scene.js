@@ -417,6 +417,7 @@ export class Scene3D {
     this.controls.addEventListener("change", () => this.tuilesPlan.demander());
     this.brumeCine = new BrumeCinematique(this); // brume au sol, mer de brouillard (case d'Affichage, coupée par défaut)
     this.groupe = new THREE.Group();
+    this.ajouts = { pontsModeles: true, pontsAuto: true, piscines: true, eau: true };
     this.outils = new THREE.Group(); // tranche de coupe et poignées
     this.scene.add(this.voute, this.disque, this.groupe, this.outils);
 
@@ -653,6 +654,7 @@ void main() {
     this.monde?.mettreAJour();
     this.brumeCine.mettreAJour();
     this.eauVecteur?.mettreAJour(); // rivières et lacs hors de la maquette fine (eau.js)
+    if (this.eauVecteur && !this.ajouts.eau) this.eauVecteur.groupe.visible = false;
     const leger = this.allegerMouvement !== false && performance.now() - (this.dernierMouvement ?? -Infinity) < 120;
     this.imageLegere = leger && this.effets && this.qualite < 2;
     this.ao.enabled = this.rebond.enabled = !this.imageLegere;
@@ -859,6 +861,7 @@ void main() {
     if (gp || modeles.length) {
       ponts = new THREE.Group();
       if (gp) ponts.add(maille(gp.dessus, m.terrain, true, true), maille(gp.cotes, m.mur, true, true));
+      ponts.children.forEach(o => { o.userData.auto = true; }); // ponts reconstruits du relevé (case « Ponts reconstruits »)
       for (const P of modeles) {
         // chaussée : matière du terrain (cadastre, photo, bruit, grain continuent sur le pont), le reste en plâtre
         const g = maillagePont(P, Ep, Np, this.zRef, (x, y) => solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y))),
@@ -867,6 +870,7 @@ void main() {
         // parties d'un autre matériau : maillages à part (béton par défaut ; tuile, verre…)
         const MAT = { acier: m.pontAcier, bois: m.pontBois, pierre: m.pontPierre, tuile: m.pontTuile, verre: m.pontVerre, beton_clair: m.pontBetonClair, acier_peint: m.pontAcierPeint };
         for (const [k, geo] of Object.entries(g.materiaux || {})) ponts.add(maille(geo, MAT[k] || m.mur, true, true));
+        ponts.children.forEach(o => { if (!o.userData.auto) o.userData.modele = true; });
       }
       // maquette ronde : la chaussée (matière du terrain, que le rendu ne découpe pas) est coupée au cercle, comme
       // le reste du pont l'est par le rendu ; sinon elle dépassait de 25 m sur l'anneau, sans rives ni dessous
@@ -1039,7 +1043,17 @@ void main() {
    * Bâtiments et arbres visibles ou non, portant leur ombre ou non. « Ombre seule » : l'objet passe sur un calque que
    * seul le soleil voit (il porte son ombre sans être dessiné, ni pris par l'occlusion, ni cliquable).
    */
+  /** Nos ajouts à la maquette, chacun avec sa case (Affichage) : ponts faits main, ponts reconstruits, piscines, eau. */
+  appliquerAjouts() {
+    const a = this.ajouts, c = this.couches || {};
+    c.ponts?.children.forEach(o => { o.visible = o.userData.auto ? a.pontsAuto : a.pontsModeles; });
+    if (c.piscines) c.piscines.visible = a.piscines;
+    if (this.eauVecteur && !a.eau) this.eauVecteur.groupe.visible = false;
+    this.demander?.(2);
+  }
+
   appliquerCalques() {
+    this.appliquerAjouts?.();
     const k = this.calques, c = this.couches || {};
     const regler = (o, voir, ombre) => {
       if (!o) return;
