@@ -429,9 +429,12 @@ export class Scene3D {
       parcelle: new THREE.MeshBasicMaterial(), trait: traitNet(),
       poignee: new THREE.MeshBasicMaterial({ depthTest: false, fog: false }),
       eau: matEau(), // sans décalage de profondeur : il faisait passer l'eau devant la rive vue de haut
+      // ponts faits main : matériaux stylisés (`materiau` des parties) ; le béton reste le plâtre des murs
+      pontAcier: std({ flatShading: true, roughness: 0.6, metalness: 0.12 }), pontBois: std({ flatShading: true }),
+      pontPierre: std({ flatShading: true, roughness: 1 }), pontTuile: std({ flatShading: true }), pontVerre: std({ flatShading: true, roughness: 0.2, metalness: 0.1 }),
     };
     // même grain léger partout (sol, socle, toits, murs, couronnes) : aspect de maquette en plâtre
-    for (const [k, force, contact] of [["terrain", 0.07, "sol"], ["socle", 0.07], ["socleFond", 0.07], ["toit", 0.07, "toit"], ["mur", 0.07, "mur"], ["couronne", 0.05], ["eau", 0.025]]) grainPlatre(this.mat[k], force, contact);
+    for (const [k, force, contact] of [["terrain", 0.07, "sol"], ["socle", 0.07], ["socleFond", 0.07], ["toit", 0.07, "toit"], ["mur", 0.07, "mur"], ["couronne", 0.05], ["eau", 0.025], ["pontAcier", 0.03], ["pontBois", 0.1], ["pontPierre", 0.14], ["pontTuile", 0.1], ["pontVerre", 0.02]]) grainPlatre(this.mat[k], force, contact);
     this.partages = new Set(Object.values(this.mat));
     this.plan = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
     this.couches = {};
@@ -698,6 +701,9 @@ void main() {
     CONTACT.teinteSel.value.set(T.parcelle);
     this.couches?.selection?.material.color.set(T.parcelle);
     m.terrain.color.set(m.terrain.map ? "#ffffff" : T.sol);
+    // matériaux des ponts : teintes tirées du sol du thème (même maquette), poussées vers l'acier, le bois, la pierre…
+    for (const [k, c, f, l] of [["pontAcier", "#8c97a3", 0.55, 0.92], ["pontBois", "#9c7f60", 0.55, 0.96], ["pontPierre", "#d6c3a0", 0.45, 1.0], ["pontTuile", "#a06c58", 0.55, 0.94], ["pontVerre", "#a9c3cc", 0.55, 1.0]])
+      m[k].color.set(T.sol).lerp(new THREE.Color(c), f).multiplyScalar(l * sombre);
     // lumière du ciel quasi uniforme : un mur dos au soleil a le même ton qu'une ombre portée au sol. Le « rebond » du sol
     // (éclairage indirect) teinte légèrement les faces tournées vers le bas ou de côté, à luminosité égale.
     this.ciel.color.set(T.lumiere.ciel);
@@ -852,6 +858,9 @@ void main() {
         const g = maillagePont(P, Ep, Np, this.zRef, (x, y) => solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y))),
           (x, y) => [(x - G.x0) / (2 * G.R), (y - G.x0) / (2 * G.R)], { rayon: G.rayonZone });
         ponts.add(maille(g.dessus, m.terrain, true, true), maille(g.reste, m.mur, true, true));
+        // parties d'un autre matériau : maillages à part (béton par défaut ; tuile, verre…)
+        const MAT = { acier: m.pontAcier, bois: m.pontBois, pierre: m.pontPierre, tuile: m.pontTuile, verre: m.pontVerre };
+        for (const [k, geo] of Object.entries(g.materiaux || {})) ponts.add(maille(geo, MAT[k] || m.mur, true, true));
       }
       // maquette ronde : la chaussée (matière du terrain, que le rendu ne découpe pas) est coupée au cercle, comme
       // le reste du pont l'est par le rendu ; sinon elle dépassait de 25 m sur l'anneau, sans rives ni dessous
@@ -2343,7 +2352,7 @@ void main() {
     // (et l'occlusion ambiante ne doit pas voir la partie coupée) ; pendant le vol de l'accueil, rien n'est coupé
     if (this.G && this.vol) {
       if (this.ao.normalMaterial) poserPlans(this.ao.normalMaterial, null);
-      for (const x of [m.toit, m.mur, this.swiss?.materiau]) if (x?.clippingPlanes) poserPlans(x, null);
+      for (const x of [m.toit, m.mur, m.pontAcier, m.pontBois, m.pontPierre, m.pontTuile, m.pontVerre, this.swiss?.materiau]) if (x?.clippingPlanes) poserPlans(x, null);
     } else if (this.G) {
       // boîte de l'occlusion 2 cm au-delà du bord : la face du socle est exactement à R, une boîte à R l'effaçait par
       // endroits (arrondis) et l'occlusion y dessinait des stries ; les bâtiments sont de toute façon coupés à R - 3 cm
@@ -2358,7 +2367,7 @@ void main() {
       // nos bâtiments (et roofer) : coupés 3 cm en retrait du bord, sinon les murs du bord sont dans le plan de la face
       // du socle et leur partie enterrée apparaît en stries à travers elle
       const dedans = [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]].map(n => new THREE.Plane(new THREE.Vector3(...n), R - 0.03));
-      for (const x of [m.toit, m.mur]) if (x) {
+      for (const x of [m.toit, m.mur, m.pontAcier, m.pontBois, m.pontPierre, m.pontTuile, m.pontVerre]) if (x) {
         // maquette ronde : coupés net au cercle (dans le shader) ; carrée : coupés au bord par les plans
         if (this.G.rayonZone) decoupeZone(x, ZONE_FINE);
         poserPlans(x, this.G.rayonZone ? plans : [...dedans, ...(plans || [])]);

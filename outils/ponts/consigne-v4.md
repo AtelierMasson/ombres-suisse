@@ -54,16 +54,25 @@ swissALTI3D et les photos, `confiance` « faible », et écris « non vérifié 
 ## Au style du pont
 | Type | Ce qui compte |
 |---|---|
-| Voûtes en maçonnerie | arches `forme: "cintre"`, `plein: true`, piles à avant-becs, parapet plein |
+| Voûtes en maçonnerie | arches `forme: "cintre"`, `plein: true`, piles à avant-becs (`sections`, `nez_*`), parapet plein, `materiau: "pierre"` |
 | Poutre / caisson béton | épaisseur variable (`epaisseur_appuis`, `gousset`), sous-face, piles (forme exacte) |
 | Haubané / extradossé | pylônes, haubans (nappe, nombre, ancrages), tablier mince |
 | Arc béton ou acier | arc (naissances, clé, nervures), montants (pas, épaisseur), tablier porté ou suspendu |
-| Treillis, suspendu, couvert en bois | `elements` (membrures, câbles, toiture) au plus simple qui reste reconnaissable |
+| Treillis, suspendu | `elements` (membrures, câbles) au plus simple qui reste reconnaissable, `materiau: "acier"` |
+| Couvert en bois | `toits`, `parois` (façades, ouvertures), `volumes` (pavillons), `bois` / `tuile` / `pierre` |
 | Passerelle | tablier mince, garde-corps ajouré, appuis fins |
 
 **Piles et pylônes : un seul volume sculpté** par appui (fût, tête, pied, jambes qui se rejoignent), jamais des boîtes
 empilées qui se touchent. Utilise la forme sculptée du schéma telle que dans `poya.json`. Niveau B : piles simples
 (`rect`, `rond`, `double`) mais aux bonnes proportions.
+
+**Formes libres (v5, détail dans METHODE.md)** : `sections` (piles, pylônes, `volumes` : rect, rond, ogive, chanfrein,
+poly, avant-becs `nez_amont`/`nez_aval`, fruit par les sections), `sections_tablier` (corniches, caisson, consoles),
+`toits` (deux pans, pignons/croupes, élargissements en pyramide), façades (`parois` : `ouvertures`, `soubassement`,
+`z_haut`), `materiau` par partie (beton, acier, bois, pierre, tuile, verre). Niveau A : estime les faces au nuage avec
+`CACHE=… node outils/ponts/sections_nuage.mjs <modele> pile <s>` (et `tablier`) avant les photos ; complète sur photo ce
+que l'outil déclare non vu. Regarde la forme des piles et de ce qui est au-dessus (arrondi, pointu, pyramidal) et
+celle des façades d'un pont couvert sur au moins deux photos.
 
 ## Niveaux
 - **A** (pont connu, ouvrage d'art) : toutes les étapes, précision de la Poya.

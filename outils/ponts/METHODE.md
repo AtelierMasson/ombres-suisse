@@ -34,6 +34,36 @@ des ancrages ; `galeries [{s0, s1, h | [[s, h]…], ep, bandeau, poteau, pas}]` 
 Coupes du nuage au droit d'un pylône : `COUPES=1 node outils/ponts/verifier_nuage.mjs …` ; `CACHE=fichier.json` garde le
 nuage lu pour itérer sans retélécharger.
 
+Extensions v5 (formes libres ; tout est facultatif, sans ces champs le maillage est identique au bit près) :
+- **Volumes sculptés** `sections: [{ z, forme, long, larg, nez_amont, nez_aval, rayon, chanfrein, o, points }]` sur une
+  pile (`appuis[]`), un pylône (`pylones[]`) ou un volume libre (`volumes: [{ s, t, z_bas, sections }]` : pavillon,
+  portique, obélisque, pilier de portail). Formes : `rect`, `chanfrein`, `rond`, `ogive`, `poly` (`points [[s, o]…]`) ;
+  becs `nez_amont`/`nez_aval` (m au-delà du corps, pointus, arrondis pour `rond`, en ogive pour `ogive` ; `amont: -1` si
+  l'amont est côté o négatif). `z` en m ou `"tablier"`, `"chaussee"`, `"sol"` (+ `dz`). Lissé en UN volume (fruit,
+  têtes évasées, pyramide), prolongé jusqu'au pied sous la première section.
+- **Tablier sculpté** `sections_tablier: [{ s, points: [[o, dz], …] }]` : section en travers de la rive o min à la rive
+  o max par le dessous (dz < 0 sous la chaussée : caisson, corniches, consoles, sous-face courbe), interpolée entre les
+  stations (même nombre de points : arêtes gardées). Remplace `epaisseur`/`section` pour le dessous.
+- **Toits** `toits: [{ s0, s1, faite, egout, larg, avant_toit, ep, croupe, pignons: ["ouvert"|"ferme", …],
+  elargissements: [{ s0, s1, larg, egout, faite | pente }] }]` : deux pans en quelques triangles ; `faite`, `egout`,
+  `larg` : nombre, [début, fin] ou profil `[[s, v], …]` ; croupe `true` (même pente) ou longueur ; élargissement =
+  croupe sur tout le pourtour (pavillon, pyramide).
+- **Façades** (`parois[]`) : `dz_bas`, `z_haut` (comme `egout`) + `dz_haut`, `soubassement { h, saillie }`,
+  `ouvertures { pas | centres, larg, haut, z | sous_haut }`.
+- **Matériaux** `materiau` : "beton" (défaut, plâtre), "acier", "bois", "pierre", "tuile", "verre" ; sur le modèle
+  (défaut de toutes les parties), `materiau_tablier`, et sur chaque partie (`garde_corps`, `appuis[]`, `pylones[]`,
+  `arches[]`, `elements[]`, `parois[]`, `toits[]`, `volumes[]`, `galeries[]`, `traverses`, `haubans`, `lampadaires[]`).
+  Un maillage par matériau : la ligne de séparation se lit ; couper une partie en deux volumes pour changer de matière.
+
+**Faces depuis le nuage** : `CACHE=… node outils/ponts/sections_nuage.mjs <modele.json> pile <s> [t] [pas] [sommets]
+[rayon]` → les `sections` d'une pile (tranches, enveloppes convexes simplifiées) ; `ZMIN/ZMAX` pour garder la pile seule
+(sous les naissances des voûtes), `FACES=1` pour des faces planes (RANSAC : fruit, becs). Il dit ce qui n'est pas vu
+(tête sous un tablier large, côté masqué) : le compléter sur les photos. `… tablier [pas] [prof]` → `sections_tablier`
+(rives et corniches mesurées, sous-face rarement vue). Utile pour les piles en pierre (becs, fruit), les têtes et les
+corniches ; inutile pour un appui caché sous le tablier ou dans les arbres. Exemples : `zaehringen.json` (piles et
+tablier), `pont-couvert-de-bad-sackingen.json` (toit, façades, becs, pavillons), `passerelle-de-soleure.json`
+(matériaux).
+
 ## 3. Mise dans la maquette
 `python3 outils/ponts/ajouter.py outils/ponts/modeles/<nom>.json` (copie dans public/ponts et index).
 Voir : `http://localhost:5174/#e=<E>&n=<N>&t=Voyage` — le mode Voyage garde le centre exact (sinon la maquette se

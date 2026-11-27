@@ -84,9 +84,9 @@ function solMesure(x, y) { for (let r = 0; r < 6; r++) for (let i = -r; i <= r; 
 
 // ------------------------------------------------------------------ maillage du modèle (coordonnées MN95 absolues)
 const E0 = axe[0][0], N0 = axe[0][1];
-const { dessus, reste } = maillagePont(P, E0, N0, 0, (x, y) => solMesure(x + E0, y + N0));
+const { dessus, reste, materiaux } = maillagePont(P, E0, N0, 0, (x, y) => solMesure(x + E0, y + N0));
 const tris = [];
-for (const g of [dessus, reste]) {
+for (const g of [dessus, reste, ...Object.values(materiaux || {})]) {
   const a = g.attributes.position.array;
   for (let k = 0; k < a.length; k += 9) {
     const t = [0, 3, 6].map(o => [a[k + o] + E0, -a[k + o + 2] + N0, a[k + o + 1]]);
