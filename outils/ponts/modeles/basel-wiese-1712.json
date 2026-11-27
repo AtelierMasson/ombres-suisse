@@ -1,0 +1,42 @@
+{
+ "nom": "Passerelle sur la Wiese (3 m)",
+ "axe": [
+  [
+   2611742.0,
+   1269878.7,
+   251.5
+  ],
+  [
+   2611681.8,
+   1269898.3,
+   251.2
+  ]
+ ],
+ "largeur": 4.5,
+ "epaisseur": 0.9,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 1.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 63.3
+  }
+ ],
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC à Bâle (swisssurface3d 2023 en LAS.zip seulement) : non vérifié au laser. Travée unique sur la Wiese d'après l'orthophoto, largeur et épaisseur estimées.",
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissimage (wms.geo.admin.ch)",
+  "swissTLM3D",
+  "swissALTI3D"
+ ],
+ "photos_vues": 0
+}

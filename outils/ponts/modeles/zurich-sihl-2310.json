@@ -1,0 +1,47 @@
+{
+ "nom": "Ponts jumeaux sur la Sihl (8m Strasse), Zurich",
+ "axe": [
+  [
+   2682291.2,
+   1247042.3,
+   413.08
+  ],
+  [
+   2682311,
+   1247026.5,
+   413.18
+  ],
+  [
+   2682327.6,
+   1247013.0,
+   413.08
+  ]
+ ],
+ "largeur": 26.5,
+ "epaisseur": 0.9,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 46.7
+  }
+ ],
+ "confiance": "faible",
+ "notes": "Deux tabliers parallèles séparés par une fente (orthophoto) modélisés en un seul large tablier ; 68 points sous le tablier à s=20 (410,1..411,5) non interprétés, pile ou conduite possible. Épaisseur réduite à 0,9 m pour éviter le sol des berges à l'extrémité (s=42).",
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissimage (wms.geo.admin.ch)",
+  "swissTLM3D",
+  "swissSURFACE3D"
+ ],
+ "photos_vues": 0
+}

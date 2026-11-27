@@ -1,0 +1,105 @@
+{
+ "nom": "Ponte Pascoletto (A13 sur la Moesa), Grono / Leggia",
+ "axe": [
+  [
+   2732725.98,
+   1123945.9,
+   326.49
+  ],
+  [
+   2732718.01,
+   1123930.44,
+   326.65
+  ],
+  [
+   2732697.64,
+   1123891.04,
+   326.47
+  ],
+  [
+   2732675.2,
+   1123850.88,
+   326.09
+  ],
+  [
+   2732662.3,
+   1123829.41,
+   325.85
+  ],
+  [
+   2732654.05,
+   1123815.7,
+   325.75
+  ],
+  [
+   2732648.46,
+   1123806.77,
+   325.69
+  ]
+ ],
+ "largeur": 22.5,
+ "largeur_dessous": 15.0,
+ "epaisseur": 2.0,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.35
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 40.0,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 14.0,
+   "larg_colonne": 3.4,
+   "z_bas": 317.7
+  },
+  {
+   "type": "pile",
+   "s": 80.0,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 14.0,
+   "larg_colonne": 3.4,
+   "z_bas": 316.6
+  },
+  {
+   "type": "pile",
+   "s": 120.0,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 14.0,
+   "larg_colonne": 3.4,
+   "z_bas": 316.3
+  },
+  {
+   "type": "culee",
+   "s": 159.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2020 (tuile 2732-1123, LAS)",
+  "swisstopo swissimage (orthophoto)",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Tablier (double chaussée A13, 22,5 m, joints de dilatation d'extrémité vus à l'orthophoto, pente en travers ~0,03) mesuré au laser ; le laser aérien ne voit ni dessous ni piles (aucune classe 26/27) : nombre (3), place (s = 40, 80, 120), forme et épaisseur de caisson sont supposés, aucune photo de l'ouvrage trouvée (Commons, Mapillary sans jeton), pas de calage photo.",
+ "remblai": [
+  [
+   0,
+   10
+  ],
+  [
+   148,
+   160
+  ]
+ ]
+}

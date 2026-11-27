@@ -1,0 +1,39 @@
+{
+ "nom": "Passerelle sur la Plessur (Weg), Coire",
+ "axe": [
+  [
+   2760068.4,
+   1190300.2,
+   600.7
+  ],
+  [
+   2760081.4,
+   1190320.0,
+   600.5
+  ]
+ ],
+ "largeur": 2.2,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 23.7
+  }
+ ],
+ "confiance": "faible",
+ "notes": "Passerelle piétonne étroite, la pente du tablier suit l'axe TLM (601,5 douteux aplati à 600,6). Non vérifié au laser (Coire : seulement des tuiles LAS 2020, pas de COPC).",
+ "sources": [
+  "https://www.swisstopo.admin.ch (swissTLM3D axe, swissALTI3D, SWISSIMAGE)"
+ ],
+ "photos_vues": 0,
+ "photo": null
+}

@@ -1,0 +1,49 @@
+{
+ "nom": "Pont routier sur la Suze, Bienne (Frinvillier)",
+ "axe": [
+  [
+   2585960.3,
+   1224215.4,
+   531.7
+  ],
+  [
+   2585942.6,
+   1224205.1,
+   531.8
+  ],
+  [
+   2585934.5,
+   1224200.4,
+   531.8
+  ],
+  [
+   2585925.0,
+   1224194.9,
+   531.9
+  ]
+ ],
+ "largeur": 11.0,
+ "epaisseur": 1.5,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.35
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 40.8
+  }
+ ],
+ "confiance": "faible",
+ "notes": "Non vérifié au laser. Poutre simple travée sur deux culées, largeur lue sur l'orthophoto (~11 m) ; type de structure (dalle, poutres ou voûte) et épaisseur inconnus. Rive sud plus basse de 6 m, culée dessinée à la hauteur du tablier moins l'épaisseur seulement.",
+ "sources": [
+  "https://www.swisstopo.admin.ch (swissTLM3D axe, swissALTI3D, SWISSIMAGE)"
+ ],
+ "photos_vues": 0,
+ "photo": null
+}

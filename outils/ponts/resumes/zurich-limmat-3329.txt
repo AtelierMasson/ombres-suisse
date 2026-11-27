@@ -1,0 +1,4 @@
+# pont sur Limmat (10m Strasse) (10m Strasse, undefined) : axe swissTLM3D de 3 m, de [2683355.6,1248127.6,409.0] à [2683352.3,1248126.7,408.9] ; relevé 2024, 3847 points dans un couloir de ±25 m
+s = distance le long de l'axe ; chaussee = dessus du tablier (laser) ; dessous_tablier ; terrain ; eau ; appuis = points sous le tablier, de terrain+2,5 m à tablier-1 m (piles, arcs) : nombre et altitudes bas..haut
+s	chaussee	dessous_tablier	terrain	eau	appuis
+0	408.9	408.7	408.9	408.4	-

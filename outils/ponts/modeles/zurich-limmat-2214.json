@@ -1,0 +1,47 @@
+{
+ "nom": "Passerelle sur la Limmat (Zurich)",
+ "axe": [
+  [
+   2682201.5,
+   1249317.6,
+   405.0
+  ],
+  [
+   2682212.0,
+   1249346.0,
+   405.2
+  ],
+  [
+   2682223.9,
+   1249380.2,
+   405.0
+  ]
+ ],
+ "largeur": 3.0,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 66.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "relevé swissSURFACE3D 2024",
+  "TLM swisstopo",
+  "orthophoto swissimage"
+ ],
+ "photos_vues": 0,
+ "confiance": "moyenne",
+ "notes": "Passerelle portée unique, structure non vérifiée par photo."
+}

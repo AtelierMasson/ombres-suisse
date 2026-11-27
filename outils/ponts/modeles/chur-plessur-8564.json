@@ -1,0 +1,39 @@
+{
+ "nom": "Passerelle sur la Plessur (Weg), Coire",
+ "axe": [
+  [
+   2758557.0,
+   1191241.7,
+   578.1
+  ],
+  [
+   2758571.4,
+   1191256.5,
+   577.3
+  ]
+ ],
+ "largeur": 2.5,
+ "epaisseur": 0.6,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 20.6
+  }
+ ],
+ "confiance": "faible",
+ "notes": "Passerelle piétonne sur une portée, largeur supposée d'après l'orthophoto. Non vérifié au laser (Coire : seulement des tuiles LAS 2020, pas de COPC).",
+ "sources": [
+  "https://www.swisstopo.admin.ch (swissTLM3D axe, swissALTI3D, SWISSIMAGE)"
+ ],
+ "photos_vues": 0,
+ "photo": null
+}

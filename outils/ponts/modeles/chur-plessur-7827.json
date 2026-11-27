@@ -1,0 +1,54 @@
+{
+ "nom": "Pont de l'autoroute A13 sur la Plessur, Coire",
+ "axe": [
+  [
+   2757842.6,
+   1192129.9,
+   564.0
+  ],
+  [
+   2757835.2,
+   1192116.6,
+   564.2
+  ],
+  [
+   2757826.0,
+   1192099.0,
+   564.3
+  ],
+  [
+   2757817.9,
+   1192081.2,
+   564.0
+  ],
+  [
+   2757812.2,
+   1192068.6,
+   564.0
+  ]
+ ],
+ "largeur": 25.0,
+ "epaisseur": 1.3,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 68.5
+  }
+ ],
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (pas de COPC à Coire, 2020 en LAS seulement). Largeur de 25 m lue sur l'orthophoto (deux chaussées sur un même tablier, plus la bande médiane), épaisseur supposée, aucune pile visible sur l'orthophoto, la rivière étant franchie en biais sur ~25 m.",
+ "sources": [
+  "https://www.swisstopo.admin.ch (swissTLM3D axe, swissALTI3D, SWISSIMAGE)"
+ ],
+ "photos_vues": 1,
+ "photo": null
+}

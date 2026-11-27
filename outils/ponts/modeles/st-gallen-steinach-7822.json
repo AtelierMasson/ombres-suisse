@@ -1,0 +1,47 @@
+{
+ "nom": "Pont sur la Steinach (7822), St. Gallen",
+ "axe": [
+  [
+   2747817.5,
+   1256389.3,
+   626.6
+  ],
+  [
+   2747827.8,
+   1256372.8,
+   626.9
+  ],
+  [
+   2747838.1,
+   1256356.3,
+   627.3
+  ]
+ ],
+ "largeur": 11.4,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.35
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 38.9
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D (COPC)",
+  "swissTLM3D",
+  "swissIMAGE (orthophoto)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Pont court sur la Steinach ; largeur mesurée 11,4 m (peut inclure trottoirs ou talus)."
+}

@@ -1,0 +1,51 @@
+{
+ "nom": "Pont sur le Rhône (route de 4 m), Sion",
+ "axe": [
+  [
+   2590370.3,
+   1117686.9,
+   486.9
+  ],
+  [
+   2590374.8,
+   1117651.6,
+   487.9
+  ],
+  [
+   2590379.1,
+   1117617.8,
+   487.9
+  ],
+  [
+   2590382.4,
+   1117586.4,
+   486.8
+  ]
+ ],
+ "largeur": 9.0,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 101.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (pas de COPC en Valais) : axe TLM suivi sur l'orthophoto, largeur 9 m estimée (chaussée de 4 m, trottoir et rebords), une travée supposée sans pile, épaisseur supposée ; altitudes TLM 487-488 m, non contrôlées."
+}

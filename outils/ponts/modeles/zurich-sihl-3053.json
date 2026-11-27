@@ -1,0 +1,68 @@
+{
+ "nom": "Passerelle métallique sur la Sihl (près du chantier de pont), Zurich",
+ "axe": [
+  [
+   2683025.3,
+   1248481.3,
+   406.9
+  ],
+  [
+   2683052.5,
+   1248489.2,
+   406.9
+  ],
+  [
+   2683076.5,
+   1248496.4,
+   406.9
+  ],
+  [
+   2683081.7,
+   1248497.8,
+   406.9
+  ]
+ ],
+ "largeur": 4.0,
+ "epaisseur": 0.8,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 15,
+   "forme": "rect",
+   "long": 0.8,
+   "larg": 1.5,
+   "z_bas": 402.2
+  },
+  {
+   "type": "pile",
+   "s": 36,
+   "forme": "rect",
+   "long": 0.8,
+   "larg": 1.5,
+   "z_bas": 399.5
+  },
+  {
+   "type": "culee",
+   "s": 58.8
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D",
+  "swisstopo swissSURFACE3D 2024"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "L'axe TLM correspond à la passerelle (laser : 3,7 m, tablier 406,9) et non au pont routier en chantier voisin (formes de coffrage, non modélisé). Piles posées sur le relevé (s 15 et 36), formes réelles et poutres du treillis non représentées ; nom non vérifié."
+}

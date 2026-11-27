@@ -1,0 +1,47 @@
+{
+ "nom": "Pont sur la Steinach (route communale), St. Gallen",
+ "axe": [
+  [
+   2746318.0,
+   1254115.0,
+   704.1
+  ],
+  [
+   2746337.9,
+   1254126.9,
+   704.6
+  ],
+  [
+   2746357.7,
+   1254138.9,
+   705.1
+  ]
+ ],
+ "largeur": 9.8,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 46.3
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D (COPC)",
+  "swissTLM3D",
+  "swissIMAGE (orthophoto)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Pont routier haut (14 m au-dessus du ruisseau), structure non vue (poutres ou voûte ?), modélisé en dalle de 1 m sans appui ; conflit de terrain résiduel à s=42 (talus de la culée, 0,8 m). Le pourcentage de points expliqués est bas car le couloir englobe des bâtiments et arbres voisins."
+}

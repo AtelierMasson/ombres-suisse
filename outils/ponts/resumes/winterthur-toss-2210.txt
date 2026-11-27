@@ -1,0 +1,16 @@
+# Pont autour de 2702210 1256501 : relevé swissSURFACE3D (2024), 506558 points lus
+axe (bouts du tablier mesuré) : [2702194.7,1256511.1] -> [2702226.6,1256490.4], longueur 38.1 m, largeur mesurée 5.3 m
+s = distance depuis le premier bout (m) ; chaussee = dessus du tablier ; terrain = sol mesuré sous le pont (absent = eau, ou caché) ;
+dessous = autres points entre terrain + 2,5 m et le tablier (piles, arcs, murs) : nombre, altitudes bas..haut ; veg = arbres
+(le laser vole au-dessus : sous un tablier large, les arcs et piles fines sont souvent peu ou pas touchés)
+s	chaussee	dessous_tablier	terrain	eau	dessous(n bas..haut)	veg
+0	506.5	506.3	504.0	-	-	1093
+4	506.6	506.5	502.8	-	-	1073
+8	506.7	506.6	501.1	500.9	-	225
+12	506.7	506.6	500.9	500.9	-	-
+16	506.7	506.6	500.9	500.9	-	-
+20	506.7	506.6	501.0	500.9	-	-
+24	506.7	506.6	501.0	500.9	-	107
+28	506.6	506.5	502.7	501.2	-	40
+32	506.5	506.3	503.9	-	-	326
+36	506.3	506.0	505.5	-	-	136

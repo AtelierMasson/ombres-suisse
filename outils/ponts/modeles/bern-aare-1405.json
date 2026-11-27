@@ -1,0 +1,319 @@
+{
+ "nom": "Tiefenaubrücke (pont RBS, Aare Worblaufen), Berne",
+ "axe": [
+  [
+   2601421.1,
+   1202962.1,
+   520.0
+  ],
+  [
+   2601414.3,
+   1202931.9,
+   520.0
+  ],
+  [
+   2601406.3,
+   1202892.7,
+   520.0
+  ],
+  [
+   2601398.4,
+   1202853.5,
+   520.0
+  ],
+  [
+   2601390.6,
+   1202814.2,
+   520.0
+  ],
+  [
+   2601382.2,
+   1202775.1,
+   520.0
+  ],
+  [
+   2601378.4,
+   1202762.2,
+   520.0
+  ]
+ ],
+ "largeur": 11.2,
+ "epaisseur": 3.3,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 204.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [
+  {
+   "de": [
+    43.4,
+    -4.3,
+    497.0
+   ],
+   "a": [
+    54.7,
+    -4.3,
+    "tablier"
+   ],
+   "larg": 3.0,
+   "ep": 2.3
+  },
+  {
+   "de": [
+    135.4,
+    -4.3,
+    497.0
+   ],
+   "a": [
+    123.6,
+    -4.3,
+    "tablier"
+   ],
+   "larg": 3.0,
+   "ep": 2.3
+  },
+  {
+   "de": [
+    43.4,
+    2.5,
+    497.0
+   ],
+   "a": [
+    54.7,
+    2.5,
+    "tablier"
+   ],
+   "larg": 3.0,
+   "ep": 2.3
+  },
+  {
+   "de": [
+    135.4,
+    2.5,
+    497.0
+   ],
+   "a": [
+    123.6,
+    2.5,
+    "tablier"
+   ],
+   "larg": 3.0,
+   "ep": 2.3
+  },
+  {
+   "de": [
+    55,
+    -5.6,
+    "chaussee"
+   ],
+   "a": [
+    55,
+    -5.6,
+    528.4
+   ],
+   "larg": 0.4,
+   "ep": 0.4
+  },
+  {
+   "de": [
+    55,
+    3.6,
+    "chaussee"
+   ],
+   "a": [
+    55,
+    3.6,
+    528.4
+   ],
+   "larg": 0.4,
+   "ep": 0.4
+  },
+  {
+   "de": [
+    55,
+    -5.8,
+    528.2
+   ],
+   "a": [
+    55,
+    3.8,
+    528.2
+   ],
+   "larg": 0.4,
+   "ep": 0.5
+  },
+  {
+   "de": [
+    100,
+    -5.6,
+    "chaussee"
+   ],
+   "a": [
+    100,
+    -5.6,
+    528.4
+   ],
+   "larg": 0.4,
+   "ep": 0.4
+  },
+  {
+   "de": [
+    100,
+    3.6,
+    "chaussee"
+   ],
+   "a": [
+    100,
+    3.6,
+    528.4
+   ],
+   "larg": 0.4,
+   "ep": 0.4
+  },
+  {
+   "de": [
+    100,
+    -5.8,
+    528.2
+   ],
+   "a": [
+    100,
+    3.8,
+    528.2
+   ],
+   "larg": 0.4,
+   "ep": 0.5
+  },
+  {
+   "de": [
+    155,
+    -5.6,
+    "chaussee"
+   ],
+   "a": [
+    155,
+    -5.6,
+    528.4
+   ],
+   "larg": 0.4,
+   "ep": 0.4
+  },
+  {
+   "de": [
+    155,
+    3.6,
+    "chaussee"
+   ],
+   "a": [
+    155,
+    3.6,
+    528.4
+   ],
+   "larg": 0.4,
+   "ep": 0.4
+  },
+  {
+   "de": [
+    155,
+    -5.8,
+    528.2
+   ],
+   "a": [
+    155,
+    3.8,
+    528.2
+   ],
+   "larg": 0.4,
+   "ep": 0.5
+  }
+ ],
+ "sources": [
+  "https://de.wikipedia.org/wiki/Tiefenaubrücke",
+  "https://en.wikipedia.org/wiki/List_of_Aare_bridges_in_Bern",
+  "https://commons.wikimedia.org/wiki/File:Tiefenaubrücke_Bern_230718.jpg",
+  "https://commons.wikimedia.org/wiki/File:Tiefenaubrücke_RBS.jpg",
+  "https://commons.wikimedia.org/wiki/File:Tiefenaubrücke.jpg"
+ ],
+ "confiance": "moyenne",
+ "notes": "Pont ferroviaire RBS en béton précontraint (rail + trottoir de 2 m à l'est = « 2m Weg » du TLM), à côté du pont routier en pierre de 1850 (trois arches, deux piles dans l'eau, tablier ouest à o -25..-10) qui n'est pas dans ce modèle ; deux jambes inclinées (Schrägstiele) par versant, pieds et inclinaison mesurés au nuage, tablier épais de 3,3 m d'après photo (sous-face jamais vue du laser), portiques de caténaire en éléments. Incertain : épaisseur et goussets du caisson, appuis des rampes d'accès (vues seulement comme remblais, pas de piles repérées), largeur et forme exacte des jambes ; le schéma ne sait pas représenter les haubans de caténaire ni le gabarit du trottoir en console autrement que par la section du tablier. Relevé 2023 en LAS (pas de COPC) : nuage lu hors ligne, couloir limité au pont ferroviaire (le pont routier voisin est exclu des pourcentages).",
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -5.5,
+     0
+    ],
+    [
+     -5.5,
+     -3.3
+    ],
+    [
+     3.4,
+     -3.3
+    ],
+    [
+     3.4,
+     -0.5
+    ],
+    [
+     5.7,
+     -0.5
+    ],
+    [
+     5.7,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 204.5,
+   "points": [
+    [
+     -5.5,
+     0
+    ],
+    [
+     -5.5,
+     -3.3
+    ],
+    [
+     3.4,
+     -3.3
+    ],
+    [
+     3.4,
+     -0.5
+    ],
+    [
+     5.7,
+     -0.5
+    ],
+    [
+     5.7,
+     0
+    ]
+   ]
+  }
+ ],
+ "photo": {
+  "fichier": "moritz.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Tiefenaubrücke_Bern_230718.jpg",
+  "auteur": "Commons (Tiefenaubrücke Bern 230718)",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 5
+}

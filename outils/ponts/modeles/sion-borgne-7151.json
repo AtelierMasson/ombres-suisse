@@ -1,0 +1,52 @@
+{
+ "nom": "Pont de la rue sur le canal de la Borgne, Sion",
+ "axe": [
+  [
+   2597146.6,
+   1119765.2,
+   512.3
+  ],
+  [
+   2597150.1,
+   1119769.4,
+   512.5
+  ],
+  [
+   2597153.3,
+   1119773.0,
+   512.3
+  ],
+  [
+   2597157.3,
+   1119777.7,
+   511.9
+  ]
+ ],
+ "largeur": 4.8,
+ "epaisseur": 0.8,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 15.3
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D",
+  "https://api3.geo.admin.ch/rest/services/height (swissALTI3D)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC à Sion (seule la tuile 2022 en LAS.zip) : modèle tiré de l'axe TLM, de swissALTI3D et de l'orthophoto, non vérifié au laser. Petit pont de ~15 m (le canal fait ~8 m selon swissALTI3D, altitude 506,7 m) sur le tronçon courbe de l'axe TLM ; une passerelle à treillis blanc (~20 m) enjambe le même cours d'eau ~12 m à l'ouest : non modélisée, le schéma ne fait pas de treillis ajouré à ce niveau de détail."
+}

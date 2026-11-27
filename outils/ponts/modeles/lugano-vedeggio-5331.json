@@ -1,0 +1,43 @@
+{
+ "nom": "Passerelle métallique sur le canal du Vedeggio, Lugano",
+ "axe": [
+  [
+   2715316.6,
+   1101650.6,
+   333.1
+  ],
+  [
+   2715343.0,
+   1101650.6,
+   333.1
+  ]
+ ],
+ "largeur": 2.6,
+ "epaisseur": 0.9,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 1.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 26.4
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D",
+  "https://api3.geo.admin.ch/rest/services/height"
+ ],
+ "photos_vues": 1,
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC au Tessin (tuiles LAS zip seulement) : non vérifié au laser. Conflit avec la fiche : l'axe TLM va du nord au sud (20 m) le long du canal, alors que l'orthophoto montre une passerelle métallique bleue est-ouest de ~26 m franchissant le canal ; j'ai modélisé cette dernière (axe tracé sur l'orthophoto, altitude TLM 333,1)."
+}

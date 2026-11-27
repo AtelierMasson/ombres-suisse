@@ -1,0 +1,156 @@
+{
+ "nom": "Passerelle Pratocarasso-Galbisio sur le Tessin, Bellinzone",
+ "axe": [
+  [
+   2722985.3,
+   1118678.3,
+   234.59
+  ],
+  [
+   2722923.9,
+   1118826.4,
+   234.59
+  ]
+ ],
+ "largeur": 4.2,
+ "epaisseur": 0.85,
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -2.1,
+     0
+    ],
+    [
+     -2.1,
+     -0.85
+    ],
+    [
+     -1.55,
+     -0.85
+    ],
+    [
+     -1.55,
+     -0.5
+    ],
+    [
+     2.1,
+     -0.25
+    ],
+    [
+     2.1,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 160.3233295562943,
+   "points": [
+    [
+     -2.1,
+     0
+    ],
+    [
+     -2.1,
+     -0.85
+    ],
+    [
+     -1.55,
+     -0.85
+    ],
+    [
+     -1.55,
+     -0.5
+    ],
+    [
+     2.1,
+     -0.25
+    ],
+    [
+     2.1,
+     0
+    ]
+   ]
+  }
+ ],
+ "materiau": "acier",
+ "materiau_tablier": "acier",
+ "garde_corps": {
+  "hauteur": 1.3,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.04,
+  "materiau": "acier"
+ },
+ "parois": [
+  {
+   "s0": 0,
+   "s1": 160.3,
+   "o0": -1.825,
+   "o1": -1.825,
+   "h": 1.4,
+   "ep": 0.55,
+   "materiau": "acier"
+  }
+ ],
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 2.0
+  },
+  {
+   "type": "pile",
+   "s": 22.8,
+   "forme": "rect",
+   "long": 1.0,
+   "larg": 3.0,
+   "z_bas": 226.4,
+   "z_haut": 233.75,
+   "materiau": "beton",
+   "t": -1.0
+  },
+  {
+   "type": "pile",
+   "s": 75.6,
+   "forme": "rect",
+   "long": 1.0,
+   "larg": 3.0,
+   "z_bas": 226.4,
+   "z_haut": 233.75,
+   "materiau": "beton",
+   "t": -1.0
+  },
+  {
+   "type": "pile",
+   "s": 122.4,
+   "forme": "rect",
+   "long": 1.0,
+   "larg": 3.0,
+   "z_bas": 226.4,
+   "z_haut": 233.75,
+   "materiau": "beton",
+   "t": -1.0
+  },
+  {
+   "type": "culee",
+   "s": 158.3
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://www.officineghidoni.ch/progetti/passerella-pratocarasso-2010",
+  "https://www.officineghidoni.ch/fileadmin/user_upload/pubblicazioni/Metall_Glass/Metall_Glass_2011-2012/La_passerella_pratocarasso_galbisio.pdf",
+  "https://commons.wikimedia.org/wiki/File:Fussg%C3%A4nger-_und_Velobr%C3%BCcke_Pratocarasso-Galbisio_%C3%BCber_den_Tessin,_Bellinzona_TI_20250620-jag9889.jpg"
+ ],
+ "photo": {
+  "fichier": "commons1_s.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Fussg%C3%A4nger-_und_Velobr%C3%BCcke_Pratocarasso-Galbisio_%C3%BCber_den_Tessin,_Bellinzona_TI_20250620-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 6,
+ "confiance": "bonne",
+ "notes": "Relevé 2020 en LAS zippé (pas de COPC), lu sur la tuile 2722-1118 : tablier plat à 234,59 m (médiane 0,00 m), appuis placés d'après les portées publiées (20,82 / 52,76 / 46,73 / 35,89 m) et confirmés par les sommets de piles vus au laser (s 22,8, 75,6, 122,4, côté nord-est sous la poutre rouge) ; piles de 1,0 x 3,0 m décalées de 1 m vers le côté nord, pieds à 226,4 m pour suivre le sol de l'application (le vrai terrain est à 230 m en rive sud, 227 m dans l'eau, 231,7 m en rive nord). Le schéma ne sait pas faire l'écran perforé courbe du côté sud (remplacé par une main courante ajourée de 1,3 m), la poutre-caisson rouge n'est qu'une paroi de 0,55 x 2,25 m et le dessous (traverses en console) est une section simplifiée ; les pieds de piles trop bas et la tranchée sous le tablier viennent du sol de l'application, pas du modèle."
+}

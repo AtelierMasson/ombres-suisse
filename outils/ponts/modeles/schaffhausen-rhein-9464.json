@@ -1,0 +1,66 @@
+{
+ "nom": "Passerelle du barrage de Schaffhausen (usine hydroélectrique), Schaffhausen",
+ "axe": [
+  [
+   2689481.9,
+   1283163.6,
+   394.6
+  ],
+  [
+   2689493.5,
+   1283088.5,
+   394.6
+  ]
+ ],
+ "largeur": 2.8,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 24,
+   "forme": "rect",
+   "long": 3.0,
+   "larg": 2.8,
+   "z_bas": 383.0
+  },
+  {
+   "type": "pile",
+   "s": 42,
+   "forme": "rect",
+   "long": 3.0,
+   "larg": 2.8,
+   "z_bas": 383.0
+  },
+  {
+   "type": "pile",
+   "s": 54.5,
+   "forme": "rect",
+   "long": 3.0,
+   "larg": 2.8,
+   "z_bas": 383.0
+  },
+  {
+   "type": "culee",
+   "s": 76
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D",
+  "swisssurface3d 2024"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Passerelle piétonne en crête du barrage-usine de Schaffhausen (Rhin), axe redessiné sur l'orthophoto (le segment TLM du recensement n'est qu'une traverse de 19 m) ; piles aux têtes de vannes lues sur l'orthophoto, positions estimées. Seule la passerelle piétonne est modélisée : le tablier étroit de 2,8 m côté est ; la plate-forme technique de 5 m, 17 m plus à l'ouest, et le corps des piles (11 m en travers) ne sont pas modélisés, d'où 29 % seulement de points expliqués. Le schéma ne représente ni les vannes, ni la grue portique (points laser jusqu'à 408 m) ni la seconde passerelle parallèle côté ouest."
+}

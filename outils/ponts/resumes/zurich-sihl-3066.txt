@@ -1,0 +1,14 @@
+# pont sur Sihl (2m Weg) (2m Weg, undefined) : axe swissTLM3D de 55 m, de [2683039.0,1248402.8,407.7] à [2683093.3,1248408.8,407.2] ; relevé 2024, 40408 points dans un couloir de ±25 m
+s = distance le long de l'axe ; chaussee = dessus du tablier (laser) ; dessous_tablier ; terrain ; eau ; appuis = points sous le tablier, de terrain+2,5 m à tablier-1 m (piles, arcs) : nombre et altitudes bas..haut
+s	chaussee	dessous_tablier	terrain	eau	appuis
+0	-	-	404.3	-	-
+5	-	-	403.6	402.6	-
+10	-	-	402.9	402.5	-
+15	-	-	402.4	402.5	-
+20	-	-	-	402.5	-
+25	-	-	-	402.5	-
+30	-	-	-	402.5	-
+35	-	-	-	402.4	-
+40	-	-	402.9	402.4	-
+45	-	-	402.5	402.4	-
+50	-	-	405.7	-	-

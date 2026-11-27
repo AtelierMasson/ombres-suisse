@@ -1,0 +1,48 @@
+{
+ "nom": "Pont routier et tram sur la Wiese (10m Strasse), Bâle",
+ "axe": [
+  [
+   2611622.5,
+   1270072.1,
+   250.8
+  ],
+  [
+   2611618.4,
+   1270055.4,
+   251.1
+  ],
+  [
+   2611609.1,
+   1270022.4,
+   250.7
+  ]
+ ],
+ "largeur": 21.0,
+ "epaisseur": 1.3,
+ "garde_corps": {
+  "hauteur": 0.9,
+  "plein": true,
+  "epaisseur": 0.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 51.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://wms.geo.admin.ch/ (swissimage)",
+  "swissTLM3D (axe)",
+  "swissALTI3D (terrain via api3.geo.admin.ch/height)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (Bâle sans COPC) : pont urbain large (route + tram, ~21 m d'après l'orthophoto), sans pile visible, épaisseur estimée ; le carrefour sous-jacent et les murs de rive ne sont pas modélisés. Longueur TLM 51,5 m, la rivière en occupe environ 25 m."
+}

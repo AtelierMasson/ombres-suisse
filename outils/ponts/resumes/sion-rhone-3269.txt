@@ -1,0 +1,13 @@
+# pont sur Rhône (1m Weg) (1m Weg, undefined) : axe swissTLM3D de 93 m, de [2593296.5,1118397.1,490.0] à [2593254.8,1118480.3,490.8] ; relevé , 0 points dans un couloir de ±25 m
+s = distance le long de l'axe ; chaussee = dessus du tablier (laser) ; dessous_tablier ; terrain ; eau ; appuis = points sous le tablier, de terrain+2,5 m à tablier-1 m (piles, arcs) : nombre et altitudes bas..haut
+s	chaussee	dessous_tablier	terrain	eau	appuis
+0	-	-	-	-	-
+10	-	-	-	-	-
+20	-	-	-	-	-
+30	-	-	-	-	-
+40	-	-	-	-	-
+50	-	-	-	-	-
+60	-	-	-	-	-
+70	-	-	-	-	-
+80	-	-	-	-	-
+90	-	-	-	-	-

@@ -1,0 +1,43 @@
+{
+ "nom": "Passerelle sur la Wiese (2m Weg), Bâle",
+ "axe": [
+  [
+   2614306.7,
+   1270060.1,
+   263.4
+  ],
+  [
+   2614272.7,
+   1270097.5,
+   263.6
+  ]
+ ],
+ "largeur": 3.0,
+ "epaisseur": 0.8,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 50.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://wms.geo.admin.ch/ (swissimage)",
+  "swissTLM3D (axe)",
+  "swissALTI3D (terrain via api3.geo.admin.ch/height)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (Bâle sans COPC) : passerelle piétonne rectiligne en biais au-dessus de deux seuils, d'après l'orthophoto ; largeur et épaisseur estimées, aucun appui visible. Structure porteuse (acier/bois) inconnue."
+}

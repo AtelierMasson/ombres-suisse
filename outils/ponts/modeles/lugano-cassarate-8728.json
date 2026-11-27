@@ -1,0 +1,48 @@
+{
+ "nom": "Passerelle sur le Cassarate, Lugano",
+ "axe": [
+  [
+   2718749.7,
+   1100296.5,
+   335.4
+  ],
+  [
+   2718747.7,
+   1100295.4,
+   336.6
+  ],
+  [
+   2718726.8,
+   1100287.3,
+   336.5
+  ]
+ ],
+ "largeur": 2.0,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 1.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 24.7
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D",
+  "https://api3.geo.admin.ch/rest/services/height"
+ ],
+ "photos_vues": 1,
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC au Tessin (tuiles LAS zip seulement) : non vérifié au laser. Longueur de l'axe TLM (24,7 m) très inférieure à celle de la fiche (46 m) : l'orthophoto montre un franchissement de ~12 m au centre de l'axe, le reste est rampe d'accès ; type de structure inconnu."
+}

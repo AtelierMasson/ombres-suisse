@@ -1,0 +1,41 @@
+{
+ "nom": "Pont sur la Kleine Emme (voie ferrée et chemin), Lucerne",
+ "axe": [
+  [
+   2662806.0,
+   1213223.9,
+   445.9
+  ],
+  [
+   2662809.7,
+   1213288.0,
+   445.9
+  ]
+ ],
+ "largeur": 6.5,
+ "epaisseur": 0.8,
+ "garde_corps": {
+  "hauteur": 1.8,
+  "plein": true,
+  "epaisseur": 0.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 64.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (pas de nuage COPC ici, seulement des tuiles LAS zippées). Pont à poutres latérales hautes (poutres vues par leurs ombres sur l'orthophoto), travée unique de 64 m ; le chemin (1m Weg) et la voie ferrée voisine ne sont pas distingués, la hauteur des poutres est estimée."
+}

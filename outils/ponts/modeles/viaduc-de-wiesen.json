@@ -1,0 +1,212 @@
+{
+ "nom": "Viaduc de Wiesen (Wiesener Viadukt), Davos Wiesen",
+ "axe": [
+  [
+   2773868.1,
+   1173944.6,
+   1189.28
+  ],
+  [
+   2773876.9,
+   1173953.6,
+   1189.69
+  ],
+  [
+   2773886.9,
+   1173962.2,
+   1190.13
+  ],
+  [
+   2773903.7,
+   1173973.2,
+   1190.81
+  ],
+  [
+   2773930.1,
+   1173987.4,
+   1191.83
+  ],
+  [
+   2773956.6,
+   1174001.5,
+   1192.85
+  ],
+  [
+   2773983.1,
+   1174015.5,
+   1193.87
+  ],
+  [
+   2774009.6,
+   1174029.6,
+   1194.89
+  ],
+  [
+   2774041.9,
+   1174046.8,
+   1196.13
+  ]
+ ],
+ "largeur": 5.6,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 22.23,
+   "forme": "rect",
+   "long": 4,
+   "larg": 5.8,
+   "z_bas": 1164.5,
+   "fruit": 0.025
+  },
+  {
+   "type": "pile",
+   "s": 46.36,
+   "forme": "rect",
+   "long": 7,
+   "larg": 6.2,
+   "z_bas": 1144,
+   "fruit": 0.03
+  },
+  {
+   "type": "pile",
+   "s": 108.35,
+   "forme": "rect",
+   "long": 6.5,
+   "larg": 6.2,
+   "z_bas": 1145,
+   "fruit": 0.03
+  },
+  {
+   "type": "pile",
+   "s": 132.33,
+   "forme": "rect",
+   "long": 4,
+   "larg": 5.8,
+   "z_bas": 1160.5,
+   "fruit": 0.025
+  },
+  {
+   "type": "pile",
+   "s": 156.33,
+   "forme": "rect",
+   "long": 4,
+   "larg": 5.8,
+   "z_bas": 1172,
+   "fruit": 0.025
+  },
+  {
+   "type": "pile",
+   "s": 180.38,
+   "forme": "rect",
+   "long": 4,
+   "larg": 5.8,
+   "z_bas": 1180.5,
+   "fruit": 0.025
+  },
+  {
+   "type": "culee",
+   "s": 202.43444636699286
+  }
+ ],
+ "arches": [
+  {
+   "s0": 0.0,
+   "s1": 20.2,
+   "z_naissance": 1177.56,
+   "z_cle": 1187.31,
+   "epaisseur": 1.0,
+   "larg": 5.2,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 24.25,
+   "s1": 42.85,
+   "z_naissance": 1178.84,
+   "z_cle": 1188.09,
+   "epaisseur": 1.0,
+   "larg": 5.2,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 49.85,
+   "s1": 105.05,
+   "z_naissance": 1153.0,
+   "z_cle": 1188.0,
+   "epaisseur": 2.2,
+   "larg": 3.7,
+   "plein": false,
+   "forme": "cintre",
+   "nervures": 1,
+   "larg_nervure": 3.7,
+   "montants_pas": 6.0,
+   "montant_ep": 1.4
+  },
+  {
+   "s0": 111.55,
+   "s1": 130.33,
+   "z_naissance": 1181.66,
+   "z_cle": 1191.06,
+   "epaisseur": 1.0,
+   "larg": 5.2,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 134.32,
+   "s1": 154.33,
+   "z_naissance": 1181.86,
+   "z_cle": 1191.86,
+   "epaisseur": 1.0,
+   "larg": 5.2,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 158.34,
+   "s1": 178.37,
+   "z_naissance": 1182.67,
+   "z_cle": 1192.67,
+   "epaisseur": 1.0,
+   "larg": 5.2,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 182.38,
+   "s1": 202.43,
+   "z_naissance": 1183.49,
+   "z_cle": 1193.49,
+   "epaisseur": 1.0,
+   "larg": 5.2,
+   "plein": true,
+   "forme": "cintre"
+  }
+ ],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://de.wikipedia.org/wiki/Wiesener_Viadukt",
+  "https://commons.wikimedia.org/wiki/Category:Wiesener_Viadukt"
+ ],
+ "photo": {
+  "fichier": "a.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Wiesener_Viadukt_Fr%C3%BChling_2025.jpg",
+  "auteur": "Lawi",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 3,
+ "confiance": "moyenne",
+ "notes": "Relevé swissSURFACE3D 2020 lu depuis les tuiles LAS zippées (pas de COPC) : tablier, piles et sol mesurés ; l'intrados de l'arc principal (naissances 1153 m, très surhaussé, clé 1188 m) est déduit de points épars sous le tablier et de la photo. Les arcs d'approche (2 à l'ouest, 4 à l'est, 20 m) sont des plein cintre pleins de pente régulière, la pente de ~3,4 % est suivie ; le schéma ne sait pas faire les fûts de piles effilés vers le haut ni les arcatures de tympan autrement que par des montants réguliers. Calage photo b.jpg (Südseite) sur 6 points, 5,7 px ; culées non vérifiées visuellement (cachées par les arbres)."
+}

@@ -1,0 +1,53 @@
+{
+ "nom": "Pont sur la Suze (route 3 m), Biel/Bienne",
+ "axe": [
+  [
+   2587281.7,
+   1221943.7,
+   443.3
+  ],
+  [
+   2587289.5,
+   1221941.4,
+   443.5
+  ],
+  [
+   2587296.7,
+   1221939.4,
+   443.5
+  ],
+  [
+   2587305.5,
+   1221937.1,
+   443.2
+  ]
+ ],
+ "largeur": 4.5,
+ "epaisseur": 0.7,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 24.7
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "swissTLM3D (axe)",
+  "swissALTI3D via api3.geo.admin.ch/height",
+  "swissimage (orthophoto WMS)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser : swissSURFACE3D 2023 n'existe qu'en LAS zippé (130 Mo/tuile), pas de COPC. Modèle depuis l'axe TLM, swissALTI3D et l'orthophoto ; largeur et épaisseur estimées."
+}

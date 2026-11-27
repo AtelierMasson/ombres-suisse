@@ -1,0 +1,398 @@
+{
+ "nom": "Innbrücke Zuoz (pont Maillart, Via Dorta), Zuoz GR",
+ "axe": [
+  [
+   2793367.8,
+   1163755.5,
+   1669.78
+  ],
+  [
+   2793377.94,
+   1163749.08,
+   1670.12
+  ],
+  [
+   2793388.93,
+   1163742.13,
+   1670.38
+  ],
+  [
+   2793398.22,
+   1163736.25,
+   1670.2
+  ],
+  [
+   2793408.1,
+   1163730.0,
+   1669.84
+  ]
+ ],
+ "largeur": 5.0,
+ "epaisseur": 0.4,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 3.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "culee",
+   "s": 47.69,
+   "materiau": "pierre"
+  }
+ ],
+ "arches": [
+  {
+   "s0": 4.7,
+   "s1": 43.0,
+   "z_naissance": 1666.1,
+   "z_cle": 1669.72,
+   "epaisseur": 0.5,
+   "larg": 3.4,
+   "plein": true
+  }
+ ],
+ "pylones": [],
+ "elements": [
+  {
+   "de": [
+    0.2,
+    -2.45,
+    1670.84
+   ],
+   "a": [
+    6.0,
+    -2.45,
+    1671.0
+   ],
+   "larg": 0.08,
+   "ep": 0.08
+  },
+  {
+   "de": [
+    0.2,
+    -2.45,
+    1670.34
+   ],
+   "a": [
+    6.0,
+    -2.45,
+    1670.5
+   ],
+   "larg": 0.08,
+   "ep": 0.08
+  },
+  {
+   "de": [
+    0.2,
+    -2.45,
+    1669.79
+   ],
+   "a": [
+    0.2,
+    -2.45,
+    1670.89
+   ],
+   "larg": 0.1,
+   "ep": 0.1
+  },
+  {
+   "de": [
+    3.1,
+    -2.45,
+    1669.87
+   ],
+   "a": [
+    3.1,
+    -2.45,
+    1670.97
+   ],
+   "larg": 0.1,
+   "ep": 0.1
+  },
+  {
+   "de": [
+    6.0,
+    -2.45,
+    1669.95
+   ],
+   "a": [
+    6.0,
+    -2.45,
+    1671.05
+   ],
+   "larg": 0.1,
+   "ep": 0.1
+  },
+  {
+   "de": [
+    0.2,
+    2.45,
+    1670.84
+   ],
+   "a": [
+    6.0,
+    2.45,
+    1671.0
+   ],
+   "larg": 0.08,
+   "ep": 0.08
+  },
+  {
+   "de": [
+    0.2,
+    2.45,
+    1670.34
+   ],
+   "a": [
+    6.0,
+    2.45,
+    1670.5
+   ],
+   "larg": 0.08,
+   "ep": 0.08
+  },
+  {
+   "de": [
+    0.2,
+    2.45,
+    1669.79
+   ],
+   "a": [
+    0.2,
+    2.45,
+    1670.89
+   ],
+   "larg": 0.1,
+   "ep": 0.1
+  },
+  {
+   "de": [
+    3.1,
+    2.45,
+    1669.87
+   ],
+   "a": [
+    3.1,
+    2.45,
+    1670.97
+   ],
+   "larg": 0.1,
+   "ep": 0.1
+  },
+  {
+   "de": [
+    6.0,
+    2.45,
+    1669.95
+   ],
+   "a": [
+    6.0,
+    2.45,
+    1671.05
+   ],
+   "larg": 0.1,
+   "ep": 0.1
+  },
+  {
+   "de": [
+    41.69,
+    -2.45,
+    1671.07
+   ],
+   "a": [
+    47.49,
+    -2.45,
+    1670.9
+   ],
+   "larg": 0.08,
+   "ep": 0.08
+  },
+  {
+   "de": [
+    41.69,
+    -2.45,
+    1670.57
+   ],
+   "a": [
+    47.49,
+    -2.45,
+    1670.4
+   ],
+   "larg": 0.08,
+   "ep": 0.08
+  },
+  {
+   "de": [
+    41.69,
+    -2.45,
+    1670.02
+   ],
+   "a": [
+    41.69,
+    -2.45,
+    1671.12
+   ],
+   "larg": 0.1,
+   "ep": 0.1
+  },
+  {
+   "de": [
+    44.59,
+    -2.45,
+    1669.94
+   ],
+   "a": [
+    44.59,
+    -2.45,
+    1671.04
+   ],
+   "larg": 0.1,
+   "ep": 0.1
+  },
+  {
+   "de": [
+    47.49,
+    -2.45,
+    1669.85
+   ],
+   "a": [
+    47.49,
+    -2.45,
+    1670.95
+   ],
+   "larg": 0.1,
+   "ep": 0.1
+  },
+  {
+   "de": [
+    41.69,
+    2.45,
+    1671.07
+   ],
+   "a": [
+    47.49,
+    2.45,
+    1670.9
+   ],
+   "larg": 0.08,
+   "ep": 0.08
+  },
+  {
+   "de": [
+    41.69,
+    2.45,
+    1670.57
+   ],
+   "a": [
+    47.49,
+    2.45,
+    1670.4
+   ],
+   "larg": 0.08,
+   "ep": 0.08
+  },
+  {
+   "de": [
+    41.69,
+    2.45,
+    1670.02
+   ],
+   "a": [
+    41.69,
+    2.45,
+    1671.12
+   ],
+   "larg": 0.1,
+   "ep": 0.1
+  },
+  {
+   "de": [
+    44.59,
+    2.45,
+    1669.94
+   ],
+   "a": [
+    44.59,
+    2.45,
+    1671.04
+   ],
+   "larg": 0.1,
+   "ep": 0.1
+  },
+  {
+   "de": [
+    47.49,
+    2.45,
+    1669.85
+   ],
+   "a": [
+    47.49,
+    2.45,
+    1670.95
+   ],
+   "larg": 0.1,
+   "ep": 0.1
+  }
+ ],
+ "sources": [
+  "https://de.wikipedia.org/wiki/Innbr%C3%BCcke_Zuoz",
+  "https://commons.wikimedia.org/wiki/Category:Innbr%C3%BCcke_Zuoz"
+ ],
+ "photo": {
+  "fichier": "Innbruecke_Zuoz_03_11.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Innbruecke_Zuoz_03_11.jpg",
+  "auteur": "Chriusha",
+  "licence": "CC BY-SA 3.0"
+ },
+ "photos_vues": 3,
+ "confiance": "bonne",
+ "notes": "Relevé swissSURFACE3D 2020 lu depuis la dalle LAS (pas de COPC) ; modèle calé sur nuage (tablier ±0,01 m) puis sur la photo d'ensemble Commons 01 (calage 5 points, résidu moyen 2,9 px ; superposition vérifiée avant ajout des raccords de garde-corps). Le schéma n'a pas de caisson creux à ailes (dalle en console 4,6 m sur caisson de 3,4 m : arche pleine remplie, culées en blocs pleins) ; le garde-corps automatique s'arrête à 6 m des bouts, complété par des barres `elements`. Rendu final après modifs non revérifié (serveur de dev rechargé en boucle).",
+ "volumes": [
+  {
+   "s": 4.35,
+   "t": 0,
+   "z_bas": 1665.4,
+   "materiau": "pierre",
+   "sections": [
+    {
+     "z": 1665.4,
+     "forme": "rect",
+     "long": 0.9,
+     "larg": 3.4
+    },
+    {
+     "z": 1669.5,
+     "forme": "rect",
+     "long": 0.9,
+     "larg": 3.4
+    }
+   ]
+  },
+  {
+   "s": 43.35,
+   "t": 0,
+   "z_bas": 1665.4,
+   "materiau": "pierre",
+   "sections": [
+    {
+     "z": 1665.4,
+     "forme": "rect",
+     "long": 0.9,
+     "larg": 3.4
+    },
+    {
+     "z": 1669.57,
+     "forme": "rect",
+     "long": 0.9,
+     "larg": 3.4
+    }
+   ]
+  }
+ ]
+}

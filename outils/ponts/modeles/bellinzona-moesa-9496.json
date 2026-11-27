@@ -1,0 +1,71 @@
+{
+ "nom": "Passerelle sur la Moesa (2 m), Bellinzone",
+ "axe": [
+  [
+   2729457.1,
+   1122116.6,
+   286.6
+  ],
+  [
+   2729461.0,
+   1122115.3,
+   286.5
+  ],
+  [
+   2729464.7,
+   1122113.7,
+   286.5
+  ],
+  [
+   2729468.4,
+   1122111.8,
+   286.5
+  ],
+  [
+   2729471.9,
+   1122109.7,
+   286.5
+  ],
+  [
+   2729496.0,
+   1122093.4,
+   286.8
+  ],
+  [
+   2729532.2,
+   1122068.7,
+   286.7
+  ],
+  [
+   2729535.9,
+   1122066.1,
+   286.6
+  ]
+ ],
+ "largeur": 2.8,
+ "epaisseur": 0.8,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 93.8
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://map.geo.admin.ch (swissIMAGE, swissTLM3D, swissALTI3D)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser : swissSURFACE3D 2020 du Tessin n'existe qu'en LAS.zip (pas de COPC). Axe et altitudes d'après swissTLM3D, terrain swissALTI3D, largeur et appuis lus sur swissIMAGE (aucune pile visible dans le lit ; épaisseur du tablier estimée, nom réel non trouvé)."
+}

@@ -1,0 +1,39 @@
+# Pont autour de 2683428 1246816 : relevé swissSURFACE3D (2024), 498583 points lus
+axe (bouts du tablier mesuré) : [2683368.3,1246798.7] -> [2683493.3,1246830.8], longueur 129.1 m, largeur mesurée 30.5 m
+s = distance depuis le premier bout (m) ; chaussee = dessus du tablier ; terrain = sol mesuré sous le pont (absent = eau, ou caché) ;
+dessous = autres points entre terrain + 2,5 m et le tablier (piles, arcs, murs) : nombre, altitudes bas..haut ; veg = arbres
+(le laser vole au-dessus : sous un tablier large, les arcs et piles fines sont souvent peu ou pas touchés)
+s	chaussee	dessous_tablier	terrain	eau	dessous(n bas..haut)	veg
+0	409.8	409.6	407.8	405.7	-	14
+4	409.9	409.7	405.7	405.7	3 408.7..409.4	-
+8	410.0	409.8	-	405.7	-	-
+12	410.1	409.9	-	405.7	-	-
+16	410.2	410.0	-	405.7	3 408.9..409.1	-
+20	410.3	410.1	-	405.7	-	-
+24	410.4	410.2	-	405.7	-	-
+28	410.5	410.3	-	405.7	-	-
+32	410.6	410.4	-	405.7	-	-
+36	410.6	410.4	-	405.7	-	-
+40	410.7	410.5	-	405.7	-	-
+44	410.8	410.6	-	405.7	-	-
+48	410.8	410.6	-	405.7	-	-
+52	410.8	410.7	-	405.7	-	-
+56	410.9	410.7	-	405.7	-	-
+60	410.9	410.7	-	405.7	-	-
+64	410.9	410.7	-	405.7	-	-
+68	410.9	410.7	-	405.7	-	-
+72	410.8	410.7	-	405.7	-	-
+76	410.8	410.6	-	405.7	-	-
+80	410.7	410.6	-	405.7	-	-
+84	410.7	410.5	-	405.7	-	-
+88	410.6	410.4	-	405.7	-	-
+92	410.5	410.3	-	405.7	-	-
+96	410.4	410.2	-	405.7	-	-
+100	410.3	410.1	-	405.7	-	-
+104	410.3	410.0	-	405.7	-	-
+108	410.1	409.9	-	405.7	-	-
+112	410.1	409.9	-	405.7	-	-
+116	409.9	409.8	-	405.7	-	-
+120	409.9	409.7	-	405.7	3 408.8..409.3	-
+124	409.7	409.5	405.9	405.7	11 408.4..409.2	-
+128	409.7	409.5	407.3	405.7	-	-

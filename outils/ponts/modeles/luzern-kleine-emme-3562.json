@@ -1,0 +1,43 @@
+{
+ "nom": "Passerelle sur la Kleine Emme (Luzern)",
+ "axe": [
+  [
+   2663577.1,
+   1213769.9,
+   441.3
+  ],
+  [
+   2663547.2,
+   1213732.6,
+   440.9
+  ]
+ ],
+ "largeur": 3.0,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 1.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 47.8
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "https://api3.geo.admin.ch (swissALTI3D)",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (pas de nuage COPC à Luzern) : modèle depuis l'axe TLM, swissALTI3D et l'orthophoto, sans photo de face ; portée unique supposée, piles éventuelles non vues."
+}

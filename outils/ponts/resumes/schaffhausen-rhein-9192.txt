@@ -1,0 +1,13 @@
+# pont sur Rhein (10m Strasse) (10m Strasse, undefined) : axe swissTLM3D de 93 m, de [2689202.2,1283135.0,388.6] à [2689197.8,1283042.5,389.5] ; relevé 2024, 18032 points dans un couloir de ±25 m
+s = distance le long de l'axe ; chaussee = dessus du tablier (laser) ; dessous_tablier ; terrain ; eau ; appuis = points sous le tablier, de terrain+2,5 m à tablier-1 m (piles, arcs) : nombre et altitudes bas..haut
+s	chaussee	dessous_tablier	terrain	eau	appuis
+0	388.9	388.3	386.9	383.6	-
+10	388.9	388.5	384.2	383.6	-
+20	389.0	388.6	-	383.6	-
+30	389.1	388.7	-	383.6	-
+40	389.2	388.8	-	383.6	-
+50	389.2	388.9	-	383.6	-
+60	389.3	389.0	-	383.6	-
+70	389.4	389.1	-	383.6	-
+80	389.5	389.2	384.5	383.6	78 387.8..388.2
+90	389.5	389.3	384.9	383.6	-

@@ -1,0 +1,51 @@
+{
+ "nom": "Pont routier sur la Moesa (6 m), Bellinzone",
+ "axe": [
+  [
+   2730387.3,
+   1122124.1,
+   292.4
+  ],
+  [
+   2730388.4,
+   1122141.6,
+   292.9
+  ],
+  [
+   2730389.6,
+   1122161.0,
+   293.0
+  ],
+  [
+   2730390.8,
+   1122182.9,
+   292.4
+  ]
+ ],
+ "largeur": 10.5,
+ "epaisseur": 1.1,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 58.9
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://map.geo.admin.ch (swissIMAGE, swissTLM3D, swissALTI3D)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser : swissSURFACE3D 2020 du Tessin n'existe qu'en LAS.zip (pas de COPC). Axe et altitudes d'après swissTLM3D, terrain swissALTI3D, largeur et appuis lus sur swissIMAGE (aucune pile visible dans le lit ; épaisseur du tablier estimée, nom réel non trouvé)."
+}

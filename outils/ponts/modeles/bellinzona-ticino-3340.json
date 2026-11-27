@@ -1,0 +1,573 @@
+{
+ "nom": "Passerelle Gorduno-Castione sur le Tessin, Arbedo-Castione",
+ "axe": [
+  [
+   2723206.5,
+   1120047.5,
+   253.1
+  ],
+  [
+   2723239.7,
+   1120053.6,
+   253.5
+  ],
+  [
+   2723263.2,
+   1120058.1,
+   252.9
+  ],
+  [
+   2723314.9,
+   1120068.1,
+   250.2
+  ],
+  [
+   2723378.7,
+   1120080.6,
+   247.4
+  ],
+  [
+   2723397,
+   1120084.5,
+   246.9
+  ],
+  [
+   2723434,
+   1120091.6,
+   246.4
+  ],
+  [
+   2723471.5,
+   1120098.8,
+   245.9
+  ]
+ ],
+ "largeur": 4.4,
+ "epaisseur": 1.4,
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -2.2,
+     0
+    ],
+    [
+     -2.2,
+     -0.4
+    ],
+    [
+     -1.5,
+     -1.3
+    ],
+    [
+     1.5,
+     -1.3
+    ],
+    [
+     2.2,
+     -0.4
+    ],
+    [
+     2.2,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 60,
+   "points": [
+    [
+     -2.2,
+     0
+    ],
+    [
+     -2.2,
+     -0.4
+    ],
+    [
+     -1.5,
+     -1.3
+    ],
+    [
+     1.5,
+     -1.3
+    ],
+    [
+     2.2,
+     -0.4
+    ],
+    [
+     2.2,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 120,
+   "points": [
+    [
+     -2.2,
+     0
+    ],
+    [
+     -2.2,
+     -0.4
+    ],
+    [
+     -1.5,
+     -1.45
+    ],
+    [
+     1.5,
+     -1.45
+    ],
+    [
+     2.2,
+     -0.4
+    ],
+    [
+     2.2,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 158,
+   "points": [
+    [
+     -2.2,
+     0
+    ],
+    [
+     -2.2,
+     -0.4
+    ],
+    [
+     -1.5,
+     -1.6
+    ],
+    [
+     1.5,
+     -1.6
+    ],
+    [
+     2.2,
+     -0.4
+    ],
+    [
+     2.2,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 172,
+   "points": [
+    [
+     -2.2,
+     0
+    ],
+    [
+     -2.2,
+     -0.4
+    ],
+    [
+     -1.5,
+     -2.4
+    ],
+    [
+     1.5,
+     -2.4
+    ],
+    [
+     2.2,
+     -0.4
+    ],
+    [
+     2.2,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 189,
+   "points": [
+    [
+     -2.2,
+     0
+    ],
+    [
+     -2.2,
+     -0.4
+    ],
+    [
+     -1.5,
+     -2.6
+    ],
+    [
+     1.5,
+     -2.6
+    ],
+    [
+     2.2,
+     -0.4
+    ],
+    [
+     2.2,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 207,
+   "points": [
+    [
+     -2.2,
+     0
+    ],
+    [
+     -2.2,
+     -0.4
+    ],
+    [
+     -1.5,
+     -2.4
+    ],
+    [
+     1.5,
+     -2.4
+    ],
+    [
+     2.2,
+     -0.4
+    ],
+    [
+     2.2,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 220,
+   "points": [
+    [
+     -2.2,
+     0
+    ],
+    [
+     -2.2,
+     -0.4
+    ],
+    [
+     -1.5,
+     -1.9
+    ],
+    [
+     1.5,
+     -1.9
+    ],
+    [
+     2.2,
+     -0.4
+    ],
+    [
+     2.2,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 228,
+   "points": [
+    [
+     -2.2,
+     0
+    ],
+    [
+     -2.2,
+     -0.4
+    ],
+    [
+     -1.5,
+     -2.5
+    ],
+    [
+     1.5,
+     -2.5
+    ],
+    [
+     2.2,
+     -0.4
+    ],
+    [
+     2.2,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 243,
+   "points": [
+    [
+     -2.2,
+     0
+    ],
+    [
+     -2.2,
+     -0.4
+    ],
+    [
+     -1.5,
+     -2.2
+    ],
+    [
+     1.5,
+     -2.2
+    ],
+    [
+     2.2,
+     -0.4
+    ],
+    [
+     2.2,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 256,
+   "points": [
+    [
+     -2.2,
+     0
+    ],
+    [
+     -2.2,
+     -0.4
+    ],
+    [
+     -1.5,
+     -1.5
+    ],
+    [
+     1.5,
+     -1.5
+    ],
+    [
+     2.2,
+     -0.4
+    ],
+    [
+     2.2,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 269.9,
+   "points": [
+    [
+     -2.2,
+     0
+    ],
+    [
+     -2.2,
+     -0.4
+    ],
+    [
+     -1.5,
+     -1.3
+    ],
+    [
+     1.5,
+     -1.3
+    ],
+    [
+     2.2,
+     -0.4
+    ],
+    [
+     2.2,
+     0
+    ]
+   ]
+  }
+ ],
+ "garde_corps": {
+  "hauteur": 1.3,
+  "plein": false,
+  "pas": 2.0,
+  "epaisseur": 0.06
+ },
+ "materiau": "acier",
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 42,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 3.0,
+   "z_bas": 244.5,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 75.4,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 3.0,
+   "z_bas": 235.8,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 108.5,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 3.0,
+   "z_bas": 236.6,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 141,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 3.0,
+   "z_bas": 237.5,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 249,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 3.0,
+   "z_bas": 237.2,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 255,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 3.0,
+   "z_bas": 237.2,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 261,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 3.0,
+   "z_bas": 237.2,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 266.5,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 3.0,
+   "z_bas": 237.2,
+   "materiau": "beton"
+  },
+  {
+   "type": "culee",
+   "s": 269.9
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [
+  {
+   "de": [
+    189,
+    0,
+    233.3
+   ],
+   "a": [
+    172,
+    0,
+    246.0
+   ],
+   "larg": 3.8,
+   "ep": 1.5,
+   "larg_fin": 4.2,
+   "ep_fin": 2.0,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    189,
+    0,
+    233.3
+   ],
+   "a": [
+    207,
+    0,
+    245.4
+   ],
+   "larg": 3.8,
+   "ep": 1.5,
+   "larg_fin": 4.2,
+   "ep_fin": 2.0,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    228,
+    0,
+    233.2
+   ],
+   "a": [
+    213,
+    0,
+    245.4
+   ],
+   "larg": 3.8,
+   "ep": 1.5,
+   "larg_fin": 4.2,
+   "ep_fin": 2.0,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    228,
+    0,
+    233.2
+   ],
+   "a": [
+    243,
+    0,
+    244.9
+   ],
+   "larg": 3.8,
+   "ep": 1.5,
+   "larg_fin": 4.2,
+   "ep_fin": 2.0,
+   "materiau": "acier"
+  }
+ ],
+ "sources": [
+  "https://ticinodigitalbusiness.com/passerella-ciclopedonale-gorduno-castione/",
+  "https://www.beblaze.it/progetti/passerella-gorduno-castione/",
+  "https://www.proveloticino.ch/provelo/news/2021/11/Nuova-passerella-ciclo-pedonale-tra-Gorduno-e-Castione.html",
+  "https://commons.wikimedia.org/wiki/File:Fussg%C3%A4nger-_und_Velobr%C3%BCcke_%C3%BCber_den_Tessin,_Castione_TI_%E2%80%93_Gorduno_TI_20250620-jag9889.jpg"
+ ],
+ "photo": {
+  "fichier": "commons1.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Fussg%C3%A4nger-_und_Velobr%C3%BCcke_%C3%BCber_den_Tessin,_Castione_TI_%E2%80%93_Gorduno_TI_20250620-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 4,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser : l'ouvrage (inauguré le 30.10.2021) est postérieur à swissSURFACE3D 2020 (aucun point de tablier, seulement terrain et eau) ; tracé et bouts relevés sur l'orthophoto (axe TLM complété à l'est), altitudes du tablier reprises du TLM (253,5 m côté A2 vers 246 m côté est, estimées pour la partie est), piles béton à s 42/75/108/141 d'après les ombres de l'orthophoto, piles béton est (4) et jambes en V (2 V d'acier Corten sur les berges) placées d'après deux photos Commons/presse, sans cotes publiées. Le schéma ne sait pas faire les deux caissons jumeaux qui s'écartent et se rejoignent près de la rive est (cage d'escalier, banc en porte-à-faux) : un seul caisson de 4,4 m ; calage photo non abouti (résidu 52 px, positions des V non mesurables sans relevé)."
+}

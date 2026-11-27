@@ -1,0 +1,56 @@
+{
+ "nom": "Passerelle sur la Reuss (3m Strasse), Lucerne",
+ "axe": [
+  [
+   2665897,
+   1211549,
+   435.3
+  ],
+  [
+   2665902.2,
+   1211529.4,
+   435.8
+  ],
+  [
+   2665907.2,
+   1211505.4,
+   436.1
+  ],
+  [
+   2665910.9,
+   1211486.4,
+   435.8
+  ],
+  [
+   2665918,
+   1211458,
+   435.4
+  ]
+ ],
+ "largeur": 4.0,
+ "epaisseur": 0.8,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 93.4
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (pas de nuage COPC ici, seulement des tuiles LAS zippées). Passerelle piétonne d'environ 4 m de large et ~93 m entre les rives de la Reuss, altitudes de l'axe TLM ; appuis éventuels dans l'eau et gabarit réel non identifiés."
+}

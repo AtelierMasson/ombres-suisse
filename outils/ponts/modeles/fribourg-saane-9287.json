@@ -1,0 +1,72 @@
+{
+ "nom": "Pont sur la Sarine (Fribourg, 4m Strasse)",
+ "axe": [
+  [
+   2579268.6,
+   1183494.7,
+   541.1
+  ],
+  [
+   2579277.1,
+   1183508.3,
+   542.1
+  ],
+  [
+   2579287.6,
+   1183525.3,
+   542.4
+  ],
+  [
+   2579296.1,
+   1183538.8,
+   541.9
+  ],
+  [
+   2579305.5,
+   1183553.9,
+   540.5
+  ]
+ ],
+ "largeur": 4.7,
+ "epaisseur": 0.8,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 18,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 3.5,
+   "z_bas": 535.7
+  },
+  {
+   "type": "pile",
+   "s": 40,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 3.5,
+   "z_bas": 530.3
+  },
+  {
+   "type": "culee",
+   "s": 69.8
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "relevé swissSURFACE3D 2024",
+  "orthophoto swisstopo"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Appuis déduits des points sous le tablier (s 12-24 et 36-44), formes et nombre non confirmés par photo. Pont probablement à arches ou treillis que le schéma simple ne rend pas."
+}

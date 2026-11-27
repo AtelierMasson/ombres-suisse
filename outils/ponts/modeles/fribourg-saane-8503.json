@@ -1,0 +1,46 @@
+{
+ "nom": "Pont sur la Sarine (Fribourg, 4m Strasse)",
+ "axe": [
+  [
+   2578500.3,
+   1183384.0,
+   541.7
+  ],
+  [
+   2578502.8,
+   1183356.1,
+   542.1
+  ],
+  [
+   2578506.1,
+   1183318.7,
+   541.7
+  ]
+ ],
+ "largeur": 5.9,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 65.6
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "relevé swissSURFACE3D 2024",
+  "orthophoto swisstopo"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Aucun appui modélisé (11 points épars sous le tablier à s 28). Pas de photo."
+}

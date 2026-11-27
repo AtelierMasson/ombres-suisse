@@ -1,0 +1,72 @@
+{
+ "nom": "Pont sur le Rhin (Rheinhalde), Schaffhausen",
+ "axe": [
+  [
+   2689202.2,
+   1283135.0,
+   388.7
+  ],
+  [
+   2689200.2,
+   1283124.2,
+   388.7
+  ],
+  [
+   2689199.3,
+   1283113.1,
+   388.7
+  ],
+  [
+   2689198.9,
+   1283104.3,
+   388.7
+  ],
+  [
+   2689199.2,
+   1283077.5,
+   389.1
+  ],
+  [
+   2689199.6,
+   1283060.6,
+   389.2
+  ],
+  [
+   2689198.9,
+   1283049.2,
+   389.3
+  ],
+  [
+   2689197.8,
+   1283042.5,
+   389.3
+  ]
+ ],
+ "largeur": 21.5,
+ "epaisseur": 0.8,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 93
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D",
+  "swisssurface3d 2024"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Culées seules : le tablier mince (~0,6 m au laser) franchit le Rhin sans pile visible ; structure sous le tablier (poutres, arc ?) non vue ni photographiée, nom réel non identifié (pont routier N-S de la Rheinhalde). Largeur 21,5 m d'après le nuage (chaussée, trottoirs et piste séparée qui diverge au sud), la rampe en boucle et le pont autoroutier voisin ne sont pas modélisés."
+}

@@ -1,0 +1,19 @@
+{
+ "nom": "Passerelle sur l'Aare, Berne (3m Strasse)",
+ "axe": [[2595927.1,1201660.0,483.5],[2595926.6,1201674.9,484.9],[2595926.3,1201687.3,485.7],[2595925.7,1201703.2,486.0],[2595925.1,1201729.2,485.9],[2595924.8,1201743.1,485.2],[2595924.4,1201761.4,483.7]],
+ "largeur": 5.0,
+ "epaisseur": 0.9,
+ "garde_corps": {"hauteur": 1.1, "plein": false, "pas": 2.0},
+ "appuis": [
+  {"type": "culee", "s": 0},
+  {"type": "pile", "s": 40.5, "forme": "rond", "long": 4.0, "larg": 4.0, "z_bas": 478.0},
+  {"type": "pile", "s": 74.5, "forme": "rond", "long": 4.0, "larg": 4.0, "z_bas": 478.0},
+  {"type": "culee", "s": 101.4}
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": ["https://wms.geo.admin.ch (swissimage)", "swissTLM3D"],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC ici (tuiles 2023 en LAZ seulement) : modèle tiré de l'axe TLM et de l'orthophoto (deux piles rondes repérées, s à ±2 m). Épaisseur, largeur (~5 m) et profondeur des piles supposées, rives non vérifiées au laser."
+}

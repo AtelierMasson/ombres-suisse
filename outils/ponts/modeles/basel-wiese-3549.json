@@ -1,0 +1,48 @@
+{
+ "nom": "Passerelle sur la Wiese (3m Strasse, aval), Bâle",
+ "axe": [
+  [
+   2613555.5,
+   1269515.5,
+   259.1
+  ],
+  [
+   2613548.6,
+   1269546.7,
+   259.0
+  ],
+  [
+   2613543.2,
+   1269570.8,
+   258.9
+  ]
+ ],
+ "largeur": 3.2,
+ "epaisseur": 0.8,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 56.7
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://wms.geo.admin.ch/ (swissimage)",
+  "swissTLM3D (axe)",
+  "swissALTI3D (terrain via api3.geo.admin.ch/height)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (Bâle sans COPC) : passerelle piétonne d'après l'orthophoto, sans pile visible, largeur et épaisseur estimées ; possible structure porteuse latérale non représentée. Un câble ou une poutre latérale observée sur l'orthophoto n'est pas modélisé."
+}

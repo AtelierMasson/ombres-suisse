@@ -1,0 +1,15 @@
+# pont sur Sihl (4m Strasse) (4m Strasse, undefined) : axe swissTLM3D de 57 m, de [2682732.6,1247707.6,409.6] à [2682684.0,1247737.2,409.6] ; relevé 2024, 17226 points dans un couloir de ±25 m
+s = distance le long de l'axe ; chaussee = dessus du tablier (laser) ; dessous_tablier ; terrain ; eau ; appuis = points sous le tablier, de terrain+2,5 m à tablier-1 m (piles, arcs) : nombre et altitudes bas..haut
+s	chaussee	dessous_tablier	terrain	eau	appuis
+0	409.6	409.6	407.2	-	-
+5	409.7	409.6	405.5	-	-
+10	409.7	409.7	405.0	-	-
+15	409.8	409.7	404.8	-	24 407.4..408.7
+20	409.9	409.8	404.5	404.2	-
+25	409.9	409.8	404.5	404.3	4 408.0..408.4
+30	409.9	409.8	-	404.4	4 407.5..408.3
+35	409.8	409.7	404.5	404.4	28 407.0..408.0
+40	409.8	409.7	-	404.5	-
+45	409.7	409.7	404.5	404.5	-
+50	409.7	409.6	406.1	-	-
+55	409.6	409.6	408.9	-	-

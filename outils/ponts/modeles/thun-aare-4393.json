@@ -1,0 +1,42 @@
+{
+ "nom": "Pont routier sur l'Aare (centre-ville), Thun",
+ "axe": [
+  [
+   2614404.5,
+   1178794.6,
+   558.2
+  ],
+  [
+   2614380.6,
+   1178775.8,
+   558.2
+  ]
+ ],
+ "largeur": 12.5,
+ "epaisseur": 1.1,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.35
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 30.4
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissimage (wms.geo.admin.ch)",
+  "swissTLM3D",
+  "swissALTI3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC à Thun (swisssurface3d 2022/2023 en LAS.zip de ~220 Mo seulement) : non vérifié au laser. Pont routier en travée unique avec trottoirs, biais par rapport aux rives ; largeur (~12 m) et épaisseur estimées."
+}

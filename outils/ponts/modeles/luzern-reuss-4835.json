@@ -1,0 +1,41 @@
+{
+ "nom": "Pont routier sur la Reuss (6m Strasse), Lucerne",
+ "axe": [
+  [
+   2664833.4,
+   1211896.7,
+   436.9
+  ],
+  [
+   2664837.8,
+   1211952.6,
+   439.2
+  ]
+ ],
+ "largeur": 16.0,
+ "epaisseur": 1.1,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.35
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 56.1
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (pas de nuage COPC ici, seulement des tuiles LAS zippées). Pont urbain de ~16 m (deux voies, trottoirs) sur une travée de 56 m, rive à murs verticaux sur l'orthophoto ; l'épaisseur et l'éventuelle pile centrale ne sont pas vérifiées."
+}

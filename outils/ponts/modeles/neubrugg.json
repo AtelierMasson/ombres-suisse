@@ -1,0 +1,1015 @@
+{
+ "nom": "Neubrügg (pont couvert de 1535), Bremgarten bei Bern - Kirchlindach",
+ "axe": [
+  [
+   2599210.1,
+   1202477.52,
+   486.4
+  ],
+  [
+   2599194.69,
+   1202550.51,
+   486.73
+  ],
+  [
+   2599192.2,
+   1202554.59,
+   486.75
+  ],
+  [
+   2599190.2,
+   1202558.25,
+   486.76
+  ],
+  [
+   2599188.1,
+   1202561.9,
+   486.78
+  ],
+  [
+   2599186.22,
+   1202565.49,
+   486.8
+  ]
+ ],
+ "largeur": 5.8,
+ "epaisseur": 1.0,
+ "materiau": "bois",
+ "materiau_tablier": "bois",
+ "garde_corps": {
+  "hauteur": 0.0,
+  "plein": true,
+  "epaisseur": 0.05
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 18.68,
+   "materiau": "pierre",
+   "z_bas": 478.5,
+   "sections": [
+    {
+     "z": 481.3,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 5.8,
+     "nez_amont": 1.2,
+     "nez_aval": 1.2
+    },
+    {
+     "z": 483.4,
+     "forme": "rect",
+     "long": 2.9,
+     "larg": 5.4,
+     "nez_amont": 1.0,
+     "nez_aval": 1.0
+    },
+    {
+     "z": 483.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 5.6,
+     "nez_amont": 0.9,
+     "nez_aval": 0.9
+    },
+    {
+     "z": 484.9,
+     "forme": "rect",
+     "long": 3.6,
+     "larg": 5.8,
+     "nez_amont": 0.6,
+     "nez_aval": 0.6
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 37.88,
+   "materiau": "pierre",
+   "z_bas": 478.5,
+   "sections": [
+    {
+     "z": 481.3,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 5.8,
+     "nez_amont": 1.2,
+     "nez_aval": 1.2
+    },
+    {
+     "z": 483.4,
+     "forme": "rect",
+     "long": 2.9,
+     "larg": 5.4,
+     "nez_amont": 1.0,
+     "nez_aval": 1.0
+    },
+    {
+     "z": 483.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 5.6,
+     "nez_amont": 0.9,
+     "nez_aval": 0.9
+    },
+    {
+     "z": 484.9,
+     "forme": "rect",
+     "long": 3.6,
+     "larg": 5.8,
+     "nez_amont": 0.6,
+     "nez_aval": 0.6
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 58.83,
+   "materiau": "pierre",
+   "z_bas": 478.5,
+   "sections": [
+    {
+     "z": 481.3,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 5.8,
+     "nez_amont": 1.2,
+     "nez_aval": 1.2
+    },
+    {
+     "z": 483.4,
+     "forme": "rect",
+     "long": 2.9,
+     "larg": 5.4,
+     "nez_amont": 1.0,
+     "nez_aval": 1.0
+    },
+    {
+     "z": 483.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 5.6,
+     "nez_amont": 0.9,
+     "nez_aval": 0.9
+    },
+    {
+     "z": 484.9,
+     "forme": "rect",
+     "long": 3.6,
+     "larg": 5.8,
+     "nez_amont": 0.6,
+     "nez_aval": 0.6
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 75.31,
+   "materiau": "pierre",
+   "z_bas": 478.5,
+   "sections": [
+    {
+     "z": 481.3,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 5.8,
+     "nez_amont": 1.2,
+     "nez_aval": 1.2
+    },
+    {
+     "z": 483.4,
+     "forme": "rect",
+     "long": 2.9,
+     "larg": 5.4,
+     "nez_amont": 1.0,
+     "nez_aval": 1.0
+    },
+    {
+     "z": 483.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 5.6,
+     "nez_amont": 0.9,
+     "nez_aval": 0.9
+    },
+    {
+     "z": 484.9,
+     "forme": "rect",
+     "long": 3.6,
+     "larg": 5.8,
+     "nez_amont": 0.6,
+     "nez_aval": 0.6
+    }
+   ]
+  },
+  {
+   "type": "culee",
+   "s": 91.81,
+   "materiau": "pierre"
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [
+  {
+   "de": [
+    0.15,
+    -2.95,
+    487.5
+   ],
+   "a": [
+    0.15,
+    -2.95,
+    490.6
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    0.15,
+    2.95,
+    487.5
+   ],
+   "a": [
+    0.15,
+    2.95,
+    490.6
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    4.51,
+    -2.95,
+    487.52
+   ],
+   "a": [
+    4.51,
+    -2.95,
+    490.62
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    4.51,
+    2.95,
+    487.52
+   ],
+   "a": [
+    4.51,
+    2.95,
+    490.62
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    8.87,
+    -2.95,
+    487.54
+   ],
+   "a": [
+    8.87,
+    -2.95,
+    490.64
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    8.87,
+    2.95,
+    487.54
+   ],
+   "a": [
+    8.87,
+    2.95,
+    490.64
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    13.22,
+    -2.95,
+    487.56
+   ],
+   "a": [
+    13.22,
+    -2.95,
+    490.66
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    13.22,
+    2.95,
+    487.56
+   ],
+   "a": [
+    13.22,
+    2.95,
+    490.66
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    17.58,
+    -2.95,
+    487.58
+   ],
+   "a": [
+    17.58,
+    -2.95,
+    490.68
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    17.58,
+    2.95,
+    487.58
+   ],
+   "a": [
+    17.58,
+    2.95,
+    490.68
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    21.94,
+    -2.95,
+    487.6
+   ],
+   "a": [
+    21.94,
+    -2.95,
+    490.7
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    21.94,
+    2.95,
+    487.6
+   ],
+   "a": [
+    21.94,
+    2.95,
+    490.7
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    26.3,
+    -2.95,
+    487.61
+   ],
+   "a": [
+    26.3,
+    -2.95,
+    490.71
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    26.3,
+    2.95,
+    487.61
+   ],
+   "a": [
+    26.3,
+    2.95,
+    490.71
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    30.65,
+    -2.95,
+    487.63
+   ],
+   "a": [
+    30.65,
+    -2.95,
+    490.73
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    30.65,
+    2.95,
+    487.63
+   ],
+   "a": [
+    30.65,
+    2.95,
+    490.73
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    35.01,
+    -2.95,
+    487.65
+   ],
+   "a": [
+    35.01,
+    -2.95,
+    490.75
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    35.01,
+    2.95,
+    487.65
+   ],
+   "a": [
+    35.01,
+    2.95,
+    490.75
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    39.37,
+    -2.95,
+    487.67
+   ],
+   "a": [
+    39.37,
+    -2.95,
+    490.77
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    39.37,
+    2.95,
+    487.67
+   ],
+   "a": [
+    39.37,
+    2.95,
+    490.77
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    43.73,
+    -2.95,
+    487.69
+   ],
+   "a": [
+    43.73,
+    -2.95,
+    490.79
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    43.73,
+    2.95,
+    487.69
+   ],
+   "a": [
+    43.73,
+    2.95,
+    490.79
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    48.08,
+    -2.95,
+    487.71
+   ],
+   "a": [
+    48.08,
+    -2.95,
+    490.81
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    48.08,
+    2.95,
+    487.71
+   ],
+   "a": [
+    48.08,
+    2.95,
+    490.81
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    52.44,
+    -2.95,
+    487.73
+   ],
+   "a": [
+    52.44,
+    -2.95,
+    490.83
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    52.44,
+    2.95,
+    487.73
+   ],
+   "a": [
+    52.44,
+    2.95,
+    490.83
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    56.8,
+    -2.95,
+    487.75
+   ],
+   "a": [
+    56.8,
+    -2.95,
+    490.85
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    56.8,
+    2.95,
+    487.75
+   ],
+   "a": [
+    56.8,
+    2.95,
+    490.85
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    61.16,
+    -2.95,
+    487.77
+   ],
+   "a": [
+    61.16,
+    -2.95,
+    490.87
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    61.16,
+    2.95,
+    487.77
+   ],
+   "a": [
+    61.16,
+    2.95,
+    490.87
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    65.51,
+    -2.95,
+    487.79
+   ],
+   "a": [
+    65.51,
+    -2.95,
+    490.89
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    65.51,
+    2.95,
+    487.79
+   ],
+   "a": [
+    65.51,
+    2.95,
+    490.89
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    69.87,
+    -2.95,
+    487.8
+   ],
+   "a": [
+    69.87,
+    -2.95,
+    490.9
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    69.87,
+    2.95,
+    487.8
+   ],
+   "a": [
+    69.87,
+    2.95,
+    490.9
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    74.23,
+    -2.95,
+    487.82
+   ],
+   "a": [
+    74.23,
+    -2.95,
+    490.92
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    74.23,
+    2.95,
+    487.82
+   ],
+   "a": [
+    74.23,
+    2.95,
+    490.92
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    78.59,
+    -2.95,
+    487.84
+   ],
+   "a": [
+    78.59,
+    -2.95,
+    490.94
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    78.59,
+    2.95,
+    487.84
+   ],
+   "a": [
+    78.59,
+    2.95,
+    490.94
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    82.94,
+    -2.95,
+    487.86
+   ],
+   "a": [
+    82.94,
+    -2.95,
+    490.96
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    82.94,
+    2.95,
+    487.86
+   ],
+   "a": [
+    82.94,
+    2.95,
+    490.96
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    87.3,
+    -2.95,
+    487.88
+   ],
+   "a": [
+    87.3,
+    -2.95,
+    490.98
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    87.3,
+    2.95,
+    487.88
+   ],
+   "a": [
+    87.3,
+    2.95,
+    490.98
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    91.66,
+    -2.95,
+    487.9
+   ],
+   "a": [
+    91.66,
+    -2.95,
+    491.0
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    91.66,
+    2.95,
+    487.9
+   ],
+   "a": [
+    91.66,
+    2.95,
+    491.0
+   ],
+   "larg": 0.25,
+   "ep": 0.25,
+   "materiau": "bois"
+  }
+ ],
+ "parois": [
+  {
+   "s0": 0,
+   "s1": 91.81,
+   "o0": -2.9,
+   "o1": -2.9,
+   "ep": 0.1,
+   "dz_bas": -1.0,
+   "z_haut": [
+    [
+     0,
+     487.5
+    ],
+    [
+     91.81,
+     487.9
+    ]
+   ],
+   "materiau": "bois"
+  },
+  {
+   "s0": 0,
+   "s1": 91.81,
+   "o0": 2.9,
+   "o1": 2.9,
+   "ep": 0.1,
+   "dz_bas": -1.0,
+   "z_haut": [
+    [
+     0,
+     487.5
+    ],
+    [
+     91.81,
+     487.9
+    ]
+   ],
+   "materiau": "bois"
+  }
+ ],
+ "toits": [
+  {
+   "s0": -2.4,
+   "s1": 94.21000000000001,
+   "faite": [
+    [
+     -2.4,
+     494.3
+    ],
+    [
+     94.21000000000001,
+     494.3
+    ]
+   ],
+   "egout": [
+    [
+     -2.4,
+     488.8
+    ],
+    [
+     94.21000000000001,
+     488.8
+    ]
+   ],
+   "larg": 4.7,
+   "avant_toit": 0.0,
+   "ep": 0.25,
+   "croupe": [
+    2.4,
+    2.4
+   ],
+   "pignons": [
+    "ferme",
+    "ferme"
+   ],
+   "materiau": "tuile"
+  }
+ ],
+ "volumes": [
+  {
+   "s": 1.5,
+   "t": 0,
+   "z_bas": 480.5,
+   "materiau": "pierre",
+   "sections": [
+    {
+     "z": 480.5,
+     "forme": "rect",
+     "long": 3.0,
+     "larg": 5.9
+    },
+    {
+     "z": 484.9,
+     "forme": "rect",
+     "long": 3.0,
+     "larg": 5.9
+    }
+   ]
+  },
+  {
+   "s": 90.31,
+   "t": 0,
+   "z_bas": 480.5,
+   "materiau": "pierre",
+   "sections": [
+    {
+     "z": 480.5,
+     "forme": "rect",
+     "long": 3.0,
+     "larg": 5.9
+    },
+    {
+     "z": 484.9,
+     "forme": "rect",
+     "long": 3.0,
+     "larg": 5.9
+    }
+   ]
+  }
+ ],
+ "sources": [
+  "https://structurae.net/de/bauwerke/neubruegg",
+  "https://swiss-timber-bridges.ch/detail/664.html",
+  "https://commons.wikimedia.org/wiki/File:Neubr%C3%BCcke_Westseite.jpg",
+  "https://commons.wikimedia.org/wiki/File:Neubr%C3%BCcke_Ostseite.jpg"
+ ],
+ "photo": {
+  "fichier": "gen2.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Neubruegg.JPG",
+  "auteur": "Raph",
+  "licence": "CC BY 3.0"
+ },
+ "photos_vues": 4,
+ "confiance": "moyenne",
+ "notes": "Pont couvert de 1535, 5 travées 18,68/19,20/20,95/16,48/15,95 m (structurae, swiss-timber-bridges), sens sud-nord retenu au calage photo (E-A, résidu 9,7 px) ; relevé laser 2023 en LAS (pas de COPC), toit seul vu (classe 6 : égouts 488,8, faîte 494,3, demi-largeur 4,7 m, courbe vers l'ouest sur les 18 derniers mètres), donc chaussée 486,4->486,8, bardage, poteaux, têtes et hauteur des piles (pierre 481,3->484,9) estimés sur photos et sur les terrains d'accès, non vérifiés au laser ; calage photo sur 4 appuis seulement (basses eaux, pas de vue du bout nord). Le schéma ne sait pas faire les croix de Saint-André, les écharpes courbes sous le tablier ni les consoles étagées des têtes de piles ; position exacte des culées de pierre (s 0 et 91,8) estimée."
+}

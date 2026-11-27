@@ -1,0 +1,40 @@
+{
+ "nom": "Passerelle sur l'Eulach, Winterthur",
+ "axe": [
+  [
+   2695192.6,
+   1262693.9,
+   423.6
+  ],
+  [
+   2695200.6,
+   1262715.3,
+   423.7
+  ]
+ ],
+ "largeur": 3.3,
+ "epaisseur": 0.4,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 22.8
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D, orthophoto swissimage, axe TLM"
+ ],
+ "photos_vues": 0,
+ "confiance": "moyenne",
+ "notes": "Ouvrage urbain ordinaire (passerelle chemin 2 m, travée unique), modélisé depuis le relevé laser seul, sans photo. Dimensions du tablier et type de garde-corps supposés. 48 % des points d'ouvrage expliqués : bâtiments/arbres voisins dans le couloir."
+}

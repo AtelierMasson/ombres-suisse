@@ -1,0 +1,120 @@
+{
+ "nom": "Nouveau pont du Gueuroz, Vernayaz",
+ "axe": [
+  [
+   2569171.7,
+   1108736.1,
+   656.22
+  ],
+  [
+   2569210.84,
+   1108661.77,
+   652.08
+  ],
+  [
+   2569249.98,
+   1108587.45,
+   647.95
+  ]
+ ],
+ "largeur": 8.2,
+ "largeur_dessous": 5.0,
+ "epaisseur": 1.7,
+ "epaisseur_appuis": 2.4,
+ "gousset": 12,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "materiau": "acier",
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 168
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [
+  {
+   "de": [
+    41,
+    -4.15,
+    651.8
+   ],
+   "a": [
+    20.5,
+    -4.15,
+    637.5
+   ],
+   "larg": 1.3,
+   "ep": 2.2
+  },
+  {
+   "de": [
+    41,
+    -0.15,
+    651.8
+   ],
+   "a": [
+    20.5,
+    -0.15,
+    637.5
+   ],
+   "larg": 1.3,
+   "ep": 2.2
+  },
+  {
+   "de": [
+    108,
+    -4.15,
+    649.0
+   ],
+   "a": [
+    129.5,
+    -4.15,
+    636.5
+   ],
+   "larg": 1.3,
+   "ep": 2.2
+  },
+  {
+   "de": [
+    108,
+    -0.15,
+    649.0
+   ],
+   "a": [
+    129.5,
+    -0.15,
+    636.5
+   ],
+   "larg": 1.3,
+   "ep": 2.2
+  }
+ ],
+ "sources": [
+  "https://commons.wikimedia.org/wiki/File:Ponts_de_Gueuroz.jpg",
+  "https://commons.wikimedia.org/wiki/File:Ponts_de_Geuroz,_vue_d%27en_dessous.jpg",
+  "https://commons.wikimedia.org/wiki/File:Pont_de_Gueuroz_west.jpg",
+  "https://structurae.net/fr/ouvrages/pont-du-gueuroz-1994"
+ ],
+ "photo": {
+  "fichier": "p2.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Ponts_de_Geuroz,_vue_d%27en_dessous.jpg",
+  "auteur": "Commons",
+  "licence": "CC BY-SA 3.0"
+ },
+ "photos_vues": 3,
+ "confiance": "moyenne",
+ "notes": "Non vérifié au laser dans l'application : pas de nuage COPC ici, relevé lu dans la dalle LAS 2022 (tablier mesuré, médiane +0,07 m ; le dessous du tablier et les jambes ne sont pas vus, épaisseur 1,7 m et section d'après photo). Les jambes en acier (2 paires, tête s 41 et 108, pieds s 20,5 et 129,5) sont placées d'après les points du nuage sous le tablier ; sur la vue d'ensemble la jambe gauche paraît plus plate et plus longue (pied possible vers s 5-10), position des têtes et pieds à ±8 m. Le tablier s'arrête à s 168 (la dalle d'approche, jusqu'à s 170, est au niveau du sol, qui sinon traverse le tablier) ; l'ancien pont en arc de 1934 (5 m de large, 12 m au sud-ouest) n'est pas modélisé ici ; le schéma ne sait pas faire les jambes jumelées à section creuse ni la dalle à encorbellements en béton sur caisson.",
+ "calage": {
+  "photo": "p3.jpg (Commons, Felix Sutter, CC BY-SA 3.0)",
+  "erreur_px": 7.3
+ }
+}

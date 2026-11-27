@@ -1,0 +1,213 @@
+{
+ "nom": "Pont de la Coulouvrenière, Genève",
+ "axe": [
+  [
+   2499747.3,
+   1117946.2,
+   378.88
+  ],
+  [
+   2499750.1,
+   1117916.3,
+   378.98
+  ],
+  [
+   2499753.7,
+   1117876.5,
+   379.28
+  ],
+  [
+   2499756.4,
+   1117846.6,
+   379.18
+  ],
+  [
+   2499758.3,
+   1117826.7,
+   378.78
+  ],
+  [
+   2499760.2,
+   1117805.8,
+   378.08
+  ]
+ ],
+ "largeur": 26.4,
+ "epaisseur": 0.9,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 87,
+   "forme": "rect",
+   "long": 10,
+   "larg": 24,
+   "z_bas": 368.5
+  },
+  {
+   "type": "culee",
+   "s": 140.95729849850608
+  }
+ ],
+ "arches": [
+  {
+   "s0": 20,
+   "s1": 82,
+   "z_naissance": 372.3,
+   "z_cle": 376.7,
+   "epaisseur": 1.6,
+   "larg": 24,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 92,
+   "s1": 136,
+   "z_naissance": 372.3,
+   "z_cle": 376.7,
+   "epaisseur": 1.6,
+   "larg": 24,
+   "plein": true,
+   "forme": "cintre"
+  }
+ ],
+ "pylones": [],
+ "confiance": "moyenne",
+ "notes": "Pont de la Coulouvrenière (Genève, pont en pierre à deux voûtes surbaissées de 62 m et 44 m sur pile centrale, tablier élargi par encorbellements). Voûtes et pile estimées sur photos (intrados invisible du laser) ; calage photo peu contraint (points quasi coplanaires, résidu ~28 px) ; mâts de tramway ajoutés comme barres simples ; corniche et encorbellements non modélisés.",
+ "sources": [
+  "swissSURFACE3D",
+  "swissTLM3D",
+  "https://commons.wikimedia.org/wiki/File:Pont_de_la_Coulouvrenière_@_Genève_(50686816912).jpg",
+  "https://commons.wikimedia.org/wiki/File:Pont-de-la-Coulouvrenière.jpg"
+ ],
+ "photos_vues": 4,
+ "elements": [
+  {
+   "de": [
+    20,
+    -9.7,
+    "chaussee"
+   ],
+   "a": [
+    20,
+    -9.7,
+    392.5
+   ],
+   "larg": 0.35,
+   "ep": 0.35
+  },
+  {
+   "de": [
+    20,
+    9.7,
+    "chaussee"
+   ],
+   "a": [
+    20,
+    9.7,
+    392.5
+   ],
+   "larg": 0.35,
+   "ep": 0.35
+  },
+  {
+   "de": [
+    68,
+    -9.7,
+    "chaussee"
+   ],
+   "a": [
+    68,
+    -9.7,
+    392.5
+   ],
+   "larg": 0.35,
+   "ep": 0.35
+  },
+  {
+   "de": [
+    68,
+    9.7,
+    "chaussee"
+   ],
+   "a": [
+    68,
+    9.7,
+    392.5
+   ],
+   "larg": 0.35,
+   "ep": 0.35
+  },
+  {
+   "de": [
+    88,
+    -9.7,
+    "chaussee"
+   ],
+   "a": [
+    88,
+    -9.7,
+    392.5
+   ],
+   "larg": 0.35,
+   "ep": 0.35
+  },
+  {
+   "de": [
+    88,
+    9.7,
+    "chaussee"
+   ],
+   "a": [
+    88,
+    9.7,
+    392.5
+   ],
+   "larg": 0.35,
+   "ep": 0.35
+  },
+  {
+   "de": [
+    129,
+    -9.7,
+    "chaussee"
+   ],
+   "a": [
+    129,
+    -9.7,
+    392.5
+   ],
+   "larg": 0.35,
+   "ep": 0.35
+  },
+  {
+   "de": [
+    129,
+    9.7,
+    "chaussee"
+   ],
+   "a": [
+    129,
+    9.7,
+    392.5
+   ],
+   "larg": 0.35,
+   "ep": 0.35
+  }
+ ],
+ "materiau": "pierre",
+ "photo": {
+  "fichier": "c.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Pont_de_la_Coulouvrenière_@_Genève_(50686816912).jpg",
+  "auteur": "Wikimedia Commons",
+  "licence": "CC"
+ }
+}

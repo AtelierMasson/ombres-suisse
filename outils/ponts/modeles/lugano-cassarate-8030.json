@@ -1,0 +1,42 @@
+{
+ "nom": "Passerelle à treillis sur le Cassarate, Lugano",
+ "axe": [
+  [
+   2718042.8,
+   1097705.4,
+   293.3
+  ],
+  [
+   2718016.9,
+   1097707.9,
+   293.3
+  ]
+ ],
+ "largeur": 3.5,
+ "epaisseur": 0.6,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "pas": 1.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 26.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D",
+  "swissALTI3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "non vérifié au laser (Lugano : seulement des tuiles LAS 2020 de 1 km non lues, pas de COPC) ; passerelle métallique à garde-corps/treillis blanc vue sur l'orthophoto, treillis non modélisé ; une seule travée supposée, épaisseur supposée, piles éventuelles non visibles."
+}

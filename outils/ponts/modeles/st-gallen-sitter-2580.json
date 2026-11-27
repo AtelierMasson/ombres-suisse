@@ -1,0 +1,42 @@
+{
+ "nom": "Pont sur la Sitter (route de 4 m), St. Gallen",
+ "axe": [
+  [
+   2742541.3,
+   1253224.9,
+   582.1
+  ],
+  [
+   2742617.7,
+   1253245.7,
+   583.2
+  ]
+ ],
+ "largeur": 6.4,
+ "epaisseur": 1.2,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 79.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissTLM3D",
+  "swissSURFACE3D (relevé laser)",
+  "https://wms.geo.admin.ch (swissimage)"
+ ],
+ "photos_vues": 0,
+ "confiance": "moyenne",
+ "notes": "travée unique de 79 m sans pile mesurée au-dessus du lit ; type de structure (arc, poutre treillis) non identifié sans photo, épaisseur 1,2 m supposée."
+}

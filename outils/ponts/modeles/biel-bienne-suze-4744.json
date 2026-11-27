@@ -1,0 +1,43 @@
+{
+ "nom": "Pont routier sur la Suze (route 6 m), Biel/Bienne",
+ "axe": [
+  [
+   2584736.3,
+   1220291.5,
+   433.0
+  ],
+  [
+   2584753.1,
+   1220274.0,
+   433.0
+  ]
+ ],
+ "largeur": 7.5,
+ "epaisseur": 0.8,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 24.3
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "swissTLM3D (axe)",
+  "swissALTI3D via api3.geo.admin.ch/height",
+  "swissimage (orthophoto WMS)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser : swissSURFACE3D 2023 n'existe qu'en LAS zippé (130 Mo/tuile), pas de COPC. Modèle depuis l'axe TLM, swissALTI3D et l'orthophoto ; largeur et épaisseur estimées."
+}

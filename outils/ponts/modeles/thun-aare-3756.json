@@ -1,0 +1,52 @@
+{
+ "nom": "Pont sur l'Aare (route), Thun",
+ "axe": [
+  [
+   2613756.5,
+   1178978.4,
+   557.6
+  ],
+  [
+   2613752.7,
+   1178997.9,
+   557.4
+  ],
+  [
+   2613751.5,
+   1179007.2,
+   557.1
+  ],
+  [
+   2613751.5,
+   1179008.8,
+   557.2
+  ]
+ ],
+ "largeur": 10.5,
+ "epaisseur": 0.9,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.1
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 30.8
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (Thun : swissSURFACE3D seulement en LAS, pas de COPC) ; modèle depuis l'axe TLM et l'orthophoto, largeur lue sur l'orthophoto, épaisseur estimée, travée unique sans pile visible."
+}

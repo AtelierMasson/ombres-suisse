@@ -1,0 +1,278 @@
+{
+ "nom": "Viaduc circulaire de Brusio (Berninabahn)",
+ "axe": [
+  [
+   2807294.96,
+   1126060.38,
+   722.05
+  ],
+  [
+   2807304.47,
+   1126047.58,
+   723.17
+  ],
+  [
+   2807316.62,
+   1126037.26,
+   724.29
+  ],
+  [
+   2807330.79,
+   1126029.95,
+   725.41
+  ],
+  [
+   2807346.25,
+   1126026.03,
+   726.53
+  ],
+  [
+   2807362.19,
+   1126025.69,
+   727.65
+  ],
+  [
+   2807377.8,
+   1126028.96,
+   728.77
+  ],
+  [
+   2807392.26,
+   1126035.67,
+   729.89
+  ]
+ ],
+ "largeur": 4.9,
+ "epaisseur": 1.4,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": false,
+  "pas": 2.0,
+  "epaisseur": 0.06,
+  "materiau": "acier"
+ },
+ "materiau": "pierre",
+ "appuis": [
+  {
+   "type": "pile",
+   "s": 1.1,
+   "forme": "rect",
+   "long": 2.2,
+   "larg": 4.5,
+   "z_bas": 716.2,
+   "fruit": 0.03,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 13.28,
+   "forme": "rect",
+   "long": 2.2,
+   "larg": 4.5,
+   "z_bas": 714.1,
+   "fruit": 0.03,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 25.47,
+   "forme": "rect",
+   "long": 2.2,
+   "larg": 4.5,
+   "z_bas": 713.2,
+   "fruit": 0.03,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 37.65,
+   "forme": "rect",
+   "long": 2.2,
+   "larg": 4.5,
+   "z_bas": 712.5,
+   "fruit": 0.03,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 49.84,
+   "forme": "rect",
+   "long": 2.2,
+   "larg": 4.5,
+   "z_bas": 711.9,
+   "fruit": 0.03,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 62.02,
+   "forme": "rect",
+   "long": 2.2,
+   "larg": 4.5,
+   "z_bas": 711.6,
+   "fruit": 0.03,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 74.2,
+   "forme": "rect",
+   "long": 2.2,
+   "larg": 4.5,
+   "z_bas": 710.8,
+   "fruit": 0.03,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 86.39,
+   "forme": "rect",
+   "long": 2.2,
+   "larg": 4.5,
+   "z_bas": 710.7,
+   "fruit": 0.03,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 98.57,
+   "forme": "rect",
+   "long": 2.2,
+   "larg": 4.5,
+   "z_bas": 711.7,
+   "fruit": 0.03,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 110.76,
+   "forme": "rect",
+   "long": 2.2,
+   "larg": 4.5,
+   "z_bas": 720.2,
+   "fruit": 0.03,
+   "materiau": "pierre"
+  }
+ ],
+ "arches": [
+  {
+   "s0": 2.0,
+   "s1": 12.38,
+   "z_naissance": 715.97,
+   "z_cle": 721.16,
+   "epaisseur": 0.8,
+   "larg": 4.5,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "pierre"
+  },
+  {
+   "s0": 14.18,
+   "s1": 24.57,
+   "z_naissance": 716.82,
+   "z_cle": 722.01,
+   "epaisseur": 0.8,
+   "larg": 4.5,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "pierre"
+  },
+  {
+   "s0": 26.37,
+   "s1": 36.75,
+   "z_naissance": 717.67,
+   "z_cle": 722.87,
+   "epaisseur": 0.8,
+   "larg": 4.5,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "pierre"
+  },
+  {
+   "s0": 38.55,
+   "s1": 48.94,
+   "z_naissance": 718.53,
+   "z_cle": 723.72,
+   "epaisseur": 0.8,
+   "larg": 4.5,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "pierre"
+  },
+  {
+   "s0": 50.74,
+   "s1": 61.12,
+   "z_naissance": 719.38,
+   "z_cle": 724.57,
+   "epaisseur": 0.8,
+   "larg": 4.5,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "pierre"
+  },
+  {
+   "s0": 62.92,
+   "s1": 73.3,
+   "z_naissance": 720.23,
+   "z_cle": 725.43,
+   "epaisseur": 0.8,
+   "larg": 4.5,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "pierre"
+  },
+  {
+   "s0": 75.1,
+   "s1": 85.49,
+   "z_naissance": 721.09,
+   "z_cle": 726.28,
+   "epaisseur": 0.8,
+   "larg": 4.5,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "pierre"
+  },
+  {
+   "s0": 87.29,
+   "s1": 97.67,
+   "z_naissance": 721.94,
+   "z_cle": 727.13,
+   "epaisseur": 0.8,
+   "larg": 4.5,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "pierre"
+  },
+  {
+   "s0": 99.47,
+   "s1": 109.86,
+   "z_naissance": 722.79,
+   "z_cle": 727.99,
+   "epaisseur": 0.8,
+   "larg": 4.5,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "pierre"
+  }
+ ],
+ "pylones": [],
+ "sources": [
+  "https://fr.wikipedia.org/wiki/Viaduc_circulaire_de_Brusio",
+  "https://commons.wikimedia.org/wiki/Category:Brusio_spiral_viaduct"
+ ],
+ "photo": {
+  "fichier": "Viadotto_elicoidale_di_Brusio_Berninabahn_2022-09-28_03.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Viadotto_elicoidale_di_Brusio_Berninabahn_2022-09-28_03.jpg",
+  "auteur": "GPSLeo",
+  "licence": "CC0"
+ },
+ "photos_vues": 4,
+ "confiance": "bonne",
+ "notes": "Relevé swissSURFACE3D 2020 lu en LAS (pas de COPC), axe en arc de cercle (R 70,2 m, 111,6 m de long avec 10 piles/culées-piles de 2,2 x 4,5 m, pas 12,18 m, 9 voûtes en plein cintre) : tablier médiane 0,00 m, 85,3 % des points d'ouvrage à moins de 1,5 m, aucun conflit de terrain ni pile hors sol ; calage sur la vue d'ensemble Commons (3 px de résidu, piles k=0..6 repérées), le rendu aligne bien les piles côté ouest mais le terrain provisoire (sans COPC) et les arbres masquent la moitié est. Incertitudes : la pile de bout est (s 110,8) est posée sur le remblai, la photo montre un mur de soutènement et peut-être une arche aveugle au-delà de chaque bout (non modélisés), corniche et garde-corps acier simplifiés, épaisseur de voûte estimée.",
+ "remblai": [
+  [
+   107.4,
+   111.9
+  ]
+ ]
+}

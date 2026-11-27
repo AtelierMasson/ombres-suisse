@@ -1,0 +1,41 @@
+{
+ "nom": "Pont sur la Töss (chemin), Winterthur",
+ "axe": [
+  [
+   2702194.7,
+   1256511.1,
+   506.7
+  ],
+  [
+   2702226.6,
+   1256490.4,
+   506.5
+  ]
+ ],
+ "largeur": 5.3,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 38.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "moyenne",
+ "notes": "Dalle simple sans pile, modelee depuis le releve laser et l'axe TLM ; aucune photo (orthophoto seulement)."
+}

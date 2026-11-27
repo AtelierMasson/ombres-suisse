@@ -1,0 +1,48 @@
+{
+ "nom": "Passerelle sur le Rhône, Genève",
+ "axe": [
+  [
+   2499384.3,
+   1117855.7,
+   374.0
+  ],
+  [
+   2499396.0,
+   1117840.0,
+   373.7
+  ],
+  [
+   2499408.8,
+   1117824.8,
+   373.4
+  ]
+ ],
+ "largeur": 5.3,
+ "epaisseur": 0.7,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.1
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 39.4
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D (2025)",
+  "swissTLM3D",
+  "swissALTI3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Travée unique légèrement courbe, sans pile visible au laser. Structure non identifiée."
+}

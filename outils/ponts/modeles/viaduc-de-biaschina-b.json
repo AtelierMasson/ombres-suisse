@@ -1,0 +1,117 @@
+{
+ "nom": "Viaduc de Biaschina (chaussée amont, 580 m), Giornico",
+ "axe": [
+  [
+   2709157.5,
+   1141727.0,
+   538.7
+  ],
+  [
+   2709138.1,
+   1141808.0,
+   542.8
+  ],
+  [
+   2709122.1,
+   1141889.6,
+   547.0
+  ],
+  [
+   2709108.1,
+   1141971.6,
+   551.1
+  ],
+  [
+   2709094.9,
+   1142053.0,
+   555.3
+  ],
+  [
+   2709080.8,
+   1142134.7,
+   559.4
+  ],
+  [
+   2709064.7,
+   1142215.3,
+   563.5
+  ],
+  [
+   2709045.1,
+   1142295.3,
+   567.5
+  ]
+ ],
+ "largeur": 12.15,
+ "largeur_dessous": 7.5,
+ "epaisseur": 4.5,
+ "epaisseur_appuis": 9.5,
+ "gousset": 45,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": false,
+  "pas": 3.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 78,
+   "forme": "rect",
+   "long": 5.5,
+   "larg": 7.0,
+   "z_bas": 520,
+   "fruit": 0.015
+  },
+  {
+   "type": "pile",
+   "s": 218,
+   "forme": "rect",
+   "long": 5.5,
+   "larg": 7.0,
+   "z_bas": 460,
+   "fruit": 0.015
+  },
+  {
+   "type": "pile",
+   "s": 378,
+   "forme": "rect",
+   "long": 5.5,
+   "larg": 7.0,
+   "z_bas": 458,
+   "fruit": 0.015
+  },
+  {
+   "type": "pile",
+   "s": 518,
+   "forme": "rect",
+   "long": 5.5,
+   "larg": 7.0,
+   "z_bas": 511,
+   "fruit": 0.015
+  },
+  {
+   "type": "culee",
+   "s": 579.6
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://de.wikipedia.org/wiki/Biaschina-Viadukt",
+  "https://commons.wikimedia.org/wiki/Category:Viadotto_della_Biaschina",
+  "swissSURFACE3D 2020 (tuiles LAS 2709-1141 et 2709-1142, lues hors COPC)"
+ ],
+ "photo": {
+  "fichier": "jag.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Biaschina-Viadukt_%C3%BCber_den_Tessin,_Giornico_TI_20250617-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 2,
+ "confiance": "moyenne",
+ "notes": "Chaussée amont, 580 m (78-140-160-140-62), appuis aux mêmes abscisses que la chaussée aval (piles voisines). Même méthode et mêmes incertitudes que viaduc-de-biaschina.json (épaisseur du caisson estimée, non vérifié par verifier_nuage faute de COPC)."
+}

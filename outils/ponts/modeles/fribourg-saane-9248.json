@@ -1,0 +1,516 @@
+{
+ "nom": "Pont de Zaehringen (Zähringerbrücke), Fribourg",
+ "axe": [
+  [
+   2579155.9,
+   1183885.1,
+   580.6
+  ],
+  [
+   2579247.2,
+   1183967.2,
+   581.1
+  ],
+  [
+   2579338.4,
+   1184049.3,
+   580.6
+  ]
+ ],
+ "largeur": 12.2,
+ "largeur_dessous": 11.0,
+ "epaisseur": 1.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 30.4,
+   "z_bas": 540.0,
+   "sections": [
+    {
+     "z": 538.2,
+     "forme": "rect",
+     "long": 5.0,
+     "larg": 12.5
+    },
+    {
+     "z": 558.8,
+     "forme": "rect",
+     "long": 4.6,
+     "larg": 11.65
+    },
+    {
+     "z": "tablier",
+     "forme": "rect",
+     "long": 4.6,
+     "larg": 11.65
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 64.4,
+   "z_bas": 529.5,
+   "sections": [
+    {
+     "z": 538.18,
+     "forme": "poly",
+     "points": [
+      [
+       2.65,
+       6.31
+      ],
+      [
+       -2.2,
+       6.28
+      ],
+      [
+       -2.32,
+       -6.17
+      ],
+      [
+       2.39,
+       -6.22
+      ]
+     ]
+    },
+    {
+     "z": 558.79,
+     "forme": "poly",
+     "points": [
+      [
+       2.72,
+       5.76
+      ],
+      [
+       -1.96,
+       5.73
+      ],
+      [
+       -2.07,
+       -5.81
+      ],
+      [
+       2.49,
+       -5.87
+      ]
+     ]
+    },
+    {
+     "z": "tablier",
+     "forme": "poly",
+     "points": [
+      [
+       2.72,
+       5.76
+      ],
+      [
+       -1.96,
+       5.73
+      ],
+      [
+       -2.07,
+       -5.81
+      ],
+      [
+       2.49,
+       -5.87
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 98.4,
+   "z_bas": 533.5,
+   "sections": [
+    {
+     "z": 538.38,
+     "forme": "poly",
+     "points": [
+      [
+       2.61,
+       6.2
+      ],
+      [
+       -2.47,
+       6.24
+      ],
+      [
+       -2.33,
+       -6.22
+      ],
+      [
+       2.46,
+       -6.23
+      ]
+     ]
+    },
+    {
+     "z": 558.83,
+     "forme": "poly",
+     "points": [
+      [
+       2.44,
+       5.73
+      ],
+      [
+       -2.09,
+       5.77
+      ],
+      [
+       -1.95,
+       -5.83
+      ],
+      [
+       2.3,
+       -5.84
+      ]
+     ]
+    },
+    {
+     "z": "tablier",
+     "forme": "poly",
+     "points": [
+      [
+       2.44,
+       5.73
+      ],
+      [
+       -2.09,
+       5.77
+      ],
+      [
+       -1.95,
+       -5.83
+      ],
+      [
+       2.3,
+       -5.84
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 132.4,
+   "z_bas": 536.0,
+   "sections": [
+    {
+     "z": 538.21,
+     "forme": "poly",
+     "points": [
+      [
+       3.07,
+       6.15
+      ],
+      [
+       -2.41,
+       6.14
+      ],
+      [
+       -2.46,
+       -6.26
+      ],
+      [
+       2.78,
+       -6.27
+      ]
+     ]
+    },
+    {
+     "z": 558.78,
+     "forme": "poly",
+     "points": [
+      [
+       2.23,
+       5.78
+      ],
+      [
+       -2,
+       5.77
+      ],
+      [
+       -2.05,
+       -5.79
+      ],
+      [
+       1.96,
+       -5.8
+      ]
+     ]
+    },
+    {
+     "z": "tablier",
+     "forme": "poly",
+     "points": [
+      [
+       2.23,
+       5.78
+      ],
+      [
+       -2,
+       5.77
+      ],
+      [
+       -2.05,
+       -5.79
+      ],
+      [
+       1.96,
+       -5.8
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 166.4,
+   "z_bas": 544.0,
+   "sections": [
+    {
+     "z": 538.2,
+     "forme": "rect",
+     "long": 5.0,
+     "larg": 12.5
+    },
+    {
+     "z": 558.8,
+     "forme": "rect",
+     "long": 4.6,
+     "larg": 11.65
+    },
+    {
+     "z": "tablier",
+     "forme": "rect",
+     "long": 4.6,
+     "larg": 11.65
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 200.4,
+   "z_bas": 550.0,
+   "sections": [
+    {
+     "z": 538.2,
+     "forme": "rect",
+     "long": 5.0,
+     "larg": 12.5
+    },
+    {
+     "z": 558.8,
+     "forme": "rect",
+     "long": 4.6,
+     "larg": 11.65
+    },
+    {
+     "z": "tablier",
+     "forme": "rect",
+     "long": 4.6,
+     "larg": 11.65
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 238.0,
+   "forme": "rect",
+   "long": 14.0,
+   "larg": 11.0,
+   "z_bas": 571.0,
+   "fruit": 0
+  },
+  {
+   "type": "culee",
+   "s": 245.6
+  }
+ ],
+ "arches": [
+  {
+   "s0": 0.5,
+   "s1": 28.5,
+   "z_naissance": 560.0,
+   "z_cle": 577.5,
+   "epaisseur": 1.2,
+   "larg": 11.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 32.3,
+   "s1": 62.5,
+   "z_naissance": 560.0,
+   "z_cle": 577.5,
+   "epaisseur": 1.2,
+   "larg": 11.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 66.3,
+   "s1": 96.5,
+   "z_naissance": 560.0,
+   "z_cle": 577.5,
+   "epaisseur": 1.2,
+   "larg": 11.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 100.3,
+   "s1": 130.5,
+   "z_naissance": 560.0,
+   "z_cle": 577.5,
+   "epaisseur": 1.2,
+   "larg": 11.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 134.3,
+   "s1": 164.5,
+   "z_naissance": 560.0,
+   "z_cle": 577.5,
+   "epaisseur": 1.2,
+   "larg": 11.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 168.3,
+   "s1": 198.5,
+   "z_naissance": 560.0,
+   "z_cle": 577.5,
+   "epaisseur": 1.2,
+   "larg": 11.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 202.3,
+   "s1": 231.5,
+   "z_naissance": 560.0,
+   "z_cle": 577.5,
+   "epaisseur": 1.2,
+   "larg": 11.0,
+   "plein": true,
+   "forme": "cintre"
+  }
+ ],
+ "pylones": [],
+ "sources": [
+  "https://fribourg.ch/fr/fribourg/architecture-et-monuments/pont-de-zaehringen/",
+  "https://fr.wikipedia.org/wiki/Pont_de_Zaehringen",
+  "https://structurae.net/de/bauwerke/zaehringerbruecke",
+  "https://commons.wikimedia.org/wiki/File:Pont_de_Zaehringen_von_der_Kathedrale_Fribourg-1.jpg",
+  "https://commons.wikimedia.org/wiki/File:Pont_de_Zaehringen_Fribourg-2.jpg"
+ ],
+ "photo": {
+  "fichier": "p4.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Fribourg_-_Pont_de_Zaehringen.jpg",
+  "auteur": "Ludovic Péron",
+  "licence": "CC BY-SA 3.0"
+ },
+ "photos_vues": 3,
+ "confiance": "bonne",
+ "notes": "Viaduc de 7 arches pleines en béton (1924), 6 piles ; longueur publiée 235,55 m, largeur 12,2 m, tablier ~49 m au-dessus de la Sarine. Le relevé relancé sur un rayon plus large donne un axe de 245,6 m (le résumé initial, 179,9 m, était tronqué côté Schoenberg) ; piles placées sur les pics de points sous le tablier (entraxe régularisé à 33,6 m, ±1,5 m), altitudes de naissance et de clé estimées sur photo (±1,5 m). Piles recalées sur le nuage (outils/ponts/sections_nuage.mjs, FACES=1, ZMIN=538 ZMAX=559) : 6 piles de 5,0 × 12,5 m au pied (538 m) et 4,6 × 11,7 m sous les naissances (559 m), fruit 1 % en long et 2 % en travers, entraxe 34,0 m (et non 33,6) ; faces des piles s 30,4, 166,4 et 200,4 mal vues (arbres, un côté seulement) : moyenne des autres ; au-dessus des naissances la pile monte droite jusqu'au tablier en pilastre (0,3 m devant les tympans, photo). Voûtes pleines engagées de 0,4 m dans les piles (faces mesurées à ±2,0-2,7 m de l'axe de la pile aux naissances : sans recouvrement, une fente restait entre tympans et piles). Tablier sculpté (sections_tablier) : corniche à ±6,25 m sur 0,6 m mesurée (mode tablier), tympans à ±5,5 m ; sous-face non vue (épaisseur 1,8 m). Non représenté : arcs en plein cintre (le schéma les trace en parabole), balustrade à balustres, ouvertures voûtées au pied des piles et pont routier inférieur (vers 543,8 m) qui les traverse ; la culée massive côté Schoenberg est approchée par une pile pleine de 14 m (s=238). Reprise v4 : pont routier inférieur (dalle 5,2 m à 543,9 m, s 28-135) et lampadaires (mâts de 7,4 m aux entraxes 34 m, nuage) ajoutés ; calage photo p4 (Commons, Ludovic Péron) : 8 points, 3,8 px de résidu moyen, superposition correcte (arcs, piles, tablier). Non représenté : arcs surbaissés du pont inférieur et portails voûtés des piles, balustrade ajourée, caténaires. 77,7 % des points à moins de 1,5 m : le reste est une nappe fantôme à 578,4 m (|o| 6,5-10,5) et des fils/arbres. Doublon : zaehringen.json (même ouvrage) retiré de l'index public.",
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -6.1,
+     0
+    ],
+    [
+     -6.25,
+     -0.25
+    ],
+    [
+     -6.25,
+     -0.6
+    ],
+    [
+     -5.5,
+     -0.9
+    ],
+    [
+     -5.5,
+     -1.8
+    ],
+    [
+     5.5,
+     -1.8
+    ],
+    [
+     5.5,
+     -0.9
+    ],
+    [
+     6.25,
+     -0.6
+    ],
+    [
+     6.25,
+     -0.25
+    ],
+    [
+     6.1,
+     0
+    ]
+   ]
+  }
+ ],
+ "volumes": [
+  {
+   "s": 81.5,
+   "t": 0,
+   "z_bas": 542.4,
+   "sections": [
+    {
+     "z": 542.4,
+     "forme": "rect",
+     "long": 107,
+     "larg": 5.2
+    },
+    {
+     "z": 543.9,
+     "forme": "rect",
+     "long": 107,
+     "larg": 5.2
+    }
+   ]
+  }
+ ],
+ "lampadaires": [
+  {
+   "s0": 34,
+   "s1": 204,
+   "pas": 34,
+   "o": 6.2,
+   "h": 7.4,
+   "ep": 0.25
+  },
+  {
+   "s0": 34,
+   "s1": 204,
+   "pas": 34,
+   "o": -6.2,
+   "h": 7.4,
+   "ep": 0.25
+  }
+ ]
+}

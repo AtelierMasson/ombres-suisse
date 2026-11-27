@@ -1,0 +1,41 @@
+{
+ "nom": "Pont sur le Vedeggio, Lugano",
+ "axe": [
+  [
+   2714228.2,
+   1096054.5,
+   282.0
+  ],
+  [
+   2714199.4,
+   1096063.4,
+   282.1
+  ]
+ ],
+ "largeur": 4.6,
+ "epaisseur": 0.7,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 30.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "inventaire TLM swisstopo",
+  "https://api3.geo.admin.ch/rest/services/height"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (Lugano 2020 n'existe qu'en LAS zippé de 165 Mo par tuile, pas de COPC). Travée unique d'après l'axe TLM et le MNT swissALTI3D (rives à ~l'altitude de la chaussée, lit 3 à 5 m plus bas) ; largeur et épaisseur estimées d'après la classe de route, sans photo."
+}

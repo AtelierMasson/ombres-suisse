@@ -1,0 +1,41 @@
+{
+ "nom": "Pont routier sur l'Aare, Berne (nord)",
+ "axe": [
+  [
+   2600163.2,
+   1202755.7,
+   490.1
+  ],
+  [
+   2600136.1,
+   1202776.1,
+   490.5
+  ]
+ ],
+ "largeur": 11.0,
+ "epaisseur": 1.2,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 33.9
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Pont à une travée de ~72 m sans pile visible ; largeur (~11 m, deux voies et trottoirs) et épaisseur lues à l'orthophoto, courbe des rampes d'accès hors axe TLM. Pas de nuage COPC ici (seule la tuile 2023 en LAZ pour Berne, rien pour Bellinzone) : modèle tiré de l'axe TLM et de l'orthophoto, non vérifié au laser."
+}

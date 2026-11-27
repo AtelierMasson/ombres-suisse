@@ -1,0 +1,48 @@
+{
+ "nom": "Passerelle sur le Rhin (Chur, amont)",
+ "axe": [
+  [
+   2756617.8,
+   1191062.5,
+   565.6
+  ],
+  [
+   2756657.8,
+   1191037.8,
+   565.9
+  ],
+  [
+   2756700.0,
+   1191012.0,
+   566.0
+  ]
+ ],
+ "largeur": 4.5,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 96.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "swissimage (orthophoto, wms.geo.admin.ch)",
+  "swissTLM3D axe",
+  "swissALTI3D (api3.geo.admin.ch/height)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (pas de nuage COPC ; tuile LAS de 150 Mo non lue) : modèle depuis l'axe TLM, swissALTI3D et l'orthophoto. Passerelle de ~94 m, axe TLM prolongé vers le sud-est à l'orthophoto ; aucune pile dans le lit visible, structure porteuse (câbles, poutre ou arc) inconnue donc tablier mince seul. Largeur ~4,5 m estimée."
+}

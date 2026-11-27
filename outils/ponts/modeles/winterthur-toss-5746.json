@@ -1,0 +1,49 @@
+{
+ "nom": "Passerelle sur la Töss, Winterthur",
+ "axe": [
+  [
+   2695725.3,
+   1259666.1,
+   442.0
+  ],
+  [
+   2695748.4,
+   1259681.9,
+   441.9
+  ],
+  [
+   2695765.5,
+   1259693.6,
+   441.6
+  ]
+ ],
+ "largeur": 4.6,
+ "epaisseur": 0.6,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.05
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 48.8
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "relevé swissSURFACE3D",
+  "swissTLM3D",
+  "orthophoto swissimage"
+ ],
+ "photos_vues": 0,
+ "confiance": "moyenne",
+ "notes": "Passerelle d'une portée sans pile, aucun point sous le tablier; aucune photo."
+}

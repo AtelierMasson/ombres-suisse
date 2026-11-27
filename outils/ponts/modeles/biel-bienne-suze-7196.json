@@ -1,0 +1,43 @@
+{
+ "nom": "Passerelle piétonne sur la Suze, Biel/Bienne",
+ "axe": [
+  [
+   2587188.5,
+   1222318.6,
+   444.1
+  ],
+  [
+   2587203.5,
+   1222333.4,
+   444.1
+  ]
+ ],
+ "largeur": 2.4,
+ "epaisseur": 0.35,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 21.1
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "swissTLM3D (axe)",
+  "swissALTI3D via api3.geo.admin.ch/height",
+  "swissimage (orthophoto WMS)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser : swissSURFACE3D 2023 n'existe qu'en LAS zippé (130 Mo/tuile), pas de COPC. Modèle depuis l'axe TLM, swissALTI3D et l'orthophoto ; largeur et épaisseur estimées."
+}

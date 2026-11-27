@@ -1,0 +1,67 @@
+{
+ "nom": "Passerelle sur l'Arve, Genève",
+ "axe": [
+  [
+   2498627.5,
+   1117363.6,
+   374.2
+  ],
+  [
+   2498641.7,
+   1117394.8,
+   374.0
+  ],
+  [
+   2498655.8,
+   1117425.9,
+   373.9
+  ],
+  [
+   2498670.0,
+   1117457.1,
+   373.7
+  ]
+ ],
+ "largeur": 4.9,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 48,
+   "forme": "rond",
+   "long": 1.0,
+   "larg": 1.0,
+   "z_bas": 365.3
+  },
+  {
+   "type": "pile",
+   "s": 64,
+   "forme": "rond",
+   "long": 1.0,
+   "larg": 1.0,
+   "z_bas": 365.3
+  },
+  {
+   "type": "culee",
+   "s": 102.7
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "confiance": "faible",
+ "notes": "Passerelle etroite (4,9 m) ; deux appuis fins deduits des points laser a s=48 et 64 (372,2 et 372,0 m), forme et dimensions estimees. Nom et type exact non verifies.",
+ "sources": [
+  "swissSURFACE3D",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0
+}

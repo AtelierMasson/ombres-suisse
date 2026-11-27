@@ -1,0 +1,52 @@
+{
+ "nom": "Passerelle sur la Sihl (3m Strasse), Zurich",
+ "axe": [
+  [
+   2682017.1,
+   1246767.0,
+   417.7
+  ],
+  [
+   2682030,
+   1246756,
+   418.4
+  ],
+  [
+   2682043,
+   1246744.5,
+   418.3
+  ],
+  [
+   2682051.8,
+   1246737.1,
+   417.9
+  ]
+ ],
+ "largeur": 3.2,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 45.8
+  }
+ ],
+ "confiance": "moyenne",
+ "notes": "Passerelle piétonne à travée unique, légèrement cintrée (relevé 417,7 / 418,4 / 417,9) ; type d'ouvrage et nom réels non vérifiés.",
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissimage (wms.geo.admin.ch)",
+  "swissTLM3D",
+  "swissSURFACE3D"
+ ],
+ "photos_vues": 0
+}

@@ -1,0 +1,70 @@
+{
+ "nom": "Pont du Gottéron, Fribourg",
+ "axe": [
+  [
+   2579601.6,
+   1183664.6,
+   609.8
+  ],
+  [
+   2579642.8,
+   1183741.4,
+   608.0
+  ],
+  [
+   2579683.7,
+   1183818.4,
+   606.8
+  ]
+ ],
+ "largeur": 10.6,
+ "largeur_dessous": 8.0,
+ "epaisseur": 1.4,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 174.3
+  }
+ ],
+ "arches": [
+  {
+   "s0": 18.0,
+   "s1": 134.5,
+   "s_cle": 76.0,
+   "z_naissance": 583.3,
+   "z_naissance_fin": 585.2,
+   "z_cle": 606.0,
+   "epaisseur": 1.5,
+   "larg": 7.0,
+   "plein": false,
+   "nervures": 2,
+   "larg_nervure": 1.7,
+   "montants_pas": 11.6,
+   "montant_ep": 0.7
+  }
+ ],
+ "pylones": [],
+ "sources": [
+  "https://structurae.net/fr/ouvrages/pont-du-gotteron-1960-fribourg",
+  "https://fr.wikipedia.org/wiki/Pont_du_Gott%C3%A9ron",
+  "https://www.mgi-ingenieurs.ch/projets/ouvrages/assainissement-pont-gotteron/"
+ ],
+ "photo": {
+  "fichier": "cathedrale.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Pont_du_Gotteron_von_der_Kathedrale_Fribourg-1.jpg",
+  "auteur": "Wikimedia Commons",
+  "licence": "Commons"
+ },
+ "photos_vues": 4,
+ "confiance": "moyenne",
+ "notes": "Arc béton 2 nervures (portée 116 m, flèche ~23 m), tablier sur montants fins, modélisé sans piles ; axe décalé au nuage (tablier mesuré 9,5 m de chaussée). Conflit résiduel : sol qui perce la chaussée à s 170 (1 station, rampe d'accès au bout nord, 1,3 m). Calage photo faible : vue lointaine quasi plane, caméra supposée à la tour de la cathédrale (z 630 fixée), résidus 11-46 px ; le schéma ne rend ni les contreventements en croix entre nervures ni l'épaisseur variable du caisson."
+}

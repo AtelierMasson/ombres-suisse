@@ -1,0 +1,90 @@
+{
+ "nom": "Pont sur la Töss, Winterthur",
+ "axe": [
+  [
+   2695209.8,
+   1260496.7,
+   438.8
+  ],
+  [
+   2695213.8,
+   1260456.9,
+   440.6
+  ],
+  [
+   2695218.7,
+   1260409.2,
+   441.4
+  ],
+  [
+   2695222.7,
+   1260369.4,
+   440.9
+  ],
+  [
+   2695226.9,
+   1260328.1,
+   439.3
+  ]
+ ],
+ "largeur": 50.0,
+ "epaisseur": 1.2,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 32,
+   "forme": "rect",
+   "long": 2,
+   "larg": 38,
+   "z_bas": 434.4
+  },
+  {
+   "type": "pile",
+   "s": 64,
+   "forme": "rect",
+   "long": 2,
+   "larg": 38,
+   "z_bas": 434.1
+  },
+  {
+   "type": "pile",
+   "s": 96,
+   "forme": "rect",
+   "long": 2,
+   "larg": 38,
+   "z_bas": 433.8
+  },
+  {
+   "type": "pile",
+   "s": 120,
+   "forme": "rect",
+   "long": 2,
+   "larg": 38,
+   "z_bas": 433.8
+  },
+  {
+   "type": "culee",
+   "s": 169.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "relevé swissSURFACE3D",
+  "swissTLM3D",
+  "orthophoto swissimage"
+ ],
+ "photos_vues": 0,
+ "confiance": "moyenne",
+ "notes": "Ouvrage très large (43 m, probablement deux tabliers jointifs) et sans photo: place et forme des piles déduites des points sous tablier. Le terrain mesuré vers 434 m semble sec: l'eau n'est pas modélisée. Axe décalé de 5 m vers la gauche et largeur 50 m: la largeur réelle varie (évasement), le modèle est une moyenne."
+}

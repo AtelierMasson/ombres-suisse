@@ -1,0 +1,119 @@
+{
+ "nom": "Via al Ticino-Brücke (pont sur le Ticino, Giubiasco - Sementina)",
+ "axe": [
+  [
+   2720331.6,
+   1115098.2,
+   223.1
+  ],
+  [
+   2720337.4,
+   1115088.3,
+   223.58
+  ],
+  [
+   2720345.6,
+   1115074.8,
+   224.3
+  ],
+  [
+   2720354.7,
+   1115059.5,
+   225.04
+  ],
+  [
+   2720372.5,
+   1115029.3,
+   226.03
+  ],
+  [
+   2720391.8,
+   1114997.6,
+   226.43
+  ],
+  [
+   2720408.9,
+   1114968.9,
+   226.3
+  ],
+  [
+   2720422.0,
+   1114946.8,
+   225.94
+  ],
+  [
+   2720439.1,
+   1114918.5,
+   224.96
+  ],
+  [
+   2720454.6,
+   1114892.3,
+   223.63
+  ],
+  [
+   2720460.5,
+   1114882.9,
+   223.14
+  ]
+ ],
+ "largeur": 13.4,
+ "largeur_dessous": 10.6,
+ "epaisseur": 2.0,
+ "epaisseur_appuis": 3.0,
+ "gousset": 22,
+ "materiau": "beton",
+ "materiau_tablier": "acier",
+ "garde_corps": {
+  "hauteur": 1.3,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 110.0,
+   "forme": "double",
+   "long": 4.6,
+   "larg": 14.0,
+   "larg_colonne": 5.0,
+   "z_bas": 210.0
+  },
+  {
+   "type": "pile",
+   "s": 165.0,
+   "forme": "double",
+   "long": 4.6,
+   "larg": 14.0,
+   "larg_colonne": 5.0,
+   "z_bas": 210.0
+  },
+  {
+   "type": "culee",
+   "s": 250.9
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://commons.wikimedia.org/wiki/File:Via_al_Ticino-Br%C3%BCcke_%C3%BCber_den_Tessin,_Giubiasco_TI_%E2%80%93_Sementina_TI_20250620-jag9889.jpg",
+  "https://commons.wikimedia.org/wiki/File:Morobbia-Viadukt_%C3%BCber_den_Tessin,_Giubiasco_TI_%E2%80%93_Sementina_TI_20250620-jag9889.jpg"
+ ],
+ "confiance": "moyenne",
+ "notes": "Relevé 2020 en LAS zippé (2 tuiles 2720-1114/1115, pas de COPC) : axe TLM gardé (centré sur le tablier à 0,1 m), profil en long mesuré (crête 226,4 m vers s 125, bouts 223,1 m), largeur 13,1 m au laser. Pont mixte : poutres métalliques (acier patiné) à hauteur variable et dalle béton, deux piles à doubles colonnes au pied des digues (s 110 et 165, portée centrale ~55 m) ; les travées d'accès (110 m et 85 m sans appui visible au laser, dessous caché par le tablier) sont modélisées sans pile, à confirmer. Calage photo non fait : la vue d'ensemble (prise de loin, culées cachées par les arbres) et la vue de dessous n'offrent aucun repère de coordonnées mesurable (pas de photo de la chaussée dessous), donc forme des poutres et des piles estimée d'après les photos sans superposition ; le schéma ne sait pas faire la hauteur variable des poutres de rive ni l'aplomb chanfreiné des colonnes.",
+ "section": "poutres",
+ "dalle": 0.4,
+ "poutre_larg": 0.9,
+ "photos_vues": 2,
+ "photo": {
+  "fichier": "photo.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Via_al_Ticino-Br%C3%BCcke_%C3%BCber_den_Tessin,_Giubiasco_TI_%E2%80%93_Sementina_TI_20250620-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ }
+}

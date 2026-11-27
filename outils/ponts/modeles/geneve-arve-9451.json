@@ -1,0 +1,71 @@
+{
+ "nom": "Pont sur l'Arve (8 m), Genève",
+ "axe": [
+  [
+   2499424.1,
+   1116768.3,
+   376.3
+  ],
+  [
+   2499431.6,
+   1116777.7,
+   376.8
+  ],
+  [
+   2499439.0,
+   1116787.1,
+   377.2
+  ],
+  [
+   2499446.5,
+   1116796.5,
+   377.3
+  ],
+  [
+   2499454.0,
+   1116805.9,
+   377.3
+  ],
+  [
+   2499461.5,
+   1116815.3,
+   377.1
+  ],
+  [
+   2499468.9,
+   1116824.6,
+   376.7
+  ],
+  [
+   2499476.4,
+   1116834.0,
+   376.1
+  ]
+ ],
+ "largeur": 13.3,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 85.1
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "confiance": "faible",
+ "notes": "Tablier en dos d'ane (max 377,4 m vers s=40) ; points juste sous le tablier (375,4-376,8) a de nombreux s : poutres ou arcs minces non representes. Appuis dans l'eau non releves.",
+ "sources": [
+  "swissSURFACE3D",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0
+}

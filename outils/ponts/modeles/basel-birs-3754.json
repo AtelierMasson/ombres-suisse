@@ -1,0 +1,59 @@
+{
+ "nom": "Passerelle piétonne sur la Birs (2 m Weg)",
+ "axe": [
+  [
+   2613729.5,
+   1266808.6,
+   253.8
+  ],
+  [
+   2613738.2,
+   1266816.8,
+   254.0
+  ],
+  [
+   2613766.1,
+   1266843.6,
+   254.7
+  ],
+  [
+   2613771.8,
+   1266849.1,
+   254.8
+  ],
+  [
+   2613778.2,
+   1266855.2,
+   254.9
+  ]
+ ],
+ "largeur": 3.5,
+ "epaisseur": 0.9,
+ "epaisseur_appuis": 1.4,
+ "gousset": 14,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 1.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 67.4
+  }
+ ],
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC à Bâle (swisssurface3d 2023 en LAS.zip seulement) : non vérifié au laser. Portée unique de ~65 m supposée (aucun appui visible sur l'orthophoto) ; structure réelle (poutre, caisson, bois) non identifiée.",
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissimage (wms.geo.admin.ch)",
+  "swissTLM3D",
+  "swissALTI3D"
+ ],
+ "photos_vues": 0
+}

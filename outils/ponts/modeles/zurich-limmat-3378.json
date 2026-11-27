@@ -1,0 +1,47 @@
+{
+ "nom": "Passerelle sur la Limmat (Zürich)",
+ "axe": [
+  [
+   2683346.2,
+   1247788.7,
+   408.2
+  ],
+  [
+   2683400.0,
+   1247778.1,
+   408.2
+  ],
+  [
+   2683422.4,
+   1247773.6,
+   407.2
+  ]
+ ],
+ "largeur": 4.7,
+ "epaisseur": 0.4,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 77.7
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "relevé swissSURFACE3D 2024",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "moyenne",
+ "notes": "Passerelle sans appui intermédiaire au relevé, tablier mince, rampe finale vers la berge. Nom réel et type de structure (poutre ou arc) non vérifiés faute de photo; orthophoto non consultée."
+}

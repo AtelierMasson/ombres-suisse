@@ -1,0 +1,43 @@
+{
+ "nom": "Passerelle sur le Cassarate (gorge), Lugano",
+ "axe": [
+  [
+   2718905.1,
+   1100879.1,
+   354.9
+  ],
+  [
+   2718854.0,
+   1100897.8,
+   358.8
+  ]
+ ],
+ "largeur": 1.6,
+ "epaisseur": 0.9,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 1.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 54.4
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D",
+  "https://api3.geo.admin.ch/rest/services/height"
+ ],
+ "photos_vues": 1,
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC au Tessin (tuiles LAS zip seulement) : non vérifié au laser. Passerelle étroite d'une seule portée au-dessus d'une gorge de ~13 m, sous forêt dense : structure réelle (suspendue ou treillis) inconnue, dessinée comme une poutre mince."
+}

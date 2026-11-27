@@ -1,0 +1,126 @@
+{
+ "nom": "Pont de Reichenau (Rheinbrücke Tamins), Tamins - Domat/Ems",
+ "axe": [
+  [
+   2750716.3,
+   1188284.5,
+   612.2
+  ],
+  [
+   2750746.3,
+   1188281.9,
+   611.88
+  ],
+  [
+   2750776.0,
+   1188277.5,
+   611.55
+  ],
+  [
+   2750815.4,
+   1188270.5,
+   611.12
+  ],
+  [
+   2750854.7,
+   1188263.4,
+   610.69
+  ],
+  [
+   2750881.2,
+   1188260.4,
+   610.4
+  ]
+ ],
+ "largeur": 9.6,
+ "largeur_dessous": 7.0,
+ "epaisseur": 1.8,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 31,
+   "forme": "rect",
+   "long": 1.2,
+   "larg": 4.0,
+   "z_bas": 587.5
+  },
+  {
+   "type": "pile",
+   "s": 47,
+   "forme": "rect",
+   "long": 1.2,
+   "larg": 4.0,
+   "z_bas": 595.9
+  },
+  {
+   "type": "pile",
+   "s": 62,
+   "forme": "rect",
+   "long": 1.2,
+   "larg": 4.0,
+   "z_bas": 604.7
+  },
+  {
+   "type": "pile",
+   "s": 116,
+   "forme": "rect",
+   "long": 1.2,
+   "larg": 4.0,
+   "z_bas": 602.4
+  },
+  {
+   "type": "pile",
+   "s": 134,
+   "forme": "rect",
+   "long": 1.2,
+   "larg": 4.0,
+   "z_bas": 593.5
+  },
+  {
+   "type": "culee",
+   "s": 166.6
+  }
+ ],
+ "arches": [
+  {
+   "s0": 36,
+   "s1": 136,
+   "s_cle": 82,
+   "z_naissance": 587.0,
+   "z_naissance_fin": 593.0,
+   "z_cle": 609.7,
+   "epaisseur": 1.4,
+   "larg": 5.0,
+   "plein": false,
+   "nervures": 1,
+   "montants_pas": 9999
+  }
+ ],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://52bestebauten.ch/13-rheinbruecke-tamins/",
+  "https://www.brueckenweb.de/2content/datenbank/bruecken/3brueckenblatt.php?bas=6108",
+  "https://structurae.net/en/structures/reichenau-bridge",
+  "https://commons.wikimedia.org/wiki/Category:Rheinbr%C3%BCcke_Tamins",
+  "swissSURFACE3D 2020 (LAS, tuile 2750-1188)"
+ ],
+ "photo": {
+  "fichier": "c2.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Tamins_Rheinbruecke_2.jpg",
+  "auteur": "Commons (Tamins Rheinbruecke)",
+  "licence": "voir Commons"
+ },
+ "photos_vues": 6,
+ "confiance": "moyenne",
+ "notes": "Nuage 2020 en LAS zippé (pas de COPC) : axe relevé sur la classe 17 (166,6 m, courbe légère), altitudes à 0,01 m de médiane, largeur chaussée 9,4 m. Arc unique asymétrique (naissances s 36 z 587 et s 136 z 593, flèche ~22 m, polygonal chez Menn) et colonnes (s 31, 47, 62, 116, 134) placés sur photo calée (13 px) : l'arc n'est pas classé par le laser (seuls les patins des naissances). Incertains : largeur et épaisseur de l'arc (5 m x 1,4 m supposés, plus large aux naissances), caisson du tablier (1,8 m constant, plus profond vers les colonnes) et colonnes de la photo c2 (nombre et s au pixel). Le schéma ne sait pas faire l'arc fondu dans le tablier à la clé ni l'arc à largeur variable sans profil."
+}

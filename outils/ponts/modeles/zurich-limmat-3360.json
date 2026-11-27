@@ -1,0 +1,47 @@
+{
+ "nom": "Pont routier sur la Limmat (Zürich, 3360)",
+ "axe": [
+  [
+   2683318.9,
+   1247646.0,
+   408.6
+  ],
+  [
+   2683358.0,
+   1247646.2,
+   408.3
+  ],
+  [
+   2683398.1,
+   1247646.5,
+   407.5
+  ]
+ ],
+ "largeur": 22.2,
+ "epaisseur": 0.3,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 79.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "relevé swissSURFACE3D 2024",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "moyenne",
+ "notes": "Pont large à une travée, pente de 1,1 m vers l'est; aucun appui au relevé. Nom non vérifié."
+}

@@ -1,0 +1,106 @@
+{
+ "nom": "Pont Nanin (Ponte Nanin), autoroute A13, Mesocco",
+ "axe": [
+  [
+   2737619.9,
+   1141658.4,
+   1072.0
+  ],
+  [
+   2737802.0,
+   1141734.3,
+   1059.75
+  ]
+ ],
+ "largeur": 11.5,
+ "largeur_dessous": 8.0,
+ "epaisseur": 1.7,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 15,
+   "forme": "rect",
+   "long": 2.6,
+   "larg": 5.0,
+   "z_bas": 1057.5
+  },
+  {
+   "type": "pile",
+   "s": 32,
+   "forme": "rect",
+   "long": 2.6,
+   "larg": 5.0,
+   "z_bas": 1048.5
+  },
+  {
+   "type": "pile",
+   "s": 50,
+   "forme": "rect",
+   "long": 2.6,
+   "larg": 5.0,
+   "z_bas": 1042.0
+  },
+  {
+   "type": "pile",
+   "s": 163,
+   "forme": "rect",
+   "long": 2.6,
+   "larg": 5.0,
+   "z_bas": 1035.5
+  },
+  {
+   "type": "pile",
+   "s": 178,
+   "forme": "rect",
+   "long": 2.6,
+   "larg": 5.0,
+   "z_bas": 1045.5
+  },
+  {
+   "type": "culee",
+   "s": 197.3
+  }
+ ],
+ "arches": [
+  {
+   "s0": 50.0,
+   "s1": 163.0,
+   "s_cle": 106.0,
+   "z_naissance": 1041.3,
+   "z_naissance_fin": 1034.9,
+   "z_cle": 1062.0,
+   "epaisseur": 1.8,
+   "larg": 5.0,
+   "plein": false,
+   "nervures": 1,
+   "montants_pas": 14.1,
+   "montant_ep": 2.6
+  }
+ ],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://commons.wikimedia.org/wiki/Category:Naninbrücke",
+  "https://commons.wikimedia.org/wiki/File:Mesocco_Ponte_Nanin.jpg",
+  "https://commons.wikimedia.org/wiki/File:Mesocco-SanBernhardino-Ponte_Cascella_und_Ponte_Nanin-01.jpg",
+  "https://commons.wikimedia.org/wiki/File:Mesocco_Bruecken.jpg"
+ ],
+ "photo": {
+  "fichier": "c.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Mesocco_Bruecken.jpg",
+  "auteur": "Ikiwaner",
+  "licence": "CC BY-SA 3.0"
+ },
+ "photos_vues": 3,
+ "confiance": "bonne",
+ "notes": "Relevé swissSURFACE3D 2020 lu depuis la tuile LAS zippée (pas de COPC, vérification faite sur cache local) ; les coordonnées de l'inventaire (E 2750799, N 1188275) sont fausses, le pont est à Mesocco (E 2737710, N 1141700). Arc unique asymétrique (naissances s 50 et 163, clé fondue dans le tablier vers s 106) vu par le laser seulement près des naissances, l'intrados au milieu et l'épaisseur du tablier viennent des photos ; piles de pente s 15 et 32 posées d'après les photos (non vues au laser), le schéma ne sait pas dessiner le tablier à hauteur variable ni l'arc fondu dans le tablier."
+}

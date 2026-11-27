@@ -1,0 +1,303 @@
+{
+ "nom": "Pont sur la Mentue, Yvonand",
+ "axe": [
+  [
+   2545227.3,
+   1180741.3,
+   566.6
+  ],
+  [
+   2545294.1,
+   1180765.0,
+   565.45
+  ],
+  [
+   2545360.9,
+   1180788.6,
+   564.23
+  ],
+  [
+   2545426.4,
+   1180814.5,
+   562.97
+  ],
+  [
+   2545490.0,
+   1180844.2,
+   561.69
+  ],
+  [
+   2545551.3,
+   1180878.1,
+   560.44
+  ],
+  [
+   2545610.2,
+   1180916.4,
+   559.24
+  ],
+  [
+   2545666.9,
+   1180959.0,
+   558.12
+  ],
+  [
+   2545720.9,
+   1181006.6,
+   557.11
+  ],
+  [
+   2545735.7,
+   1181021.3,
+   556.85
+  ]
+ ],
+ "largeur": 27.0,
+ "largeur_dessous": 22.0,
+ "epaisseur": 4.2,
+ "epaisseur_appuis": 13.0,
+ "gousset": 62,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 102,
+   "t": -7.5,
+   "forme": "rect",
+   "long": 6.8,
+   "larg": 9.0,
+   "fruit": 0.008,
+   "profil": [
+    [
+     0,
+     6.0,
+     8.6
+    ],
+    [
+     8,
+     6.4,
+     9.0
+    ],
+    [
+     40,
+     6.8,
+     9.0
+    ]
+   ],
+   "z_bas": 494.0
+  },
+  {
+   "type": "pile",
+   "s": 102,
+   "t": 7.5,
+   "forme": "rect",
+   "long": 6.8,
+   "larg": 9.0,
+   "fruit": 0.008,
+   "profil": [
+    [
+     0,
+     6.0,
+     8.6
+    ],
+    [
+     8,
+     6.4,
+     9.0
+    ],
+    [
+     40,
+     6.8,
+     9.0
+    ]
+   ],
+   "z_bas": 494.0
+  },
+  {
+   "type": "pile",
+   "s": 236.5,
+   "t": -7.5,
+   "forme": "rect",
+   "long": 6.8,
+   "larg": 9.0,
+   "fruit": 0.008,
+   "profil": [
+    [
+     0,
+     6.0,
+     8.6
+    ],
+    [
+     8,
+     6.4,
+     9.0
+    ],
+    [
+     40,
+     6.8,
+     9.0
+    ]
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 236.5,
+   "t": 7.5,
+   "forme": "rect",
+   "long": 6.8,
+   "larg": 9.0,
+   "fruit": 0.008,
+   "profil": [
+    [
+     0,
+     6.0,
+     8.6
+    ],
+    [
+     8,
+     6.4,
+     9.0
+    ],
+    [
+     40,
+     6.8,
+     9.0
+    ]
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 386,
+   "t": -7.5,
+   "forme": "rect",
+   "long": 6.8,
+   "larg": 9.0,
+   "fruit": 0.008,
+   "profil": [
+    [
+     0,
+     6.0,
+     8.6
+    ],
+    [
+     8,
+     6.4,
+     9.0
+    ],
+    [
+     40,
+     6.8,
+     9.0
+    ]
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 386,
+   "t": 7.5,
+   "forme": "rect",
+   "long": 6.8,
+   "larg": 9.0,
+   "fruit": 0.008,
+   "profil": [
+    [
+     0,
+     6.0,
+     8.6
+    ],
+    [
+     8,
+     6.4,
+     9.0
+    ],
+    [
+     40,
+     6.8,
+     9.0
+    ]
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 506.5,
+   "t": -7.5,
+   "forme": "rect",
+   "long": 6.8,
+   "larg": 9.0,
+   "fruit": 0.008,
+   "profil": [
+    [
+     0,
+     6.0,
+     8.6
+    ],
+    [
+     8,
+     6.4,
+     9.0
+    ],
+    [
+     40,
+     6.8,
+     9.0
+    ]
+   ],
+   "z_bas": 530.0
+  },
+  {
+   "type": "pile",
+   "s": 506.5,
+   "t": 7.5,
+   "forme": "rect",
+   "long": 6.8,
+   "larg": 9.0,
+   "fruit": 0.008,
+   "profil": [
+    [
+     0,
+     6.0,
+     8.6
+    ],
+    [
+     8,
+     6.4,
+     9.0
+    ],
+    [
+     40,
+     6.8,
+     9.0
+    ]
+   ],
+   "z_bas": 530.0
+  },
+  {
+   "type": "culee",
+   "s": 586
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://structurae.net/fr/ouvrages/pont-sur-la-mentue",
+  "https://commons.wikimedia.org/wiki/File:Mentuebr%C3%BCcke_%C3%BCber_die_Mentue,_Yvonand_VD_20221007-jag9889.jpg"
+ ],
+ "photo": {
+  "fichier": "photo.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Mentuebr%C3%BCcke_%C3%BCber_die_Mentue,_Yvonand_VD_20221007-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 1,
+ "confiance": "moyenne",
+ "notes": "Axe courbe refait sur le nuage (tablier unique de 27 m, 586 m, piles doubles de 7 x 9 m a s=102, 236.5, 386, 506.5, portees ~93/135/150/120/70 m comme Structurae ; hauteur du caisson 4,2 m en travee et 13 m sur piles deduite du sommet des piles vu au laser, non mesuree). Pas de calage photo : la seule photo libre est un gros plan des piles vu de dessous, aucune vue d'ensemble sur Commons ni Structurae ; le schema ne sait pas faire les piles creuses octogonales a pans coupes, ni l'arche transversale du soffit entre les deux piles d'une paire ni la separation eventuelle en deux caissons. Conflit de terrain residuel aux culees : s 4..6 m (sol jusqu'a 1,2 m au-dessus du dessous du tablier) et s 578..582 m (2,2 m), talus de remblai, non cache."
+}

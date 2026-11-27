@@ -1,0 +1,29 @@
+# pont sur Ticino (6m Strasse) (6m Strasse, TLM) : axe swissTLM3D de 251 m, de [2720331.6,1115098.2,223.2] à [2720460.5,1114882.9,223.2] ; relevé , 0 points dans un couloir de ±25 m
+s = distance le long de l'axe ; chaussee = dessus du tablier (laser) ; dessous_tablier ; terrain ; eau ; appuis = points sous le tablier, de terrain+2,5 m à tablier-1 m (piles, arcs) : nombre et altitudes bas..haut
+s	chaussee	dessous_tablier	terrain	eau	appuis
+0	-	-	-	-	-
+10	-	-	-	-	-
+20	-	-	-	-	-
+30	-	-	-	-	-
+40	-	-	-	-	-
+50	-	-	-	-	-
+60	-	-	-	-	-
+70	-	-	-	-	-
+80	-	-	-	-	-
+90	-	-	-	-	-
+100	-	-	-	-	-
+110	-	-	-	-	-
+120	-	-	-	-	-
+130	-	-	-	-	-
+140	-	-	-	-	-
+150	-	-	-	-	-
+160	-	-	-	-	-
+170	-	-	-	-	-
+180	-	-	-	-	-
+190	-	-	-	-	-
+200	-	-	-	-	-
+210	-	-	-	-	-
+220	-	-	-	-	-
+230	-	-	-	-	-
+240	-	-	-	-	-
+250	-	-	-	-	-

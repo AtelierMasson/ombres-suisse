@@ -1,0 +1,738 @@
+{
+ "nom": "Pont de la Chapelle (Kapellbrücke), Lucerne",
+ "axe": [
+  [
+   2665954.0,
+   1211463.7,
+   434.8
+  ],
+  [
+   2665954.0,
+   1211479.4,
+   434.9
+  ],
+  [
+   2665997.3,
+   1211511.0,
+   435.08
+  ],
+  [
+   2666069.5,
+   1211621.0,
+   435.4
+  ]
+ ],
+ "largeur": 4.6,
+ "epaisseur": 1.1,
+ "materiau_tablier": "bois",
+ "materiau": "bois",
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.15,
+  "materiau": "bois"
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 7.0,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 14.65,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 22.3,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 29.95,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 37.6,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 45.25,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 52.9,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 60.55,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 75.85,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 83.5,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 91.15,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 98.8,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 106.45,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 114.1,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 121.75,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 129.4,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 137.05,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 144.7,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 152.35,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 160.0,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 167.65,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 175.3,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 182.95,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 190.6,
+   "forme": "double",
+   "long": 0.9,
+   "larg": 3.7,
+   "larg_colonne": 0.9,
+   "z_bas": 431.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "culee",
+   "s": 200.9,
+   "materiau": "pierre"
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "parois": [
+  {
+   "s0": 4,
+   "s1": 197,
+   "o0": -2.1,
+   "o1": -2.1,
+   "ep": 0.15,
+   "dz_bas": 1.1,
+   "z_haut": [
+    [
+     0,
+     437.65
+    ],
+    [
+     15.7,
+     437.85
+    ],
+    [
+     69.3,
+     438.03
+    ],
+    [
+     100,
+     438.15
+    ],
+    [
+     130,
+     438.3
+    ],
+    [
+     165,
+     438.4
+    ],
+    [
+     200.9,
+     438.35
+    ]
+   ],
+   "dz_haut": -0.1,
+   "materiau": "bois",
+   "ouvertures": {
+    "pas": 3.0,
+    "larg": 2.4,
+    "haut": 1.6,
+    "sous_haut": 0.1
+   }
+  },
+  {
+   "s0": 4,
+   "s1": 197,
+   "o0": 2.1,
+   "o1": 2.1,
+   "ep": 0.15,
+   "dz_bas": 1.1,
+   "z_haut": [
+    [
+     0,
+     437.65
+    ],
+    [
+     15.7,
+     437.85
+    ],
+    [
+     69.3,
+     438.03
+    ],
+    [
+     100,
+     438.15
+    ],
+    [
+     130,
+     438.3
+    ],
+    [
+     165,
+     438.4
+    ],
+    [
+     200.9,
+     438.35
+    ]
+   ],
+   "dz_haut": -0.1,
+   "materiau": "bois",
+   "ouvertures": {
+    "pas": 3.0,
+    "larg": 2.4,
+    "haut": 1.6,
+    "sous_haut": 0.1
+   }
+  }
+ ],
+ "toits": [
+  {
+   "s0": 0,
+   "s1": 200.9,
+   "faite": [
+    [
+     0,
+     439.8
+    ],
+    [
+     15.7,
+     440.0
+    ],
+    [
+     69.3,
+     440.18
+    ],
+    [
+     100,
+     440.3
+    ],
+    [
+     130,
+     440.45
+    ],
+    [
+     165,
+     440.55
+    ],
+    [
+     200.9,
+     440.5
+    ]
+   ],
+   "egout": [
+    [
+     0,
+     437.65
+    ],
+    [
+     15.7,
+     437.85
+    ],
+    [
+     69.3,
+     438.03
+    ],
+    [
+     100,
+     438.15
+    ],
+    [
+     130,
+     438.3
+    ],
+    [
+     165,
+     438.4
+    ],
+    [
+     200.9,
+     438.35
+    ]
+   ],
+   "larg": 2.6,
+   "avant_toit": 0.0,
+   "ep": 0.12,
+   "croupe": [
+    0,
+    0
+   ],
+   "pignons": [
+    "ouvert",
+    "ouvert"
+   ],
+   "materiau": "tuile"
+  }
+ ],
+ "volumes": [
+  {
+   "s": 65.0,
+   "t": -11.0,
+   "z_bas": 431.0,
+   "materiau": "pierre",
+   "sections": [
+    {
+     "z": 431.0,
+     "forme": "poly",
+     "points": [
+      [
+       6.19,
+       2.56
+      ],
+      [
+       2.56,
+       6.19
+      ],
+      [
+       -2.56,
+       6.19
+      ],
+      [
+       -6.19,
+       2.56
+      ],
+      [
+       -6.19,
+       -2.56
+      ],
+      [
+       -2.56,
+       -6.19
+      ],
+      [
+       2.56,
+       -6.19
+      ],
+      [
+       6.19,
+       -2.56
+      ]
+     ]
+    },
+    {
+     "z": 451.2,
+     "forme": "poly",
+     "points": [
+      [
+       5.64,
+       2.33
+      ],
+      [
+       2.33,
+       5.64
+      ],
+      [
+       -2.33,
+       5.64
+      ],
+      [
+       -5.64,
+       2.33
+      ],
+      [
+       -5.64,
+       -2.33
+      ],
+      [
+       -2.33,
+       -5.64
+      ],
+      [
+       2.33,
+       -5.64
+      ],
+      [
+       5.64,
+       -2.33
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "s": 65.0,
+   "t": -11.0,
+   "z_bas": 451.2,
+   "materiau": "bois",
+   "sections": [
+    {
+     "z": 451.2,
+     "forme": "poly",
+     "points": [
+      [
+       6.1,
+       2.53
+      ],
+      [
+       2.53,
+       6.1
+      ],
+      [
+       -2.53,
+       6.1
+      ],
+      [
+       -6.1,
+       2.53
+      ],
+      [
+       -6.1,
+       -2.53
+      ],
+      [
+       -2.53,
+       -6.1
+      ],
+      [
+       2.53,
+       -6.1
+      ],
+      [
+       6.1,
+       -2.53
+      ]
+     ]
+    },
+    {
+     "z": 454.2,
+     "forme": "poly",
+     "points": [
+      [
+       6.1,
+       2.53
+      ],
+      [
+       2.53,
+       6.1
+      ],
+      [
+       -2.53,
+       6.1
+      ],
+      [
+       -6.1,
+       2.53
+      ],
+      [
+       -6.1,
+       -2.53
+      ],
+      [
+       -2.53,
+       -6.1
+      ],
+      [
+       2.53,
+       -6.1
+      ],
+      [
+       6.1,
+       -2.53
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "s": 65.0,
+   "t": -11.0,
+   "z_bas": 454.2,
+   "materiau": "tuile",
+   "sections": [
+    {
+     "z": 454.2,
+     "forme": "poly",
+     "points": [
+      [
+       7.67,
+       3.18
+      ],
+      [
+       3.18,
+       7.67
+      ],
+      [
+       -3.18,
+       7.67
+      ],
+      [
+       -7.67,
+       3.18
+      ],
+      [
+       -7.67,
+       -3.18
+      ],
+      [
+       -3.18,
+       -7.67
+      ],
+      [
+       3.18,
+       -7.67
+      ],
+      [
+       7.67,
+       -3.18
+      ]
+     ]
+    },
+    {
+     "z": 467.4,
+     "forme": "poly",
+     "points": [
+      [
+       0.28,
+       0.11
+      ],
+      [
+       0.11,
+       0.28
+      ],
+      [
+       -0.11,
+       0.28
+      ],
+      [
+       -0.28,
+       0.11
+      ],
+      [
+       -0.28,
+       -0.11
+      ],
+      [
+       -0.11,
+       -0.28
+      ],
+      [
+       0.11,
+       -0.28
+      ],
+      [
+       0.28,
+       -0.11
+      ]
+     ]
+    }
+   ]
+  }
+ ],
+ "sources": [
+  "https://en.wikipedia.org/wiki/Kapellbr%C3%BCcke",
+  "https://www.luzern.com/de/stadt/sehenswuerdigkeiten/top-sehenswuerdigkeiten/kapellbruecke"
+ ],
+ "photo": {
+  "fichier": "p3.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Kapellbr%C3%BCcke_%C3%BCber_die_Reuss_in_Luzern.jpg",
+  "auteur": "Wikimedia Commons",
+  "licence": "CC"
+ },
+ "photos_vues": 6,
+ "confiance": "moyenne",
+ "notes": "Pont couvert classé bâtiment (6), aucun point classe 17 ni pile vue au laser (nuage 2020 en LAS zippé, deux tuiles 2665-1211 et 2666-1211) : axe = ligne de faîte mesurée (3 tronçons : jambe sud, tronçon sud-ouest, long tronçon nord-est), faîte 439,8-440,55 m, égouts à faîte-2,15 m, chaussée déduite du faîte -5,1 m (non mesurée, ~435,0-435,5), piles = bents de pieux béton doubles tous les 7,65 m supposés d'après photos (z_bas 431 m, non vus au laser), non vérifié sur calage photo (calage échoué : points de repère ambigus). Wasserturm octogonal modélisé en trois volumes (pierre 431-451,2, galerie bois, toit en tuile à 467,4 m, centre mesuré au laser) ; conflit de terrain résiduel s 4..8 m (quai à 434,7 m, 0,3 m au-dessus du dessous du tablier), tronçon déclaré en remblai [0,12] et [192,201]. Le schéma ne rend pas les bracons des chevalets, les jardinières ni les triangles peints du toit.",
+ "remblai": [
+  [
+   0,
+   12
+  ],
+  [
+   192,
+   201
+  ]
+ ]
+}

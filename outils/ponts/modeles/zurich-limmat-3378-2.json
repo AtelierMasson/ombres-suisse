@@ -1,0 +1,42 @@
+{
+ "nom": "Pont routier sur la Limmat (Zürich, 10 m)",
+ "axe": [
+  [
+   2683345.0,
+   1247931.5,
+   408.7
+  ],
+  [
+   2683423.3,
+   1247920.9,
+   409.0
+  ]
+ ],
+ "largeur": 29.7,
+ "epaisseur": 0.3,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 79.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "relevé swissSURFACE3D 2024",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "moyenne",
+ "notes": "Pont large à une seule travée de 79 m sans point sous le tablier au relevé; épaisseur 0,8 m estimée d'après l'écart chaussée/dessous (0,3 m, probable sous-face de dalle). Nom non identifié."
+}

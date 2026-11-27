@@ -1,0 +1,43 @@
+{
+ "nom": "Passerelle sur l'Arve, Genève",
+ "axe": [
+  [
+   2502104.5,
+   1114935.5,
+   391.2
+  ],
+  [
+   2502147.8,
+   1114907.2,
+   391.2
+  ]
+ ],
+ "largeur": 5.0,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.1
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 51.7
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D (2025)",
+  "swissTLM3D",
+  "swissALTI3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "moyenne",
+ "notes": "Travée unique sans pile, tablier mince (≈1 m). Forme exacte inconnue (poutres ou arc non visibles au laser)."
+}

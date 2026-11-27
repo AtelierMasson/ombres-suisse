@@ -1,0 +1,138 @@
+{
+ "nom": "Pont suspendu du Bhoutan (Bhutanbrücke), Illgraben, Loèche",
+ "axe": [
+  [
+   2614812.63,
+   1126855.22,
+   847.56
+  ],
+  [
+   2614819.09,
+   1126845.11,
+   844.95
+  ],
+  [
+   2614827.71,
+   1126831.63,
+   842.27
+  ],
+  [
+   2614837.41,
+   1126816.46,
+   840.29
+  ],
+  [
+   2614848.18,
+   1126799.61,
+   839.4
+  ],
+  [
+   2614860.03,
+   1126781.08,
+   839.95
+  ],
+  [
+   2614870.8,
+   1126764.23,
+   842.16
+  ],
+  [
+   2614881.57,
+   1126747.37,
+   845.4
+  ]
+ ],
+ "largeur": 1.4,
+ "epaisseur": 0.25,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "pas": 3.0,
+  "epaisseur": 0.05
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 128.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [
+  {
+   "de": [
+    -3.0,
+    -2.4,
+    "sol"
+   ],
+   "a": [
+    -3.0,
+    -2.4,
+    849.2
+   ],
+   "larg": 1.8,
+   "ep": 1.8
+  },
+  {
+   "de": [
+    -3.0,
+    2.4,
+    "sol"
+   ],
+   "a": [
+    -3.0,
+    2.4,
+    849.2
+   ],
+   "larg": 1.8,
+   "ep": 1.8
+  },
+  {
+   "de": [
+    131.0,
+    -2.4,
+    "sol"
+   ],
+   "a": [
+    131.0,
+    -2.4,
+    847.9
+   ],
+   "larg": 1.8,
+   "ep": 1.8
+  },
+  {
+   "de": [
+    131.0,
+    2.4,
+    "sol"
+   ],
+   "a": [
+    131.0,
+    2.4,
+    847.9
+   ],
+   "larg": 1.8,
+   "ep": 1.8
+  }
+ ],
+ "sources": [
+  "https://www.leuk.swiss/erleben-entdecken/bhutan-bruecke/",
+  "https://commons.wikimedia.org/wiki/File:Pont_bhoutanais.jpg",
+  "https://commons.wikimedia.org/wiki/File:Bhutanbr%C3%BCcke-S.jpg",
+  "https://commons.wikimedia.org/wiki/File:Illgraben_Bhutan_Bridge.jpg"
+ ],
+ "photo": {
+  "fichier": "a.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Pont_bhoutanais.jpg",
+  "auteur": "Espandero",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 3,
+ "confiance": "moyenne",
+ "notes": "Passerelle suspendue en caténaire (tablier grillagé 1,4 m, câbles-mains courantes et filet) : tablier et altitudes calés sur le nuage swissSURFACE3D 2022 (lu en LAZ, pas de COPC), 128 m mesurés contre 134 m annoncés (ancrages compris). Massifs d'ancrage en béton (deux par rive, positions et hauteurs estimées d'après photos et points isolés) ; câbles porteurs et suspentes non modélisés (le schéma ne fait que les barres droites et le garde-corps ajouré)."
+}

@@ -1,0 +1,42 @@
+{
+ "nom": "Pont sur la Wiese, Bâle (rond-point)",
+ "axe": [
+  [
+   2611524.3,
+   1270097.0,
+   249.2
+  ],
+  [
+   2611540.8,
+   1270130.0,
+   249.1
+  ]
+ ],
+ "largeur": 18.0,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.35
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 36.9
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D",
+  "swissALTI3D (api3.geo.admin.ch/height)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Aucun nuage COPC (Bâle 2023 seulement en LAS zippé) : modèle tiré de l'axe TLM, de swissALTI3D et de l'orthophoto, non vérifié au laser. Dalle à travée unique de 37 m supposée (aucune pile visible dans la rivière), largeur ~18 m et épaisseur estimées ; le schéma ne rend pas le plan courbe des rives ni le rond-point voisin."
+}

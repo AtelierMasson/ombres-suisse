@@ -1,0 +1,44 @@
+{
+ "nom": "Tubelochbrügg, Bienne",
+ "axe": [
+  [
+   2586557.3,
+   1223417.4,
+   542.6
+  ],
+  [
+   2586543.9,
+   1223402.2,
+   542.2
+  ],
+  [
+   2586534.2,
+   1223391.4,
+   542.1
+  ]
+ ],
+ "largeur": 6.5,
+ "epaisseur": 1.5,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.35
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 34.8
+  }
+ ],
+ "confiance": "faible",
+ "notes": "Non vérifié au laser. Pont de route de la gorge du Taubenloch, travée unique au-dessus d'un ravin de 35 m ; une voûte en maçonnerie est possible mais non confirmée, modélisé comme dalle simple. Le terrain de la maquette peut couper le tablier près des culées (rives très raides).",
+ "sources": [
+  "https://www.swisstopo.admin.ch (swissTLM3D axe, swissALTI3D, SWISSIMAGE)"
+ ],
+ "photos_vues": 0,
+ "photo": null
+}

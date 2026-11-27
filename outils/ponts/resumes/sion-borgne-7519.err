@@ -1,0 +1,11 @@
+file:///Users/romainmasson/Downloads/ombres-suisse/outils/ponts/preparer_axe.mjs:25
+const b = P.boite, boite = [b[0] - COULOIR, b[1] - COULOIR, b[2] + COULOIR, b[3] + COULOIR];
+                             ^
+
+TypeError: Cannot read properties of undefined (reading '0')
+    at file:///Users/romainmasson/Downloads/ombres-suisse/outils/ponts/preparer_axe.mjs:25:30
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v26.7.0

@@ -1,0 +1,47 @@
+{
+ "nom": "Pont sur la Sihl (Zurich)",
+ "axe": [
+  [
+   2682796.6,
+   1247868.1,
+   409.2
+  ],
+  [
+   2682818.0,
+   1247852.0,
+   409.4
+  ],
+  [
+   2682840.9,
+   1247836.4,
+   409.2
+  ]
+ ],
+ "largeur": 20.6,
+ "epaisseur": 1.1,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 54.4
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "relevé swissSURFACE3D 2024",
+  "TLM swisstopo",
+  "orthophoto swissimage"
+ ],
+ "photos_vues": 0,
+ "confiance": "moyenne",
+ "notes": "Tablier large à sous-face à 408,4, sans pile visible. Pas de photo."
+}

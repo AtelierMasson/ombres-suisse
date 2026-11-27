@@ -1,0 +1,42 @@
+{
+ "nom": "Pont sur le Vedeggio (route de 6 m), Lugano",
+ "axe": [
+  [
+   2713881.2,
+   1095065.9,
+   276.4
+  ],
+  [
+   2713915.0,
+   1095062.0,
+   276.4
+  ]
+ ],
+ "largeur": 7.5,
+ "epaisseur": 0.9,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 34
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissTLM3D (axe)",
+  "swissALTI3D (terrain, API height)",
+  "swissIMAGE (orthophoto)"
+ ],
+ "photos_vues": 1,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser : pas de nuage COPC au Tessin (tuiles LAS zip de 60 à 380 Mo non lues). Tablier posé au niveau des berges swissALTI3D ; une seule travée supposée, épaisseur et largeur estimées d'après le type TLM."
+}

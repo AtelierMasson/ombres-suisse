@@ -1,0 +1,58 @@
+{
+ "nom": "Passerelle sur la Birs (3m Strasse), Bâle",
+ "axe": [
+  [
+   2613803.3,
+   1265466.9,
+   260.0
+  ],
+  [
+   2613808.2,
+   1265465.5,
+   259.9
+  ],
+  [
+   2613814.9,
+   1265463.6,
+   260.0
+  ],
+  [
+   2613852.0,
+   1265452.9,
+   260.1
+  ],
+  [
+   2613855.4,
+   1265451.9,
+   260.4
+  ]
+ ],
+ "largeur": 4.5,
+ "epaisseur": 0.9,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 54.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://wms.geo.admin.ch/ (swissimage)",
+  "swissTLM3D (axe)",
+  "swissALTI3D (terrain via api3.geo.admin.ch/height)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (Bâle sans COPC) : passerelle piétonne/cyclable le long d'un chantier de grand pont voisin, largeur estimée à 4,5 m, appuis éventuels dans les berges inconnus. Le schéma ne dit pas si le tablier est à poutres ou caisson."
+}

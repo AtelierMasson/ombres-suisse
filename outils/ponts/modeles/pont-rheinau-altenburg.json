@@ -1,0 +1,395 @@
+{
+ "nom": "Pont couvert Rheinau-Altenburg (Rheinbrücke)",
+ "axe": [
+  [
+   2687420.9,
+   1278103.1,
+   355.5
+  ],
+  [
+   2687424.9,
+   1278102.3,
+   355.4
+  ],
+  [
+   2687430.7,
+   1278101.1,
+   355.0
+  ],
+  [
+   2687436.6,
+   1278099.9,
+   354.75
+  ],
+  [
+   2687440.5,
+   1278099.1,
+   354.7
+  ],
+  [
+   2687503.2,
+   1278086.3,
+   354.6
+  ],
+  [
+   2687507.2,
+   1278085.5,
+   354.5
+  ],
+  [
+   2687513.0,
+   1278084.3,
+   354.3
+  ],
+  [
+   2687518.9,
+   1278083.1,
+   354.2
+  ],
+  [
+   2687522.8,
+   1278082.3,
+   354.1
+  ]
+ ],
+ "largeur": 5.2,
+ "epaisseur": 1.1,
+ "materiau_tablier": "bois",
+ "bords": [
+  [
+   0,
+   -2.9,
+   2.9
+  ],
+  [
+   19.0,
+   -2.9,
+   2.9
+  ],
+  [
+   21.0,
+   -2.5,
+   2.5
+  ],
+  [
+   83.0,
+   -2.5,
+   2.5
+  ],
+  [
+   85.0,
+   -2.9,
+   2.9
+  ],
+  [
+   104,
+   -2.9,
+   2.9
+  ]
+ ],
+ "garde_corps": {
+  "hauteur": 0.9,
+  "plein": true,
+  "epaisseur": 0.5,
+  "materiau": "pierre"
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 20.0,
+   "forme": "rect",
+   "long": 3.0,
+   "larg": 5.4,
+   "z_bas": 347.8,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 41.5,
+   "forme": "double",
+   "long": 1.0,
+   "larg": 4.4,
+   "larg_colonne": 0.9,
+   "z_bas": 347.8,
+   "z_haut": 353.2,
+   "larg_haut": 4.4,
+   "long_haut": 1.0,
+   "materiau": "bois"
+  },
+  {
+   "type": "pile",
+   "s": 62.5,
+   "forme": "double",
+   "long": 1.0,
+   "larg": 4.4,
+   "larg_colonne": 0.9,
+   "z_bas": 347.8,
+   "z_haut": 353.2,
+   "larg_haut": 4.4,
+   "long_haut": 1.0,
+   "materiau": "bois"
+  },
+  {
+   "type": "pile",
+   "s": 84.0,
+   "forme": "rect",
+   "long": 3.5,
+   "larg": 5.6,
+   "z_bas": 347.8,
+   "materiau": "pierre"
+  },
+  {
+   "type": "culee",
+   "s": 104,
+   "materiau": "pierre"
+  }
+ ],
+ "arches": [
+  {
+   "s0": 7.0,
+   "s1": 20.0,
+   "forme": "cintre",
+   "z_naissance": 350.7,
+   "z_cle": 353.0,
+   "epaisseur": 1.3,
+   "larg": 5.2,
+   "plein": true,
+   "materiau": "pierre"
+  },
+  {
+   "s0": 84.0,
+   "s1": 98.0,
+   "forme": "cintre",
+   "z_naissance": 350.7,
+   "z_cle": 353.0,
+   "epaisseur": 1.3,
+   "larg": 5.6,
+   "plein": true,
+   "materiau": "pierre"
+  }
+ ],
+ "pylones": [],
+ "remblai": [
+  [
+   0,
+   8
+  ]
+ ],
+ "elements": [
+  {
+   "de": [
+    41.5,
+    -2.1,
+    353.0
+   ],
+   "a": [
+    37.0,
+    -2.1,
+    "tablier"
+   ],
+   "larg": 0.4,
+   "ep": 0.4,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    41.5,
+    -2.1,
+    353.0
+   ],
+   "a": [
+    46.0,
+    -2.1,
+    "tablier"
+   ],
+   "larg": 0.4,
+   "ep": 0.4,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    41.5,
+    2.1,
+    353.0
+   ],
+   "a": [
+    37.0,
+    2.1,
+    "tablier"
+   ],
+   "larg": 0.4,
+   "ep": 0.4,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    41.5,
+    2.1,
+    353.0
+   ],
+   "a": [
+    46.0,
+    2.1,
+    "tablier"
+   ],
+   "larg": 0.4,
+   "ep": 0.4,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    62.5,
+    -2.1,
+    353.0
+   ],
+   "a": [
+    58.0,
+    -2.1,
+    "tablier"
+   ],
+   "larg": 0.4,
+   "ep": 0.4,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    62.5,
+    -2.1,
+    353.0
+   ],
+   "a": [
+    67.0,
+    -2.1,
+    "tablier"
+   ],
+   "larg": 0.4,
+   "ep": 0.4,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    62.5,
+    2.1,
+    353.0
+   ],
+   "a": [
+    58.0,
+    2.1,
+    "tablier"
+   ],
+   "larg": 0.4,
+   "ep": 0.4,
+   "materiau": "bois"
+  },
+  {
+   "de": [
+    62.5,
+    2.1,
+    353.0
+   ],
+   "a": [
+    67.0,
+    2.1,
+    "tablier"
+   ],
+   "larg": 0.4,
+   "ep": 0.4,
+   "materiau": "bois"
+  }
+ ],
+ "parois": [
+  {
+   "s0": 19.5,
+   "s1": 85.0,
+   "o0": -2.45,
+   "o1": -2.45,
+   "ep": 0.2,
+   "dz_bas": -1.2,
+   "z_haut": 357.4,
+   "dz_haut": 0,
+   "materiau": "bois",
+   "ouvertures": {
+    "centres": [
+     24.5,
+     30.6,
+     36.7,
+     42.8,
+     48.9,
+     55.0,
+     61.1,
+     67.2,
+     73.3,
+     79.4
+    ],
+    "forme": "rect",
+    "larg": 0.55,
+    "haut": 0.55,
+    "sous_haut": 0.5
+   }
+  },
+  {
+   "s0": 19.5,
+   "s1": 85.0,
+   "o0": 2.45,
+   "o1": 2.45,
+   "ep": 0.2,
+   "dz_bas": -1.2,
+   "z_haut": 357.4,
+   "dz_haut": 0,
+   "materiau": "bois",
+   "ouvertures": {
+    "centres": [
+     24.5,
+     30.6,
+     36.7,
+     42.8,
+     48.9,
+     55.0,
+     61.1,
+     67.2,
+     73.3,
+     79.4
+    ],
+    "forme": "rect",
+    "larg": 0.55,
+    "haut": 0.55,
+    "sous_haut": 0.5
+   }
+  }
+ ],
+ "toits": [
+  {
+   "s0": 19.2,
+   "s1": 85.5,
+   "faite": 360.2,
+   "egout": 357.4,
+   "larg": 3.5,
+   "avant_toit": 0.0,
+   "ep": 0.25,
+   "croupe": 0,
+   "pignons": [
+    "ouvert",
+    "ouvert"
+   ],
+   "materiau": "tuile"
+  }
+ ],
+ "sources": [
+  "https://de.wikipedia.org/wiki/Rheinbrücke_Rheinau–Altenburg",
+  "https://commons.wikimedia.org/wiki/Category:Rheinbrücke_Rheinau–Altenburg"
+ ],
+ "photo": {
+  "fichier": "p4.jpg",
+  "page": "https://commons.wikimedia.org/wiki/Category:Rheinbrücke_Rheinau–Altenburg",
+  "auteur": "Wikimedia Commons",
+  "licence": "CC"
+ },
+ "photos_vues": 4,
+ "confiance": "moyenne",
+ "notes": "Pont couvert en bois 63 m (3 travées de 21 m, chevalets sur pieux) entre deux petites culées en pierre à arcs; tablier cloué au nuage (classe 17 des rampes, toit en classe 6). Conflit de terrain à s=4-6 (rive ouest, sol de la maquette au-dessus de la chaussée, remblai [0,8] déclaré); pourcentage 76 % faussé par les maisons aux bouts du couloir. Le schéma ne sait pas dessiner le Sprengwerk triple ni les façades à bas cintré; chevalets approximés par pieux doubles et jambes de force."
+}

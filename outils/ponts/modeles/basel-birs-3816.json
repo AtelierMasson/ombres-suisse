@@ -1,0 +1,53 @@
+{
+ "nom": "Passerelle sur la Birs (chemin), Bâle",
+ "axe": [
+  [
+   2613803.2,
+   1265337.1,
+   259.6
+  ],
+  [
+   2613806.3,
+   1265336.9,
+   259.7
+  ],
+  [
+   2613811.2,
+   1265336.6,
+   259.8
+  ],
+  [
+   2613830.1,
+   1265335.5,
+   259.7
+  ]
+ ],
+ "largeur": 3.6,
+ "epaisseur": 0.7,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.1
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 27
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D",
+  "swissALTI3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "non vérifié au laser (pas de nuage COPC à Bâle, seulement des tuiles LAS de 114 Mo non lues) : passerelle d'environ 27 m lue sur l'orthophoto, tablier à 259,7 m (TLM), lit à 254,4 m ; matériau et type de poutre inconnus."
+}

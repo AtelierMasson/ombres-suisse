@@ -1,0 +1,48 @@
+{
+ "nom": "Pont routier sur la Kleine Emme (Luzern, 8m Strasse)",
+ "axe": [
+  [
+   2661951.8,
+   1211701.4,
+   456.9
+  ],
+  [
+   2661928.7,
+   1211690.5,
+   457.2
+  ],
+  [
+   2661905.2,
+   1211681.2,
+   457.2
+  ]
+ ],
+ "largeur": 12.5,
+ "epaisseur": 1.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 50.8
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "https://api3.geo.admin.ch (swissALTI3D)",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (pas de nuage COPC à Luzern) : modèle depuis l'axe TLM, swissALTI3D et l'orthophoto, sans photo de face ; portée unique supposée, piles éventuelles non vues."
+}

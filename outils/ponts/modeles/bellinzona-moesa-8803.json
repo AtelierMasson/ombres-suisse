@@ -1,0 +1,73 @@
+{
+ "nom": "Viaduc autoroutier sur la Moesa, Bellinzone (A13/A2)",
+ "axe": [
+  [
+   2728858.7,
+   1121368.8,
+   280.4
+  ],
+  [
+   2728828.1,
+   1121376.7,
+   279.8
+  ],
+  [
+   2728798.7,
+   1121383.8,
+   278.8
+  ],
+  [
+   2728771.3,
+   1121390.0,
+   278.0
+  ],
+  [
+   2728747.0,
+   1121395.0,
+   277.0
+  ]
+ ],
+ "largeur": 30.0,
+ "epaisseur": 2.0,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 38,
+   "forme": "rect",
+   "long": 3.0,
+   "larg": 24.0,
+   "z_bas": 269.4
+  },
+  {
+   "type": "pile",
+   "s": 77,
+   "forme": "rect",
+   "long": 3.0,
+   "larg": 24.0,
+   "z_bas": 269.4
+  },
+  {
+   "type": "culee",
+   "s": 114.8
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D",
+  "swissALTI3D (api3.geo.admin.ch/height)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Aucun nuage COPC (2020 LAS zippé seulement) : modèle tiré de l'axe TLM, de swissALTI3D et de l'orthophoto, non vérifié au laser. Deux piles et épaisseur de caisson supposées ; les deux demi-tabliers séparés par un joint central ne sont représentés que par un tablier unique de 30 m."
+}

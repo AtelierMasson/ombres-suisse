@@ -1,0 +1,40 @@
+{
+ "nom": "Pont métallique à treillis sur la Plessur, Coire",
+ "axe": [
+  [
+   2757759.3,
+   1192233.1,
+   561.8
+  ],
+  [
+   2757734.7,
+   1192226.2,
+   562.0
+  ]
+ ],
+ "largeur": 4.5,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 2.4,
+  "plein": false,
+  "pas": 3.0,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 25.5
+  }
+ ],
+ "confiance": "faible",
+ "notes": "Deux tabliers à treillis rouge côte à côte sur l'orthophoto (route et chemin) ; le schéma ne rend qu'un tablier avec garde-corps haut ajouré en guise de treillis, l'axe TLM n'en suit qu'un. Non vérifié au laser (Coire : seulement des tuiles LAS 2020, pas de COPC).",
+ "sources": [
+  "https://www.swisstopo.admin.ch (swissTLM3D axe, swissALTI3D, SWISSIMAGE)"
+ ],
+ "photos_vues": 0,
+ "photo": null
+}

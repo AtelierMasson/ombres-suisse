@@ -1,0 +1,47 @@
+{
+ "nom": "Strättligsteg (passerelle sur la Kander), Thun",
+ "axe": [
+  [
+   2614991.1,
+   1173505.1,
+   581.8
+  ],
+  [
+   2614975.1,
+   1173511.3,
+   583.1
+  ],
+  [
+   2614959.4,
+   1173517.2,
+   581.9
+  ]
+ ],
+ "largeur": 1.6,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 1.8,
+  "plein": false,
+  "pas": 3.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 33.9
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissimage (wms.geo.admin.ch)",
+  "swissTLM3D",
+  "swissALTI3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC à Thun (swisssurface3d 2022/2023 en LAS.zip de ~220 Mo seulement) : non vérifié au laser. Passerelle métallique en treillis à une travée, vue en plongée dans la forêt ; treillis simplifié en garde-corps haut ajouré, largeur estimée (~1,5 m)."
+}

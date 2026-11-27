@@ -1,0 +1,41 @@
+{
+ "nom": "Pont routier sur la Moesa, Bellinzone",
+ "axe": [
+  [
+   2732614.5,
+   1123490.1,
+   321.0
+  ],
+  [
+   2732654.5,
+   1123475.6,
+   320.9
+  ]
+ ],
+ "largeur": 5.0,
+ "epaisseur": 0.9,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 42.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Pont à poutres d'une seule travée, étroit (~4-5 m, glissières métalliques), sans pile visible dans la rivière ; épaisseur supposée. Pas de nuage COPC ici (seule la tuile 2023 en LAZ pour Berne, rien pour Bellinzone) : modèle tiré de l'axe TLM et de l'orthophoto, non vérifié au laser."
+}

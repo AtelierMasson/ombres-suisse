@@ -1,0 +1,46 @@
+{
+ "nom": "Pont sur l'Arve (10 m), Genève",
+ "axe": [
+  [
+   2500760.0,
+   1115492.4,
+   383.2
+  ],
+  [
+   2500809.8,
+   1115466.8,
+   383.5
+  ],
+  [
+   2500859.5,
+   1115441.2,
+   383.8
+  ]
+ ],
+ "largeur": 17.2,
+ "epaisseur": 0.9,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 111.9
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "confiance": "moyenne",
+ "notes": "Pont a poutres sans appui visible dans l'eau (portee de ~90 m entre culees d'apres le terrain) ; epaisseur estimee d'apres dessous_tablier. Nom non identifie.",
+ "sources": [
+  "swissSURFACE3D",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0
+}

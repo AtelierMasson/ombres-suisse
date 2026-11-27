@@ -1,0 +1,77 @@
+{
+ "nom": "Pont léger sur la Birs (4 m)",
+ "axe": [
+  [
+   2613448.4,
+   1267414.1,
+   251.5
+  ],
+  [
+   2613469.7,
+   1267414.6,
+   252.1
+  ],
+  [
+   2613488.3,
+   1267414.9,
+   252.3
+  ],
+  [
+   2613508.0,
+   1267415.3,
+   252.3
+  ],
+  [
+   2613524.0,
+   1267415.6,
+   252.2
+  ]
+ ],
+ "largeur": 5.5,
+ "epaisseur": 0.8,
+ "epaisseur_appuis": 1.2,
+ "gousset": 8,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 34,
+   "forme": "rect",
+   "long": 1.2,
+   "larg": 5,
+   "z_bas": 246.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 63,
+   "forme": "rect",
+   "long": 1.2,
+   "larg": 5,
+   "z_bas": 248.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "culee",
+   "s": 75.6
+  }
+ ],
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC à Bâle (swisssurface3d 2023 en LAS.zip seulement) : non vérifié au laser. Axe TLM prolongé vers l'est d'après l'orthophoto (tablier visible jusqu'à E 2613524) ; piles aux berges supposées, type de structure inconnu.",
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissimage (wms.geo.admin.ch)",
+  "swissTLM3D",
+  "swissALTI3D"
+ ],
+ "photos_vues": 0
+}

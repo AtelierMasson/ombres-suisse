@@ -1,0 +1,74 @@
+{
+ "nom": "Pont d'accès sur le Vedeggio, Lugano",
+ "axe": [
+  [
+   2714967.7,
+   1098536.7,
+   301.9
+  ],
+  [
+   2714977.3,
+   1098533.7,
+   302.4
+  ],
+  [
+   2714994.0,
+   1098528.6,
+   302.2
+  ],
+  [
+   2715008.2,
+   1098524.0,
+   302.5
+  ],
+  [
+   2715026.3,
+   1098518.7,
+   302.7
+  ]
+ ],
+ "largeur": 14.0,
+ "epaisseur": 1.1,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 20.5,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 10.0,
+   "z_bas": 296.5
+  },
+  {
+   "type": "pile",
+   "s": 41.0,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 10.0,
+   "z_bas": 296.0
+  },
+  {
+   "type": "culee",
+   "s": 61.3
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D",
+  "https://api3.geo.admin.ch/rest/services/height"
+ ],
+ "photos_vues": 1,
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC au Tessin (tuiles LAS zip seulement) : non vérifié au laser. Nombre et place des piles supposés (3 travées) d'après le profil du terrain ; largeur mesurée sur orthophoto, rampe courbe en bout non modélisée."
+}

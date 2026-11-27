@@ -1,0 +1,47 @@
+{
+ "nom": "Hätterensteg, St. Gallen",
+ "axe": [
+  [
+   2744600.3,
+   1255054.3,
+   562.5
+  ],
+  [
+   2744616.9,
+   1255041.5,
+   562.7
+  ],
+  [
+   2744633.5,
+   1255028.6,
+   562.5
+  ]
+ ],
+ "largeur": 2.4,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 2.6,
+  "plein": false,
+  "pas": 1.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 42.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D (COPC)",
+  "swissTLM3D",
+  "swissIMAGE (orthophoto)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Passerelle métallique à treillis (type Bailey) : le laser montre une membrure haute à 2,6 m au-dessus du tablier sur toute la largeur et l'orthophoto un treillis ; modélisée par un garde-corps ajouré de 2,6 m. Aucune photo de profil vue, diagonales non détaillées."
+}

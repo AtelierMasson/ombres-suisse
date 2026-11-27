@@ -1,0 +1,52 @@
+{
+ "nom": "Pont sur la Steinach (rampe de 3 m), St. Gallen",
+ "axe": [
+  [
+   2746877.6,
+   1255293.0,
+   654.6
+  ],
+  [
+   2746888.2,
+   1255320.3,
+   656.7
+  ],
+  [
+   2746905.7,
+   1255340.5,
+   658.1
+  ],
+  [
+   2746927.2,
+   1255364.9,
+   659.3
+  ]
+ ],
+ "largeur": 7.0,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 88.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissTLM3D",
+  "swissSURFACE3D (relevé laser)",
+  "https://wms.geo.admin.ch (swissimage)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "aucun point de pont (classe 17) sur l'axe TLM : modèle depuis le TLM, largeur 7 m lue sur l'orthophoto ; la Steinach est canalisée sous les bâtiments, ouvrage probablement mixte rampe/dalle, non vérifié au laser. Conflit de terrain : le sol de la maquette dépasse le dessous du tablier de 4.5 m sur s 4..84 (pas de tablier au laser, la rampe est en remblai ou couverte)."
+}

@@ -1,0 +1,10 @@
+# pont sur Rhône (6m Strasse) (6m Strasse, undefined) : axe swissTLM3D de 65 m, de [2594652.5,1119686.0,491.9] à [2594711.2,1119658.2,490.8] ; relevé , 0 points dans un couloir de ±25 m
+s = distance le long de l'axe ; chaussee = dessus du tablier (laser) ; dessous_tablier ; terrain ; eau ; appuis = points sous le tablier, de terrain+2,5 m à tablier-1 m (piles, arcs) : nombre et altitudes bas..haut
+s	chaussee	dessous_tablier	terrain	eau	appuis
+0	-	-	-	-	-
+10	-	-	-	-	-
+20	-	-	-	-	-
+30	-	-	-	-	-
+40	-	-	-	-	-
+50	-	-	-	-	-
+60	-	-	-	-	-

@@ -1,0 +1,47 @@
+{
+ "nom": "Passerelle sur la Limmat (Zürich, 8996)",
+ "axe": [
+  [
+   2678963.3,
+   1250433.8,
+   399.2
+  ],
+  [
+   2678995.0,
+   1250454.0,
+   399.3
+  ],
+  [
+   2679027.6,
+   1250476.1,
+   399.7
+  ]
+ ],
+ "largeur": 4.9,
+ "epaisseur": 1.7,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 77.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "relevé swissSURFACE3D 2024",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Dessous du tablier à 397.5 m avant s=38 puis 399.3 m: sous-face à deux niveaux (probable poutres ou ancienne structure), rendue ici par une épaisseur de 1,7 m uniforme. Nom non vérifié."
+}

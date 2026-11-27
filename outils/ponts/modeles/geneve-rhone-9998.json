@@ -1,0 +1,46 @@
+{
+ "nom": "Pont sur le Rhône (large tablier), Genève",
+ "axe": [
+  [
+   2499977.0,
+   1117916.9,
+   374.1
+  ],
+  [
+   2499997.5,
+   1117936.2,
+   374.1
+  ],
+  [
+   2500018.1,
+   1117955.5,
+   374.1
+  ]
+ ],
+ "largeur": 42.7,
+ "epaisseur": 2.4,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 56.4
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "confiance": "faible",
+ "notes": "Tablier tres large (41,8 m) et plat, mesure au laser sur 56 m ; l'axe TLM (33 m, N-S) ne correspond pas au tablier mesure. Piles, elements sous le tablier et nom exact non identifies (aucune photo).",
+ "sources": [
+  "swissSURFACE3D",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0
+}

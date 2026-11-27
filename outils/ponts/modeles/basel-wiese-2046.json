@@ -1,0 +1,76 @@
+{
+ "nom": "Pont routier jumelé sur la Wiese (6 m)",
+ "axe": [
+  [
+   2612052.0,
+   1269371.7,
+   254.9
+  ],
+  [
+   2612049.3,
+   1269355.3,
+   255.3
+  ],
+  [
+   2612042.4,
+   1269312.9,
+   256.2
+  ],
+  [
+   2612042.3,
+   1269312.6,
+   256.2
+  ],
+  [
+   2612040.7,
+   1269302.8,
+   256.3
+  ]
+ ],
+ "largeur": 25,
+ "largeur_dessous": 23,
+ "epaisseur": 1.3,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 22,
+   "forme": "rect",
+   "long": 2.0,
+   "larg": 23,
+   "z_bas": 250.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 49,
+   "forme": "rect",
+   "long": 2.0,
+   "larg": 23,
+   "z_bas": 250.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "culee",
+   "s": 69.8
+  }
+ ],
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC à Bâle (swisssurface3d 2023 en LAS.zip seulement) : non vérifié au laser. Deux tabliers côte à côte (fente non rendue), piles supposées aux berges de la Wiese ; passerelle adjacente non modélisée.",
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissimage (wms.geo.admin.ch)",
+  "swissTLM3D",
+  "swissALTI3D"
+ ],
+ "photos_vues": 0
+}

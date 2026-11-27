@@ -1,0 +1,98 @@
+{
+ "nom": "Untertorbrücke, Berne",
+ "axe": [
+  [
+   2601540.3,
+   1199815.1,
+   504.0
+  ],
+  [
+   2601537.5,
+   1199813.7,
+   504.1
+  ],
+  [
+   2601534.5,
+   1199813.0,
+   504.1
+  ],
+  [
+   2601481.0,
+   1199804.6,
+   503.8
+  ]
+ ],
+ "largeur": 8.5,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 21.1,
+   "forme": "rect",
+   "long": 3.2,
+   "larg": 8.5,
+   "z_bas": 496.0
+  },
+  {
+   "type": "pile",
+   "s": 41.1,
+   "forme": "rect",
+   "long": 3.2,
+   "larg": 8.5,
+   "z_bas": 496.0
+  },
+  {
+   "type": "culee",
+   "s": 60.4
+  }
+ ],
+ "arches": [
+  {
+   "s0": 0.0,
+   "s1": 19.5,
+   "z_naissance": 500.0,
+   "z_cle": 502.4,
+   "epaisseur": 0.9,
+   "larg": 8.5,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 22.7,
+   "s1": 39.5,
+   "z_naissance": 500.0,
+   "z_cle": 502.4,
+   "epaisseur": 0.9,
+   "larg": 8.5,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 42.7,
+   "s1": 60.4,
+   "z_naissance": 500.0,
+   "z_cle": 502.4,
+   "epaisseur": 0.9,
+   "larg": 8.5,
+   "plein": true,
+   "forme": "cintre"
+  }
+ ],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Pont en pierre à trois arches surbaissées, deux piles à avant-becs (non rendus : piles rectangulaires) repérées à l'orthophoto (s à ±1,5 m) ; altitudes de naissance/clé et fond de l'eau estimés, nom d'après la position. Le tablier courbe vers l'est n'est pas dans l'axe TLM. Pas de nuage COPC ici (seule la tuile 2023 en LAZ pour Berne, rien pour Bellinzone) : modèle tiré de l'axe TLM et de l'orthophoto, non vérifié au laser."
+}

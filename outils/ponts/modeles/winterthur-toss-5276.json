@@ -1,0 +1,41 @@
+{
+ "nom": "Pont sur la Töss (4m Strasse), Winterthur",
+ "axe": [
+  [
+   2695265.9,
+   1260771.2,
+   432.0
+  ],
+  [
+   2695287.7,
+   1260752.9,
+   431.0
+  ]
+ ],
+ "largeur": 9.5,
+ "epaisseur": 0.7,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 28.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "moyenne",
+ "notes": "Dalle simple sans pile, modelee depuis le releve laser et l'axe TLM ; aucune photo (orthophoto seulement)."
+}

@@ -1,0 +1,66 @@
+{
+ "nom": "Pont routier courbe sur le Vedeggio, Lugano",
+ "axe": [
+  [
+   2714804.4,
+   1104138.6,
+   387.7
+  ],
+  [
+   2714815.7,
+   1104133.7,
+   388.3
+  ],
+  [
+   2714833.2,
+   1104125.6,
+   389.9
+  ],
+  [
+   2714856.2,
+   1104115.0,
+   391.8
+  ],
+  [
+   2714866.0,
+   1104110.6,
+   392.5
+  ],
+  [
+   2714870.9,
+   1104108.6,
+   393.1
+  ],
+  [
+   2714876.0,
+   1104107.2,
+   393.6
+  ]
+ ],
+ "largeur": 8.5,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 78.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissTLM3D",
+  "swissimage (WMS)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "non vérifié au laser (tuiles LAS seules) : axe TLM courbe suivi, largeur 8,5 m estimée sur l'orthophoto, une travée et épaisseur 1 m supposées ; un second passage inférieur (passerelle ou conduite) proche n'est pas modélisé. Pas de photo."
+}

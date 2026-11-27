@@ -1,0 +1,43 @@
+{
+ "nom": "Passerelle suspendue sur la Limmat, Zurich",
+ "axe": [
+  [
+   2678504.9,
+   1250807.4,
+   399.5
+  ],
+  [
+   2678516.5,
+   1250903.6,
+   399.95
+  ]
+ ],
+ "largeur": 3.0,
+ "epaisseur": 0.3,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "pas": 2.0,
+  "epaisseur": 0.06
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 96.9
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "relevé swissSURFACE3D 2024",
+  "orthophoto swissimage",
+  "TLM swisstopo"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Passerelle piétonne suspendue d'une seule travée (~97 m) vue sur l'orthophoto, sans pile dans l'eau ; câbles porteurs, pylônes d'extrémité et rampe courbe sud non modélisés, aucune photo. Largeur de 2,6 m estimée sur l'orthophoto (la largeur mesurée de 23,6 m vient de la végétation)."
+}

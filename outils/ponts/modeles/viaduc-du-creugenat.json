@@ -1,0 +1,134 @@
+{
+ "nom": "Viaduc du Creugenat (chaussée nord), Porrentruy",
+ "axe": [
+  [
+   2568999.1,
+   1249930.0,
+   503.5
+  ],
+  [
+   2569063.0,
+   1249879.4,
+   502.95
+  ],
+  [
+   2569130.8,
+   1249834.1,
+   502.41
+  ],
+  [
+   2569202.3,
+   1249795.0,
+   501.85
+  ],
+  [
+   2569277.2,
+   1249762.7,
+   501.29
+  ],
+  [
+   2569354.8,
+   1249737.5,
+   500.73
+  ],
+  [
+   2569434.5,
+   1249720.6,
+   500.16
+  ],
+  [
+   2569515.2,
+   1249708.5,
+   499.59
+  ]
+ ],
+ "largeur": 11.2,
+ "largeur_dessous": 6.2,
+ "epaisseur": 3.5,
+ "epaisseur_appuis": 8.5,
+ "gousset": 30,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 114.0,
+   "forme": "rect",
+   "long": 3.8,
+   "larg": 6.0,
+   "z_bas": 485.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 162.6,
+   "forme": "rect",
+   "long": 3.8,
+   "larg": 6.0,
+   "z_bas": 474.8,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 221.6,
+   "forme": "rect",
+   "long": 3.8,
+   "larg": 6.0,
+   "z_bas": 464.4,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 317.5,
+   "forme": "rect",
+   "long": 3.8,
+   "larg": 6.0,
+   "z_bas": 448.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 421.6,
+   "forme": "rect",
+   "long": 3.8,
+   "larg": 6.0,
+   "z_bas": 448.1,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 518.0,
+   "forme": "rect",
+   "long": 3.8,
+   "larg": 6.0,
+   "z_bas": 475.6,
+   "fruit": 0.0
+  },
+  {
+   "type": "culee",
+   "s": 570.8
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://commons.wikimedia.org/wiki/File:Viaducs_du_Creugenat_01_10.jpg",
+  "swissSURFACE3D 2022 tuiles 2568-1249 et 2569-1249 (LAS)"
+ ],
+ "photo": {
+  "fichier": "photo.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Viaducs_du_Creugenat_01_10.jpg",
+  "auteur": "Chriusha",
+  "licence": "CC BY-SA 3.0"
+ },
+ "photos_vues": 1,
+ "confiance": "moyenne",
+ "notes": "Deux viaducs jumeaux (chaussée nord 571 m ici, sud 554 m dans viaduc-du-creugenat-sud.json ; sources : 572 m et 544 m), poutres-caissons en encorbellement sur 6 piles-fûts uniques ; piles, portées (114/49/59/96/104/96/53 m) et hauteur du caisson (3,5 m en travée, ~8,5 m sur pile, supposée d'après la base des points sous tablier) tirées du laser et d'une seule photo de chantier, aucune vue d'ensemble libre : pas de calage photo. Section de pile (3,8 x 6 m) estimée, le laser ne voit les fûts que par l'entre-deux des chaussées. Conflit de terrain à la culée ouest (s 4-16, remblai au niveau du tablier) non caché ; le schéma ne sait pas faire de culée avec remblai ni de pile creuse chanfreinée."
+}

@@ -1,0 +1,40 @@
+{
+ "nom": "Passerelle sur la Plessur, Coire",
+ "axe": [
+  [
+   2761196.3,
+   1188973.6,
+   642.0
+  ],
+  [
+   2761192.9,
+   1188953.9,
+   641.2
+  ]
+ ],
+ "largeur": 2.0,
+ "epaisseur": 0.3,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 20.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "axe TLM swisstopo"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC : non vérifié au laser, modèle depuis l'axe TLM. Largeur et épaisseur supposées."
+}

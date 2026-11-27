@@ -1,0 +1,117 @@
+{
+ "nom": "Johanniterbrücke, Bâle",
+ "axe": [
+  [
+   2610950.6,
+   1268198.0,
+   256.54
+  ],
+  [
+   2610986.8,
+   1268214.9,
+   257.06
+  ],
+  [
+   2611023.2,
+   1268231.6,
+   257.43
+  ],
+  [
+   2611059.5,
+   1268248.3,
+   257.58
+  ],
+  [
+   2611095.8,
+   1268265.1,
+   257.51
+  ],
+  [
+   2611132.1,
+   1268281.8,
+   257.25
+  ],
+  [
+   2611168.5,
+   1268298.5,
+   256.72
+  ],
+  [
+   2611200.5,
+   1268313.8,
+   256.35
+  ]
+ ],
+ "largeur": 21.6,
+ "epaisseur": 3.4,
+ "epaisseur_appuis": 7.2,
+ "gousset": 42,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.1
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 61.5,
+   "forme": "rond",
+   "long": 5.6,
+   "larg": 19.0,
+   "z_bas": 241.0,
+   "sections": [
+    {
+     "z": 241.0,
+     "forme": "rond",
+     "long": 5.6,
+     "larg": 19.0
+    },
+    {
+     "z": 250.2,
+     "forme": "rond",
+     "long": 5.6,
+     "larg": 19.0
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 198.8,
+   "forme": "rond",
+   "long": 5.6,
+   "larg": 19.0,
+   "z_bas": 241.0,
+   "sections": [
+    {
+     "z": 241.0,
+     "forme": "rond",
+     "long": 5.6,
+     "larg": 19.0
+    },
+    {
+     "z": 250.2,
+     "forme": "rond",
+     "long": 5.6,
+     "larg": 19.0
+    }
+   ]
+  },
+  {
+   "type": "culee",
+   "s": 275.4
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://structurae.net/en/structures/johanniterbrucke"
+ ],
+ "photos_vues": 4,
+ "confiance": "moyenne",
+ "notes": "provisoire"
+}

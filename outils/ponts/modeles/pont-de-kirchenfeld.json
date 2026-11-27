@@ -1,0 +1,105 @@
+{
+ "nom": "Pont de Kirchenfeld, Berne",
+ "axe": [
+  [
+   2600743.2,
+   1199480.5,
+   537.45
+  ],
+  [
+   2600784.0,
+   1199254.7,
+   532.27
+  ]
+ ],
+ "largeur": 13.2,
+ "epaisseur": 3.2,
+ "section": "poutres",
+ "poutre_larg": 1.2,
+ "dalle": 0.9,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 22.0,
+   "forme": "rect",
+   "long": 6.0,
+   "larg": 14.0,
+   "z_bas": 505.0
+  },
+  {
+   "type": "pile",
+   "s": 108.5,
+   "forme": "rect",
+   "long": 8.0,
+   "larg": 14.0,
+   "z_bas": 500.4,
+   "fruit": 0.03
+  },
+  {
+   "type": "pile",
+   "s": 195.0,
+   "forme": "rect",
+   "long": 6.0,
+   "larg": 14.0,
+   "z_bas": 505.0
+  },
+  {
+   "type": "culee",
+   "s": 229.5
+  }
+ ],
+ "arches": [
+  {
+   "s0": 21.5,
+   "s1": 108.5,
+   "forme": "cintre",
+   "z_naissance": 505.2,
+   "z_cle": 530.4,
+   "epaisseur": 2.6,
+   "larg": 14.4,
+   "plein": false,
+   "nervures": 2,
+   "larg_nervure": 1.6,
+   "montants_pas": 10.9,
+   "montant_ep": 0.9
+  },
+  {
+   "s0": 108.5,
+   "s1": 195.5,
+   "forme": "cintre",
+   "z_naissance": 505.2,
+   "z_cle": 530.4,
+   "epaisseur": 2.6,
+   "larg": 14.4,
+   "plein": false,
+   "nervures": 2,
+   "larg_nervure": 1.6,
+   "montants_pas": 10.9,
+   "montant_ep": 0.9
+  }
+ ],
+ "pylones": [],
+ "sources": [
+  "https://de.wikipedia.org/wiki/Kirchenfeldbr%C3%BCcke",
+  "https://structurae.net/en/structures/kirchenfeld-bridge",
+  "https://commons.wikimedia.org/wiki/Category:Kirchenfeldbr%C3%BCcke"
+ ],
+ "photo": {
+  "fichier": "Bern-Kirchenfeldbruecke-msu-2024--2834.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Bern-Kirchenfeldbruecke-msu-2024--2834.jpg",
+  "auteur": "msu (Wikimedia Commons)",
+  "licence": "CC (à confirmer sur la page du fichier)"
+ },
+ "photos_vues": 4,
+ "confiance": "bonne",
+ "notes": "Nuage swissSURFACE3D 2023 (LAS, tuile 2600-1199 lue hors COPC) : tablier à 0,01 m, 91 % des points d'ouvrage à moins de 1,5 m, aucun conflit de terrain, aucune pile au-dessus du sol ; deux arcs en treillis de 87 m (flèche 25 m, nervures à ±6,4 m, rayon ≈ 50 m) de part et d'autre de la pile centrale béton (s 108,5), poutres-treillis de rive de 3,2 m. Incertitudes : longueur et position des piles d'extrémité (cachées sous le tablier, s ≈ 22 et 195 d'après la photo), pied de la pile centrale et naissances (arbres, pile enrobée de béton en 1913-14) ; le schéma ne sait pas dessiner le contreventement croisé entre nervures ni les poutres en treillis ajourées (tablier plein de 3,2 m de hauteur)."
+}

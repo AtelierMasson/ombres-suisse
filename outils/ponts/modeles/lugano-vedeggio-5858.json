@@ -1,0 +1,46 @@
+{
+ "nom": "Pont sur Vedeggio (1m Weg), Lugano",
+ "axe": [
+  [
+   2715854.3,
+   1103346.5,
+   358.8
+  ],
+  [
+   2715858.8,
+   1103334.4,
+   359.9
+  ],
+  [
+   2715862.0,
+   1103325.7,
+   359.7
+  ]
+ ],
+ "largeur": 2.2,
+ "epaisseur": 0.4,
+ "garde_corps": {
+  "hauteur": 0.9,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 22.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://map.geo.admin.ch (swissIMAGE, swissTLM3D, swissALTI3D)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser : swissSURFACE3D du Tessin sans COPC. Axe et altitudes d'après swissTLM3D, largeur selon la classe TLM, portée unique sans pile, épaisseur estimée, nom réel non trouvé."
+}

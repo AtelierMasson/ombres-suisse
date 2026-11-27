@@ -1,0 +1,54 @@
+{
+ "nom": "Passerelle sur la Suze (chemin), Bienne",
+ "axe": [
+  [
+   2586201.8,
+   1224123.3,
+   516.7
+  ],
+  [
+   2586223.9,
+   1224129.9,
+   516.9
+  ],
+  [
+   2586234.2,
+   1224130.1,
+   516.9
+  ],
+  [
+   2586239.6,
+   1224128.3,
+   517.0
+  ],
+  [
+   2586263.2,
+   1224104.3,
+   517.2
+  ]
+ ],
+ "largeur": 2.5,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 73.0
+  }
+ ],
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (Bienne : seulement la tuile LAS 2023, pas de COPC). Ouvrage de chemin longeant la gorge, sans doute sur mur ou canal ; largeur, épaisseur et appuis supposés d'après l'orthophoto, altitudes de l'axe TLM (terrain 1 à 3 m plus bas).",
+ "sources": [
+  "https://www.swisstopo.admin.ch (swissTLM3D axe, swissALTI3D, SWISSIMAGE)"
+ ],
+ "photos_vues": 0,
+ "photo": null
+}

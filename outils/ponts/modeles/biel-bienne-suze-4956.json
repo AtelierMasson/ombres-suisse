@@ -1,0 +1,43 @@
+{
+ "nom": "Pont routier sur la Suze, Biel/Bienne",
+ "axe": [
+  [
+   2584947.9,
+   1220408.8,
+   433.3
+  ],
+  [
+   2584966.9,
+   1220399.9,
+   433.3
+  ]
+ ],
+ "largeur": 12.0,
+ "epaisseur": 0.7,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 21.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "swissimage (orthophoto, wms.geo.admin.ch)",
+  "swissTLM3D axe",
+  "swissALTI3D (api3.geo.admin.ch/height)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (pas de nuage COPC ; tuile LAS de 150 Mo non lue) : modèle depuis l'axe TLM, swissALTI3D et l'orthophoto. L'axe TLM fourni ne mesurait que 1,9 m : axe redéfini à l'orthophoto et au MNT (canal de ~15 m en biais, eau 429,9 m, chaussée 433,3 m), largeur ~12 m trottoirs compris estimée. Dalle simple supposée ; le schéma ne rend pas le biais des culées."
+}

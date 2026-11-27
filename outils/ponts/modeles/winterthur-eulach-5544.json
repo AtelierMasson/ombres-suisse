@@ -1,0 +1,40 @@
+{
+ "nom": "Pont sur l'Eulach (route large), Winterthur",
+ "axe": [
+  [
+   2695529.1,
+   1262435.4,
+   429.1
+  ],
+  [
+   2695558.5,
+   1262429.7,
+   429.2
+  ]
+ ],
+ "largeur": 12.6,
+ "epaisseur": 0.6,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 29.9
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D, orthophoto swissimage, axe TLM"
+ ],
+ "photos_vues": 0,
+ "confiance": "moyenne",
+ "notes": "Ouvrage urbain ordinaire (pont routier large, travée unique; quelques points sous tablier à 426.8-427.4 vers s=16 (non interprétés)), modélisé depuis le relevé laser seul, sans photo. Dimensions du tablier et type de garde-corps supposés. Conflit de terrain s 4-6 et s 24 m (sol 0,2-0,3 m au-dessus du dessous), non corrigé ; médiane tablier -0,17 m."
+}

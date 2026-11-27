@@ -1,0 +1,119 @@
+{
+ "nom": "Pont sur la Birs (viaduc routier jumelé), Bâle",
+ "axe": [
+  [
+   2613816.9,
+   1264358.6,
+   273.0
+  ],
+  [
+   2613805.5,
+   1264356.5,
+   272.6
+  ],
+  [
+   2613792.3,
+   1264354.2,
+   272.1
+  ],
+  [
+   2613780.3,
+   1264352.1,
+   271.9
+  ],
+  [
+   2613763.4,
+   1264349.0,
+   271.7
+  ],
+  [
+   2613760.6,
+   1264348.6,
+   271.6
+  ],
+  [
+   2613755.3,
+   1264347.6,
+   271.5
+  ],
+  [
+   2613735.0,
+   1264344.1,
+   271.1
+  ],
+  [
+   2613719.4,
+   1264341.4,
+   270.8
+  ],
+  [
+   2613699.2,
+   1264337.9,
+   270.5
+  ]
+ ],
+ "largeur": 30,
+ "largeur_dessous": 28,
+ "epaisseur": 1.6,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.35
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 20,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 27,
+   "z_bas": 261.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 58,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 27,
+   "z_bas": 260.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 82,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 27,
+   "z_bas": 264.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 102,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 27,
+   "z_bas": 265.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "culee",
+   "s": 119.5
+  }
+ ],
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC à Bâle (swisssurface3d 2023 en LAS.zip seulement) : non vérifié au laser. Deux tabliers parallèles sur la Birs (vue aérienne), piles placées aux berges et aux chemins sous l'ouvrage sans confirmation (nombre et forme incertains) ; le schéma ne rend pas la fente centrale entre les deux tabliers.",
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissimage (wms.geo.admin.ch)",
+  "swissTLM3D",
+  "swissALTI3D"
+ ],
+ "photos_vues": 0
+}

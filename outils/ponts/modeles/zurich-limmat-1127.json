@@ -1,0 +1,60 @@
+{
+ "nom": "Passerelle de Wipkingen (le long du pont ferroviaire), Zurich",
+ "axe": [
+  [
+   2681118.0,
+   1249819.8,
+   403.7
+  ],
+  [
+   2681125.1,
+   1249842.3,
+   403.7
+  ],
+  [
+   2681131.3,
+   1249861.2,
+   403.7
+  ],
+  [
+   2681135.7,
+   1249874.5,
+   403.7
+  ]
+ ],
+ "largeur": 3.2,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 50,
+   "forme": "rect",
+   "long": 1.5,
+   "larg": 3.0,
+   "z_bas": 398.7
+  },
+  {
+   "type": "culee",
+   "s": 57.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D",
+  "swisstopo swissSURFACE3D 2024"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Passerelle de ~3 m accolée au viaduc ferroviaire ; l'altitude 414,5 du résumé est la voie ferrée au-dessus, pas la passerelle (tablier TLM 403,7, confirmé à ±0,1 m). Seuls 21 % des points d'ouvrage sont expliqués car le viaduc voisin n'est pas modélisé ; pile s 50 non vue par le laser, autres appuis rattachés au viaduc non représentés ; nom non vérifié."
+}

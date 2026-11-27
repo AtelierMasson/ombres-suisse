@@ -1,0 +1,157 @@
+{
+ "nom": "Hängebrüggli, Sense (Köniz)",
+ "axe": [
+  [
+   2593848.5,
+   1190044.0,
+   588.5
+  ],
+  [
+   2593909.4,
+   1190038.8,
+   582.9
+  ]
+ ],
+ "largeur": 2.0,
+ "epaisseur": 0.3,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.1
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 61.1
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D (2025)",
+  "swissTLM3D",
+  "swissALTI3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Passerelle suspendue : câbles et pylônes estimés, des points non expliqués à 3-7 m de l'axe (câbles, végétation, courbure). Tablier mesuré en pente de 588 à 583 m, largeur 2 m retenue (nuage 6 m, végétation).",
+ "elements": [
+  {
+   "de": [
+    0,
+    -1.0,
+    591.0
+   ],
+   "a": [
+    30.55,
+    -1.0,
+    "chaussee"
+   ],
+   "larg": 0.15,
+   "ep": 0.15
+  },
+  {
+   "de": [
+    30.55,
+    -1.0,
+    "chaussee"
+   ],
+   "a": [
+    61.1,
+    -1.0,
+    589.0
+   ],
+   "larg": 0.15,
+   "ep": 0.15
+  },
+  {
+   "de": [
+    0,
+    1.0,
+    591.0
+   ],
+   "a": [
+    30.55,
+    1.0,
+    "chaussee"
+   ],
+   "larg": 0.15,
+   "ep": 0.15
+  },
+  {
+   "de": [
+    30.55,
+    1.0,
+    "chaussee"
+   ],
+   "a": [
+    61.1,
+    1.0,
+    589.0
+   ],
+   "larg": 0.15,
+   "ep": 0.15
+  },
+  {
+   "de": [
+    0,
+    -1.0,
+    "sol"
+   ],
+   "a": [
+    0,
+    -1.0,
+    591.0
+   ],
+   "larg": 0.4,
+   "ep": 0.4
+  },
+  {
+   "de": [
+    61.1,
+    -1.0,
+    "sol"
+   ],
+   "a": [
+    61.1,
+    -1.0,
+    591.0
+   ],
+   "larg": 0.4,
+   "ep": 0.4
+  },
+  {
+   "de": [
+    0,
+    1.0,
+    "sol"
+   ],
+   "a": [
+    0,
+    1.0,
+    591.0
+   ],
+   "larg": 0.4,
+   "ep": 0.4
+  },
+  {
+   "de": [
+    61.1,
+    1.0,
+    "sol"
+   ],
+   "a": [
+    61.1,
+    1.0,
+    591.0
+   ],
+   "larg": 0.4,
+   "ep": 0.4
+  }
+ ]
+}

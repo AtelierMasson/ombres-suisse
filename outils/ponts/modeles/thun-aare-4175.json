@@ -1,0 +1,42 @@
+{
+ "nom": "Passerelle sur l'Aare (accès bain), Thun",
+ "axe": [
+  [
+   2614168.6,
+   1178951.1,
+   556.3
+  ],
+  [
+   2614181.2,
+   1178977.1,
+   557.1
+  ]
+ ],
+ "largeur": 2.6,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 28.9
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissimage (wms.geo.admin.ch)",
+  "swissTLM3D",
+  "swissALTI3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Pas de nuage COPC à Thun (swisssurface3d 2022/2023 en LAS.zip de ~220 Mo seulement) : non vérifié au laser. Passerelle étroite d'accès aux bains, largeur lue sur l'orthophoto (~2,5 m) ; bâtiments de bains voisins non modélisés."
+}

@@ -1,0 +1,41 @@
+{
+ "nom": "Pont sur Cassarate (2m Weg), Lugano",
+ "axe": [
+  [
+   2717886.3,
+   1096970.8,
+   285.6
+  ],
+  [
+   2717907.5,
+   1096965.1,
+   285.5
+  ]
+ ],
+ "largeur": 3.0,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 0.9,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 22.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://map.geo.admin.ch (swissIMAGE, swissTLM3D, swissALTI3D)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser : swissSURFACE3D du Tessin sans COPC. Axe et altitudes d'après swissTLM3D, largeur selon la classe TLM, portée unique sans pile, épaisseur estimée, nom réel non trouvé."
+}

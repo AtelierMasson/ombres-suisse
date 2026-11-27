@@ -1,0 +1,43 @@
+{
+ "nom": "Passerelle sur la Suze, Biel/Bienne",
+ "axe": [
+  [
+   2584881.0,
+   1220352.9,
+   432.5
+  ],
+  [
+   2584866.2,
+   1220362.3,
+   432.5
+  ]
+ ],
+ "largeur": 5.5,
+ "epaisseur": 0.6,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 17.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "swissimage (orthophoto, wms.geo.admin.ch)",
+  "swissTLM3D axe",
+  "swissALTI3D (api3.geo.admin.ch/height)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser (pas de nuage COPC ; tuile LAS de 150 Mo non lue) : modèle depuis l'axe TLM, swissALTI3D et l'orthophoto. Passerelle piétonne/cycliste en dalle sur murs de canal (eau 429,7 m, rives 432,6 m) ; largeur (~5,5 m) et structure estimées à l'orthophoto. Le schéma ne représente pas les murs de canal prolongeant les culées."
+}

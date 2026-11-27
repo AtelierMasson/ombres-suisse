@@ -1,0 +1,187 @@
+{
+ "nom": "Pont Chauderon, Lausanne",
+ "axe": [
+  [
+   2537429.4,
+   1152551.9,
+   487.4
+  ],
+  [
+   2537478.0,
+   1152647.9,
+   489.4
+  ],
+  [
+   2537526.6,
+   1152743.9,
+   491.3
+  ]
+ ],
+ "largeur": 18.3,
+ "largeur_dessous": 17.0,
+ "epaisseur": 1.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 1.8
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 15,
+   "forme": "rect",
+   "long": 5.0,
+   "larg": 16.4,
+   "z_bas": 479.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 43,
+   "forme": "rect",
+   "long": 5.0,
+   "larg": 16.4,
+   "z_bas": 473.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 80,
+   "forme": "rect",
+   "long": 5.0,
+   "larg": 16.4,
+   "z_bas": 479.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 112,
+   "forme": "rect",
+   "long": 5.0,
+   "larg": 16.4,
+   "z_bas": 479.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 146,
+   "forme": "rect",
+   "long": 5.0,
+   "larg": 16.4,
+   "z_bas": 479.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 180,
+   "forme": "rect",
+   "long": 5.0,
+   "larg": 16.4,
+   "z_bas": 476.8,
+   "fruit": 0.0
+  },
+  {
+   "type": "culee",
+   "s": 215.3
+  }
+ ],
+ "arches": [
+  {
+   "s0": 17.5,
+   "s1": 40.5,
+   "z_naissance": 481.0,
+   "z_cle": 486.0,
+   "epaisseur": 1.3,
+   "larg": 16.4,
+   "plein": false,
+   "nervures": 2,
+   "larg_nervure": 4.0,
+   "montants_pas": 5,
+   "montant_ep": 1.0
+  },
+  {
+   "s0": 45.5,
+   "s1": 77.5,
+   "z_naissance": 481.0,
+   "z_cle": 486.6,
+   "epaisseur": 1.3,
+   "larg": 16.4,
+   "plein": false,
+   "nervures": 2,
+   "larg_nervure": 4.0,
+   "montants_pas": 5,
+   "montant_ep": 1.0
+  },
+  {
+   "s0": 82.5,
+   "s1": 109.5,
+   "z_naissance": 481.0,
+   "z_cle": 487.2,
+   "epaisseur": 1.3,
+   "larg": 16.4,
+   "plein": false,
+   "nervures": 2,
+   "larg_nervure": 4.0,
+   "montants_pas": 5,
+   "montant_ep": 1.0
+  },
+  {
+   "s0": 114.5,
+   "s1": 143.5,
+   "z_naissance": 481.0,
+   "z_cle": 487.8,
+   "epaisseur": 1.3,
+   "larg": 16.4,
+   "plein": false,
+   "nervures": 2,
+   "larg_nervure": 4.0,
+   "montants_pas": 5,
+   "montant_ep": 1.0
+  },
+  {
+   "s0": 148.5,
+   "s1": 177.5,
+   "z_naissance": 481.0,
+   "z_cle": 488.5,
+   "epaisseur": 1.3,
+   "larg": 16.4,
+   "plein": false,
+   "nervures": 2,
+   "larg_nervure": 4.0,
+   "montants_pas": 5,
+   "montant_ep": 1.0
+  },
+  {
+   "s0": 182.5,
+   "s1": 215.3,
+   "z_naissance": 481.0,
+   "z_cle": 489.1,
+   "epaisseur": 1.3,
+   "larg": 16.4,
+   "plein": false,
+   "nervures": 2,
+   "larg_nervure": 4.0,
+   "montants_pas": 5,
+   "montant_ep": 1.0
+  }
+ ],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://structurae.net/fr/ouvrages/pont-chauderon",
+  "https://www.lausanne.ch/portrait/carte-identite/architecture-et-monuments/patrimoine-architectural/lausanne-1900/pont-chauderon.html"
+ ],
+ "photos_vues": 2,
+ "confiance": "moyenne",
+ "notes": "Port\u00e9es irr\u00e9guli\u00e8res (28 \u00e0 37 m) tir\u00e9es du relev\u00e9 (piles 15, 43, 80, 112, 146, 180), pas des 28,75 m publi\u00e9s ; arcs en parabole alors que les photos montrent des arcs en ogive tr\u00e8s hauts (enterr\u00e9s depuis le remblaiement du Flon), ouvertures de tympan et ferronneries du garde-corps simplifi\u00e9es. Les 28 % de points non expliqu\u00e9s sont des b\u00e2timents et arbres voisins du couloir.",
+ "photo": {
+  "fichier": "b.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Pont_Chauderon_2.JPG",
+  "auteur": "Wikimedia Commons",
+  "licence": "CC BY-SA 3.0"
+ }
+}

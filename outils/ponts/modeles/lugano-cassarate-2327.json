@@ -1,0 +1,42 @@
+{
+ "nom": "Pont sur le Cassarate (route communale), Lugano",
+ "axe": [
+  [
+   2722318.8,
+   1104348.4,
+   652.4
+  ],
+  [
+   2722334.9,
+   1104309.9,
+   652.4
+  ]
+ ],
+ "largeur": 5.5,
+ "epaisseur": 1.1,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 41.7
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissTLM3D (axe)",
+  "swissALTI3D (terrain, API height)",
+  "swissIMAGE (orthophoto)"
+ ],
+ "photos_vues": 1,
+ "confiance": "faible",
+ "notes": "Non vérifié au laser : pas de nuage COPC au Tessin (tuiles LAS zip de 60 à 380 Mo non lues). Tablier posé au niveau des berges swissALTI3D ; une seule travée supposée, épaisseur et largeur estimées d'après le type TLM."
+}

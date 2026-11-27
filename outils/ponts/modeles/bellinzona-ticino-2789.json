@@ -1,0 +1,88 @@
+{
+ "nom": "Passerelle sur le Tessin, Bellinzone (2m Weg)",
+ "axe": [
+  [
+   2722823.0,
+   1121909.3,
+   242.4
+  ],
+  [
+   2722813.3,
+   1121894.6,
+   242.9
+  ],
+  [
+   2722801.0,
+   1121876.0,
+   243.7
+  ],
+  [
+   2722790.2,
+   1121859.6,
+   244.0
+  ],
+  [
+   2722774.2,
+   1121835.5,
+   243.7
+  ],
+  [
+   2722767.2,
+   1121824.9,
+   243.4
+  ],
+  [
+   2722760.1,
+   1121814.3,
+   242.9
+  ],
+  [
+   2722754.8,
+   1121806.1,
+   242.4
+  ]
+ ],
+ "largeur": 4.0,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 45,
+   "forme": "rond",
+   "long": 1.3,
+   "larg": 1.3,
+   "z_bas": 238.0
+  },
+  {
+   "type": "pile",
+   "s": 85,
+   "forme": "rond",
+   "long": 1.3,
+   "larg": 1.3,
+   "z_bas": 235.5
+  },
+  {
+   "type": "culee",
+   "s": 123.7
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D",
+  "swissALTI3D (api3.geo.admin.ch/height)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Aucun nuage COPC (2020 LAS zippé seulement) : modèle tiré de l'axe TLM, de swissALTI3D et de l'orthophoto, non vérifié au laser. Dos d'âne du tablier suivi (242,4 à 244,0 m) mais type réel (poutre, arc ou câbles) et place des piles inconnus ; les câbles aériens voisins ne sont pas modélisés."
+}

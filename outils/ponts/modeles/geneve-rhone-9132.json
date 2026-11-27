@@ -1,0 +1,76 @@
+{
+ "nom": "Pont sur le Rhône (10 m), Genève",
+ "axe": [
+  [
+   2499115.1,
+   1117646.3,
+   372.95
+  ],
+  [
+   2499119.2,
+   1117657.6,
+   373.35
+  ],
+  [
+   2499123.3,
+   1117668.9,
+   373.75
+  ],
+  [
+   2499127.4,
+   1117680.2,
+   374.15
+  ],
+  [
+   2499131.5,
+   1117691.5,
+   374.85
+  ],
+  [
+   2499135.5,
+   1117702.8,
+   375.55
+  ],
+  [
+   2499139.6,
+   1117714.1,
+   376.25
+  ],
+  [
+   2499143.7,
+   1117725.3,
+   377.05
+  ],
+  [
+   2499147.8,
+   1117736.6,
+   377.55
+  ]
+ ],
+ "largeur": 18.3,
+ "epaisseur": 1.1,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 98.3
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "confiance": "moyenne",
+ "notes": "Tablier en rampe (373,3 a 377,9 m) sans appui visible dans le lit ; epaisseur estimee. Nom non identifie, aucune photo.",
+ "sources": [
+  "swissSURFACE3D",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0
+}

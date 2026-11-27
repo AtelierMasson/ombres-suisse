@@ -1,0 +1,59 @@
+{
+ "nom": "Passerelle sur l'Arve, Genève",
+ "axe": [
+  [
+   2499855.2,
+   1115991.7,
+   380.3
+  ],
+  [
+   2499924.9,
+   1116021.5,
+   380.3
+  ]
+ ],
+ "largeur": 12.3,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.1
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 21.0,
+   "forme": "rect",
+   "long": 2.0,
+   "larg": 10.0,
+   "z_bas": 372.0
+  },
+  {
+   "type": "pile",
+   "s": 45.0,
+   "forme": "rect",
+   "long": 2.0,
+   "larg": 10.0,
+   "z_bas": 372.0
+  },
+  {
+   "type": "culee",
+   "s": 75.8
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D (2025)",
+  "swissTLM3D",
+  "swissALTI3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "moyenne",
+ "notes": "Piles repérées au laser à s=20 et 44 (375-377 m). Largeur de 12 m comprenant voie et chemins latéraux."
+}
