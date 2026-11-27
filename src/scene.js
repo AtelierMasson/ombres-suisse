@@ -730,7 +730,7 @@ void main() {
       for (const P of modeles) {
         // chaussée : matière du terrain (cadastre, photo, bruit, grain continuent sur le pont), le reste en plâtre
         const g = maillagePont(P, Ep, Np, this.zRef, (x, y) => solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y))),
-          (x, y) => [(x - G.x0) / (2 * G.R), (y - G.x0) / (2 * G.R)]);
+          (x, y) => [(x - G.x0) / (2 * G.R), (y - G.x0) / (2 * G.R)], { rayon: G.rayonZone });
         ponts.add(maille(g.dessus, m.terrain, true, true), maille(g.reste, m.mur, true, true));
       }
       // maquette ronde : la chaussée (matière du terrain, que le rendu ne découpe pas) est coupée au cercle, comme

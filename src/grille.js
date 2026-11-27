@@ -2,6 +2,7 @@
 // Indices : i vers l'est, j vers le nord ; la cellule (i, j) couvre [x0 + i·c, x0 + (i+1)·c] (relatif à E0, N0).
 import { fromUrl } from "geotiff";
 import { t as tr } from "./i18n.js";
+import { modeliserPonts } from "./pontsAuto.js";
 
 export function grilleVide(R, c = 0.5) {
   const n = Math.round(2 * R / c);
@@ -84,6 +85,7 @@ export function depuisPoints(nuage, R, c = 0.5) {
       sol[p] = Math.min(sol[p], E[p] - 0.3 - Math.min(40, d * 0.12));
     }
   }
+  G.pontBrut = pont.slice(); // (tabliers jumeaux : la fente entre eux, avant fermeture)
   fermer(bat, n, 2); fermer(veg, n, 1); fermer(pont, n, 2);
   for (let p = 0; p < n * n; p++) {
     if (bat[p] < sol[p] + 1.5) bat[p] = NaN;
@@ -92,6 +94,9 @@ export function depuisPoints(nuage, R, c = 0.5) {
   }
   retirerIsoles(pont, n, 3);
   G.pontBas = dessousPonts(nuage, G, R, c);
+  // un modèle par pont, avant la coupe au cercle ; le profil de la chaussée est gravé dans le sol aux raccords
+  try { modeliserPonts(G, nuage); } catch (e) { console.warn("Ponts reconstruits :", e.message); G.ponts = null; }
+  delete G.pontBrut;
   retirerIsoles(bat, n, 3);
   boucherTrous(bat, n, c);
   retirerMats(bat, sol, n, c);
