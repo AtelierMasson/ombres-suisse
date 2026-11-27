@@ -29,13 +29,13 @@ SERVEURS = ["https://overpass-api.de/api/interpreter", "https://overpass.private
 
 def overpass(q):
     # serveurs publics parfois surchargés (502, 504) : nouvelles tentatives, puis serveur de secours
-    for essai in range(6):
+    for essai in range(9):
         url = SERVEURS[essai % len(SERVEURS)]
         try:
             r = urllib.request.Request(url, data=urllib.parse.urlencode({"data": q}).encode(), headers={"User-Agent": "topograph-liste-lieux/1.0"})
             return json.load(urllib.request.urlopen(r, timeout=900))
         except Exception as e:
-            print("Overpass", url, e, file=sys.stderr); time.sleep(20 * (essai + 1))
+            print("Overpass", url, e, file=sys.stderr); time.sleep(60 * (essai + 1))
     raise SystemExit("Overpass indisponible")
 
 

@@ -136,6 +136,25 @@ export function brancherEdition({ scene, volumes, actif, dessine, changes, retir
   const volumeDe = id => volumes().find(v => v.id === id);
   const toucher = e => {
     const h = rayon(e).intersectObjects(mailles(), false)[0];
+    // vue en plan : les murs ne se voient pas de dessus. Près d'un côté de l'emprise du volume choisi (à 10 px), dedans
+    // ou dehors, on prend le mur : il se pousse-tire comme en 3D (le toit reste pour la hauteur, au milieu)
+    if (scene.modeVue === "plan" && sel != null) {
+      const v = volumeDe(sel);
+      if (v?.coins?.length >= 3) {
+        const y = v.base > -1000 ? v.base - scene.zRef + corniche(v) : (h?.point.y ?? 0);
+        const q = rayon(e).ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -y), new THREE.Vector3());
+        if (q) {
+          const x = q.x, yN = -q.z, tol = 10 * parPixel(scene.camera, q), n = v.coins.length;
+          let best = -1, dmin = tol;
+          for (let k = 0; k < n; k++) {
+            const [ax, ay] = v.coins[k], [bx, by] = v.coins[(k + 1) % n], dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy || 1;
+            const u = Math.max(0, Math.min(1, ((x - ax) * dx + (yN - ay) * dy) / l2)), d = Math.hypot(x - ax - u * dx, yN - ay - u * dy);
+            if (d < dmin) { dmin = d; best = k; }
+          }
+          if (best >= 0) return { id: sel, face: best, point: q, maille: h?.object || null };
+        }
+      }
+    }
     if (!h) return null;
     return { id: h.object.userData.volume, face: h.object.geometry.userData.faces?.[h.faceIndex] ?? -1, point: h.point, maille: h.object };
   };
@@ -166,6 +185,19 @@ export function brancherEdition({ scene, volumes, actif, dessine, changes, retir
         const gf = new THREE.BufferGeometry();
         gf.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
         jeter(new THREE.Mesh(gf, matFace)).renderOrder = 37;
+      }
+      // vue en plan : le mur n'est pas visible de dessus ; on montre son côté de l'emprise en bande épaisse
+      if (scene.modeVue === "plan" && survol.face >= 0) {
+        const n = v.coins.length, A = v.coins[survol.face], B = v.coins[(survol.face + 1) % n];
+        if (A && B) {
+          m.geometry.computeBoundingBox();
+          const yh = m.geometry.boundingBox.max.y + 0.05, L = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1;
+          const e = 3 * parPixel(scene.camera, new THREE.Vector3(A[0], yh, -A[1])), nx = (B[1] - A[1]) / L * e, ny = -(B[0] - A[0]) / L * e;
+          const q = [[A[0] - nx, A[1] - ny], [B[0] - nx, B[1] - ny], [B[0] + nx, B[1] + ny], [A[0] + nx, A[1] + ny]];
+          const gb = new THREE.BufferGeometry();
+          gb.setAttribute("position", new THREE.Float32BufferAttribute([0, 1, 2, 0, 2, 3].flatMap(k => [q[k][0], yh, -q[k][1]]), 3));
+          jeter(new THREE.Mesh(gb, matFace)).renderOrder = 38;
+        }
       }
     }
     m.geometry.computeBoundingBox();
