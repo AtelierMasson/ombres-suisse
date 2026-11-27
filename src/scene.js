@@ -767,8 +767,8 @@ void main() {
    * `terrain` : "grille" (relevé 0,5 m, maillage de 1 m) ou "tin" (triangulation adaptative, posée dès qu'elle est
    * calculée) ; sans `terrain`, le choix précédent (terrainAffiche) est gardé.
    */
-  construire(G, nuage, parcelle, urls, { remplacer = false, terrain = null } = {}) {
-    if (terrain) this.modeTerrain = terrain;
+  construire(G, nuage, parcelle, urls, { remplacer = false, terrain: maillageSol = null } = {}) {
+    if (maillageSol) this.modeTerrain = maillageSol;
     remplacer &&= !!this.G && this.zRef != null;
     if (remplacer) this.retirerFine(); else this.vider();
     this.G = G;
