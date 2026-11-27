@@ -1023,18 +1023,39 @@ export function plansEau(G, zRef) {
     return s / k - zRef;
   };
   const pos = [], P = (a, b) => [x0 + a * c, coin(a, b), -(x0 + b * c)];
-  for (let j = 0; j < n; j++) {
-    let i = 0;
-    while (i < n) {
-      const h = eau[j * n + i];
-      // maquette ronde : l'eau s'arrête au cercle (au-delà, celle de l'anneau prend le relais, sans recouvrement)
-      if (G.rayonZone && Math.hypot(x0 + (i + 0.5) * c, x0 + (j + 0.5) * c) > G.rayonZone + 0.5) { i++; continue; }
-      if (isNaN(h)) { i++; continue; }
-      let k = i + 1;
-      while (k < n && eau[j * n + k] === h && !(G.rayonZone && Math.hypot(x0 + (k + 0.5) * c, x0 + (j + 0.5) * c) > G.rayonZone + 0.5)) k++; // suite de cellules au même niveau (lac) : un seul quadrilatère
-      const A = P(i, j), B = P(k, j), C = P(k, j + 1), D = P(i, j + 1);
-      pos.push(...A, ...B, ...C, ...A, ...C, ...D);
-      i = k;
+  const horsCercle = (i, j) => G.rayonZone && Math.hypot(x0 + (i + 0.5) * c, x0 + (j + 0.5) * c) > G.rayonZone + 0.5;
+  // Par carrés de 8 m : un carré de lac plat (un seul niveau) ou de rive plus haute que lui devient un seul
+  // quadrilatère au niveau du lac ; le plan déborde sous la rive et c'est le terrain qui dessine le bord (pas de
+  // petits triangles, ni de longues bandes de 0,5 m : elles laissaient des stries pointillées sur l'eau translucide).
+  // Les autres carrés (rivière en pente, rive plus basse que l'eau) gardent les bandes par ligne de cellules.
+  // Au-delà du cercle, l'eau est coupée par le matériau (rayonEau).
+  const Bq = Math.max(1, Math.round(8 / c));
+  for (let J = 0; J < n; J += Bq) for (let I = 0; I < n; I += Bq) {
+    const I1 = Math.min(n, I + Bq), J1 = Math.min(n, J + Bq);
+    let h = -Infinity, k0 = 0;
+    for (let j = J; j < J1; j++) for (let i = I; i < I1; i++) { const e = eau[j * n + i]; if (e > h) h = e; if (!isNaN(e)) k0++; }
+    if (!k0) continue;
+    let plein = true;
+    for (let j = J; j < J1 && plein; j++) for (let i = I; i < I1; i++) {
+      const p = j * n + i, e = eau[p];
+      if (isNaN(e) ? !(G.sol[p] >= h + 0.05) && !horsCercle(i, j) : h - e > 0.15) { plein = false; break; }
+    }
+    if (plein) {
+      const z = h - zRef, xa = x0 + I * c, xb = x0 + I1 * c, ya = -(x0 + J * c), yb = -(x0 + J1 * c);
+      pos.push(xa, z, ya, xb, z, ya, xb, z, yb, xa, z, ya, xb, z, yb, xa, z, yb);
+      continue;
+    }
+    for (let j = J; j < J1; j++) {
+      let i = I;
+      while (i < I1) {
+        const h1 = eau[j * n + i];
+        if (isNaN(h1) || horsCercle(i, j)) { i++; continue; }
+        let k = i + 1;
+        while (k < I1 && eau[j * n + k] === h1 && !horsCercle(k, j)) k++; // suite de cellules au même niveau
+        const A = P(i, j), B = P(k, j), C = P(k, j + 1), D = P(i, j + 1);
+        pos.push(...A, ...B, ...C, ...A, ...C, ...D);
+        i = k;
+      }
     }
   }
   if (!pos.length) return null;

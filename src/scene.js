@@ -1224,26 +1224,36 @@ void main() {
     // eau de l'anneau : un plan au niveau du lac, coupé au cercle extérieur ; le terrain plus haut le cache
     RAYON_EAU.value = G.rayonZone ? G.rayonZone - 0.02 : 1e9; // sans lac dans l'anneau : l'eau fine va jusqu'au cercle
     if (lac) {
-      // plan d'eau au niveau du lac, seulement sur les cases du lac (fond mesuré ou rive au niveau) et leurs voisines :
-      // jamais un disque entier, qui noyait tout terrain plus bas que le lac dans l'anneau
-      const nA2 = 1024, pts = [], lvl = lac.niveau - this.zRef, rr = [Rint - 2];
-      for (let r = Rint; r < Rext; r += 6) rr.push(r);
-      rr.push(Rext);
-      const nRr = rr.length, dansLac = new Uint8Array(nA2 * nRr);
-      for (let a = 0; a < nA2; a++) for (let k = 0; k < nRr; k++) {
-        const t = a / nA2 * 2 * Math.PI, r = Math.max(Rint, Math.min(Rext - 0.5, rr[k])), x = Math.cos(t) * r, y = Math.sin(t) * r;
-        if (estLac(x, y, altBrut(x, y))) dansLac[a * nRr + k] = 1;
-      }
-      const P = (t, r) => [Math.cos(t) * r, lvl, -Math.sin(t) * r];
-      for (let a = 0; a < nA2; a++) {
-        const a2 = (a + 1) % nA2, t0 = a / nA2 * 2 * Math.PI, t1 = (a + 1) / nA2 * 2 * Math.PI;
-        for (let k = 0; k < nRr - 1; k++) {
-          if (!(dansLac[a * nRr + k] || dansLac[a * nRr + k + 1] || dansLac[a2 * nRr + k] || dansLac[a2 * nRr + k + 1])) continue;
-          // raccord avec l'eau fine sur un cercle commun, 2 m en deçà du cercle fin (l'eau fine finit en escalier de
-          // cases : des lames sombres restaient entre les deux)
-          const r0 = rr[k], r1 = rr[k + 1];
-          pts.push(...P(t0, r0), ...P(t0, r1), ...P(t1, r1), ...P(t0, r0), ...P(t1, r1), ...P(t1, r0));
+      // plan d'eau au niveau du lac en grands carrés de 16 m (pas de petits triangles), sur les carrés du lac et ceux
+      // de la rive où le terrain est au-dessus du niveau : le plan déborde sous la rive et c'est le terrain, plus
+      // haut, qui dessine le bord. Jamais un disque entier : il noyait tout terrain plus bas que le lac dans l'anneau.
+      // L'eau est coupée aux cercles par le matériau (RAYON_EAU_ANNEAU, RAYON_EAU_INT).
+      const pts = [], lvl = lac.niveau - this.zRef, Bq = 16, nQ = Math.ceil(2 * Rext / Bq), oQ = -nQ * Bq / 2;
+      const lacB = new Uint8Array(nQ * nQ), rive = new Uint8Array(nQ * nQ);
+      for (let j = 0; j < nQ; j++) for (let i = 0; i < nQ; i++) {
+        const xc = oQ + (i + 0.5) * Bq, yc = oQ + (j + 0.5) * Bq, rc = Math.hypot(xc, yc);
+        if (rc < Rint - 2 - Bq || rc > Rext + Bq) continue;
+        let l = 0, zMin = Infinity;
+        for (let v = 0; v < 4; v++) for (let u = 0; u < 4; u++) {
+          const x = oQ + (i + (u + 0.5) / 4) * Bq, y = oQ + (j + (v + 0.5) / 4) * Bq, z = altBrut(x, y);
+          if (estLac(x, y, z)) l = 1; else if (z < zMin) zMin = z;
         }
+        lacB[j * nQ + i] = l;
+        rive[j * nQ + i] = zMin >= lac.niveau - 0.3; // terrain au-dessus du niveau : il cachera le débord
+      }
+      const garde = new Uint8Array(lacB);
+      for (let tour = 0; tour < 2; tour++) { // débord : deux carrés (32 m) sous la rive
+        const avant = Uint8Array.from(garde);
+        for (let j = 0; j < nQ; j++) for (let i = 0; i < nQ; i++) {
+          const p = j * nQ + i;
+          if (avant[p] || !rive[p]) continue;
+          if ((i > 0 && avant[p - 1]) || (i < nQ - 1 && avant[p + 1]) || (j > 0 && avant[p - nQ]) || (j < nQ - 1 && avant[p + nQ])) garde[p] = 1;
+        }
+      }
+      for (let j = 0; j < nQ; j++) for (let i = 0; i < nQ; i++) {
+        if (!garde[j * nQ + i]) continue;
+        const x0q = oQ + i * Bq, x1q = x0q + Bq, y0q = oQ + j * Bq, y1q = y0q + Bq;
+        pts.push(x0q, lvl, -y0q, x1q, lvl, -y0q, x1q, lvl, -y1q, x0q, lvl, -y0q, x1q, lvl, -y1q, x0q, lvl, -y1q);
       }
       const ge = new THREE.BufferGeometry();
       ge.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
