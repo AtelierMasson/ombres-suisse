@@ -9,6 +9,14 @@ points.json : { "largeur": 1920, "hauteur": 1440,
 Sortie : { "position": [E, N, Z], "vise": [E, N, Z], "fov_vertical": deg, "roulis": deg, "erreur_px": moyenne,
            "residus": [{nom, dx, dy}] } ; un point mal repéré a un gros résidu : le corriger ou le retirer.
 
+Options (variables d'environnement) :
+  ROULIS=deg   roulis imposé par pénalité (photo d'aplomb : 0).
+  Z=altitude   altitude de la caméra imposée (m, par contrainte douce ; ZPOIDS=px par mètre, défaut 30). À utiliser quand les
+               points de calage sont presque coplanaires (tablier) : l'altitude est alors indéterminée, la prendre sur le
+               terrain (swissALTI3D, api3.geo.admin.ch/rest/services/height) + 1,6 m là où se tient le photographe.
+  XY=E,N       position approximative du photographe (MN95), par contrainte douce (XYPOIDS=px par mètre, défaut 2) : lève
+               l'ambiguïté distance/focale quand les points sont presque coplanaires ou tous à peu près à la même distance.
+
 Modèle : caméra sténopé, centre optique au milieu de l'image, pixels carrés, sans distorsion. Moindres carrés
 (Levenberg-Marquardt) sur 7 inconnues : position (3), orientation (3, vecteur de rotation), focale (1).
 """
@@ -45,6 +53,12 @@ def residus(q):
     r = np.where(np.repeat(z, 2) > 0, r, 1e4)
     if os.environ.get("ROULIS") is not None:    # roulis imposé (degrés, photo d'aplomb : 0) par un terme de pénalité
         r = np.r_[r, 300 * (math.degrees(math.asin(max(-1, min(1, rot(q[3:6])[0][2])))) - float(os.environ["ROULIS"]))]
+    if os.environ.get("Z") is not None:         # altitude de la caméra imposée (contrainte douce)
+        r = np.r_[r, float(os.environ.get("ZPOIDS", 30)) * (q[2] + o[2] - float(os.environ["Z"]))]
+    if os.environ.get("XY") is not None:        # position horizontale approximative du photographe (contrainte douce)
+        xy = [float(v) for v in os.environ["XY"].split(",")]
+        w = float(os.environ.get("XYPOIDS", 2))
+        r = np.r_[r, w * (q[0] + o[0] - xy[0]), w * (q[1] + o[1] - xy[1])]
     return r
 
 
