@@ -7,7 +7,7 @@ import { brancherLieux } from "./lieux.js";
 import { brancherCalendrier } from "./calendrier.js";
 import { brancherFiche } from "./fiche.js";
 import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
-import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, versWgs } from "./geo.js";
+import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, versWgs, lireCoordonnees } from "./geo.js";
 import { chargerNuage } from "./nuage.js";
 import { LodAnneau } from "./lodAnneau.js";
 import { depuisPoints, depuisRasters, solEn, terrainAutour, garderCercle, majSurface } from "./grille.js";
@@ -344,12 +344,14 @@ async function depuisAdresse(o = null) {
     let E0 = E, N0 = N, demi = 20;
     if (parcelle) {
       const xs = parcelle.anneaux.flat().map(p => p[0]), ys = parcelle.anneaux.flat().map(p => p[1]);
-      E0 = (Math.min(...xs) + Math.max(...xs)) / 2; N0 = (Math.min(...ys) + Math.max(...ys)) / 2;
+      // centre exact demandé (coordonnées tapées, viseur) : la parcelle est trouvée, mais le centre reste au point
+      if (h.get("x") !== "1") { E0 = (Math.min(...xs) + Math.max(...xs)) / 2; N0 = (Math.min(...ys) + Math.max(...ys)) / 2; }
       demi = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) / 2;
       $("#lieuType").textContent = `${t("lieu.parcelle", { n: parcelle.numero })} · ${parcelle.canton}${h.get("t") === "Adresse" ? " · " + h.get("l") : ""}`;
       $("#lieu").textContent = (h.get("l") || "").replace(/\s*\(CH.*\)$/, "");
     } else if (!ACC && !voyage) message(t("msg.pasDeParcelle"), 0);
     E0 = Math.round(E0); N0 = Math.round(N0);
+    if (!ACC) afficherCoordonnees(E0, N0);
     // maquette ronde : rayon choisi (curseur), sinon automatique ; relevé laser jusqu'à 300 m, au-delà un anneau
     // carrée : pas d'anneau, le rayon s'arrête au relevé fin
     const Rz = ACC ? ACC.R : Math.min(ronde() ? 1e9 : RAYON_FIN_MAX, rayonChoisi() || Math.min(300, Math.max(150, Math.ceil(demi + 120)))), R = Math.min(Rz, RAYON_FIN_MAX);
@@ -1065,6 +1067,13 @@ marquerTheme();
   el.addEventListener("pointerup", e => {
     if (!appui || Math.hypot(e.clientX - appui[0], e.clientY - appui[1]) > 5 || e.button !== 0) return;
     appui = null;
+    if (choixCentre) {
+      // viseur : le point cliqué (sol, toit, ou plan autour) devient le centre exact
+      const p = scene.pointSol(e) || scene.pointLointain(e);
+      basculerChoixCentre(false);
+      if (p && S.E0 != null) allerCentre(S.E0 + p[0], S.N0 + p[1]);
+      return;
+    }
     if (!S.G || !S.toutes?.length || scene.trace || scene.modeVue === "N" || scene.modeVue === "S" || scene.modeVue === "E" || scene.modeVue === "O") return;
     if (pro.dessine()) return; // dessin d'un volume : les clics lui reviennent
     let p = scene.pointSol(e);
@@ -1177,3 +1186,43 @@ if (import.meta.env.DEV) window.ombres = { scene, S }; // pour l'inspection pend
     if (e.target.closest("[data-fermer]") || e.target === dlg) dlg.close();
   });
 }
+
+
+// ---------------------------------------------------------------- coordonnées GPS du centre (colonne, sous le titre)
+// affichées en degrés décimaux (WGS84) ; un clic les rend modifiables (degrés décimaux, degrés-minutes-secondes, MN95
+// ou MN03 acceptés) ; le viseur fait choisir le centre d'un clic sur la carte. Le centre reste alors au point exact.
+let choixCentre = false;
+function afficherCoordonnees(E, N) {
+  const [lon, lat] = versWgs(E, N);
+  $("#coordLieu").textContent = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+  $("#coordLieu").dataset.mn95 = `${E}, ${N}`;
+  $(".coord-lieu").hidden = false;
+}
+function allerCentre(E, N) {
+  const [lon, lat] = versWgs(E, N), l = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+  location.hash = `e=${Math.round(E)}&n=${Math.round(N)}&l=${encodeURIComponent(l)}&t=${encodeURIComponent(t("type.Coordonnees"))}&x=1`;
+}
+function basculerChoixCentre(oui = !choixCentre) {
+  choixCentre = oui;
+  document.body.classList.toggle("choix-centre", oui);
+  $("#btnViseurCentre").setAttribute("aria-pressed", String(oui));
+  message(oui ? t("lieu.viseurAide") : "", oui ? 0 : 1);
+}
+$("#btnViseurCentre").addEventListener("click", () => basculerChoixCentre());
+addEventListener("keydown", e => { if (e.key === "Escape" && choixCentre) basculerChoixCentre(false); });
+$("#coordLieu").addEventListener("click", () => {
+  const champ = $("#coordSaisie");
+  champ.value = $("#coordLieu").textContent;
+  $("#coordLieu").hidden = true; champ.hidden = false; champ.focus(); champ.select();
+});
+function fermerSaisie() { $("#coordSaisie").hidden = true; $("#coordLieu").hidden = false; }
+$("#coordSaisie").addEventListener("keydown", e => {
+  if (e.key === "Escape") { fermerSaisie(); return; }
+  if (e.key !== "Enter") return;
+  const c = lireCoordonnees(e.target.value);
+  if (!c) { e.target.classList.add("is-invalid"); message(t("lieu.coordInvalides")); return; }
+  e.target.classList.remove("is-invalid");
+  fermerSaisie();
+  allerCentre(c.E, c.N);
+});
+$("#coordSaisie").addEventListener("blur", fermerSaisie);

@@ -115,6 +115,12 @@
     <div class="tete-texte">
       <h2 id="titreLieu"></h2>
       <div class="sous-titre-lieu"><svg class="ico" aria-hidden="true"><use href="#i-repere"/></svg><span id="sousTitreLieu"></span></div>
+      <!-- coordonnées GPS du centre (clic : les modifier) et viseur (clic, puis un point sur la carte : nouveau centre) -->
+      <div class="coord-lieu" hidden>
+        <button type="button" id="btnViseurCentre" class="btn-viseur" data-i18n-title="lieu.viseur" title="Choisir le centre sur la carte" data-i18n-aria-label="lieu.viseur" aria-label="Choisir le centre sur la carte" aria-pressed="false"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button type="button" id="coordLieu" class="coord-texte" data-i18n-title="lieu.coordTitre" title="Coordonnées GPS du centre : cliquer pour les modifier"></button>
+        <input type="text" id="coordSaisie" class="form-control form-control-sm coord-saisie" hidden spellcheck="false" autocomplete="off" data-i18n-aria-label="lieu.coordTitre" aria-label="Coordonnées GPS du centre">
+      </div>
     </div>
     <button class="btn-icone" id="btnLieu" type="button">☆</button>
     <button class="btn btn-sm btn-outline-secondary" id="btnPartager" type="button" data-i18n="panneau.lien" data-i18n-title="panneau.lienTitre" title="Copier le lien">Lien</button>

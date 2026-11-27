@@ -556,3 +556,12 @@ body.accueil #fiche { display: none; }
 
 /* publicité pas encore servie : zone repliée mais mesurable (largeur de la colonne) */
 #pub.pub-attente { height: 0; min-height: 0; padding: 0; margin: 0; border: 0; overflow: hidden; }
+
+/* coordonnées GPS du centre, sous le titre du lieu : texte cliquable (saisie) et viseur (choisir le centre sur la carte) */
+.coord-lieu { display: flex; align-items: center; gap: 4px; margin-top: 2px; font-size: 12px; color: var(--doux); min-width: 0; }
+.coord-lieu .coord-texte { border: 0; background: none; padding: 0; color: inherit; font: inherit; font-variant-numeric: tabular-nums; cursor: text; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.coord-lieu .coord-texte:hover { color: var(--texte); text-decoration: underline dotted; }
+.coord-lieu .btn-viseur { border: 0; background: none; padding: 0; color: var(--texte); display: inline-flex; cursor: pointer; }
+.coord-lieu .btn-viseur:hover, .coord-lieu .btn-viseur[aria-pressed="true"] { color: #861f31; }
+.coord-lieu .coord-saisie { height: 24px; padding: 0 6px; font-size: 12px; max-width: 210px; }
+body.choix-centre #vue canvas { cursor: crosshair !important; }
