@@ -252,6 +252,11 @@
       <section id="affichage">
         <!-- rayon de la maquette ronde : relevé laser jusqu'à 300 m, puis anneau (terrain 2 m, tuiles swisstopo) -->
         <div class="cellule">
+          <h3 class="cellule-titre" data-i18n="aff.gEtendue">Étendue</h3>
+          <table class="table-calques mb-1"><tbody>
+            <tr><th scope="row"><label for="vLointain" data-i18n="aff.lointain" data-i18n-title="aff.lointainTitre" title="Collines, montagnes et lacs jusqu'à 50 km autour, d'après le relief libre Terrain Tiles">Paysage</label></th>
+              <td><input class="form-check-input oeil" type="checkbox" id="vLointain"></td></tr>
+          </tbody></table>
           <label class="form-label small d-flex justify-content-between mb-0" for="rayonZone"><span data-i18n="zone.rayon">Rayon de la maquette</span><b id="rayonZoneVal"></b></label>
           <input type="range" class="form-range" id="rayonZone" min="100" max="1000" step="25">
           <div class="form-check form-switch small mt-1"><input class="form-check-input" type="checkbox" id="vRonde" checked><label class="form-check-label" for="vRonde" data-i18n="zone.ronde">Maquette ronde</label></div>
@@ -330,8 +335,6 @@
         <div class="cellule">
           <h3 class="cellule-titre" data-i18n="aff.gPaysage">Paysage et rendu</h3>
           <table class="table-calques"><tbody>
-            <tr><th scope="row"><label for="vLointain" data-i18n="aff.lointain" data-i18n-title="aff.lointainTitre" title="Collines, montagnes et lacs jusqu'à 50 km autour, d'après le relief libre Terrain Tiles">Paysage</label></th>
-              <td><input class="form-check-input oeil" type="checkbox" id="vLointain"></td></tr>
             <tr class="ligne-curseur"><td colspan="2"><label class="d-flex justify-content-between small mb-0" for="brume" data-i18n-title="aff.brumeTitre" title="Le paysage s'estompe avec la distance"><span data-i18n="aff.brume">Brume</span><b id="brumeVal"></b></label>
               <input type="range" class="form-range" id="brume" min="0" max="100" step="5" value="0"></td></tr>
             <tr><th scope="row"><label for="vBrumeCine" data-i18n="aff.brumeCine" data-i18n-title="aff.brumeCineTitre" title="Mer de brouillard au fond des vallées, nappes animées éclairées par le soleil (visuel seulement : les ombres et l'ensoleillement ne changent pas)">Brume cinématique</label></th>
