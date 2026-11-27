@@ -12,7 +12,7 @@ import { Line2 } from "three/addons/lines/Line2.js";
 import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { solEn, majSurface } from "./grille.js";
 import { indexVolumes } from "./volumes.js";
-import { socleRond, materiauPoints, bordEauRond } from "./maillages.js";
+import { socleRond, materiauPoints, bordEauRond, normalesVersLeHaut } from "./maillages.js";
 import { dansPont, maillagePont } from "./pontsModeles.js";
 import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord, decouperCercle, tabliersPonts, pontsLegers } from "./maillages.js";
 import { chargerImage, teinterCadastre, adoucirPhoto } from "./fond.js";
@@ -108,24 +108,26 @@ function poserPlans(mat, plans) {
 }
 const PLAN_MOBILE = { plan: null };
 
+/** Fond du socle (relatif) : rien de ce qui est découpé par une zone ne descend plus bas (piles de ponts, fondations). */
+const ZONE_BAS = { value: -1e9 };
 function decoupeZone(mat, zone = ZONE) {
   if (mat.userData.zone) return;
   mat.userData.zone = true;
   const avant = mat.onBeforeCompile, cle = mat.customProgramCacheKey;
   mat.onBeforeCompile = (sh, r) => {
     avant?.call(mat, sh, r);
-    Object.assign(sh.uniforms, zone);
+    Object.assign(sh.uniforms, zone, { zoneBas: ZONE_BAS });
     sh.vertexShader = sh.vertexShader
-      .replace("#include <common>", "#include <common>\nvarying vec2 vZone;")
+      .replace("#include <common>", "#include <common>\nvarying vec3 vZone;")
       .replace("#include <project_vertex>", `#include <project_vertex>
 #ifdef USE_INSTANCING
-  vZone = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xz;
+  vZone = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz;
 #else
-  vZone = (modelMatrix * vec4(transformed, 1.0)).xz;
+  vZone = (modelMatrix * vec4(transformed, 1.0)).xyz;
 #endif`);
     sh.fragmentShader = sh.fragmentShader
       // déclarations juste avant main : certains shaders (MeshNormalMaterial de l'occlusion) n'incluent pas <common>
-      .replace("void main() {", "varying vec2 vZone;\nuniform float zoneMin, zoneMax;\nvoid main() {\n  { float dz = length(vZone); if (dz > zoneMax || dz < zoneMin) discard; }");
+      .replace("void main() {", "varying vec3 vZone;\nuniform float zoneMin, zoneMax, zoneBas;\nvoid main() {\n  { float dz = length(vZone.xz); if (dz > zoneMax || dz < zoneMin || vZone.y < zoneBas) discard; }");
   };
   mat.customProgramCacheKey = () => (cle ? cle.call(mat) : "") + "|zone";
   mat.needsUpdate = true;
@@ -365,7 +367,7 @@ export class Scene3D {
     // matériaux partagés : le thème ne change que leurs couleurs
     const std = o => new THREE.MeshStandardMaterial({ roughness: 0.92, side: THREE.DoubleSide, ...o });
     this.mat = {
-      terrain: std({ roughness: 1, side: THREE.FrontSide }), socle: std({ roughness: 1 }),
+      terrain: std({ roughness: 1, side: THREE.FrontSide }), socle: std({ roughness: 1 }), socleFond: std({ roughness: 1, side: THREE.FrontSide }),
       toit: std({ flatShading: true }), mur: std({ flatShading: true }), canopee: std({ roughness: 1 }),
       couronne: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }),
       parcelle: new THREE.MeshBasicMaterial(), trait: traitNet(),
@@ -373,7 +375,7 @@ export class Scene3D {
       eau: matEau(), // sans décalage de profondeur : il faisait passer l'eau devant la rive vue de haut
     };
     // même grain léger partout (sol, socle, toits, murs, couronnes) : aspect de maquette en plâtre
-    for (const [k, force, contact] of [["terrain", 0.07, "sol"], ["socle", 0.07], ["toit", 0.07, "toit"], ["mur", 0.07, "mur"], ["couronne", 0.05], ["eau", 0.025]]) grainPlatre(this.mat[k], force, contact);
+    for (const [k, force, contact] of [["terrain", 0.07, "sol"], ["socle", 0.07], ["socleFond", 0.07], ["toit", 0.07, "toit"], ["mur", 0.07, "mur"], ["couronne", 0.05], ["eau", 0.025]]) grainPlatre(this.mat[k], force, contact);
     this.partages = new Set(Object.values(this.mat));
     this.plan = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
     this.couches = {};
@@ -607,9 +609,9 @@ void main() {
     m.toit.color.set(T.sol).multiplyScalar(sombre); m.mur.color.set(T.sol).multiplyScalar(sombre);
     this.swiss?.materiau.color.set(T.sol);
     // socle de la même matière que le terrain et les bâtiments
-    m.socle.color.set(T.sol); m.canopee.color.set(T.arbres[1]); m.parcelle.color.set(T.parcelle);
+    m.socle.color.set(T.sol); m.socleFond.color.set(T.sol); m.canopee.color.set(T.arbres[1]); m.parcelle.color.set(T.parcelle);
     m.eau.color.set(T.eau || (T.sombre ? "#2f5d6e" : "#8fc1c9")); // bleu-vert
-    m.eauAnneau?.color.copy(m.eau.color);
+    m.eauAnneau?.color.copy(m.eau.color); m.eauBord?.color.copy(m.eau.color); // bande du bord : même bleu-vert au changement de thème
     m.trait.color.set(T.coupe.trait); m.trait.jonction.uniforms.couleur.value.set(T.coupe.trait); m.poignee.color.set(T.coupe.trait); // poignées A et B à l'encre du trait de coupe, discrètes
     CONTACT.teinteSel.value.set(T.parcelle);
     this.couches?.selection?.material.color.set(T.parcelle);
@@ -687,7 +689,7 @@ void main() {
 
     const m = this.mat, maille = (g, mat, porte, recoit) => { const o = new THREE.Mesh(g, mat); o.castShadow = porte; o.receiveShadow = recoit; return o; };
     const sol = maille(terrain(G, this.zRef), m.terrain, false, true);
-    const base = maille(socle(G, this.zRef, this.zBas), m.socle, false, false);
+    const base = maille(socle(G, this.zRef, this.zBas), [m.socle, m.socleFond], false, false);
     const B = batiments(G, this.zRef), bati = new THREE.Group();
     bati.add(maille(B.toits, m.toit, true, true), maille(B.murs, m.mur, true, true));
     this.mat.profondeurBati ||= profondeurMontante();
@@ -904,6 +906,7 @@ void main() {
     const Rf = this.G?.rayonZone, Rloin = this.batiLoin() ? RAYON_BATI_LOIN : 0;
     ZONE_FINE.zoneMax.value = Rf ? Rf - 0.03 : 1e9;
     ZONE_AO.zoneMax.value = Rf ? Math.max(Rf, this.rayonExt || 0) + 0.5 : 1e9;
+    ZONE_BAS.value = Rf ? Math.min(this.zBas ?? -1e9, this.zBasAnneau ?? Infinity) + 0.05 : -1e9;
     if (!Rf) { ZONE.zoneMin.value = 0; ZONE.zoneMax.value = 1e9; return; }
     ZONE.zoneMax.value = Math.max(Rf, this.rayonExt || 0, Rloin) - 0.03;
     ZONE_ANNEAU.zoneMin.value = Rf - 0.03; ZONE_ANNEAU.zoneMax.value = Math.max(Rf, this.rayonExt || 0) - 0.03;
@@ -920,22 +923,35 @@ void main() {
     const c = this.couches, G = this.G;
     for (const k of ["anneau", "socleAnneau", "eauAnneau", "releveAnneau"]) if (c[k]) { this.groupe.remove(c[k]); c[k].geometry.dispose(); c[k] = null; }
     if (this.mat.pointsAnneau) this.mat.pointsAnneau.visible = true;
-    this.rayonExt = 0;
+    this.rayonExt = 0; this.zBasAnneau = null;
     // bande d'eau du cercle fin : seulement sans anneau (sinon elle serait au milieu du lac)
     const bandeFine = v => c.eau?.children.forEach(o => { o.visible = v; });
     if (!G || !fin || !(Rext > Rint + 5)) { c.socle && (c.socle.visible = true); bandeFine(true); this.majZone(); this.appliquerCalques(); return; }
     bandeFine(false);
     this.rayonExt = Rext;
     const { E, N } = lieu, H = fin.h;
-    const altFin = (x, y) => {
+    // lac de l'anneau : seulement là où le fond est mesuré (swissBATHY3D), ou sur la rive plate au niveau du lac à moins de
+    // 20 m d'un fond mesuré. Un terrain bas ailleurs (vallon, rivière en aval) n'est ni creusé ni noyé.
+    const fondMesure = (x, y) => lac?.fond?.(E + x, N + y) < lac.niveau - 0.1;
+    const estLac = (x, y, z) => {
+      if (!lac?.fond) return false;
+      if (fondMesure(x, y)) return true;
+      if (!(z <= lac.niveau + 0.8 && z >= lac.niveau - 0.5)) return false;
+      return fondMesure(x + 20, y) || fondMesure(x - 20, y) || fondMesure(x, y + 20) || fondMesure(x, y - 20);
+    };
+    // terrain à 2 m tel quel (surface du lac comprise)
+    const altBrut = (x, y) => {
       const fx = (E + x - fin.e0) / fin.c - 0.5, fy = (fin.n1 - (N + y)) / fin.c - 0.5, i = Math.floor(fx), j = Math.floor(fy), u = fx - i, v = fy - j;
       if (i < 0 || j < 0 || i >= fin.n - 1 || j >= fin.n - 1) return solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y)));
       const p = j * fin.n + i;
-      let z = (H[p] * (1 - u) + H[p + 1] * u) * (1 - v) + (H[p + fin.n] * (1 - u) + H[p + fin.n + 1] * u) * v;
-      if (isNaN(z)) return solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y)));
+      const z = (H[p] * (1 - u) + H[p + 1] * u) * (1 - v) + (H[p + fin.n] * (1 - u) + H[p + fin.n + 1] * u) * v;
+      return isNaN(z) ? solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y))) : z;
+    };
+    const altFin = (x, y) => {
+      let z = altBrut(x, y);
       // lac : le terrain à 2 m donne la surface de l'eau ; le fond mesuré (ou 3 m plus bas) la remplace
       // la surface du lac du terrain à 2 m est un peu plus haute que le niveau mesuré par le laser (~0,5 m)
-      if (lac && z <= lac.niveau + 0.8) {
+      if (lac && z <= lac.niveau + 0.8 && estLac(x, y, z)) {
         const f = lac.fond?.(E + x, N + y);
         if (f < lac.niveau - 0.1) z = f;
         else {
@@ -978,20 +994,39 @@ void main() {
     this.groupe.add(c.anneau);
     // la paroi du socle passe au bord extérieur (jusqu'au niveau de l'eau là où le lac la touche)
     if (c.socle) c.socle.visible = false;
-    const haut = lac ? (x, y) => Math.max(altFin(x, y), lac.niveau) : altFin;
-    const zBasA = lac ? Math.min(this.zBas, lac.niveau - this.zRef - 60) : this.zBas;
+    // fond plat du socle : sous le point le plus bas de tout le bord (terrain ou fond du lac), lu tout autour du cercle.
+    // Avec seulement quatre points lus, un grand cercle qui descend plus bas que la maquette fine (versant, fond du
+    // Léman) avait des pans de paroi sous le fond : paroi retournée, dont le bas suivait le terrain (bord dentelé).
+    const nBord = Math.min(4096, Math.max(256, Math.ceil(2 * Math.PI * Rext)));
+    let zMinBord = Infinity;
+    for (let k = 0; k < nBord; k++) { const a = k / nBord * 2 * Math.PI, z = altFin(Math.cos(a) * Rext, Math.sin(a) * Rext); if (z < zMinBord) zMinBord = z; }
+    const zBasA = Math.min(lac ? Math.min(this.zBas, lac.niveau - this.zRef - 60) : this.zBas, zMinBord - this.zRef - 8);
+    this.zBasAnneau = zBasA;
     // la paroi s'arrête au fond du lac : au-dessus, la bordure est de l'eau (bande translucide, plus bas)
-    c.socleAnneau = new THREE.Mesh(socleRond(Rext, (x, y) => altFin(x, y), this.zRef, Math.min(zBasA, Math.min(...[0, 1, 2, 3].map(k => altFin(Math.cos(k) * Rext, Math.sin(k) * Rext))) - this.zRef - 5)), this.mat.socle);
+    c.socleAnneau = new THREE.Mesh(socleRond(Rext, (x, y) => altFin(x, y), this.zRef, zBasA), [this.mat.socle, this.mat.socleFond]);
     // eau de l'anneau : un plan au niveau du lac, coupé au cercle extérieur ; le terrain plus haut le cache
     RAYON_EAU.value = G.rayonZone ? G.rayonZone - 0.02 : 1e9; // sans lac dans l'anneau : l'eau fine va jusqu'au cercle
     if (lac) {
-      const nA2 = 512, pts = [], lvl = lac.niveau - this.zRef;
+      // plan d'eau au niveau du lac, seulement sur les cases du lac (fond mesuré ou rive au niveau) et leurs voisines :
+      // jamais un disque entier, qui noyait tout terrain plus bas que le lac dans l'anneau
+      const nA2 = 1024, pts = [], lvl = lac.niveau - this.zRef, rr = [Rint - 2];
+      for (let r = Rint; r < Rext; r += 6) rr.push(r);
+      rr.push(Rext);
+      const nRr = rr.length, dansLac = new Uint8Array(nA2 * nRr);
+      for (let a = 0; a < nA2; a++) for (let k = 0; k < nRr; k++) {
+        const t = a / nA2 * 2 * Math.PI, r = Math.max(Rint, Math.min(Rext - 0.5, rr[k])), x = Math.cos(t) * r, y = Math.sin(t) * r;
+        if (estLac(x, y, altBrut(x, y))) dansLac[a * nRr + k] = 1;
+      }
+      const P = (t, r) => [Math.cos(t) * r, lvl, -Math.sin(t) * r];
       for (let a = 0; a < nA2; a++) {
-        const t0 = a / nA2 * 2 * Math.PI, t1 = (a + 1) / nA2 * 2 * Math.PI;
-        const P = (t, r) => [Math.cos(t) * r, lvl, -Math.sin(t) * r];
-        // raccord avec l'eau fine sur un cercle commun, 0,75 m en deçà du cercle fin (l'eau fine finit en escalier de
-        // cases : des lames sombres restaient entre les deux)
-        pts.push(...P(t0, Rint - 2), ...P(t0, Rext), ...P(t1, Rext), ...P(t0, Rint - 2), ...P(t1, Rext), ...P(t1, Rint - 2));
+        const a2 = (a + 1) % nA2, t0 = a / nA2 * 2 * Math.PI, t1 = (a + 1) / nA2 * 2 * Math.PI;
+        for (let k = 0; k < nRr - 1; k++) {
+          if (!(dansLac[a * nRr + k] || dansLac[a * nRr + k + 1] || dansLac[a2 * nRr + k] || dansLac[a2 * nRr + k + 1])) continue;
+          // raccord avec l'eau fine sur un cercle commun, 2 m en deçà du cercle fin (l'eau fine finit en escalier de
+          // cases : des lames sombres restaient entre les deux)
+          const r0 = rr[k], r1 = rr[k + 1];
+          pts.push(...P(t0, r0), ...P(t0, r1), ...P(t1, r1), ...P(t0, r0), ...P(t1, r1), ...P(t1, r0));
+        }
       }
       const ge = new THREE.BufferGeometry();
       ge.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
@@ -1004,6 +1039,7 @@ void main() {
         const t0 = a / nB * 2 * Math.PI, t1 = (a + 1) / nB * 2 * Math.PI;
         const z0 = altFin(Math.cos(t0) * Rb, Math.sin(t0) * Rb), z1 = altFin(Math.cos(t1) * Rb, Math.sin(t1) * Rb);
         if (!(z0 < lac.niveau || z1 < lac.niveau)) continue;
+        if (!(estLac(Math.cos(t0) * Rb, Math.sin(t0) * Rb, z0) || estLac(Math.cos(t1) * Rb, Math.sin(t1) * Rb, z1))) continue; // pas de bande hors du lac
         const b0 = Math.min(z0, lac.niveau) - this.zRef, b1 = Math.min(z1, lac.niveau) - this.zRef;
         const A = [Math.cos(t0) * Rb, -Math.sin(t0) * Rb], B = [Math.cos(t1) * Rb, -Math.sin(t1) * Rb];
         bord.push(A[0], b0, A[1], B[0], b1, B[1], B[0], lvl, B[1], A[0], b0, A[1], B[0], lvl, B[1], A[0], lvl, A[1]);
@@ -1011,7 +1047,7 @@ void main() {
       if (bord.length) {
         const gb = new THREE.BufferGeometry();
         gb.setAttribute("position", new THREE.Float32BufferAttribute(bord, 3));
-        gb.computeVertexNormals();
+        normalesVersLeHaut(gb);
         ge.userData.bord = gb;
       }
       this.mat.eauAnneau ||= matEau(RAYON_EAU_ANNEAU, RAYON_EAU_INT);
@@ -1037,7 +1073,7 @@ void main() {
       pts.onBeforeRender = (r, sc2, cam) => { pts.uniforms.echelle.value = r.getDrawingBufferSize(v2).y / (2 * Math.tan(cam.fov * Math.PI / 360)); };
     }
     ["c1", "c2", "c3"].forEach((u, i) => this.mat.pointsAnneau.uniforms[u].value.set(this.T.arbres[i]));
-    this.swiss.chargerArbres({ couronne: this.mat.couronne, tronc: this.mat.mur, points: this.mat.pointsAnneau, calqueOmbre: CALQUE_OMBRE, zone: [Rint, Rext] }, 10);
+    this.swiss.chargerArbres({ couronne: this.mat.couronne, tronc: this.mat.mur, points: this.mat.pointsAnneau, calqueOmbre: CALQUE_OMBRE, zone: [Rint, Rext - 6] }, 10); // couronnes (jusqu'à ~6 m) entières dans le cercle : pas de points qui débordent sur la paroi
     // ponts de l'anneau : swissTLM3D (légers), coupés au cercle fin et au bord ; nos ponts modélisés à part y sont ajoutés
     // tuiles sans normales : éclairage par facette
     if (!this.mat.pontsAnneau) { this.mat.pontsAnneau = new THREE.MeshStandardMaterial({ color: this.T.mur, roughness: 1, flatShading: true, side: THREE.DoubleSide }); decoupeZone(this.mat.pontsAnneau, ZONE_ANNEAU); }
@@ -1058,7 +1094,7 @@ void main() {
     if (c.releveAnneau) { this.groupe.remove(c.releveAnneau); c.releveAnneau.geometry.dispose(); c.releveAnneau = null; }
     if (this.mat.pointsAnneau) this.mat.pointsAnneau.visible = !nuage;
     if (!nuage || !this.altAnneau || !(Rext > Rint)) return;
-    const { X, Y, Z, C } = nuage, veg = cl => cl === 3 || cl === 4 || cl === 5, r0 = Rint * Rint, r1 = Rext * Rext;
+    const { X, Y, Z, C } = nuage, veg = cl => cl === 3 || cl === 4 || cl === 5, r0 = Rint * Rint, r1 = (Rext - 1.2) ** 2; // points (taille ~1 m à l'écran) gardés en deçà du bord : pas de points sombres sur la paroi
     // sommet de la végétation par case de 4 m : hauteur relative de chaque point dans sa couronne (teinte)
     const pas = 4, nc = Math.ceil(2 * Rext / pas) + 1, haut = new Float32Array(nc * nc).fill(-Infinity), cle = (x, y) => Math.floor((y + Rext) / pas) * nc + Math.floor((x + Rext) / pas);
     const garde = [], sols = [];
@@ -1757,7 +1793,7 @@ void main() {
     if (this.modeVue === "plan" && !autour) {
       const haut = (DEGRADE.zHaut?.value ?? 60) + 30;
       near = Math.max(0.5, cam.position.y - haut);
-      far = cam.position.y - (this.zBas ?? -50) + 50;
+      far = cam.position.y - Math.min(this.zBas ?? -50, this.zBasAnneau ?? Infinity) + 50; // l'anneau peut descendre plus bas
     }
     if (Math.abs(cam.near - near) > 0.01 * near || Math.abs(cam.far - far) > 1) { cam.near = near; cam.far = far; cam.updateProjectionMatrix(); }
     // le ciel suit la caméra et tient dans le champ (la caméra est loin, la voûte de 9 km serait coupée)
@@ -2153,7 +2189,7 @@ void main() {
       // face du socle, ombres de bâtiments invisibles au bord du terrain)
       for (const x of [c.roofer?.material, this.swiss?.materiau]) if (x) x.clipShadows = true;
     }
-    const cibles = [m.terrain, m.socle, m.canopee, m.couronne, m.parcelle, m.eau, m.anneau, m.pointsAnneau, m.releveAnneau].filter(Boolean);
+    const cibles = [m.terrain, m.socle, m.socleFond, m.canopee, m.couronne, m.parcelle, m.eau, m.anneau, m.pointsAnneau, m.releveAnneau].filter(Boolean);
     for (const k of ["arbres", "tous"]) if (c[k]) cibles.push(c[k].material);
     c.heures?.traverse(o => o.material && cibles.push(o.material));
     c.voisines?.traverse(o => o.material && cibles.push(o.material)); // limites et numéros des parcelles voisines

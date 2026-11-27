@@ -255,10 +255,12 @@ async function paysageEtAnneau(id, idScene) {
     const niv = G.eau ? [...G.eau].filter(v => !isNaN(v)).sort((a, b) => a - b) : [];
     const fond = await fondAutour(E0, N0, Rz).catch(() => null);
     if (id !== tache) return;
-    if (niv.length) lac = { niveau: niv[niv.length >> 1], fond };
-    else if (fond && fin) {
-      // lac seulement dans l'anneau : là où le fond est mesuré (swissBATHY3D), le terrain à 2 m donne la surface de
-      // l'eau ; son niveau = la médiane de ces altitudes (le niveau mesuré par le laser est ~0,5 m plus bas)
+    // un lac dans l'anneau seulement s'il y a un vrai lac : fond mesuré (swissBATHY3D) sur au moins ~4500 m² de
+    // l'anneau. L'eau de la maquette fine seule (bassin, étang, points d'eau mal classés) ne fait plus de lac : son niveau
+    // noyait tout l'anneau plus bas qu'elle (maisons et routes sous l'eau en haut de Lutry).
+    if (fond && fin) {
+      // là où le fond est mesuré, le terrain à 2 m donne la surface de l'eau ; niveau = la médiane de ces altitudes (le
+      // niveau mesuré par le laser est ~0,5 m plus bas)
       const alt = (E, N) => { const i = Math.floor((E - fin.e0) / fin.c), j = Math.floor((fin.n1 - N) / fin.c); return i < 0 || j < 0 || i >= fin.n || j >= fin.n ? NaN : fin.h[j * fin.n + i]; };
       const z = [];
       for (let y = -Rz; y <= Rz; y += 15) for (let x = -Rz; x <= Rz; x += 15) {
@@ -267,7 +269,12 @@ async function paysageEtAnneau(id, idScene) {
         const h = alt(E0 + x, N0 + y);
         if (!isNaN(h)) z.push(h);
       }
-      if (z.length > 20) { z.sort((a, b) => a - b); lac = { niveau: z[z.length >> 1] - 0.5, fond }; }
+      if (z.length > 20) {
+        z.sort((a, b) => a - b);
+        const n2 = z[z.length >> 1] - 0.5, n1 = niv.length ? niv[niv.length >> 1] : NaN;
+        // niveau mesuré par le laser dans la maquette, s'il s'agit du même lac (à 3 m près)
+        lac = { niveau: Math.abs(n1 - n2) < 3 ? n1 : n2, fond };
+      }
     }
   }
   if (rond) scene.construireAnneau(fin, G.rayonZone, Rz, { E: E0, N: N0 }, lac);

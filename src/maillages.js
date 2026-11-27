@@ -84,6 +84,16 @@ function avecFond(pos, contour, zBas) {
   return out;
 }
 
+/**
+ * Deux groupes : la paroi (matériau 0, vue des deux côtés) et le fond (matériau 1, vu de dessous seulement). Le fond vu
+ * de dessus, à double face, se battait avec le bas de la paroi au bord (même arête, précision de profondeur limitée de
+ * loin) : points gris le long du bord inférieur.
+ */
+function groupesFond(g, nParoi) {
+  g.addGroup(0, nParoi, 0);
+  g.addGroup(nParoi, g.attributes.position.count - nParoi, 1);
+}
+
 export function socleRond(R, solA, zRef, zBas, batA = null) {
   const nb = Math.min(4096, Math.max(256, Math.ceil(2 * Math.PI * R))), pos = new Float32Array(nb * 18);
   const haut = a => {
@@ -101,6 +111,7 @@ export function socleRond(R, solA, zRef, zBas, batA = null) {
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.BufferAttribute(avecFond(pos, fond, zBas), 3));
   g.computeVertexNormals();
+  groupesFond(g, pos.length / 3);
   return g;
 }
 
@@ -123,8 +134,18 @@ export function bordEauRond(G, zRef) {
   if (!pos.length) return null;
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  g.computeVertexNormals();
+  normalesVersLeHaut(g);
   return g;
+}
+
+/**
+ * Bande d'eau du bord : normales vers le haut, comme la surface du lac. Avec ses vraies normales (horizontales), la
+ * bande était éclairée selon son orientation au soleil : plus claire d'un côté du cercle, sombre de l'autre.
+ */
+export function normalesVersLeHaut(g) {
+  const nor = new Float32Array(g.attributes.position.count * 3);
+  for (let k = 1; k < nor.length; k += 3) nor[k] = 1;
+  g.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
 }
 
 export function socle(G, zRef, zBas, bords = null, avecReleve = true) {
@@ -163,6 +184,7 @@ export function socle(G, zRef, zBas, bords = null, avecReleve = true) {
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.BufferAttribute(avecFond(pos, [[-R, -R], [R, -R], [R, R], [-R, R]], zBas), 3));
   g.computeVertexNormals();
+  groupesFond(g, pos.length / 3);
   return g;
 }
 
