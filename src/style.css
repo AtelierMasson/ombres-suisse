@@ -570,3 +570,10 @@ body.choix-centre #vue canvas { cursor: crosshair !important; }
 #pub .pub-place .adsbygoogle { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
 #pub.pub-remplie .pub-place { border-color: transparent; }
 @media (max-width: 767px) { #pub .pub-place { height: 90px; } }
+
+/* ordinateur : la colonne descend jusqu'en bas de la fenêtre ; le pied de page et le profil de coupe ne passent que
+   sous la vue 3D (on gagne la hauteur du pied dans la colonne) */
+@media (min-width: 768px) {
+  body:not(.accueil) #colonne { bottom: 0; }
+  body:not(.accueil) #pied, body:not(.accueil) #bas { left: var(--large); }
+}
