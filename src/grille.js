@@ -172,7 +172,7 @@ const ALTI = new Map();
  * Une tuile 2 m lue en un seul `fetch` (environ 1 Mo) puis décodée en mémoire : ~0,3 s au lieu de ~1 s et 50 requêtes
  * par plages avec `fromUrl`. Seconde tentative à une adresse distincte (hors cache) si la réponse est tronquée.
  */
-function lireAlti(url) {
+export function lireAlti(url) {
   if (!ALTI.has(url)) {
     const p = (async () => {
       for (let k = 1; ; k++) {
