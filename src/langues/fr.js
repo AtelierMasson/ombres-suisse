@@ -119,6 +119,7 @@ export default {
   "impr.etanche": "solide fermé, imprimable",
   "impr.pasEtanche": "{n} arêtes à corriger",
   "impr.telecharger": "Télécharger le STL",
+  "coupe.ajouterPro": "Plusieurs coupes : réservé à l'offre Pro.",
   "compte.supprimer": "Supprimer mon compte",
   "compte.supprimerConfirmer": "Supprimer définitivement votre compte, vos informations et vos lieux enregistrés ? Pour confirmer, saisissez à nouveau votre adresse e-mail : {email}",
   "compte.supprime": "Votre compte a été supprimé.",

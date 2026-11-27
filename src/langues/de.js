@@ -118,6 +118,7 @@ export default {
   "impr.etanche": "geschlossener Körper, druckbar",
   "impr.pasEtanche": "{n} Kanten zu korrigieren",
   "impr.telecharger": "STL herunterladen",
+  "coupe.ajouterPro": "Mehrere Schnitte: Teil des Pro-Angebots.",
   "compte.supprimer": "Konto löschen",
   "compte.supprimerConfirmer": "Möchten Sie Ihr Konto, Ihre Angaben und Ihre gespeicherten Orte endgültig löschen? Geben Sie zur Bestätigung Ihre E-Mail-Adresse erneut ein: {email}",
   "compte.supprime": "Ihr Konto wurde gelöscht.",

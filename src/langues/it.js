@@ -118,6 +118,7 @@ export default {
   "impr.etanche": "solido chiuso, stampabile",
   "impr.pasEtanche": "{n} spigoli da correggere",
   "impr.telecharger": "Scaricare l’STL",
+  "coupe.ajouterPro": "Più sezioni: riservato all’offerta Pro.",
   "compte.supprimer": "Eliminare il mio account",
   "compte.supprimerConfirmer": "Vuole eliminare definitivamente il suo account, i suoi dati e i luoghi salvati? Per confermare, inserisca di nuovo il suo indirizzo e-mail: {email}",
   "compte.supprime": "Il suo account è stato eliminato.",

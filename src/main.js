@@ -41,7 +41,8 @@ brancherSelecteur($("#langues"));
 // compte (connexion par lien e-mail, achat de la version pro) : sans l'API (site statique actuel), le bouton reste caché
 // et tout reste ouvert
 const compte = brancherCompte({ api: "/api", t });
-brancherPub(compte); // publicité de la version gratuite (aucune pour les comptes Pro)
+brancherPub(compte);
+compte.addEventListener("compte", () => S.coupe && ongletsCoupe()); // bouton « Ajouter une coupe » : Pro ou non // publicité de la version gratuite (aucune pour les comptes Pro)
 compte.monter($("#zoneCompte")); // « Mon compte », à droite de la barre du haut
 // compteurs d'usage anonymes (tableau d'administration) : un simple total par jour et par action, envoyé seulement
 // quand l'API du site est en service ; aucune adresse, aucun lieu, aucun compte
@@ -826,7 +827,14 @@ function ongletsCoupe() {
   }), (() => {
     const plus = document.createElement("button");
     plus.type = "button"; plus.className = "ajouter"; plus.textContent = t("coupe.ajouter");
-    plus.onclick = () => { S.coupe = null; majCoupe(...coupeParDefaut(S.coupes.length % 2 === 1)); };
+    // plusieurs coupes : réservé au Pro (bouton grisé pour un compte gratuit ; un clic ouvre l'offre)
+    const libre = !compte.disponible() || compte.etat().pro;
+    plus.classList.toggle("pro-grise", !libre);
+    if (!libre) plus.title = t("coupe.ajouterPro");
+    plus.onclick = () => {
+      if (!(!compte.disponible() || compte.etat().pro) && !compte.exigerPro(t("coupe.ajouterPro"))) return;
+      S.coupe = null; majCoupe(...coupeParDefaut(S.coupes.length % 2 === 1));
+    };
     return plus;
   })());
 }
