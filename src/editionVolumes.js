@@ -9,7 +9,8 @@
 // - poignées au-dessus du toit, dans le genre de l'étoile d'orientation (axes fins colorés, pastilles cerclées de blanc,
 //   taille constante à l'écran quelle que soit la focale) : la pastille du centre déplace le volume (il garde son
 //   altitude), la pastille sur l'anneau le fait tourner ;
-// - numéros des coins et petits traits cotés vers le bâtiment et la limite de parcelle les plus proches.
+// - numéros des coins et petits traits cotés vers les bâtiments et les limites de la parcelle les plus proches
+//   (dépassement en rouge vif), mis à jour pendant le glissement.
 import * as THREE from "three";
 import { Line2 } from "three/addons/lines/Line2.js";
 import { LineGeometry } from "three/addons/lines/LineGeometry.js";
@@ -198,11 +199,12 @@ export function brancherEdition({ scene, volumes, actif, dessine, changes, retir
       an.position.copy(geste.ici || poignees.position).add(new THREE.Vector3(0, 1.5, 0));
       accrocher(an, etiquette(txt, saisie ? BLEU : ENCRE));
     }
-    // cotes : bâtiment et limite les plus proches (traits fins et valeur)
+    // cotes : bâtiments et limites les plus proches (traits fins et valeur au centimètre)
     for (const c of cotes(v)) {
       const A = new THREE.Vector3(c.p[0], c.z, -c.p[1]), B = new THREE.Vector3(c.q[0], c.z, -c.q[1]);
-      jeter(trait([A.toArray(), B.toArray()], c.couleur, 1.4));
-      for (const P of [A, B]) jeter(trait([[P.x, P.y - 0.7, P.z], [P.x, P.y + 0.7, P.z]], c.couleur, 1.4));
+      const l = c.alerte ? 2.6 : 1.4; // dépassement de la limite : trait plus fort
+      jeter(trait([A.toArray(), B.toArray()], c.couleur, l));
+      for (const P of [A, B]) jeter(trait([[P.x, P.y - 0.7, P.z], [P.x, P.y + 0.7, P.z]], c.couleur, l));
       const an = jeter(ancrage());
       an.position.copy(A).add(B).multiplyScalar(0.5);
       accrocher(an, etiquette(c.texte, c.couleur));

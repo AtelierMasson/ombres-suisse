@@ -383,6 +383,7 @@ async function depuisAdresse(o = null) {
   if (!ACC && h.get("vol")) return vol(h.get("vol"), +h.get("monde") || 0);
   if (!ACC && h.get("p")) return paysage(h.get("p"));
   if (!ACC && !h.get("e")) return accueil();
+  pro.avantChargement(); // projet ouvert : enregistré tel quel avant que le lieu ne change (pro.js)
   const et = ACC ? () => {} : etat;
   const E = +h.get("e"), N = +h.get("n"), id = ++tache;
   mesure = scene.tempsVol = Object.defineProperty({ lieu: ACC ? "accueil" : `${E},${N}` }, "t0", { value: performance.now() });
@@ -621,7 +622,10 @@ function majSoleil() {
       : t("soleil.auDessus", { debut: hhmm(v.debut), fin: hhmm(v.fin), duree: duree(v.minutes / 60) });
   }
   if (S.coupe) dessinCoupe();
+  signalerProjet(); // date et heure : enregistrées avec le projet ouvert
 }
+/** Le projet ouvert a changé (date, heure, coupes) : pro.js l'enregistre peu après. */
+function signalerProjet() { document.dispatchEvent(new Event("projet:modifie")); }
 function changerJour(jour) {
   S.jour = jour;
   majSoleil();
@@ -919,6 +923,7 @@ function lettresLibres() {
 }
 // onglets des coupes au-dessus du dessin : choisir, retirer (×), ajouter
 function ongletsCoupe() {
+  signalerProjet(); // coupes ajoutées, déplacées ou retirées
   const el = $("#ongletsCoupe");
   el.replaceChildren(...S.coupes.map(c => {
     const b = document.createElement("span");
@@ -986,7 +991,7 @@ new ResizeObserver(() => {
 $("#vCoupe").addEventListener("change", e => {
   $("#outilsCoupe").hidden = $("#coupe").hidden = !e.target.checked;
   scene.tracer(null); $("#btnTracer").classList.remove("active");
-  if (!e.target.checked) { S.coupe = null; S.coupes = []; scene.definirCoupe(null); return; }
+  if (!e.target.checked) { S.coupe = null; S.coupes = []; scene.definirCoupe(null); signalerProjet(); return; }
   S.coupe = null; S.coupes = [];
   majCoupe(...coupeParDefaut());
   compter("coupe");

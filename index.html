@@ -289,11 +289,9 @@
         <div class="form-check form-switch d-none"><input class="form-check-input" type="checkbox" id="vPro"><label class="form-check-label small" for="vPro" data-i18n-html="pro.mode"><b>Mode pro</b> <span class="text-secondary">(masquer des bâtiments, ajouter des volumes, exporter)</span></label></div>
         <div class="small text-secondary" id="etatPro"></div>
         <div id="outilsPro" hidden>
-                    <div class="d-flex gap-1">
-            <select class="form-select form-select-sm flex-fill" id="listeProjets" data-i18n-aria-label="projet.liste" aria-label="Projets enregistrés"></select>
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnEnregistrer" data-i18n="projet.enregistrer">Enregistrer</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnSupprimerProjet" data-i18n-title="projet.supprimer" title="Supprimer ce projet" aria-label="Supprimer ce projet"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="display:block;margin:auto"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
-          </div>
+          <!-- projets enregistrés dans ce navigateur, en cartes ; le projet ouvert s'enregistre tout seul (pro.js) -->
+          <button type="button" class="btn btn-sm btn-outline-primary w-100" id="btnNouveauProjet" data-i18n="projet.nouveauLieu">Nouveau projet sur ce lieu</button>
+          <div id="cartesProjets" class="cartes-projets"></div>
           <div class="d-flex gap-1 mt-1">
             <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnVolume" data-i18n="projet.dessiner" data-i18n-title="projet.dessinerTitre" title="Trois clics sur la maquette : deux pour un côté, un pour la profondeur">Dessiner un volume</button>
             <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnEmprise" data-i18n="projet.emprise" data-i18n-title="projet.empriseTitre" title="Un clic par coin ; fermer sur le premier point, par un double-clic ou Entrée">Emprise libre</button>
@@ -306,6 +304,8 @@
           <input type="file" id="fichierModele" accept=".glb,.gltf,.obj,.stl,.dxf,.dwg" hidden>
           <button type="button" class="btn btn-sm btn-link px-0" id="btnRefParcelle" data-i18n="import.refBouton">Télécharger la parcelle de référence (DXF)</button>
           <div class="small text-secondary mt-1" id="aideVolume"></div>
+          <div class="sous-titre" id="titreVolumes" data-i18n="projet.volumesTitre" hidden>Volumes du projet</div>
+          <div id="cartesVolumes" class="cartes-volumes"></div>
 
           <div class="sous-titre" data-i18n="pro.batiments">Bâtiments</div>
           <div class="small mt-1" id="fichePro"></div>

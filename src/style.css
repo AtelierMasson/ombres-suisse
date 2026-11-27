@@ -225,11 +225,11 @@ body[data-theme=nuit] .offre-titre { color: var(--pro); }
 .table-calques .choix-swiss { font-weight: normal; white-space: nowrap; color: var(--doux); font-size: 11px; }
 .table-calques .choix-swiss .form-check-input { margin: 0 .25em 0 .1em; vertical-align: -.15em; }
 /* « Voir » : un petit œil, ouvert ou barré, à la place de la case */
-:is(.table-calques, #listeVolumes) .form-check-input.oeil { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; border: 0; border-radius: 0; background: var(--doux);
+:is(.table-calques, #listeVolumes, #cartesVolumes) .form-check-input.oeil { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; border: 0; border-radius: 0; background: var(--doux);
   -webkit-mask: var(--oeil-ferme) center / contain no-repeat; mask: var(--oeil-ferme) center / contain no-repeat; opacity: .55; box-shadow: none; }
-:is(.table-calques, #listeVolumes) .form-check-input.oeil:checked { background: var(--accent); -webkit-mask-image: var(--oeil); mask-image: var(--oeil); opacity: 1; }
-:is(.table-calques, #listeVolumes) .form-check-input.oeil:disabled { opacity: .25; cursor: default; }
-:is(.table-calques, #listeVolumes) .form-check-input.oeil:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+:is(.table-calques, #listeVolumes, #cartesVolumes) .form-check-input.oeil:checked { background: var(--accent); -webkit-mask-image: var(--oeil); mask-image: var(--oeil); opacity: 1; }
+:is(.table-calques, #listeVolumes, #cartesVolumes) .form-check-input.oeil:disabled { opacity: .25; cursor: default; }
+:is(.table-calques, #listeVolumes, #cartesVolumes) .form-check-input.oeil:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 :root {
   --oeil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
   --oeil-ferme: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.6-7 10-7c2 0 3.7.7 5.1 1.6M22 12s-3.6 7-10 7c-2 0-3.7-.7-5.1-1.6'/%3E%3Cpath d='M3 3l18 18'/%3E%3C/svg%3E");
@@ -577,3 +577,48 @@ body.choix-centre #vue canvas { cursor: crosshair !important; }
   body:not(.accueil) #colonne { bottom: 0; }
   body:not(.accueil) #pied, body:not(.accueil) #bas { left: var(--large); }
 }
+
+/* projets en cartes (onglet Projet, pro.js) : nom, lieu, date, résumé, vignette en plan ; le projet ouvert est cerclé */
+.cartes-projets { display: flex; flex-direction: column; gap: 5px; margin: 6px 0 8px; }
+.carte-projet { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 2px 9px; padding: 7px 8px; border: 1px solid var(--bord); border-radius: 10px; background: var(--carte); cursor: pointer; font-size: 12px; }
+.carte-projet:hover { background: var(--discret); }
+.carte-projet:focus-visible, .carte-volume:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.carte-projet.ouvert { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--accent-clair); cursor: default; }
+.cp-vignette { width: 48px; height: 48px; grid-row: 1 / 3; border-radius: 7px; background: var(--discret); }
+.cp-vignette .cp-parcelle { fill: none; stroke: var(--parcelle); stroke-width: 1.2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.cp-vignette .cp-volume { stroke: var(--texte); stroke-width: .8; vector-effect: non-scaling-stroke; }
+.cp-vignette .cp-vide { fill: none; stroke: var(--bord-fort); stroke-dasharray: 2 2; }
+.cp-texte { min-width: 0; }
+.cp-nom { font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp-lieu, .cp-meta { color: var(--doux); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp-temoin { font-size: 11px; color: var(--accent); margin-top: 1px; }
+.cp-temoin.erreur { color: #c4001a; }
+.cp-actions { grid-column: 2; display: flex; flex-wrap: wrap; gap: 2px 10px; margin-top: 2px; }
+.cp-actions button { border: 0; background: none; padding: 0; font-size: 11px; color: var(--accent); }
+.cp-actions button:hover { text-decoration: underline; }
+.cp-actions .cp-supprimer { color: var(--doux); }
+
+/* volumes en cartes : chiffres, distances (au centimètre), dépassement de la limite en évidence */
+.cartes-volumes { display: flex; flex-direction: column; gap: 5px; }
+.carte-volume { border: 1px solid var(--bord); border-radius: 10px; padding: 6px 8px; font-size: 12px; background: var(--carte); cursor: pointer; }
+.carte-volume:hover { background: var(--discret); }
+.carte-volume.choisi { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); cursor: default; background: var(--carte); }
+.carte-volume.depasse { border-color: #c4001a; }
+.cv-tete { display: flex; align-items: center; gap: 6px; }
+.cv-nom { font-weight: 650; }
+.carte-volume.choisi .cv-nom { color: var(--accent); }
+.cv-dim { color: var(--doux); flex: 1; font-variant-numeric: tabular-nums; }
+.cv-tete button { border: 0; background: none; color: var(--doux); padding: 0 3px; }
+.cv-tete button:hover { color: var(--texte); }
+.cv-tete .cv-pastille { width: 15px; height: 15px; padding: 0; border-radius: 50%; border: 1px solid var(--bord-fort); }
+.carte-volume .palette { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
+.carte-volume .palette button { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--bord-fort); padding: 0; }
+.cv-chiffres { display: flex; flex-wrap: wrap; gap: 0 8px; color: var(--doux); font-size: 11px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.cv-distances { margin-top: 3px; font-size: 11.5px; }
+.cv-distances table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.cv-distances th { font-weight: normal; color: var(--doux); padding: 0 4px 0 0; }
+.cv-distances td { text-align: right; white-space: nowrap; }
+.cv-distances .cv-limite td { color: var(--parcelle); }
+.cv-distances .cv-zero td, .cv-alerte { color: #c4001a; font-weight: 650; }
+.cv-alerte { background: rgba(196, 0, 26, .08); border-radius: 6px; padding: 2px 6px; margin-bottom: 3px; }
+.carte-volume #ficheVolume { margin: 6px -2px 0; border-width: 1px 0 0; border-radius: 0; padding: 6px 0 0; cursor: default; }

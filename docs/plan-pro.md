@@ -42,9 +42,20 @@ Un **projet** est un lieu sur lequel on ajoute ou retire des bâtiments, pour vo
 - la ligne de coupe.
 
 **Où on les trouve, sans menu**
-- L'onglet Pro commence par la liste des projets et un bouton « Nouveau projet sur ce lieu ».
-- Ouvrir un projet charge le lieu et son état.
-- Le nom du projet s'affiche à la place du nom du lieu en haut du panneau.
+- L'onglet Projet commence par un bouton « Nouveau projet sur ce lieu » et les projets en cartes : nom, lieu, date de modification, nombre de volumes ajoutés et de bâtiments démolis, vignette en plan (parcelle et volumes). Chaque carte propose Renommer, Dupliquer, Supprimer (après confirmation) ; celle du projet ouvert, cerclée, propose aussi Fermer. Les quatre plus récentes sont montrées, « Tous les projets » déplie le reste.
+- Un clic sur une carte ouvre le projet : sur le lieu affiché, aussitôt ; ailleurs, le lieu est chargé puis son état appliqué.
+- Le nom du projet s'affiche à la place du nom du lieu en haut du panneau. *(Pas encore fait.)*
+
+**Enregistrement automatique (fait, phase 1 : dans le navigateur)**
+- Plus de bouton « Enregistrer » : le projet ouvert s'enregistre tout seul 0,7 s après la dernière modification (volumes, démolitions, coupes, date et heure, taille de la maquette), et aussi quand l'onglet se ferme ou passe en arrière-plan. Un témoin discret « Enregistré · 14:32 » dans sa carte.
+- Sans projet ouvert, le premier volume dessiné ou le premier bâtiment masqué crée un projet (« Projet {lieu} »).
+- Le dernier projet ouvert est rouvert au rechargement de la page, sur son lieu (même si un clic sur une parcelle a changé l'adresse entre-temps). Changer de lieu le ferme.
+- Format : celui d'avant, avec des champs ajoutés seulement (`E0`, `N0` centre de la maquette, `lieu`, `minutes`, `vignette`, `resume`). Les anciens projets s'ouvrent tels quels ; ouvrir un projet sans rien changer ne modifie pas sa date.
+
+**Volumes en cartes et distances (fait)**
+- Une carte par volume : dimensions (ou nombre de côtés et périmètre pour une emprise polygonale), étages, corniche, faîte, toit, base, surface au sol et de plancher (emprise × étages, brute).
+- Distances en plan, au centimètre : à chaque limite de la parcelle sous le volume (côtés regroupés par parcelle voisine, les quatre plus proches) et aux trois bâtiments les plus proches. Un coin hors de la parcelle est signalé (« Dépasse la limite de 1,20 m ») dans la carte et par une cote rouge dans la scène.
+- La carte et le volume de la scène se sélectionnent l'un l'autre ; le tableau détaillé s'ouvre dans la carte du volume choisi. Cartes, tableau et cotes suivent le glissement à la souris.
 
 **Ajouter un bâtiment : deux boutons, « Dessiner un volume » et « Importer un modèle »**
 

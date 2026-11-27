@@ -6,8 +6,8 @@ import { FORMATS, exporterSite, estimer, sansAccent, nomFichier } from "./export
 import { dessinCoupe, coupeDxf, coupeSvg, coupePdf } from "./exportCoupe.js";
 import { ouvrirImpression3D } from "./impression3dFenetre.js";
 import { toitsReleve, toitsObjets, toitsSwiss } from "./impression3dToits.js";
-import { t, nombre, entier, date } from "./i18n.js";
-import { rectangle, dimensions, reglerCorniche, listerProjets, enregistrerProjet, supprimerProjet, normaliserVolume, empriseValide, sensDirect, seRecoupe, orientationDominante, aire, pansPossibles } from "./projet.js";
+import { t, nombre, entier, date, locale } from "./i18n.js";
+import { rectangle, dimensions, reglerCorniche, listerProjets, enregistrerProjet, supprimerProjet, normaliserVolume, empriseValide, sensDirect, seRecoupe, orientationDominante, aire, pansPossibles, lireProjet, nouvelId, renommerProjet, dupliquerProjet, projetOuvert, aireEmprise, surfacePlancher, corniche, hauteurToit } from "./projet.js";
 import { directions, accrocherPoint } from "./accrochage.js";
 import { traceSol } from "./traceVolume.js";
 import { ficheVolume, mesurer, cotesVolume } from "./ficheVolume.js";
@@ -119,6 +119,7 @@ export function brancherPro(o) {
     if (S.coupe) o.majCoupe(S.coupe.A, S.coupe.B);
     listeVolumes();
     maj();
+    modifie();
   }
   const memoriser = () => P.historique.push(JSON.stringify(P.caches));
   let numeroCache = 0;
@@ -300,19 +301,31 @@ export function brancherPro(o) {
     edition = brancherEdition({
       scene, volumes: () => P.volumes, actif, dessine: () => !!dessin, changes: volumesChanges,
       retirer: id => { P.volumes = P.volumes.filter(v => v.id !== id); volumesChanges(); },
-      bouge: () => fiche.rafraichir(), // souris : le tableau suit
-      choix: id => { const v = P.volumes.find(w => w.id === id); fiche.montrer(v || null, P.volumes.indexOf(v) + 1); listeVolumes(); },
+      bouge: v => { fiche.rafraichir(); majCarteVolume(v); modifie(); }, // souris : le tableau et la carte suivent
+      choix: id => {
+        const v = P.volumes.find(w => w.id === id);
+        fiche.montrer(v || null, P.volumes.indexOf(v) + 1);
+        listeVolumes();
+        if (v) $(`#cartesVolumes [data-id="${v.id}"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      },
       cotes: v => cotesVolume(v, mesures(v), scene),
     });
   });
-  // tableau du volume sélectionné (ficheVolume.js), sous l'aide du dessin
-  const mesures = v => mesurer(v, { scene, S, parcelleEn: o.parcelleEn, autres: P.volumes });
+  // tableau du volume sélectionné (ficheVolume.js), dans la carte du volume choisi
+  // mesures : calculées une fois pour une même position (cotes, tableau et carte les demandent au même moment)
+  let memo = { cle: null, t: 0, M: null };
+  const mesures = v => {
+    const cle = `${v.id}|${v.coins.flat().join()}|${v.base}|${v.etages?.join()}|${S.toutes?.length || 0}|${P.volumes.length}`, n = performance.now();
+    if (memo.cle === cle && n - memo.t < 60) return memo.M;
+    memo = { cle, t: n, M: mesurer(v, { scene, S, parcelleEn: o.parcelleEn, autres: P.volumes }) };
+    return memo.M;
+  };
   const boiteFiche = Object.assign(document.createElement("div"), { id: "ficheVolume", hidden: true });
   $("#aideVolume").after(boiteFiche);
   const fiche = ficheVolume(boiteFiche, {
     S, mesures,
     // pendant la saisie : maquette et poignées ; à la validation : aussi coupe, heures de soleil et liste
-    changer: (v, final) => { if (final) volumesChanges(); else { scene.afficherVolumes(P.volumes); edition?.maj(); } },
+    changer: (v, final) => { if (final) volumesChanges(); else { scene.afficherVolumes(P.volumes); edition?.maj(); majCarteVolume(v); modifie(); } },
   });
   // Annuler / rétablir (Ctrl+Z, Ctrl+Maj+Z ou Ctrl+Y ; boutons ↶ ↷) : chaque changement validé des volumes (dessin,
   // geste de souris relâché, champ du tableau validé, liste) devient une étape ; l'état précédent est gardé en JSON.
@@ -357,6 +370,89 @@ export function brancherPro(o) {
     if (S.coupe) o.majCoupe(S.coupe.A, S.coupe.B);
     if (S.heuresDemandees) o.relancerHeures?.();
     listeVolumes();
+    modifie();
+  }
+  /* ---------------------------------------------------------------- cartes des volumes */
+  // Une carte par volume : dimensions, étages, hauteurs, toit, base, surfaces, distances (limites de la parcelle, une par
+  // voisin, et bâtiments les plus proches, au centimètre, en plan) ; dépassement de la limite en évidence. Un clic sur
+  // la carte choisit le volume dans la scène, et inversement. Les cartes sont gardées d'un rendu à l'autre (le tableau
+  // du volume choisi, placé dans sa carte, ne perd pas la saisie en cours).
+  const cartesV = new Map();
+  const m2 = a => `${fr(a, 1)} m²`;
+  function majCarteVolume(v) {
+    const d = v && cartesV.get(v.id);
+    if (!d || !pret()) return;
+    const k = P.volumes.indexOf(v), n = v.coins.length, hc = corniche(v), ht = hauteurToit(v), E = v.etages?.length || 1;
+    let dim;
+    if (n === 4) { const [l, p] = dimensions(v); dim = `${fr(l, 2)} × ${fr(p, 2)} m`; }
+    else dim = t("carte.polygone", { n, p: fr(v.coins.reduce((s, q, i) => { const r = v.coins[(i + 1) % n]; return s + Math.hypot(r[0] - q[0], r[1] - q[1]); }, 0), 2) });
+    const toit = { plat: t("projet.plat"), deux: t("projet.deuxPans"), quatre: t("volume.quatrePans") }[v.toit] || v.toit;
+    d.querySelector(".cv-nom").textContent = t("carte.volume", { n: k + 1 });
+    d.querySelector(".cv-dim").textContent = dim;
+    d.querySelector(".cv-pastille").style.background = v.couleur || couleurs[0];
+    d.querySelector(".cv-chiffres").innerHTML = [
+      t(E === 1 ? "carte.unEtage" : "carte.etages", { n: E }), t("carte.corniche", { h: fr(hc, 2) }),
+      ...(ht > 0 ? [t("carte.faite", { h: fr(hc + ht, 2) })] : []), `${t("volume.toit")} ${toit.toLowerCase()}`,
+      t("carte.base", { z: fr(v.base, 2) }), t("carte.sol", { a: m2(aireEmprise(v.coins)) }), t("carte.plancher", { a: m2(surfacePlancher(v)) }),
+    ].map(x => `<span>${esc(x)}</span>`).join("");
+    const M = mesures(v), lignes = [];
+    // les quatre limites les plus proches (une parcelle de route en a des dizaines)
+    for (const l of (M.limites?.length ? M.limites : M.limite ? [{ ...M.limite, numero: M.parcelle }] : []).slice(0, 4)) {
+      lignes.push(`<tr class="cv-limite${l.d < 0.005 ? " cv-zero" : ""}"><th>${esc(l.numero != null ? t("carte.limite", { n: l.numero }) : t("carte.limiteSans"))}</th><td>${fr(l.d, 2)} m</td></tr>`);
+    }
+    for (const b of M.batiments || []) if (b.d < 80) lignes.push(`<tr><th>${t("carte.batiment")}</th><td>${fr(b.d, 2)} m</td></tr>`);
+    const dep = M.depasse;
+    d.classList.toggle("depasse", !!dep);
+    d.querySelector(".cv-distances").innerHTML = (dep ? `<div class="cv-alerte" role="status">${esc(dep.d > 0.005 ? t("carte.depasse", { d: fr(dep.d, 2) }) : t("carte.touche"))}</div>` : "")
+      + (lignes.length ? `<table><tbody>${lignes.join("")}</tbody></table>` : `<span class="text-secondary">${t("carte.sansMesure")}</span>`);
+  }
+  function carteVolume(v) {
+    let d = cartesV.get(v.id);
+    if (d) return d;
+    d = document.createElement("article");
+    d.className = "carte-volume"; d.dataset.id = v.id; d.tabIndex = 0;
+    d.innerHTML = `<div class="cv-tete"><span class="cv-oeil"></span><span class="cv-nom"></span><span class="cv-dim"></span>`
+      + `<button type="button" class="cv-pastille" title="${t("projet.couleur")}" aria-label="${t("projet.couleur")}"></button>`
+      + `<button type="button" class="cv-retirer" title="${t("projet.retirer")}" aria-label="${t("projet.retirer")}">${ICONE.fermer}</button></div>`
+      + `<div class="palette" hidden>${couleurs.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join("")}</div>`
+      + `<div class="cv-chiffres"></div><div class="cv-distances"></div>`;
+    const i = document.createElement("input");
+    Object.assign(i, { type: "checkbox", className: "form-check-input oeil", title: t("projet.voir") });
+    i.setAttribute("aria-label", t("projet.voir"));
+    d.querySelector(".cv-oeil").replaceWith(i);
+    d.onclick = e => {
+      const vol = P.volumes.find(w => w.id === v.id);
+      if (!vol) return;
+      if (e.target === i) { vol.visible = i.checked; volumesChanges(); return; }
+      if (e.target.closest(".cv-pastille")) { d.querySelector(".palette").hidden = !d.querySelector(".palette").hidden; return; }
+      const c = e.target.closest(".palette [data-c]")?.dataset.c;
+      if (c) { vol.couleur = c; d.querySelector(".palette").hidden = true; volumesChanges(); return; }
+      if (e.target.closest(".cv-retirer")) { P.volumes = P.volumes.filter(w => w !== vol); volumesChanges(); return; }
+      if (e.target.closest("#ficheVolume")) return; // saisie dans le tableau
+      edition?.choisir(edition.selection === vol.id ? null : vol.id);
+    };
+    d.onkeydown = e => { if ((e.key === "Enter" || e.key === " ") && e.target === d) { e.preventDefault(); edition?.choisir(edition.selection === v.id ? null : v.id); } };
+    cartesV.set(v.id, d);
+    return d;
+  }
+  function cartesVolumes() {
+    const el = $("#cartesVolumes");
+    for (const id of cartesV.keys()) if (!P.volumes.some(v => v.id === id)) { const d = cartesV.get(id); if (d.contains(boiteFiche)) $("#aideVolume").after(boiteFiche); cartesV.delete(id); }
+    const cartes = P.volumes.map(carteVolume), avant = [...el.children];
+    if (cartes.length !== avant.length || cartes.some((c, k) => c !== avant[k])) {
+      if (cartes.some(c => c.contains(boiteFiche))) $("#aideVolume").after(boiteFiche); // hors des cartes le temps du rangement
+      el.replaceChildren(...cartes);
+    }
+    $("#titreVolumes").hidden = !cartes.length;
+    for (const v of P.volumes) {
+      const d = cartesV.get(v.id), choisi = edition?.selection === v.id;
+      d.classList.toggle("choisi", choisi);
+      d.setAttribute("aria-pressed", String(choisi));
+      d.querySelector("input.oeil").checked = v.visible !== false;
+      majCarteVolume(v);
+      if (choisi && boiteFiche.parentElement !== d) d.append(boiteFiche);
+    }
+    if (edition?.selection == null && boiteFiche.parentElement !== $("#aideVolume").parentElement) $("#aideVolume").after(boiteFiche);
   }
   /** Liste « ajoutés et masqués » : modèles importés, volumes dessinés (œil, couleur, hauteur, toit) et bâtiments masqués (œil). */
   function listeVolumes() {
@@ -375,33 +471,6 @@ export function brancherPro(o) {
       d.querySelector("button").onclick = () => { P.imports = P.imports.filter(x => x !== m); importsChanges(); };
       return d;
     });
-    const volumes = P.volumes.map((v, k) => {
-      const [l, p] = dimensions(v), d = document.createElement("div"), pans = pansPossibles(v);
-      d.className = "volume";
-      // emprise libre : son aire ; rectangle : ses deux côtés
-      d.innerHTML = `<span>${v.libre ? t("projet.volumeLibre", { n: k + 1, a: fr(aire(v.coins), 0) }) : t("projet.volume", { n: k + 1, l: fr(l), p: fr(p) })}</span>`
-        + `<button type="button" class="pastille" title="${t("projet.couleur")}" aria-label="${t("projet.couleur")}" style="background:${v.couleur || couleurs[0]}"></button>`
-        + `<input type="number" class="form-control form-control-sm" min="1" max="200" step="0.5" value="${v.hauteur}" title="${t("projet.hauteur")}" aria-label="${t("projet.hauteur")}">`
-        + `<select class="form-select form-select-sm"><option value="plat">${t("projet.plat")}</option><option value="deux"${pans ? "" : " disabled"}>${t("projet.deuxPans")}</option><option value="quatre"${pans ? "" : " disabled"}>${t("volume.quatrePans")}</option></select>`
-        + `<button type="button" title="${t("projet.retirer")}" aria-label="${t("projet.retirer")}">${ICONE.fermer}</button>`
-        + `<div class="palette" hidden>${couleurs.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join("")}</div>`;
-      d.prepend(oeil(v.visible !== false, t("projet.voir"), ok => { v.visible = ok; volumesChanges(); }));
-      const [pastille, h, toit, x] = d.querySelectorAll(":scope > input[type=number], :scope > select, :scope > button");
-      const palette = d.querySelector(".palette");
-      toit.value = pans ? v.toit : "plat";
-      if (!pans) toit.title = t("volume.pansRectangle");
-      pastille.onclick = () => { palette.hidden = !palette.hidden; };
-      palette.onclick = e => { const c = e.target.dataset?.c; if (c) { v.couleur = c; volumesChanges(); } };
-      h.onchange = () => { reglerCorniche(v, Math.max(1, +h.value || v.hauteur)); volumesChanges(); };
-      // un clic sur le nom choisit le volume (poignées et tableau)
-      const nom = d.querySelector("span");
-      nom.classList.add("nom-volume"); nom.title = t("volume.choisir");
-      nom.onclick = () => edition?.choisir(edition.selection === v.id ? null : v.id);
-      d.classList.toggle("choisi", edition?.selection === v.id);
-      toit.onchange = () => { v.toit = toit.value; volumesChanges(); };
-      x.onclick = () => { P.volumes = P.volumes.filter(w => w !== v); volumesChanges(); };
-      return d;
-    });
     const caches = P.caches.map(c => {
       const d = document.createElement("div");
       d.className = "volume";
@@ -411,7 +480,8 @@ export function brancherPro(o) {
       d.querySelector("button").onclick = () => { memoriser(); P.caches = P.caches.filter(x => x !== c); appliquer(); };
       return d;
     });
-    const liste = [...modeles, ...volumes, ...caches];
+    cartesVolumes();
+    const liste = [...modeles, ...caches];
     $("#listeVolumes").replaceChildren(...(liste.length ? liste : [Object.assign(document.createElement("div"), { className: "small text-secondary", textContent: t("pro.listeVide") })]));
   }
 
@@ -449,56 +519,233 @@ export function brancherPro(o) {
     telecharger(new Blob([texte], { type: "application/dxf" }), nom);
   };
 
-  /* ---------------------------------------------------------------- projets enregistrés (dans ce navigateur) */
-  function listeProjets() {
-    const sel = $("#listeProjets"), liste = listerProjets();
-    sel.replaceChildren(new Option(t("projet.nouveau"), ""), ...liste.map(p => new Option(p.nom, p.id)));
-    sel.value = P.projet?.id || "";
-    $("#btnSupprimerProjet").disabled = !P.projet;
+  /* ---------------------------------------------------------------- projets : cartes, enregistrement automatique */
+  // Les projets restent dans ce navigateur (phase 1 du plan). Le projet ouvert s'enregistre tout seul, peu après chaque
+  // modification (volumes, démolitions, coupes, date et heure, taille de la maquette), et aussi quand l'onglet se ferme ;
+  // le dernier projet ouvert est rouvert au rechargement de la page. Format inchangé, champs ajoutés seulement
+  // (E0, N0, lieu, minutes, vignette, resume) : les anciens projets s'ouvrent comme avant.
+  const DELAI = 700;
+  let minuterie = 0, dernier = null, ouverture = false, suspendu = false, tousProjets = false;
+  P.hashCharge = null; // lien qui a chargé la maquette affichée (un clic sur une parcelle change l'adresse sans recharger)
+  const signature = c => JSON.stringify(c);
+  /** Le projet est-il sur la maquette affichée (même centre) ? Anciens projets : même lien. */
+  const memeLieu = p => !!p && S.E0 != null && (p.E0 != null ? Math.abs(p.E0 - S.E0) < 0.5 && Math.abs(p.N0 - S.N0) < 0.5 : p.hash === P.hashCharge);
+  const r1 = x => Math.round(x * 10) / 10;
+  /** Contour de la parcelle, allégé (≤ 80 points, au décimètre), pour la vignette de la carte. */
+  function contourVignette() {
+    const a = S.parcelle?.anneauxRel?.[0];
+    if (!a?.length) return null;
+    const pas = Math.max(1, Math.ceil(a.length / 80));
+    return a.filter((_, i) => i % pas === 0).map(([x, y]) => [r1(x), r1(y)]);
   }
-  $("#btnEnregistrer").onclick = () => {
-    if (!pret()) return;
-    const nom = prompt(t("projet.nom"), P.projet?.nom || t("projet.nomDefaut", { lieu: $("#lieu").textContent || "" }));
-    if (!nom) return;
-    const p = {
-      id: P.projet?.id || `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, nom,
-      hash: location.hash, jour: S.jour, rayon: o.rayonZone?.(), caches: P.caches, volumes: P.volumes,
-      coupes: (S.coupes || []).map(c => ({ A: c.A, B: c.B })),
+  function nbDemolis() {
+    const ids = P.caches.filter(c => !c.visible).flatMap(c => c.ids);
+    if (!ids.length) return 0;
+    const V = pret() ? scene.indexer() : null;
+    return V ? new Set(ids.map(s => V.bati[s])).size : P.caches.filter(c => !c.visible).length;
+  }
+  /** État du projet à enregistrer (sans id, nom ni date). */
+  function contenu() {
+    return {
+      hash: P.projet?.hash ?? P.hashCharge ?? location.hash, E0: S.E0, N0: S.N0, lieu: P.projet?.lieu ?? ($("#lieu").textContent.trim() || null),
+      jour: S.jour, minutes: S.minutes, rayon: +$("#rayonZone")?.value || o.rayonZone?.(),
+      caches: P.caches, volumes: P.volumes, coupes: (S.coupes || []).filter(c => c.A && c.B).map(c => ({ A: c.A, B: c.B })),
+      vignette: P.projet?.vignette ?? contourVignette(), resume: { volumes: P.volumes.length, demolis: nbDemolis() },
     };
-    if (!enregistrerProjet(p)) return o.message(t("projet.stockage"));
-    P.projet = p;
-    listeProjets();
-    o.compter?.("projet");
-    o.message(t("projet.enregistre", { nom }), 3000);
-  };
-  $("#listeProjets").onchange = () => {
-    const p = listerProjets().find(q => q.id === $("#listeProjets").value);
-    if (!p) { P.projet = null; P.volumes = []; volumesChanges(); oublierHistorique(); listeProjets(); return; }
-    P.projet = p;
-    // le projet est rouvert sur son lieu : chargement si besoin, puis bâtiments démolis, volumes et coupes
-    if (+p.rayon > 0) o.reglerRayon?.(+p.rayon, false);
-    if (location.hash !== p.hash) { P.aOuvrir = p; location.hash = p.hash.slice(1); } else ouvrir(p);
-  };
-  $("#btnSupprimerProjet").onclick = () => {
-    if (!P.projet) return;
-    supprimerProjet(P.projet.id);
-    P.projet = null;
-    listeProjets();
-  };
-  function ouvrir(p) {
-    if (p.jour) o.changerJour?.(p.jour);
-    // anciens projets : une seule liste de volumes masqués
-    P.caches = p.caches ? p.caches.map(c => ({ ...c })) : p.masques?.length ? [{ id: 1, ids: p.masques, visible: false, nom: t("pro.ficheN", { n: p.masques.length }) }] : [];
-    numeroCache = Math.max(0, ...P.caches.map(c => c.id));
-    P.historique = []; P.selection.clear();
-    appliquer();
-    P.volumes = (p.volumes || []).map(v => normaliserVolume({ ...v, coins: v.coins.map(q => [...q]), etages: v.etages && [...v.etages] }, S.G));
-    numero = Math.max(0, ...P.volumes.map(v => v.id));
-    volumesChanges(); oublierHistorique();
-    if (p.coupes?.length) o.ouvrirCoupes?.(p.coupes);
-    listeProjets();
   }
-  listeProjets();
+  function temoin(etat) {
+    const el = $("#cartesProjets .ouvert .cp-temoin");
+    if (!el) return;
+    el.classList.toggle("erreur", etat === "erreur");
+    el.textContent = etat === "attente" ? t("projet.enCours") : etat === "erreur" ? t("projet.stockage") : t("projet.enregistreA", { h: heureDe(P.projet?.modifie) });
+  }
+  const heureDe = iso => iso ? new Date(iso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" }) : "";
+  /** Enregistre le projet ouvert s'il a changé (ou en crée un au premier volume, à la première démolition). */
+  function sauver() {
+    clearTimeout(minuterie); minuterie = 0;
+    if (suspendu || ouverture || P.aOuvrir || !pret()) return;
+    if (!P.projet) {
+      if (actif() && (P.volumes.length || P.caches.length)) creer();
+      return;
+    }
+    if (!memeLieu(P.projet)) return;
+    const c = contenu(), sig = signature(c);
+    if (sig === dernier) return temoin("ok");
+    if (!enregistrerProjet({ ...P.projet, ...c })) return temoin("erreur");
+    P.projet = { ...lireProjet(P.projet.id), E0: S.E0, N0: S.N0 };
+    dernier = sig;
+    cartesProjets();
+  }
+  /** Une modification : enregistrement groupé un peu plus tard. */
+  function modifie() {
+    if (suspendu || ouverture || !pret()) return;
+    clearTimeout(minuterie);
+    minuterie = setTimeout(sauver, DELAI);
+    if (P.projet) temoin("attente");
+  }
+  document.addEventListener("projet:modifie", modifie);
+  $("#rayonZone")?.addEventListener("change", modifie);
+  // rien n'est perdu à la fermeture de l'onglet (ni en passant à une autre application sur mobile)
+  addEventListener("pagehide", sauver);
+  addEventListener("beforeunload", sauver);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") sauver(); });
+
+  const nomLibre = base => { const noms = new Set(listerProjets().map(p => p.nom)); let n = base, k = 2; while (noms.has(n)) n = `${base} (${k++})`; return n; };
+  function creer(nom = nomLibre(t("projet.nomDefaut", { lieu: $("#lieu").textContent.trim() }))) {
+    const c = contenu(), p = { id: nouvelId(), nom, ...c, hash: P.hashCharge || location.hash, vignette: contourVignette() };
+    if (!enregistrerProjet(p)) { o.message(t("projet.stockage")); return null; }
+    P.projet = { ...lireProjet(p.id), E0: S.E0, N0: S.N0 };
+    dernier = signature(contenu());
+    projetOuvert(p.id);
+    o.compter?.("projet");
+    cartesProjets();
+    return P.projet;
+  }
+  /** Maquette sans projet : plus de volumes ni de démolitions (sans rien enregistrer). */
+  function vider() {
+    ouverture = true;
+    try {
+      P.caches = []; P.historique = []; P.selection.clear(); numeroCache = 0;
+      appliquer();
+      P.volumes = []; numero = 0;
+      edition?.deselectionner();
+      volumesChanges();
+    } finally { ouverture = false; }
+  }
+  function fermer() {
+    sauver();
+    P.projet = null; dernier = null; projetOuvert(null);
+    vider();
+    cartesProjets();
+  }
+  $("#btnNouveauProjet").onclick = () => {
+    if (!pret()) return;
+    if (P.projet) { sauver(); P.projet = null; vider(); }
+    const p = creer();
+    if (p) o.message(t("projet.cree", { nom: p.nom }), 4000);
+  };
+
+  function ouvrirProjet(p) {
+    if (!p || P.projet?.id === p.id) return;
+    sauver();
+    const surPlace = memeLieu(p) || (p.E0 == null && (location.hash === p.hash || P.hashCharge === p.hash));
+    if (surPlace && !(+p.rayon > 0 && +p.rayon !== +$("#rayonZone").value)) return ouvrir(p);
+    // ailleurs (ou autre taille de maquette) : le lieu est rechargé, puis le projet appliqué (apresChargement)
+    P.projet = null; projetOuvert(p.id);
+    P.aOuvrir = p;
+    if (+p.rayon > 0) o.reglerRayon?.(+p.rayon, false);
+    if (location.hash !== p.hash) location.hash = p.hash.slice(1); else o.recharger?.();
+  }
+  function ouvrir(p) {
+    ouverture = true;
+    try {
+      P.projet = { ...p, E0: S.E0, N0: S.N0 };
+      projetOuvert(p.id);
+      if (p.jour) o.changerJour?.(p.jour);
+      if (p.minutes != null && $("#heure")) { $("#heure").value = p.minutes; $("#heure").dispatchEvent(new Event("input")); }
+      // anciens projets : une seule liste de volumes masqués
+      P.caches = p.caches ? p.caches.map(c => ({ ...c })) : p.masques?.length ? [{ id: 1, ids: p.masques, visible: false, nom: t("pro.ficheN", { n: p.masques.length }) }] : [];
+      numeroCache = Math.max(0, ...P.caches.map(c => c.id));
+      P.historique = []; P.selection.clear();
+      appliquer();
+      P.volumes = (p.volumes || []).map(v => normaliserVolume({ ...v, coins: v.coins.map(q => [...q]), etages: v.etages && [...v.etages] }, S.G));
+      numero = Math.max(0, ...P.volumes.map(v => v.id));
+      edition?.deselectionner();
+      volumesChanges();
+      if (p.coupes?.length) o.ouvrirCoupes?.(p.coupes);
+      else if ($("#vCoupe").checked) { $("#vCoupe").checked = false; $("#vCoupe").dispatchEvent(new Event("change")); }
+    } finally { ouverture = false; }
+    dernier = signature(contenu());
+    cartesProjets();
+  }
+
+  /** Vignette : contour de la parcelle et emprises des volumes, en plan (nord en haut). */
+  function vignette(p) {
+    const polys = (p.volumes || []).filter(v => v.coins?.length > 2).map(v => ({ c: v.coins, f: v.couleur || couleurs[2] }));
+    const tous = [...(p.vignette || []), ...polys.flatMap(v => v.c)];
+    if (!tous.length) return `<svg class="cp-vignette" viewBox="0 0 48 48" aria-hidden="true"><rect x="10" y="14" width="28" height="20" rx="2" class="cp-vide"/></svg>`;
+    const xs = tous.map(q => q[0]), ys = tous.map(q => q[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    const k = 40 / Math.max(4, x1 - x0, y1 - y0), ox = 24 - (x0 + x1) / 2 * k, oy = 24 + (y0 + y1) / 2 * k;
+    const pts = c => c.map(([x, y]) => `${(ox + x * k).toFixed(1)},${(oy - y * k).toFixed(1)}`).join(" ");
+    return `<svg class="cp-vignette" viewBox="0 0 48 48" aria-hidden="true">${p.vignette ? `<polygon points="${pts(p.vignette)}" class="cp-parcelle"/>` : ""}`
+      + polys.map(v => `<polygon points="${pts(v.c)}" class="cp-volume" style="fill:${esc(v.f)}"/>`).join("") + "</svg>";
+  }
+  const lieuDe = p => p.lieu || new URLSearchParams((p.hash || "").slice(1)).get("l") || "";
+  function resumeDe(p) {
+    const nv = p.resume?.volumes ?? (p.volumes || []).length;
+    const nd = p.resume?.demolis ?? (p.caches || []).filter(c => !c.visible).length ?? (p.masques?.length ? 1 : 0);
+    const l = [nv ? t(nv === 1 ? "projet.unVolume" : "projet.nVolumes", { n: nv }) : "", nd ? t(nd === 1 ? "projet.unDemoli" : "projet.nDemolis", { n: nd }) : ""].filter(Boolean);
+    return l.length ? l.join(" · ") : t("projet.vide");
+  }
+  /** Cartes des projets enregistrés : le projet ouvert d'abord, puis les plus récents. */
+  function cartesProjets() {
+    const el = $("#cartesProjets");
+    if (!el) return;
+    const liste = listerProjets(), ouvert = P.projet && liste.find(p => p.id === P.projet.id);
+    const ordre = [...(ouvert ? [ouvert] : []), ...liste.filter(p => p !== ouvert)], MAX = 4;
+    const montres = tousProjets ? ordre : ordre.slice(0, MAX);
+    const cartes = montres.map(p => {
+      const d = document.createElement("article"), oui = p === ouvert, m = p.modifie ? new Date(p.modifie) : null;
+      d.className = "carte-projet" + (oui ? " ouvert" : "");
+      d.tabIndex = 0;
+      d.setAttribute("aria-label", oui ? `${p.nom} (${t("projet.ouvert")})` : t("projet.ouvrirNom", { nom: p.nom }));
+      d.innerHTML = vignette(p)
+        + `<div class="cp-texte"><div class="cp-nom">${esc(p.nom)}</div><div class="cp-lieu">${esc(lieuDe(p))}</div>`
+        + `<div class="cp-meta">${m ? esc(t("projet.modifie", { date: date(m, { day: "numeric", month: "short", year: "numeric" }), h: heureDe(p.modifie) })) : ""}</div>`
+        + `<div class="cp-meta">${esc(resumeDe(p))}</div>`
+        + (oui ? `<div class="cp-temoin" aria-live="polite"></div>` : "") + `</div>`
+        + `<div class="cp-actions">`
+        + `<button type="button" data-a="renommer">${t("projet.renommer")}</button>`
+        + `<button type="button" data-a="dupliquer">${t("projet.dupliquer")}</button>`
+        + (oui ? `<button type="button" data-a="fermer">${t("projet.fermer")}</button>` : "")
+        + `<button type="button" data-a="supprimer" class="cp-supprimer">${t("projet.supprimerCourt")}</button></div>`;
+      d.onclick = e => {
+        const a = e.target.closest("button[data-a]")?.dataset.a;
+        if (!a) { if (!oui) ouvrirProjet(p); return; }
+        e.stopPropagation();
+        if (a === "renommer") {
+          const nom = prompt(t("projet.nom"), p.nom)?.trim();
+          if (!nom || nom === p.nom) return;
+          if (oui) sauver();
+          renommerProjet(p.id, nom);
+          if (oui) P.projet = { ...lireProjet(p.id), E0: S.E0, N0: S.N0 };
+          cartesProjets();
+        } else if (a === "dupliquer") {
+          if (oui) sauver();
+          const q = dupliquerProjet(p.id, nomLibre(t("projet.copie", { nom: p.nom })));
+          if (!q) return o.message(t("projet.stockage"));
+          o.message(t("projet.duplique", { nom: q.nom }), 3000);
+          cartesProjets();
+        } else if (a === "fermer") fermer();
+        else if (a === "supprimer") {
+          if (!confirm(t("projet.confirmerSuppression", { nom: p.nom }))) return;
+          if (oui) { clearTimeout(minuterie); P.projet = null; dernier = null; projetOuvert(null); vider(); }
+          supprimerProjet(p.id);
+          cartesProjets();
+        }
+      };
+      d.onkeydown = e => { if ((e.key === "Enter" || e.key === " ") && e.target === d) { e.preventDefault(); if (!oui) ouvrirProjet(p); } };
+      return d;
+    });
+    const extra = [];
+    if (!liste.length) extra.push(Object.assign(document.createElement("div"), { className: "small text-secondary", textContent: t("projet.aucun") }));
+    if (ordre.length > MAX) {
+      const b = Object.assign(document.createElement("button"), { type: "button", className: "btn btn-sm btn-link px-0", textContent: tousProjets ? t("projet.moins") : t("projet.tous", { n: ordre.length }) });
+      b.onclick = () => { tousProjets = !tousProjets; cartesProjets(); };
+      extra.push(b);
+    }
+    el.replaceChildren(...cartes, ...extra);
+    temoin("ok");
+  }
+  // dernier projet ouvert : rouvert au rechargement de la page (sur son lieu, même si l'adresse a changé depuis)
+  {
+    const p = lireProjet(projetOuvert());
+    if (p && /(^#|&)e=/.test(location.hash)) {
+      P.aOuvrir = p;
+      if (location.hash !== p.hash) try { history.replaceState(null, "", location.pathname + location.search + p.hash); } catch { /* sans historique */ }
+    }
+  }
+  cartesProjets();
 
   /* ---------------------------------------------------------------- export du site */
   const format = () => $("input[name=formatExport]:checked").value;
@@ -643,7 +890,22 @@ export function brancherPro(o) {
     },
     /** Dessin d'un volume en cours (les clics sur la maquette lui reviennent). */
     dessine: () => !!dessin || performance.now() - finAt < 400,
-    /** Lieu chargé : un projet en attente (ouvert depuis la liste) est appliqué. */
-    apresChargement() { if (P.aOuvrir) { const p = P.aOuvrir; P.aOuvrir = null; ouvrir(p); } else if (P.projet && location.hash !== P.projet.hash) { P.projet = null; listeProjets(); } },
+    /** Un lieu va se charger : le projet ouvert est enregistré tel quel, puis plus rien jusqu'à la fin du chargement. */
+    avantChargement() { sauver(); suspendu = true; },
+    /**
+     * Lieu chargé : un projet en attente (ouvert depuis la liste, ou rouvert au rechargement de la page) est appliqué ;
+     * le projet ouvert sur ce même lieu (taille de la maquette changée) est réappliqué ; ailleurs, il est fermé.
+     */
+    apresChargement() {
+      suspendu = false;
+      P.hashCharge = location.hash;
+      if (P.aOuvrir) {
+        const p = P.aOuvrir; P.aOuvrir = null;
+        if (p.E0 == null || memeLieu(p)) return ouvrir(p);
+        projetOuvert(null); // un autre lieu s'est chargé entre-temps : le projet n'y est pas appliqué
+      }
+      if (P.projet && memeLieu(P.projet)) ouvrir(lireProjet(P.projet.id) || P.projet);
+      else if (P.projet) { P.projet = null; dernier = null; projetOuvert(null); cartesProjets(); }
+    },
   };
 }
