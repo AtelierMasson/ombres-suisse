@@ -3,16 +3,19 @@
 // (SLOT, créé dans AdSense après l'approbation du site) ; le consentement (UE, Suisse) passe par la fenêtre de Google
 // (« Confidentialité et messages » dans AdSense), servie par ce même script.
 export const CLIENT = "ca-pub-4424415212884229";
-export const SLOT = ""; // identifiant du bloc d'annonces (data-ad-slot), à remplir après l'approbation
+export const SLOT = "1498907080"; // bloc « topograph-colonne » (annonces display, taille adaptable)
 
-let charge = false;
+let charge = false, rempli = false;
 export function brancherPub(compte) {
   const zone = document.getElementById("pub");
   if (!zone) return;
   const maj = () => {
     const pro = !!compte?.etat?.().pro, accueil = document.body.classList.contains("accueil");
     const montrer = !!SLOT && !pro && !accueil;
+    // tant qu'aucune annonce n'est servie (site en examen chez Google, pas d'annonce), la zone reste en place mais
+    // repliée (hauteur nulle) : cachée, elle n'aurait pas de largeur et Google ne saurait quelle taille servir
     zone.hidden = !montrer;
+    zone.classList.toggle("pub-attente", !rempli);
     if (!montrer || charge) return;
     charge = true;
     const s = document.createElement("script");
@@ -24,6 +27,8 @@ export function brancherPub(compte) {
     Object.assign(ins.dataset, { adClient: CLIENT, adSlot: SLOT, adFormat: "auto", fullWidthResponsive: "true" });
     ins.style.display = "block";
     zone.append(ins);
+    // Google écrit data-ad-status="filled" (annonce servie) ou "unfilled" sur l'emplacement
+    new MutationObserver(() => { rempli = ins.dataset.adStatus === "filled"; maj(); }).observe(ins, { attributes: true, attributeFilter: ["data-ad-status"] });
     (window.adsbygoogle = window.adsbygoogle || []).push({});
   };
   compte?.addEventListener?.("compte", maj);

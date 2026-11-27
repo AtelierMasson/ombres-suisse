@@ -18,7 +18,7 @@ const versWgs = (e, n) => { // MN95 -> WGS84 (formules approchées de swisstopo,
   return [lo * 100 / 36, la * 100 / 36];
 };
 const [lo0, la0] = versWgs(boite[0], boite[1]), [lo1, la1] = versWgs(boite[2], boite[3]);
-const stac = await (await fetch(`https://data.geo.admin.ch/api/stac/v0.9/collections/ch.swisstopo.swisssurface3d/items?limit=100&bbox=${lo0},${la0},${lo1},${la1}`)).json();
+const stac = await (await fetch(`https://data.geo.admin.ch/api/stac/v1/collections/ch.swisstopo.swisssurface3d/items?limit=100&bbox=${lo0},${la0},${lo1},${la1}`)).json();
 const parTuile = new Map();
 for (const f of stac.features || []) {
   const a = Object.values(f.assets).find(a => /copc/.test(a.type || a.href)); if (!a) continue;

@@ -550,3 +550,6 @@ body.accueil #fiche { display: none; }
 .rapport-bug { width: min(560px, calc(100vw - 32px)); border: 1px solid var(--bs-border-color); border-radius: 8px; padding: 16px; }
 .rapport-bug::backdrop { background: rgba(0,0,0,.3); }
 .rapport-bug-image { width: 100%; max-height: 42vh; object-fit: contain; background: #eee; border-radius: 4px; border: 1px solid var(--bs-border-color); }
+
+/* publicité pas encore servie : zone repliée mais mesurable (largeur de la colonne) */
+#pub.pub-attente { height: 0; min-height: 0; padding: 0; margin: 0; border: 0; overflow: hidden; }
