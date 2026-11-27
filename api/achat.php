@@ -9,9 +9,9 @@ $c = exiger_compte();
 if ((int) $c['pro'] === 1) json(409, ['erreur' => 'deja_pro']);
 $d = corps();
 $l = langue($d['langue'] ?? null);
-// conditions de vente acceptées et exécution immédiate demandée (renonciation au droit de rétractation, clients UE)
+// conditions de vente acceptées et accès immédiat demandé (rétractation possible 14 jours, remboursement intégral)
 if (empty($d['cgv'])) json(400, ['erreur' => 'conditions']);
-$versionCgv = '2026-11-27';
+$versionCgv = '2026-11-27-r14';
 $retour = fn(string $etat) => SITE_URL . '/?' . http_build_query(['achat' => $etat, 'lang' => $l]);
 
 $params = [

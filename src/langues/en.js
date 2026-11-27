@@ -83,7 +83,14 @@ export default {
   "fiche.nNiveaux": "Storeys: {n}",
   "fiche.aucunBatiment": "No registered building on this parcel.",
   "compte.autreAppareil": "Your account was signed in on another device, so this one has been signed out. One device at a time per account.",
-  "compte.accepteCgv": "I accept the terms of sale and request immediate access to Pro. I acknowledge that by doing so I lose my right of withdrawal.",
+  "compte.accepteCgv": "I accept the terms of sale and request immediate access to Topograph Pro. I can withdraw within 14 days and get a full refund.",
+  "compte.retractationInfo": "You can withdraw until {date}: full refund, even if you have used Topograph Pro.",
+  "compte.retracter": "Withdraw and get a refund",
+  "compte.retracterConfirmer": "Withdraw? Your payment will be refunded in full and Pro access removed immediately.",
+  "compte.retracte": "Withdrawal recorded: the refund has been initiated and a confirmation email has been sent to you.",
+  "compte.retracterDelai": "The 14-day withdrawal period has ended.",
+  "compte.retracterAucun": "No refundable purchase was found on this account.",
+  "compte.retracterErreur": "The refund could not be initiated. Write to us at contact@topograph.ch; your request will be handled within the period.",
   "compte.supprimer": "Delete my account",
   "compte.supprimerConfirmer": "Permanently delete your account, details and saved places? To confirm, enter your email address again: {email}",
   "compte.supprime": "Your account has been deleted.",
@@ -538,7 +545,7 @@ export default {
     <p><b>Use</b><br>Topograph is published by Atelier Masson Sàrl. The free version is provided without any guarantee of availability.</p>
     <p><b>Indicative results</b><br>The model is reconstructed automatically from laser surveys and may contain errors. Shadows, hours of sunlight, dimensions and exports are for guidance. They do not replace a professional land survey, a sunlight study or the official documents required for a planning application.</p>
     <p><b>Pro offer</b><br>A one-off payment of CHF 39.– gives the purchasing account access to the Pro features (Pro mode, building volumes, exports and sections in PDF and DXF), without advertising or a subscription. Access lasts for as long as Topograph remains in operation. Payment is made through Stripe; access is activated as soon as the payment is confirmed.</p>
-    <p><b>Right of withdrawal</b><br>For consumers in the European Union: the Pro offer is digital content supplied immediately. By ticking the box before payment, you request immediate supply and acknowledge that you lose your 14-day right of withdrawal. If there is a problem, write to us: we will look for a solution, including a refund.</p>
+    <p><b>Right of withdrawal</b><br>You can withdraw without giving a reason within 14 days of payment, even if you have already used the Pro offer. To do so, use the "Withdraw and get a refund" button in the "My account" window, or write to us at <a href="mailto:contact@topograph.ch">contact@topograph.ch</a>. We confirm receipt by email. The amount paid (CHF 39.–) is refunded in full to the payment method used, at the latest within 14 days of the withdrawal, and Pro access is removed. This period is stated in the purchase confirmation email.</p>
     <p><b>Liability</b><br>Atelier Masson Sàrl is not liable for decisions made on the basis of these results, to the extent permitted by applicable law.</p>
     <p><b>Data</b><br>The exports contain swisstopo and cantonal data; their reuse is subject to the terms of those data, with source attribution.</p>
     <p><b>Governing law</b><br>Swiss law. Place of jurisdiction: Lausanne, subject to any mandatory rules on jurisdiction that protect consumers.</p>

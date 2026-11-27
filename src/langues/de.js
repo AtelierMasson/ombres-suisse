@@ -83,7 +83,14 @@ export default {
   "fiche.nNiveaux": "Geschosse: {n}",
   "fiche.aucunBatiment": "Kein Gebäude im Register auf dieser Parzelle.",
   "compte.autreAppareil": "Sie sind jetzt auf einem anderen Gerät angemeldet. Ihre Sitzung auf diesem Gerät wurde beendet. Pro Konto kann nur ein Gerät gleichzeitig angemeldet sein.",
-  "compte.accepteCgv": "Ich akzeptiere die Verkaufsbedingungen und verlange den sofortigen Zugang zum Pro-Angebot; ich nehme zur Kenntnis, dass ich damit mein Widerrufsrecht verliere.",
+  "compte.accepteCgv": "Ich akzeptiere die Verkaufsbedingungen und verlange den sofortigen Zugang zu Topograph Pro. Ich kann innert 14 Tagen widerrufen und erhalte den vollen Betrag zurück.",
+  "compte.retractationInfo": "Sie können bis zum {date} widerrufen: volle Rückerstattung, auch wenn Sie Topograph Pro genutzt haben.",
+  "compte.retracter": "Widerrufen und Rückerstattung erhalten",
+  "compte.retracterConfirmer": "Widerrufen? Die Zahlung wird Ihnen vollständig zurückerstattet und der Pro-Zugang sofort entfernt.",
+  "compte.retracte": "Widerruf erfasst: Die Rückerstattung ist veranlasst, und Sie haben eine Bestätigung per E-Mail erhalten.",
+  "compte.retracterDelai": "Die Widerrufsfrist von 14 Tagen ist abgelaufen.",
+  "compte.retracterAucun": "Für dieses Konto wurde kein rückerstattbarer Kauf gefunden.",
+  "compte.retracterErreur": "Die Rückerstattung konnte nicht veranlasst werden. Schreiben Sie uns an contact@topograph.ch; Ihr Widerruf wird fristgerecht bearbeitet.",
   "compte.supprimer": "Konto löschen",
   "compte.supprimerConfirmer": "Möchten Sie Ihr Konto, Ihre Angaben und Ihre gespeicherten Orte endgültig löschen? Geben Sie zur Bestätigung Ihre E-Mail-Adresse erneut ein: {email}",
   "compte.supprime": "Ihr Konto wurde gelöscht.",
@@ -538,7 +545,7 @@ export default {
     <p><b>Nutzung</b><br>Topograph wird von Atelier Masson Sàrl herausgegeben. Die kostenlose Version wird ohne Gewähr für ihre Verfügbarkeit bereitgestellt.</p>
     <p><b>Unverbindliche Ergebnisse</b><br>Das Modell wird automatisch aus Laserscans rekonstruiert und kann Fehler enthalten. Schatten, Sonnenstunden, Höhenkoten und Exporte sind Richtwerte: Sie ersetzen weder eine Aufnahme durch einen Geometer noch eine Besonnungsstudie noch die offiziellen Unterlagen eines Baugesuchs.</p>
     <p><b>Pro-Angebot</b><br>Mit einer einmaligen Zahlung von CHF 39.– erhält das für den Kauf verwendete Konto Zugang zu den Pro-Funktionen (Pro-Modus, Bauvolumen, Exporte, Schnitte als PDF und DXF, ohne Werbung). Es gibt kein Abonnement. Der Zugang besteht, solange der Dienst Topograph betrieben wird. Die Zahlung erfolgt über Stripe; der Zugang wird mit der Bestätigung der Zahlung freigeschaltet.</p>
-    <p><b>Widerrufsrecht</b><br>Für Konsumentinnen und Konsumenten in der Europäischen Union: Das Pro-Angebot ist ein digitaler Inhalt, der sofort geliefert wird. Mit dem Ankreuzen des vor der Zahlung vorgesehenen Feldes verlangen Sie diese sofortige Ausführung und bestätigen, dass Sie Ihr 14-tägiges Widerrufsrecht verlieren. Bei Problemen schreiben Sie uns: Wir suchen nach einer Lösung, einschliesslich einer Rückerstattung.</p>
+    <p><b>Widerrufsrecht</b><br>Sie können innert 14 Tagen nach der Zahlung ohne Angabe von Gründen widerrufen, auch wenn Sie das Pro-Angebot bereits genutzt haben. Verwenden Sie dazu die Schaltfläche «Widerrufen und Rückerstattung erhalten» im Fenster «Mein Konto» oder schreiben Sie uns an <a href="mailto:contact@topograph.ch">contact@topograph.ch</a>. Wir bestätigen den Eingang per E-Mail. Der bezahlte Betrag (CHF 39.–) wird spätestens 14 Tage nach dem Widerruf vollständig auf das verwendete Zahlungsmittel zurückerstattet, und der Pro-Zugang wird entfernt. Diese Frist wird in der Kaufbestätigung per E-Mail genannt.</p>
     <p><b>Haftung</b><br>Atelier Masson Sàrl haftet nicht für Entscheide, die auf der Grundlage dieser Ergebnisse getroffen werden, soweit dies nach dem anwendbaren Recht zulässig ist.</p>
     <p><b>Daten</b><br>Die Exporte enthalten Daten von swisstopo und der Kantone; ihre Weiterverwendung richtet sich nach den jeweiligen Nutzungsbedingungen und erfordert eine Quellenangabe.</p>
     <p><b>Anwendbares Recht</b><br>Schweizerisches Recht. Gerichtsstand: Lausanne, vorbehältlich der zwingenden Gerichtsstände zugunsten von Konsumentinnen und Konsumenten.</p>

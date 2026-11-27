@@ -84,7 +84,14 @@ export default {
   "fiche.nNiveaux": "{n} niv.",
   "fiche.aucunBatiment": "Le registre ne recense aucun bâtiment sur cette parcelle.",
   "compte.autreAppareil": "Vous êtes maintenant connecté sur un autre appareil. La session sur cet appareil a pris fin. Un seul appareil peut être connecté à la fois par compte.",
-  "compte.accepteCgv": "J'accepte les conditions de vente et je demande l'accès immédiat à l'offre Pro ; je reconnais perdre ainsi mon droit de rétractation.",
+  "compte.accepteCgv": "J'accepte les conditions de vente et je demande l'accès immédiat à Topograph Pro. Je peux me rétracter pendant 14 jours et être remboursé intégralement.",
+  "compte.retractationInfo": "Vous pouvez vous rétracter jusqu'au {date} : remboursement intégral, même si vous avez utilisé Topograph Pro.",
+  "compte.retracter": "Me rétracter et être remboursé",
+  "compte.retracterConfirmer": "Vous rétracter ? Le paiement vous sera remboursé en entier et l'accès Pro sera retiré tout de suite.",
+  "compte.retracte": "Rétractation enregistrée : le remboursement est lancé et un e-mail de confirmation vous a été envoyé.",
+  "compte.retracterDelai": "Le délai de rétractation de 14 jours est dépassé.",
+  "compte.retracterAucun": "Aucun achat remboursable n'a été trouvé sur ce compte.",
+  "compte.retracterErreur": "Le remboursement n'a pas pu être lancé. Écrivez-nous à contact@topograph.ch, votre demande sera traitée dans le délai.",
   "compte.supprimer": "Supprimer mon compte",
   "compte.supprimerConfirmer": "Supprimer définitivement votre compte, vos informations et vos lieux enregistrés ? Pour confirmer, saisissez à nouveau votre adresse e-mail : {email}",
   "compte.supprime": "Votre compte a été supprimé.",
@@ -539,7 +546,7 @@ export default {
     <p><b>Usage</b><br>Topograph est édité par Atelier Masson Sàrl. La version gratuite est mise à disposition sans garantie de disponibilité.</p>
     <p><b>Résultats indicatifs</b><br>La maquette est reconstruite automatiquement à partir de relevés laser et peut contenir des erreurs. Les ombres, heures de soleil, cotes et exports sont indicatifs : ils ne remplacent ni un relevé de géomètre ni une étude d'ensoleillement ni les documents officiels d'une demande de permis.</p>
     <p><b>Offre Pro</b><br>L'offre Pro donne au compte utilisé pour l'achat un accès aux fonctions réservées (mode Pro, volumes, exports, coupes en PDF et DXF, sans publicité), pour un paiement unique de CHF 39.–, sans abonnement. L'accès dure tant que le service Topograph est exploité. Le paiement se fait par Stripe ; l'accès est activé dès la confirmation du paiement.</p>
-    <p><b>Droit de rétractation</b><br>Pour les consommateurs de l'Union européenne : l'offre Pro est un contenu numérique fourni immédiatement. En cochant la case prévue avant le paiement, vous demandez cette exécution immédiate et reconnaissez perdre votre droit de rétractation de 14 jours. En cas de problème, écrivez-nous : nous cherchons une solution, y compris un remboursement.</p>
+    <p><b>Droit de rétractation</b><br>Vous pouvez vous rétracter sans motif dans les 14 jours suivant le paiement, même si vous avez déjà utilisé l'offre Pro. Pour cela, utilisez le bouton « Me rétracter et être remboursé » dans la fenêtre « Mon compte », ou écrivez-nous à <a href="mailto:contact@topograph.ch">contact@topograph.ch</a>. Nous confirmons la réception par e-mail. Le montant payé (CHF 39.–) est remboursé en entier sur le moyen de paiement utilisé, au plus tard dans les 14 jours suivant la rétractation, et l'accès Pro est retiré. Ce délai est rappelé dans l'e-mail de confirmation d'achat.</p>
     <p><b>Responsabilité</b><br>Atelier Masson Sàrl n'est pas responsable des décisions prises sur la base de ces résultats, dans les limites permises par le droit applicable.</p>
     <p><b>Données</b><br>Les exports contiennent des données swisstopo et cantonales ; leur réutilisation est soumise aux conditions de ces données, avec mention de la source.</p>
     <p><b>Droit applicable</b><br>Droit suisse. For : Lausanne, sous réserve des fors impératifs en faveur des consommateurs.</p>

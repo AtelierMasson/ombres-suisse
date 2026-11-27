@@ -43,7 +43,7 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       else if (r.ok) {
         const d = await r.json();
         disponible = true;
-        changer({ connecte: true, email: String(d.email || ""), pro: !!d.pro, admin: !!d.admin, profil: d.profil || {} });
+        changer({ connecte: true, email: String(d.email || ""), pro: !!d.pro, admin: !!d.admin, profil: d.profil || {}, retractation: d.retractation || null });
       } else disponible = false;
     } catch { disponible = false; }
     if (bouton) bouton.hidden = !disponible;
@@ -85,6 +85,7 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       if (a === "acheter") acheter();
       else if (a === "deconnecter") deconnecter();
       else if (a === "supprimer") supprimer();
+      else if (a === "retracter") retracter();
     });
     dlg.addEventListener("submit", ev => {
       ev.preventDefault();
@@ -128,7 +129,15 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       dl.append(el("dt", null, t("compte.email")), el("dd", null, e.email),
         el("dt", null, t("compte.statut")), el("dd", e.pro ? "compte-statut-pro" : null, t(e.pro ? "compte.pro" : "compte.gratuit")));
       contenu.push(dl);
-      if (e.pro) contenu.push(el("p", "compte-doux", t("compte.merci")));
+      if (e.pro) {
+        contenu.push(el("p", "compte-doux", t("compte.merci")));
+        // rétractation : 14 jours après le paiement, remboursement intégral, même après usage
+        if (e.retractation) {
+          const date = new Date(e.retractation).toLocaleDateString(langueDoc() + "-CH", { day: "numeric", month: "long", year: "numeric" });
+          contenu.push(el("p", "compte-doux small", t("compte.retractationInfo", { date })));
+          contenu.push(bouton2("btn btn-outline-secondary btn-sm w-100", t("compte.retracter"), "retracter"));
+        }
+      }
       else {
         // offre Pro : titre, avantages, bouton et conditions dans un même encadré, bien visible
         const offre = el("div", "compte-offre");
@@ -231,6 +240,18 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       message = t("compte.enregistre");
     } catch { message = t("compte.erreur"); }
     dessiner();
+  }
+
+  /** Rétractation de l'achat Pro (14 jours) : remboursement intégral par Stripe, Pro retiré, e-mail de confirmation. */
+  async function retracter() {
+    if (!confirm(t("compte.retracterConfirmer"))) return;
+    occupe(true);
+    try {
+      const r = await appel("/retractation.php", { method: "POST", body: JSON.stringify({ langue: langueDoc() }) });
+      if (r.ok) { message = t("compte.retracte"); await relire(); }
+      else ecrire(t(r.status === 409 ? "compte.retracterDelai" : r.status === 404 ? "compte.retracterAucun" : "compte.retracterErreur"));
+    } catch { ecrire(t("compte.retracterErreur")); }
+    occupe(false);
   }
 
   /** Suppression du compte : l'adresse retapée confirme ; lieux, informations et sessions sont effacés. */

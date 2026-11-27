@@ -83,3 +83,11 @@ CREATE TABLE IF NOT EXISTS lieux (
 ALTER TABLE achats
   ADD COLUMN IF NOT EXISTS cgv_version VARCHAR(20) NULL,
   ADD COLUMN IF NOT EXISTS cgv_le DATETIME NULL;
+
+-- Rétractation (14 jours) : paiement Stripe, date du paiement, remboursement
+ALTER TABLE achats
+  ADD COLUMN IF NOT EXISTS payment_intent VARCHAR(255) NULL,
+  ADD COLUMN IF NOT EXISTS paye_le DATETIME NULL,
+  ADD COLUMN IF NOT EXISTS rembourse_le DATETIME NULL,
+  ADD COLUMN IF NOT EXISTS remboursement VARCHAR(255) NULL,
+  ADD COLUMN IF NOT EXISTS langue CHAR(2) NULL;

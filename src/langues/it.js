@@ -83,7 +83,14 @@ export default {
   "fiche.nNiveaux": "Piani: {n}",
   "fiche.aucunBatiment": "Nessun edificio nel registro su questa particella.",
   "compte.autreAppareil": "Il suo account è ora connesso su un altro dispositivo. La sessione su questo dispositivo è terminata. È possibile accedere da un solo dispositivo alla volta per account.",
-  "compte.accepteCgv": "Accetto le condizioni di vendita e chiedo l'accesso immediato all'offerta Pro; riconosco di perdere così il diritto di recesso.",
+  "compte.accepteCgv": "Accetto le condizioni di vendita e chiedo l’accesso immediato a Topograph Pro. Posso recedere entro 14 giorni ed essere rimborsato per intero.",
+  "compte.retractationInfo": "Può recedere fino al {date}: rimborso integrale, anche se ha utilizzato Topograph Pro.",
+  "compte.retracter": "Recedere ed essere rimborsato",
+  "compte.retracterConfirmer": "Recedere? Il pagamento le sarà rimborsato per intero e l’accesso Pro sarà revocato subito.",
+  "compte.retracte": "Recesso registrato: il rimborso è stato avviato e le abbiamo inviato un’e-mail di conferma.",
+  "compte.retracterDelai": "Il termine di recesso di 14 giorni è scaduto.",
+  "compte.retracterAucun": "Nessun acquisto rimborsabile trovato su questo conto.",
+  "compte.retracterErreur": "Non è stato possibile avviare il rimborso. Ci scriva a contact@topograph.ch: la sua richiesta sarà trattata entro il termine.",
   "compte.supprimer": "Eliminare il mio account",
   "compte.supprimerConfirmer": "Vuole eliminare definitivamente il suo account, i suoi dati e i luoghi salvati? Per confermare, inserisca di nuovo il suo indirizzo e-mail: {email}",
   "compte.supprime": "Il suo account è stato eliminato.",
@@ -538,7 +545,7 @@ export default {
     <p><b>Uso</b><br>Topograph è edito da Atelier Masson Sàrl. La versione gratuita è messa a disposizione senza garanzia di disponibilità.</p>
     <p><b>Risultati indicativi</b><br>Il modello è ricostruito automaticamente a partire da rilievi laser e può contenere errori. Le ombre, le ore di sole, le quote e le esportazioni hanno valore indicativo. Non sostituiscono né il rilievo di un geometra né uno studio sul soleggiamento né i documenti ufficiali di una domanda di costruzione.</p>
     <p><b>Offerta Pro</b><br>Con un pagamento unico di CHF 39.–, l'account utilizzato per l'acquisto ottiene l'accesso alle funzioni riservate (modalità Pro, volumi, esportazioni, sezioni in PDF e DXF, senza pubblicità). Non è previsto alcun abbonamento. L'accesso dura finché il servizio Topograph rimane in esercizio. Il pagamento avviene tramite Stripe; l'accesso è attivato non appena il pagamento è confermato.</p>
-    <p><b>Diritto di recesso</b><br>Per i consumatori dell'Unione europea: l'offerta Pro è un contenuto digitale fornito immediatamente. Spuntando la casella prevista prima del pagamento, chiede l'esecuzione immediata e riconosce di perdere il suo diritto di recesso di 14 giorni. In caso di problemi, ci scriva: cerchiamo una soluzione, compreso un rimborso.</p>
+    <p><b>Diritto di recesso</b><br>Può recedere senza indicarne il motivo entro 14 giorni dal pagamento, anche se ha già utilizzato l’offerta Pro. A tal fine usi il pulsante «Recedere ed essere rimborsato» nella finestra «Il mio conto» oppure ci scriva a <a href="mailto:contact@topograph.ch">contact@topograph.ch</a>. Confermiamo la ricezione per e-mail. L’importo pagato (CHF 39.–) è rimborsato per intero sul mezzo di pagamento utilizzato, al più tardi entro 14 giorni dal recesso, e l’accesso Pro è revocato. Il termine è ricordato nell’e-mail di conferma dell’acquisto.</p>
     <p><b>Responsabilità</b><br>Atelier Masson Sàrl non è responsabile delle decisioni prese sulla base di questi risultati, nei limiti consentiti dal diritto applicabile.</p>
     <p><b>Dati</b><br>Le esportazioni contengono dati di swisstopo e cantonali; il loro riutilizzo è soggetto alle condizioni di tali dati, con indicazione della fonte.</p>
     <p><b>Diritto applicabile</b><br>Diritto svizzero. Foro competente: Losanna, con riserva dei fori imperativi a favore dei consumatori.</p>

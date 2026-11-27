@@ -5,6 +5,8 @@ import { brancherCompte } from "../src/compte.js";
 
 const reponse = (status, corps = {}) => ({ status, ok: status >= 200 && status < 300, json: async () => corps });
 const avecFetch = f => { globalThis.fetch = f; };
+// état comparé sur les champs principaux (le module en porte d'autres : admin, profil, rétractation)
+const base = e => ({ connecte: e.connecte, email: e.email, pro: e.pro });
 
 test("API absente : module muet, exigerPro renvoie false", async () => {
   avecFetch(async () => { throw new TypeError("réseau"); });
@@ -13,7 +15,7 @@ test("API absente : module muet, exigerPro renvoie false", async () => {
   c.addEventListener("compte", () => evenements++);
   await c.pret;
   assert.equal(c.disponible(), false);
-  assert.deepEqual(c.etat(), { connecte: false, email: null, pro: false });
+  assert.deepEqual(base(c.etat()), { connecte: false, email: null, pro: false });
   assert.equal(c.exigerPro("export"), false);
   assert.equal(evenements, 0);
 });
@@ -41,7 +43,7 @@ test("déconnecté (401) puis connecté gratuit puis pro : un événement par ch
   await c.relire();
   await c.relire(); // même état : pas de nouvel événement
   assert.equal(recus.length, 2);
-  assert.deepEqual(c.etat(), { connecte: true, email: "a@b.ch", pro: false });
+  assert.deepEqual(base(c.etat()), { connecte: true, email: "a@b.ch", pro: false });
 
   moi = reponse(200, { email: "a@b.ch", pro: true });
   await c.relire();
