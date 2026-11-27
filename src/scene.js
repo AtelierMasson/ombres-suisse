@@ -372,7 +372,7 @@ export class Scene3D {
     const rendu = ao.render.bind(ao);
     ao.render = (...a) => {
       // les points n'entrent jamais dans l'occlusion (sinon chaque point a son halo sombre)
-      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, c.heures, c.limite, c.voisines, c.arbres, c.tous, c.selection, c.laser, c.eau, ...(this.horsAO || []), // l'eau : plate et translucide, l'occlusion y dessinait des arcs
+      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, ...(this.reperesAutres || []), ...(this.traitsAutres || []), c.heures, c.limite, c.voisines, c.arbres, c.tous, c.selection, c.laser, c.eau, ...(this.horsAO || []), // l'eau : plate et translucide, l'occlusion y dessinait des arcs
         this.coupe ? this.tranche?.userData.arbres : null, ...(this.coupe && this.tranche?.userData.traits || []),
         c.canopee?.material.colorWrite === false ? c.canopee : null].filter(o => o && o.visible);
       for (const o of caches) o.visible = false;
@@ -1108,7 +1108,12 @@ void main() {
   grilleComparaison(jeu) {
     if (this.grilleComp?.jeu !== jeu) {
       const o = jeu === "swiss" ? this.swiss?.socle : this.couches.roofer;
-      this.grilleComp = { jeu, h: o && this.G ? hauteursDessus(this.G, this.zRef, [o]) : null };
+      // swisstopo : les tuiles hors de l'écran sont détachées du groupe par 3d-tiles-renderer ; on les rattache le temps
+      // de la lecture, sinon les bâtiments hors champ au moment du calcul manquaient dans la coupe
+      const t = jeu === "swiss" ? this.swiss?.tuiles : null, rattachees = [];
+      t?.forEachLoadedModel(sc => { if (!sc.parent) { t.group.add(sc); rattachees.push(sc); } });
+      try { this.grilleComp = { jeu, h: o && this.G ? hauteursDessus(this.G, this.zRef, [o]) : null }; }
+      finally { for (const sc of rattachees) t.group.remove(sc); }
     }
     return this.grilleComp.h;
   }
@@ -1886,11 +1891,29 @@ void main() {
   /* ------------------------------------------------------------------ coupe */
 
   /** Affiche la coupe décrite par le profil `P` (coupe.js), ou l'enlève si `P` est nul. */
-  definirCoupe(P) {
+  definirCoupe(P, autres = []) {
     this.liberer(this.outils);
     this.coupe = P;
     this.poignees = [];
+    this.reperesAutres = []; this.traitsAutres = [];
     this.tranche = null;
+    // les autres coupes : leur trait seul, plus pâle et plus fin que la coupe choisie, avec leurs lettres
+    for (const Q of autres) {
+      const t = trancheCoupe(Q, this.zRef, this.zBas, { ...this.T.coupe, arbres: null }, this.mat.trait);
+      const traits = t.userData.traits || [];
+      t.traverse(o => { if (o.isMesh && !traits.includes(o)) o.visible = false; });
+      const m = this.mat.trait.clone();
+      Object.assign(m, { opacity: 0.55, transparent: true, linewidth: 2, depthTest: true, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -40 });
+      m.uniforms.resolution = this.mat.trait.uniforms.resolution;
+      for (const l of traits) { if (l.isPoints) { l.visible = false; continue; } if (!l.material.dashed) l.material = m; this.traitsAutres.push(l); }
+      this.outils.add(t);
+      [Q.A, Q.B].forEach(([x, y], k) => {
+        const g = new THREE.Group();
+        g.add(etiquette(Q.lettres?.[k] || (k ? "B" : "A"), this.T.coupe.trait));
+        g.position.set(x, solEn(this.G, x, y) - this.zRef + 1, -y);
+        this.outils.add(g); this.reperesAutres.push(g);
+      });
+    }
     if (P && this.couperModele === false) {
       // maquette entière : seulement le trait de coupe (terrain et bâtiments, murs à leur position exacte), qui épouse
       // les toits et les façades ; un rappel pâle, vu à travers, là où il passe derrière un bâtiment
@@ -1949,6 +1972,7 @@ void main() {
     // poignées de taille constante à l'écran, focale comprise (les vues plan et élévation utilisent une focale très longue)
     const f = 0.011 * Math.tan(this.camera.fov * Math.PI / 360) / Math.tan(Math.PI / 8);
     for (const g of this.poignees) g.scale.setScalar(Math.max(0.6, c.distanceTo(g.position) * f));
+    for (const g of this.reperesAutres || []) g.scale.setScalar(0.8 * Math.max(0.6, c.distanceTo(g.position) * f));
   }
 
   appliquerCoupe() {

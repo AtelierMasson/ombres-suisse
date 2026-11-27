@@ -788,7 +788,7 @@ function majCoupe(A, B, { rapide = false } = {}) {
   P.lettres = S.coupe.lettres;
   ongletsCoupe();
   $("#legendePoints").hidden = !S.coupe.P.points;
-  scene.definirCoupe(S.coupe.P);
+  scene.definirCoupe(S.coupe.P, autresCoupes());
   dessinCoupe();
 }
 function lettresLibres() {
@@ -834,7 +834,11 @@ function dessinCoupe() {
 }
 // inverser la coupe : A et A' échangés, on regarde de l'autre côté (jamais automatique)
 $("#btnInverserCoupe").addEventListener("click", () => { if (S.coupe) majCoupe(S.coupe.B, S.coupe.A); });
-$("#vCouperModele").addEventListener("change", e => { scene.couperModele = e.target.checked; if (S.coupe) scene.definirCoupe(S.coupe.P); });
+// autres coupes ouvertes : montrées en 3D, plus pâles (scene.definirCoupe)
+function autresCoupes() { return (S.coupes || []).filter(c => c !== S.coupe && c.P).map(c => c.P); }
+// par défaut, la maquette n'est pas coupée : seule la ligne de coupe est dessinée
+scene.couperModele = $("#vCouperModele").checked;
+$("#vCouperModele").addEventListener("change", e => { scene.couperModele = e.target.checked; if (S.coupe) scene.definirCoupe(S.coupe.P, autresCoupes()); });
 // la carte de la coupe prend toute la largeur en bas : le panneau s'arrête au-dessus, le profil suit la largeur
 new ResizeObserver(() => {
   const h = $("#coupe").hidden ? 0 : $("#coupe").offsetHeight + 12;
