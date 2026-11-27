@@ -64,7 +64,7 @@ export function projeterNoeuds(N, x, y) {
 }
 
 /** Nœud interpolé à l'abscisse s (bornée aux bouts) : position, normale (gauche) unitaire, rives, chaussée, dévers… */
-function noeudEn(N, s) {
+export function noeudEn(N, s) {
   const K = N.s.length;
   let i = 0, lo = 0, hi = K - 1;
   if (s <= N.s[0]) i = 0; else if (s >= N.s[K - 1]) i = K - 2;
@@ -187,7 +187,7 @@ export function anneauxSections(contours) {
  * épaisseur constante. Raccord : sur les 6 derniers mètres de chaque bout, la chaussée glisse vers le terrain mesuré
  * (s'il est à moins de 2,5 m ; sinon le terrain est le fond de la vallée), en travers selon une droite.
  */
-function normaliser(P, E0, N0, sol) {
+export function normaliser(P, E0, N0, sol) {
   const a = P.axe.map(([e, n, z]) => [e - E0, n - N0, z]), cum = [0];
   for (let i = 1; i < a.length; i++) cum.push(cum[i - 1] + Math.hypot(a[i][0] - a[i - 1][0], a[i][1] - a[i - 1][1]));
   const L = cum.at(-1), nrm = a.map((_, i) => { const A = a[Math.max(0, i - 1)], B = a[Math.min(a.length - 1, i + 1)], l = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1; return [-(B[1] - A[1]) / l, (B[0] - A[0]) / l]; });
@@ -880,6 +880,13 @@ export function creuserSousPonts(G, modeles, E0, N0) {
       }
       if (best > l2 || sb < 3 || sb > L - 3) continue;
       const p = j * G.n + i;
+      // végétation à hauteur de la chaussée (points mal classés sur le tablier, branches à ras) : retirée, sinon des points
+      // d'arbres couvraient le tablier fait main. La chaussée de la case est notée pour les points d'arbres (maillages.js)
+      if (best < demi + 0.5) {
+        const zc = chaussee(sb);
+        (G.chausseePont ||= new Float32Array(G.n * G.n).fill(NaN))[p] = zc;
+        if (G.veg && G.veg[p] > zc - 1 && G.veg[p] < zc + 1.5) { G.veg[p] = NaN; n++; }
+      }
       // pont couvert : le relevé le classe « bâtiment », extrudé plein jusqu'au sol (Bad Säckingen) ; le modèle le remplace
       if (G.bat && !isNaN(G.bat[p]) && best < demi + 0.5 && G.bat[p] > chaussee(sb) - 3) { G.bat[p] = NaN; n++; }
       if (!pieds.length || (P.remblai || []).some(([r0, r1]) => sb >= r0 && sb <= r1)) continue;

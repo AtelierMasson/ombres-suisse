@@ -6,6 +6,7 @@ import { contoursBatiments } from "./contours.js";
 import { pansToits } from "./pans.js";
 import { modeliserPonts, solAffiche } from "./pontsAuto.js";
 import { maillagePont } from "./pontsModeles.js";
+import { MARGE_RACCORD, procheDe, boite, bordZone } from "./raccordsPonts.js";
 import { preparerArbres, tuilerPoints, MARGE_ENFOUIS } from "./arbresEspeces.js";
 
 /** Suite de nombres dans un tableau typé qui grandit par doublement, quand la taille n'est pas connue d'avance. */
@@ -60,29 +61,62 @@ export function terrain(G, zRef) {
     for (let b = b0; b < b1; b++) bord.push(b * m + a1);
     for (let a = a1; a > a0; a--) bord.push(b1 * m + a);
     for (let b = b1; b > b0; b--) bord.push(b * m + a0);
-    plus.push({ bord, trou: B.anneau, niveau: B.niveau });
+    plus.push({ bord, X: B.anneau.map(p => p[0]), Y: B.anneau.map(p => p[1]), Z: B.anneau.map(() => B.niveau), trou: B.anneau.map((_, i) => i), tri: [] });
   }
-  // sommets ajoutés (contours des bassins) après ceux de la grille
-  let nAjout = 0; for (const P of plus) nAjout += P.trou.length;
+  // arrivées des ponts faits main (G.raccordsPonts, raccordsPonts.js) : les cases à moins de MARGE_RACCORD du raccord
+  // (rives du tablier, joint, route d'accès) sont retirées, puis retriangulées du bord de la zone (sommets de la grille)
+  // jusqu'au contour exact ; la route d'accès a ses propres triangles
+  for (const Rc of G.raccordsPonts || []) {
+    const [x0, x1, y0, y1] = boite(Rc.zone, MARGE_RACCORD + pasM);
+    const a0 = Math.max(0, Math.floor((x0 - G.x0) / pasM)), a1 = Math.min(m - 2, Math.floor((x1 - G.x0) / pasM));
+    const b0 = Math.max(0, Math.floor((y0 - G.x0) / pasM)), b1 = Math.min(m - 2, Math.floor((y1 - G.x0) / pasM));
+    // cases retenues, ligne par ligne, sans lacune dans une ligne (bord plus simple)
+    const lignes = [];
+    for (let b = b0; b <= b1; b++) {
+      let g = Infinity, d = -Infinity;
+      for (let a = a0; a <= a1; a++) {
+        const xa = G.x0 + a * pasM, ya = G.x0 + b * pasM;
+        if (procheDe([[xa, ya], [xa + pasM, ya], [xa + pasM, ya + pasM], [xa, ya + pasM]], Rc.zone, MARGE_RACCORD)) { g = Math.min(g, a); d = Math.max(d, a); }
+      }
+      if (d >= g) lignes.push([b, g, d]);
+    }
+    let libre = lignes.length > 0;
+    const cases = [];
+    for (const [b, g, d] of lignes) for (let a = g; a <= d && libre; a++) {
+      const p = b * m + a;
+      if (retire[b * (m - 1) + a] || dehors[p] || dehors[p + 1] || dehors[p + m] || dehors[p + m + 1]) libre = false; else cases.push(b * (m - 1) + a);
+    }
+    if (!libre) continue; // contre une piscine, un autre raccord ou le bord du cercle : la grille reste
+    const triCases = [];
+    for (const c of cases) { const a = c % (m - 1), b = (c - a) / (m - 1), p = b * m + a; triCases.push(p, p + 1, p + m + 1, p, p + m + 1, p + m); }
+    const bord = bordZone(triCases, m * m);
+    if (!bord) continue;
+    for (const c of cases) retire[c] = 1;
+    plus.push({ bord, X: Rc.X, Y: Rc.Y, Z: Rc.Z, trou: Rc.trou, tri: Rc.tri });
+  }
+  // sommets ajoutés (contours des bassins, raccords des ponts) après ceux de la grille
+  let nAjout = 0; for (const P of plus) nAjout += P.X.length;
   const posT = new Float32Array(pos.length + nAjout * 3), uvT = new Float32Array(uv.length + nAjout * 2);
   posT.set(pos); uvT.set(uv);
   let k0 = m * m;
   const tris = [];
+  // même sens que la grille (normale vers le haut : sens trigonométrique vu de dessus)
+  const poser = (A, Bv, C) => {
+    const cr = (posT[3 * Bv] - posT[3 * A]) * (-posT[3 * C + 2] + posT[3 * A + 2]) - (-posT[3 * Bv + 2] + posT[3 * A + 2]) * (posT[3 * C] - posT[3 * A]);
+    if (cr >= 0) tris.push(A, Bv, C); else tris.push(A, C, Bv);
+  };
   for (const P of plus) {
     const base = k0;
-    for (const [x, y] of P.trou) {
-      posT[3 * k0] = x; posT[3 * k0 + 1] = P.niveau - zRef; posT[3 * k0 + 2] = -y;
+    for (let i = 0; i < P.X.length; i++) {
+      const x = P.X[i], y = P.Y[i];
+      posT[3 * k0] = x; posT[3 * k0 + 1] = P.Z[i] - zRef; posT[3 * k0 + 2] = -y;
       uvT[2 * k0] = (x - G.x0) / (2 * G.R); uvT[2 * k0 + 1] = (y - G.x0) / (2 * G.R); k0++;
     }
     const v2 = k => new THREE.Vector2(posT[3 * k], -posT[3 * k + 2]);
-    const contour = P.bord.map(v2), trou = P.trou.map((_, i) => v2(base + i));
-    const ids = [...P.bord, ...P.trou.map((_, i) => base + i)];
-    for (const [i, j, l] of THREE.ShapeUtils.triangulateShape(contour, [trou])) {
-      // même sens que la grille (normale vers le haut : sens trigonométrique vu de dessus)
-      const A = ids[i], Bv = ids[j], C = ids[l];
-      const cr = (posT[3 * Bv] - posT[3 * A]) * (-posT[3 * C + 2] + posT[3 * A + 2]) - (-posT[3 * Bv + 2] + posT[3 * A + 2]) * (posT[3 * C] - posT[3 * A]);
-      if (cr >= 0) tris.push(A, Bv, C); else tris.push(A, C, Bv);
-    }
+    const contour = P.bord.map(v2), trou = P.trou.map(i => v2(base + i));
+    const ids = [...P.bord, ...P.trou.map(i => base + i)];
+    for (const [i, j, l] of THREE.ShapeUtils.triangulateShape(contour, [trou])) poser(ids[i], ids[j], ids[l]);
+    for (let t = 0; t < P.tri.length; t += 3) poser(base + P.tri[t], base + P.tri[t + 1], base + P.tri[t + 2]);
   }
   const idx = new Uint32Array((m - 1) * (m - 1) * 6 + tris.length);
   let q = 0;
@@ -655,7 +689,9 @@ const vegetation = cl => cl === 3 || cl === 4 || cl === 5;
 export function nuagePoints(nuage, G, zRef, mode, part, taille) {
   const { n, c, R } = G, { X, Y, Z, C } = nuage, pas = Math.max(1, Math.round(1 / part)), arbres = mode === "arbres";
   const r2 = G.rayonZone ? G.rayonZone * G.rayonZone : Infinity; // maquette ronde : points du cercle seulement
-  const dedans = k => { const i = Math.floor((X[k] + R) / c), j = Math.floor((Y[k] + R) / c); return i < 0 || j < 0 || i >= n || j >= n || X[k] * X[k] + Y[k] * Y[k] > r2 ? -1 : j * n + i; };
+  // points d'arbres posés sur le tablier d'un pont fait main (entre 0,8 m sous la chaussée et 1,5 m au-dessus) : écartés
+  const CP = arbres ? G.chausseePont : null;
+  const dedans = k => { const i = Math.floor((X[k] + R) / c), j = Math.floor((Y[k] + R) / c); if (i < 0 || j < 0 || i >= n || j >= n || X[k] * X[k] + Y[k] * Y[k] > r2) return -1; const p = j * n + i; return CP && Z[k] > CP[p] - 0.8 && Z[k] < CP[p] + 1.5 ? -1 : p; };
   // première passe : compter (tableaux typés à la bonne taille)
   let nv = 0, na = 0;
   for (let k = 0; k < nuage.n; k += arbres ? 1 : pas) {
