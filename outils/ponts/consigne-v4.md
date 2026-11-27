@@ -7,7 +7,7 @@ Référence de précision : `outils/ponts/modeles/poya.json` (pont de la Poya). 
 ## Économie (obligatoire)
 - Ne lis pas d'autres fichiers du dépôt que ceux nommés ici. Ne recopie pas le résumé du relevé dans ta réflexion :
   lis-le avec `sed -n`/`awk` par tranches utiles (bouts, piles, terrain).
-- Recherche web : 3 requêtes au plus. Photos : 2 à 4 (niveau A), 1 à 2 (niveau B), < 1,5 Mo chacune,
+- Recherche web : 3 requêtes au plus. Photos : **au moins 2, de côtés différents** (niveau A : 2 à 4 ; niveau B : 1 à 2), < 1,5 Mo chacune,
   Wikimedia Commons de préférence ; ouvre-les avec Read.
 - Pas de navigateur au niveau B. Au niveau A, un seul onglet à toi (jamais l'onglet « seed »), fermé à la fin.
 
@@ -19,7 +19,11 @@ Référence de précision : `outils/ponts/modeles/poya.json` (pont de la Poya). 
    depuis l'axe TLM, les altitudes du terrain et les photos, `confiance` « faible ».
 2. **Sources et photos** : type, portées, nombre et forme des piles/arches/pylônes, matériaux. Regarde chaque appui
    **au-dessus, en dessous et à côté du tablier**.
-3. **Modèle** dans `outils/ponts/modeles/<id>.json`, au style du pont (voir tableau), puis
+3. **Modèle** dans `outils/ponts/modeles/<id>.json`, au style du pont (voir tableau). **D'abord caler le modèle sur
+   le nuage** (axe, altitudes, largeur, place et taille des piles, hauteur du toit ou des pylônes : points classes
+   17, 6 et 1 du couloir ; un pont couvert est souvent classé « bâtiment », 6), **ensuite seulement les photos** pour
+   la forme. Un pont couvert : tablier, parois, toiture à deux pans et dessous **ouvert entre les piles** (jamais un
+   bloc plein jusqu'à l'eau). Puis
    `python3 outils/ponts/ajouter.py outils/ponts/modeles/<id>.json`.
 4. **Nuage** : `node outils/ponts/verifier_nuage.mjs outils/ponts/modeles/<id>.json ~/Downloads/ombres-suisse-donnees/ponts-verif/<id>.png`.
    Cibles : tablier médiane à ±0,2 m ; ≥ 85 % des points d'ouvrage à < 1,5 m du modèle ; **« Terrain de la maquette :

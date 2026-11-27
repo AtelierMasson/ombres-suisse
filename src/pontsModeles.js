@@ -525,7 +525,8 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0], opts =
  * l'emprise, souvent des rues au niveau de la chaussée (viaduc urbain), et le terrain bouchait l'ouvrage jusqu'au
  * tablier (Grand-Pont à Lausanne). Là où le sol monte à moins d'un mètre du dessous du tablier, il est abaissé sur la
  * ligne qui joint les pieds connus de l'ouvrage (piles : `z_bas`, arches : naissances), jamais relevé. Sans pied connu
- * (pont d'une seule portée), rien ne change. Tronçons `remblai: [[s0, s1], …]` du modèle (arches remplies, vallée
+ * (pont d'une seule portée), le sol ne change pas. Les cellules « bâtiment » sous le tablier (pont couvert classé bâtiment
+ * par le relevé) sont vidées. Tronçons `remblai: [[s0, s1], …]` du modèle (arches remplies, vallée
  * remblayée, p. ex. le Flon sous le Grand-Pont) : le sol y reste tel quel. Renvoie le nombre de cellules abaissées.
  */
 export function creuserSousPonts(G, modeles, E0, N0) {
@@ -541,7 +542,6 @@ export function creuserSousPonts(G, modeles, E0, N0) {
       const zf = A.z_naissance_fin ?? A.z_naissance;
       if (Number.isFinite(zf)) pieds.push([A.s1, zf]);
     }
-    if (!pieds.length) continue;
     pieds.sort((p, q) => p[0] - q[0]);
     const profil = s => {
       if (s <= pieds[0][0]) return pieds[0][1];
@@ -564,8 +564,11 @@ export function creuserSousPonts(G, modeles, E0, N0) {
         if (d < best) { best = d; sb = cum[k] + u * Math.sqrt(l); }
       }
       if (best > l2 || sb < 3 || sb > L - 3) continue;
-      if ((P.remblai || []).some(([r0, r1]) => sb >= r0 && sb <= r1)) continue;
-      const p = j * G.n + i, z = G.sol[p], zp = profil(sb);
+      const p = j * G.n + i;
+      // pont couvert : le relevé le classe « bâtiment », extrudé plein jusqu'au sol (Bad Säckingen) ; le modèle le remplace
+      if (G.bat && !isNaN(G.bat[p]) && best < P.largeur / 2 + 0.5) { G.bat[p] = NaN; n++; }
+      if (!pieds.length || (P.remblai || []).some(([r0, r1]) => sb >= r0 && sb <= r1)) continue;
+      const z = G.sol[p], zp = profil(sb);
       if (!(z > chaussee(sb) - ep - 1) || !(z > zp + 0.3)) continue;
       G.sol[p] = zp; n++;
     }
