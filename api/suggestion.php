@@ -48,7 +48,10 @@ file_put_contents("$dossier/suggestions.jsonl", json_encode($entree, JSON_UNESCA
 
 // signalement par e-mail (au mieux : l'enregistrement ci-dessus fait foi)
 $corps = $texte . "\n\n—\n" . ($email !== '' ? "Répondre à : $email\n" : '') . "Lieu : {$entree['lieu']}\nLangue : {$entree['langue']}\n";
-@mail('contact@topograph.ch', '=?UTF-8?B?' . base64_encode('Topograph — suggestion') . '?=', $corps,
-    "From: Topograph <contact@topograph.ch>\r\nContent-Type: text/plain; charset=UTF-8" . ($email !== '' ? "\r\nReply-To: $email" : ''));
+// par le SMTP authentifié de l'API (aligné SPF/DKIM) : mail() sans enveloppe alignée était rejeté par DMARC
+if (is_file(__DIR__ . '/config.php')) {
+    require_once __DIR__ . '/_commun.php';
+    @envoyer_email(defined('CONTACT_EMAIL') ? CONTACT_EMAIL : 'contact@topograph.ch', 'Topograph — suggestion', $corps);
+}
 
 echo '{"ok":true}';

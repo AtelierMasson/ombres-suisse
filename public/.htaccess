@@ -20,5 +20,16 @@ AddOutputFilterByType DEFLATE application/javascript application/json text/css t
   </FilesMatch>
 </IfModule>
 
+# en-têtes de sécurité (audit du 27.11.2026) : appliqués ; la politique de contenu (CSP) est d'abord en mode « rapport
+# seulement » pour vérifier qu'elle ne bloque rien (services swisstopo, cantons, AWS), avant de l'imposer
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+  Header always set Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; connect-src 'self' https://*.geo.admin.ch https://geodienste.ch https://www.ogc.vd.ch https://elevation-tiles-prod.s3.amazonaws.com; img-src 'self' data: blob: https://*.geo.admin.ch https://geodienste.ch https://www.ogc.vd.ch https://elevation-tiles-prod.s3.amazonaws.com; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com"
+</IfModule>
+
 # protection git
 RedirectMatch 404 /\.git

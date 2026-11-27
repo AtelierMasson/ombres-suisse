@@ -10,6 +10,8 @@ import { dxfReference } from "./referenceParcelle.js";
 import { solEn } from "./grille.js";
 import { ICONE } from "./icones.js";
 import { brancherEdition } from "./editionVolumes.js";
+// données externes (cadastre, noms de fichiers) insérées dans du HTML : échappées (audit du 27.11.2026)
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const memoire = (cle, valeur) => {
@@ -54,7 +56,7 @@ export function brancherPro(o) {
     $("#etatPro").textContent = P.masques.size ? t("pro.etat", { n: nbMasques, v: P.masques.size }) : "";
     const F = V && P.selection.size ? ficheVolumes(S.G, scene.contoursTous, V, P.selection) : null;
     $("#fichePro").innerHTML = F
-      ? `<b>${P.selNom || (F.batiments > 1 ? t("pro.ficheN", { n: F.batiments }) : t("pro.ficheBatiment"))}</b><br>`
+      ? `<b>${esc(P.selNom) || (F.batiments > 1 ? t("pro.ficheN", { n: F.batiments }) : t("pro.ficheBatiment"))}</b><br>`
         + t("pro.ficheHauteur", { haut: fr(F.haut), moyenne: fr(F.moyenne) })
         + t("pro.ficheEmprise", { emprise: entier(F.emprise), n: F.niveaux })
         + `<span class="text-secondary">${t("pro.ficheSommet", { z: fr(F.sommet) })}</span>`
@@ -206,7 +208,7 @@ export function brancherPro(o) {
     const modeles = P.imports.map(m => {
       const d = document.createElement("div");
       d.className = "volume";
-      d.innerHTML = `<span></span><span style="grid-column: 2 / 6">${t("import.modele", { nom: m.nom })}<br><span class="text-secondary">${m.note}</span></span>`
+      d.innerHTML = `<span></span><span style="grid-column: 2 / 6">${t("import.modele", { nom: esc(m.nom) })}<br><span class="text-secondary">${esc(m.note)}</span></span>`
         + `<button type="button" title="${t("import.retirer")}" aria-label="${t("import.retirer")}">${ICONE.fermer}</button>`;
       d.querySelector("button").onclick = () => { P.imports = P.imports.filter(x => x !== m); importsChanges(); };
       return d;
@@ -234,7 +236,7 @@ export function brancherPro(o) {
     const caches = P.caches.map(c => {
       const d = document.createElement("div");
       d.className = "volume";
-      d.innerHTML = `<span style="grid-column: 2 / 6">${c.nom} <span class="text-secondary">· ${t(c.visible ? "pro.montre" : "pro.masque")}</span></span>`
+      d.innerHTML = `<span style="grid-column: 2 / 6">${esc(c.nom)} <span class="text-secondary">· ${t(c.visible ? "pro.montre" : "pro.masque")}</span></span>`
         + `<button type="button" title="${t("pro.retablir")}" aria-label="${t("pro.retablir")}">${ICONE.fermer}</button>`;
       d.prepend(oeil(c.visible, t("pro.voirMasque"), ok => { memoriser(); c.visible = ok; appliquer(); }));
       d.querySelector("button").onclick = () => { memoriser(); P.caches = P.caches.filter(x => x !== c); appliquer(); };

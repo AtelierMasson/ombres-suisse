@@ -46,7 +46,8 @@ export function brancherFiche(conteneur, t) {
 
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const ligne = (cle, v) => v == null || v === "" ? "" : `<dt>${esc(t(cle))}</dt><dd>${esc(v)}</dd>`;
-  const lien = (url, cle) => `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(t(cle))} ↗</a>`;
+  // liens : https seulement (une adresse fournie par un service externe pourrait être « javascript: »)
+  const lien = (url, cle) => /^https:\/\//i.test(String(url)) ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(t(cle))} ↗</a>` : "";
 
   function fermer() { demande++; boite.hidden = true; }
 
