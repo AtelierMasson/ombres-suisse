@@ -3,8 +3,8 @@
 // exactement les triangles du fichier.
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { zipSync, strToU8 } from "three/addons/libs/fflate.module.js";
-import { calculerImpression, stlBinaire } from "./impression3d.js";
+import { zipSync } from "three/addons/libs/fflate.module.js";
+import { calculerImpression, stlBinaire, contenuZip } from "./impression3d.js";
 import { t, nombre, entier } from "./i18n.js";
 import "./impression3d.css";
 
@@ -31,7 +31,7 @@ function construireFenetre() {
   dlg.innerHTML = `<form method="dialog" class="impr-boite">
     <div class="impr-tete"><b>${t("impr.titre")}</b><button type="button" class="btn-close" data-fermer aria-label="${t("legal.fermer")}"></button></div>
     <div class="impr-corps">
-      <div class="impr-apercu"><canvas></canvas><div class="impr-calcul" hidden></div><div class="impr-invite" hidden></div></div>
+      <div class="impr-apercu"><canvas></canvas><div class="impr-calcul" role="status" hidden><span></span><button type="button" data-annuler>${t("impr.annuler")}</button></div><div class="impr-invite" hidden></div></div>
       <div class="impr-options">
         ${sel("batiments", CHOIX.batiments, "releve", "impr.batiments")}
         <div class="impr-duo">${sel("taille", TAILLES, 200, "impr.taille")}${sel("echelle", [], "", "impr.echelle")}</div>
@@ -48,7 +48,17 @@ function construireFenetre() {
   </form>`;
   document.body.append(dlg);
   dlg.addEventListener("click", e => { if (e.target === dlg || e.target.closest("[data-fermer]")) dlg.close(); });
-  dlg.addEventListener("close", () => { if (rendu) rendu.setAnimationLoop(null); arreter(); tour++; toits.clear(); });
+  dlg.addEventListener("close", () => {
+    // fenêtre fermée : calcul arrêté, aperçu et résultats rendus à la mémoire
+    if (rendu) rendu.setAnimationLoop(null);
+    arreter(); tour++; toits.clear(); clearTimeout(minuteur);
+    vider(); dernier = null;
+  });
+  dlg.querySelector("[data-annuler]").onclick = () => {
+    arreter(); tour++; clearTimeout(minuteur);
+    dlg.querySelector(".impr-calcul").hidden = true;
+    dlg.querySelector(".impr-infos").textContent = t("impr.annule");
+  };
   const f = dlg.querySelector("form");
   f.elements.decoupe.innerHTML = [1, 2, 3, 4].map(n => `<option value="${n}">${n === 1 ? t("impr.decoupe1") : t("impr.decoupeN", { n })}</option>`).join("");
   const canvas = dlg.querySelector("canvas");
@@ -77,21 +87,42 @@ const coteReel = G => G.rayonZone ? G.rayonZone - 0.5 : G.R - G.c / 2; // demi-c
 function accorderTaille(ctx, source) {
   const f = dlg.querySelector("form"), E = f.elements.echelle, T = f.elements.taille;
   T.querySelector("[data-echelle]")?.remove();
-  if (source === "taille" || !E.value) { if (source === "taille") E.value = ""; if (!T.value) T.value = "200"; return; }
+  if (source === "taille" || !E.value) { if (source === "taille") E.value = ""; if (!T.value) T.value = "200"; accorderDecoupe(); return; }
   const mm = Math.round(2 * coteReel(ctx.G) * 1000 / +E.value * 10) / 10;
   T.insertAdjacentHTML("beforeend", `<option value="${mm}" data-echelle>${nombre(mm, 0)}</option>`);
   T.value = String(mm);
-  // plus grand qu'un plateau courant : découpe proposée d'office
-  const D = f.elements.decoupe, n = Math.min(4, Math.ceil(mm / 400));
+  accorderDecoupe();
+}
+
+/** Découpes trop grossières pour la taille (tuile de plus de 400 mm) : grisées, et découpe relevée au besoin. */
+function accorderDecoupe() {
+  const f = dlg.querySelector("form"), D = f.elements.decoupe, n = decoupeMin(+f.elements.taille.value);
+  for (const op of D.options) op.disabled = +op.value < n;
   if (+D.value < n) D.value = String(n);
 }
 
 function options() {
   const f = dlg.querySelector("form"), v = n => f.elements[n].value;
-  return { batiments: v("batiments"), taille: +v("taille"), decoupe: +v("decoupe"), exag: +v("exag"), socle: +v("socle"), arbres: v("arbres"), finesse: v("finesse"), eau: f.elements.eau.checked, min: 0.8 };
+  return { batiments: v("batiments"), taille: +v("taille"), decoupe: Math.max(+v("decoupe"), decoupeMin(+v("taille"))), exag: +v("exag"), socle: +v("socle"), arbres: v("arbres"), finesse: v("finesse"), eau: f.elements.eau.checked, min: 0.8 };
 }
 
 function arreter() { fil?.terminate(); fil = null; }
+
+/** Retire l'aperçu de la scène et libère ses géométries. */
+function vider() {
+  if (!groupe) return;
+  scene3.remove(groupe); groupe.traverse(o => o.geometry?.dispose()); groupe = null;
+}
+
+/** Message d'erreur lisible : mémoire épuisée (grande maquette) ou fil de calcul interrompu. */
+function messageErreur(e) {
+  const m = String(e?.message || e || "");
+  if (e instanceof RangeError || /memory|allocation|array length|out of memory/i.test(m)) return t("impr.erreurMemoire");
+  return t("impr.erreur", { m: m || t("impr.erreurFil") });
+}
+
+/** Découpe minimale : chaque tuile doit tenir sur un plateau de 400 mm. */
+const decoupeMin = taille => Math.max(1, Math.min(4, Math.ceil(taille / 400 - 1e-9)));
 
 /** Calcul dans un fil (remplacé si les options changent entre-temps) ; sans fil disponible, calcul direct. */
 function lancer(d, o, etape) {
@@ -101,18 +132,22 @@ function lancer(d, o, etape) {
       fil = new Worker(new URL("./impression3d.worker.js", import.meta.url), { type: "module" });
     } catch { fil = null; }
     if (!fil) { try { ok(calculerImpression(d, o)); } catch (e) { ko(e); } return; }
+    const moi = fil;
+    // résultat reçu : le fil est arrêté (sa mémoire, grilles et toits copiés, est rendue aussitôt)
+    const finir = () => { if (fil === moi) arreter(); };
     fil.onmessage = ({ data }) => {
       if (data.etape) return etape(data.etape, data.part);
-      if (data.ok) ok(data.r); else ko(new Error(data.erreur));
+      finir();
+      if (data.ok) ok(data.r); else ko(Object.assign(new Error(data.erreur), { memoire: data.memoire }));
     };
-    fil.onerror = e => ko(new Error(e.message || "fil"));
+    fil.onerror = e => { e.preventDefault?.(); finir(); ko(new Error(e.message || "")); };
     fil.postMessage({ d, o });
   });
 }
 
 /** Aperçu : un maillage par tuile, tel qu'il sera écrit (terrain et bâtiments en deux teintes) ; tuiles un peu écartées. */
 function montrer(r) {
-  if (groupe) { scene3.remove(groupe); groupe.traverse(o => o.geometry?.dispose()); }
+  vider();
   groupe = new THREE.Group();
   const N = r.infos.decoupe, ecart = N > 1 ? Math.max(1.5, r.infos.taille * 0.012) : 0;
   for (const tu of r.tuiles) {
@@ -139,9 +174,11 @@ function ecrireInfos(r) {
   lignes.push(t("impr.infos", { x: nombre(i.dims[0], 0), y: nombre(i.dims[1], 0), z: nombre(i.dims[2], 0), echelle: entier(i.echelle), triangles: entier(i.triangles), mo: nombre(i.octets / 1e6, 1) })
     + (N > 1 ? " · " + t("impr.infosTuiles", { n: r.tuiles.length, x: nombre(i.taille / N, 0) }) : ""));
   const details = [t("impr.solides", { n: entier(i.batiments) })];
+  if (i.arbres) details.push(t("impr.arbresN", { n: entier(i.arbres) }));
   if (i.debords) details.push(t("impr.debords", { n: entier(i.debords) }));
   if (i.fins) details.push(t("impr.fins", { n: entier(i.fins) }));
   details.push(i.etanche ? `<span class="impr-ok">✓ ${t("impr.etanche")}</span>` : `<span class="impr-ko">${t("impr.pasEtanche", { n: i.ouvertes })}</span>`);
+  if (i.taille / N > 400) details.push(`<span class="impr-alerte">${t("impr.tropGrand")}</span>`);
   lignes.push(details.join(" · "));
   dlg.querySelector(".impr-infos").innerHTML = lignes.join("<br>");
 }
@@ -171,19 +208,21 @@ async function lireToits(ctx, type, zone) {
 
 /** Calcule les solides avec les options du moment et met l'aperçu à jour. */
 function calculer(ctx) {
-  const zone = dlg.querySelector(".impr-calcul"), bouton = dlg.querySelector("[data-telecharger]");
-  zone.hidden = false; zone.textContent = t("impr.calcul");
+  const zone = dlg.querySelector(".impr-calcul"), texte = zone.querySelector("span"), bouton = dlg.querySelector("[data-telecharger]");
+  zone.hidden = false; texte.textContent = t("impr.calcul");
+  // le fichier précédent ne correspond plus aux options : pas de téléchargement avant la fin du nouveau calcul
+  bouton.disabled = true; dernier = null;
   clearTimeout(minuteur);
   minuteur = setTimeout(async () => {
     const o = options(), G = ctx.G, moi = ++tour;
     bouton.textContent = o.decoupe > 1 ? t("impr.telechargerZip", { n: o.decoupe * o.decoupe }) : t("impr.telecharger");
-    const lots = await lireToits(ctx, o.batiments, zone);
+    const lots = await lireToits(ctx, o.batiments, texte);
     if (moi !== tour) return;
     if (!lots) { zone.hidden = true; return; }
     const d = { G: { n: G.n, c: G.c, x0: G.x0, R: G.R, rayonZone: G.rayonZone, sol: G.sol, eau: G.eau, veg: G.veg }, lots };
     try {
       const debut = performance.now();
-      const r = await lancer(d, o, (etape, part) => { zone.textContent = t("impr.etape." + etape) + (part > 0 && part < 1 ? ` ${Math.round(100 * part)} %` : ""); });
+      const r = await lancer(d, o, (etape, part) => { texte.textContent = t("impr.etape." + etape) + (part > 0 && part < 1 ? ` ${Math.round(100 * part)} %` : ""); });
       if (moi !== tour) return;
       r.infos.attente = performance.now() - debut;
       dernier = { r, o };
@@ -191,7 +230,10 @@ function calculer(ctx) {
       bouton.disabled = false;
     } catch (e) {
       if (moi !== tour) return; // calcul remplacé par un plus récent
-      dlg.querySelector(".impr-infos").innerHTML = `<span class="impr-ko">${t("impr.erreur", { m: e.message })}</span>`;
+      console.error(e);
+      vider();
+      dlg.querySelector(".impr-infos").innerHTML = `<span class="impr-ko"></span>`;
+      dlg.querySelector(".impr-infos span").textContent = e.memoire ? t("impr.erreurMemoire") : messageErreur(e);
     }
     zone.hidden = true;
   }, 80);
@@ -204,9 +246,7 @@ function fichier(ctx) {
     const tu = r.tuiles[0];
     return { blob: new Blob([stlBinaire(tu.pos, tu.idx, `Topograph STL mm 1:${e}`)], { type: "model/stl" }), nom: ctx.nom(base, "stl") };
   }
-  const contenu = {};
-  for (const tu of r.tuiles) contenu[ctx.nom(`${base}_L${tu.ligne}C${tu.colonne}`, "stl")] = [stlBinaire(tu.pos, tu.idx, `Topograph STL mm 1:${e} L${tu.ligne}C${tu.colonne}`, tu.origine), { level: 1 }];
-  contenu["LISEZ-MOI.txt"] = strToU8(t("impr.lisezMoi", { n: o.decoupe, cote: nombre(o.taille / o.decoupe, 0), echelle: entier(e) }));
+  const contenu = contenuZip(r, o, { nom: ctx.nom, lisezMoi: p => t("impr.lisezMoi", { n: p.n, cote: nombre(p.cote, 0), echelle: entier(p.echelle) }) });
   return { blob: new Blob([zipSync(contenu)], { type: "application/zip" }), nom: ctx.nom(base + `_${o.decoupe}x${o.decoupe}`, "zip") };
 }
 
@@ -237,6 +277,8 @@ export function ouvrirImpression3D(ctx) {
   };
   dlg.querySelector(".impr-infos").textContent = "";
   dlg.querySelector(".impr-invite").hidden = true;
+  // aperçu aux couleurs du thème (jour ou nuit)
+  scene3.background = new THREE.Color(getComputedStyle(document.body).getPropertyValue("--discret").trim() || "#eef1f5");
   dlg.showModal();
   const canvas = dlg.querySelector("canvas"), taille = () => {
     const w = canvas.clientWidth || 480, h = canvas.clientHeight || 340;
