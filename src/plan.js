@@ -12,14 +12,17 @@ const COTE0 = 125, NIVEAUX = 9, PIXELS = 512, MAX_TUILES = 160;
 const NAPPES = [{ demi: 1200, px: 4096 }, { demi: 16000, px: 2048 }];
 
 // images gardées d'un lieu à l'autre (les tuiles sont sur la grille MN95, communes à tous les lieux) : en changeant de
-// parcelle, le plan autour réapparaît sans rien retélécharger. Les plus anciennes sont oubliées au-delà de 600.
-const IMAGES = new Map();
+// parcelle, le plan autour réapparaît sans rien retélécharger. Bornées en pixels (D10 ; avant : 600 images de 512²,
+// jusqu'à ~600 Mo décodés) : ~200 Mo sur ordinateur, ~64 Mo sur mobile ; les plus anciennes sont oubliées.
+const IMAGES = new Map(), PIXELS_MAX = (navigator.deviceMemory || 8) <= 4 ? 16e6 : 48e6;
+let pixelsImages = 0;
+const pixelsCle = cle => (+cle.split(":")[2] || PIXELS) ** 2;
 function image(cle, url) {
   if (IMAGES.has(cle)) { const p = IMAGES.get(cle); IMAGES.delete(cle); IMAGES.set(cle, p); return p; }
   const p = chargerImage(url, 2);
-  p.catch(() => IMAGES.delete(cle));
-  IMAGES.set(cle, p);
-  if (IMAGES.size > 600) IMAGES.delete(IMAGES.keys().next().value);
+  p.catch(() => { if (IMAGES.get(cle) === p) { IMAGES.delete(cle); pixelsImages -= pixelsCle(cle); } });
+  IMAGES.set(cle, p); pixelsImages += pixelsCle(cle);
+  while (pixelsImages > PIXELS_MAX && IMAGES.size > 1) { const k = IMAGES.keys().next().value; IMAGES.delete(k); pixelsImages -= pixelsCle(k); }
   return p;
 }
 
@@ -54,6 +57,16 @@ export class TuilesPlan {
     this.demander();
   }
 
+  /** Origine flottante : la scène est recentrée de (dx est, dn nord) ; tuiles et images gardées, seulement décalées. */
+  decaler(dx, dn) {
+    if (!this.lieu) return;
+    this.lieu = { ...this.lieu, E0: this.lieu.E0 + dx, N0: this.lieu.N0 + dn };
+    for (const T of this.tuiles.values()) if (T.maille) { T.maille.position.x -= dx; T.maille.position.z += dn; }
+    for (const n of this.nappes) if (n.centre.z) { n.centre.x -= dx; n.centre.y -= dn; }
+    this.sale = true;
+    this.demander();
+  }
+
   vider() {
     for (const T of this.tuiles.values()) this.liberer(T);
     this.tuiles.clear();
@@ -79,10 +92,24 @@ export class TuilesPlan {
     this.demander();
   }
 
-  /** Recalcul des tuiles voulues, un peu après le dernier mouvement de la caméra. */
+  /**
+   * Recalcul des tuiles voulues : au plus toutes les 200 ms, y compris pendant le mouvement (régulation, D7 ; avant :
+   * seulement après l'arrêt, le plan ne suivait pas un vol ou un déplacement au clavier).
+   */
   demander() {
-    clearTimeout(this.attente);
-    this.attente = setTimeout(() => this.maj(), 150);
+    if (this.attente) return;
+    this.attente = setTimeout(() => { this.attente = null; this.maj(); }, 200);
+  }
+
+  /**
+   * Pixels demandés pour une tuile : selon l'image où elle sera peinte (proche ~0,6 m/px, large ~16 m/px), de 64 à
+   * 512 (puissance de 2). Les tuiles de 1 km et plus, toujours dans l'image large, ne pèsent plus que 64–128 px.
+   */
+  pixels(v) {
+    const [P, L] = this.nappes, x = v.e0 + v.cote / 2 - (this.lieu?.E0 ?? 0), y = v.n0 + v.cote / 2 - (this.lieu?.N0 ?? 0);
+    const proche = Math.max(Math.abs(x - P.centre.x), Math.abs(y - P.centre.y)) < P.demi + v.cote / 2 || !P.centre.z;
+    const res = proche ? 2 * P.demi / P.px : 2 * L.demi / L.px;
+    return Math.min(PIXELS, Math.max(64, 2 ** Math.ceil(Math.log2(v.cote / res))));
   }
 
   /** Tuiles voulues : découpage en quart d'arbre selon la distance à la caméra (ou la largeur vue, en plan). */
@@ -141,9 +168,10 @@ export class TuilesPlan {
     const lieu = this.lieu;
     try {
       const couche = this.couche, boite = [v.e0, v.n0, v.e0 + v.cote, v.n0 + v.cote];
-      const img = await image(`${couche}:${v.cle}`, urlFond(COUCHES[couche], boite, PIXELS));
+      const px = this.pixels(v);
+      const img = await image(`${couche}:${v.cle}:${px}`, urlFond(COUCHES[couche], boite, px));
       // bruit : posé sur le plan cadastral de la même tuile
-      const cad = couche === "bruit" ? await image(`cadastre:${v.cle}`, urlFond(COUCHES.cadastre, boite, PIXELS)) : null;
+      const cad = couche === "bruit" ? await image(`cadastre:${v.cle}:${px}`, urlFond(COUCHES.cadastre, boite, px)) : null;
       if (T.abandon || lieu !== this.lieu || couche !== this.couche) return;
       T.image = img; T.cadastre = cad; T.couche = couche;
       const tex = new THREE.CanvasTexture(this.preparer(T));

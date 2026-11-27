@@ -7,8 +7,8 @@ import { brancherLieux } from "./lieux.js";
 import { brancherCalendrier } from "./calendrier.js";
 import { brancherFiche } from "./fiche.js";
 import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
-import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, versWgs, lireCoordonnees } from "./geo.js";
-import { chargerNuage } from "./nuage.js";
+import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, versWgs, lireCoordonnees, preparerTuiles } from "./geo.js";
+import { chargerNuage, chaufferFils } from "./nuage.js";
 import { LodAnneau } from "./lodAnneau.js";
 import { depuisPoints, depuisRasters, solEn, terrainAutour, garderCercle, majSurface } from "./grille.js";
 import { reliefLointain } from "./lointain.js";
@@ -24,7 +24,7 @@ import { urlFond, COUCHES, prechargerFonds } from "./fond.js";
 import { zoneHeures, soleilsPeriode, carreauxFacades, maillagesHeures } from "./heures.js";
 import { contoursBatiments } from "./contours.js";
 import { profilCoupe, dessinerCoupe } from "./coupe.js";
-import { lancerVol } from "./vol.js";
+import { lancerVol, lancerPaysage } from "./vol.js";
 import { fondLacs, fondAutour } from "./bathy.js";
 import { ICONE } from "./icones.js";
 import { brancherSuggestion } from "./suggestion.js";
@@ -104,6 +104,7 @@ marquerTheme();
 function brancherRecherche(champ) {
   const liste = champ.parentElement.querySelector(".suggestions");
   let ctrl, choix = [];
+  champ.addEventListener("focus", chaufferFils, { once: true }); // fils du nuage prêts avant le premier lieu
   champ.addEventListener("input", () => {
     clearTimeout(ctrl?.t);
     const q = champ.value.trim();
@@ -159,7 +160,7 @@ function accueil() {
 }
 // vol de démonstration (#vol=gruyeres) : plan drone lent, rendu en direct (vol.js) ; à terme, le décor de l'accueil
 let arreterVol = null;
-async function vol(cle) {
+async function vol(cle, monde = 0) {
   const id = ++tache;
   chargement?.abort();
   annulerCalcul();
@@ -172,9 +173,32 @@ async function vol(cle) {
   pro.reinitialiser();
   scene.decalage = 0.17; scene.taille();
   try {
-    const arret = await lancerVol(scene, cle, { etat, actif: () => id === tache });
+    const arret = await lancerVol(scene, cle, { etat, actif: () => id === tache, monde });
     if (id === tache) arreterVol = arret; else arret();
   } catch (e) { console.warn("Vol :", e); etat(1, ""); }
+}
+// paysage navigable (#p=E,N) : monde, bâtiments et arbres swisstopo, sans maquette ; déplacement libre sans rechargement
+// (prototype de l'étape 2 du plan de chargement, derrière cette adresse : le reste du site ne change pas)
+async function paysage(p) {
+  const [E, N] = p.split(",").map(Number);
+  if (!(E > 2480000 && E < 2840000 && N > 1070000 && N < 1300000)) return accueil();
+  const id = ++tache;
+  chargement?.abort();
+  annulerCalcul();
+  arreterVol?.(); arreterVol = null;
+  scene.animation = null;
+  document.body.classList.remove("accueil");
+  scene.decalage = 0; scene.taille();
+  $("#panneau").hidden = $("#panneauPro").hidden = $("#panneauExport").hidden = $("#panneauAffichage").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
+  $("#lieu").textContent = `${E}, ${N}`; $("#lieuType").textContent = t("lieu.paysage");
+  message("");
+  Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
+  pro.reinitialiser();
+  try {
+    const arret = await lancerPaysage(scene, { E, N }, { etat, actif: () => id === tache,
+      surOrigine: (E1, N1) => history.replaceState(null, "", `#p=${E1},${N1}`) });
+    if (id === tache) arreterVol = arret; else arret();
+  } catch (e) { console.warn("Paysage :", e); etat(1, ""); }
 }
 function quitterAccueil() {
   arreterVol?.(); arreterVol = null;
@@ -182,6 +206,16 @@ function quitterAccueil() {
   document.body.classList.remove("accueil");
   scene.animation = null;
   scene.decalage = 0; scene.taille();
+}
+
+/* ------------------------------------------------------------------ mesures */
+// Temps du chargement d'un lieu (ms depuis le début) et mémoire, comme `tempsVol` du vol de l'accueil : lus par
+// outils/mesurer.mjs (window.__scene.tempsVol). Une marque n'est posée qu'une fois par lieu.
+let mesure = null;
+function marquer(nom) {
+  if (!mesure || nom in mesure) return;
+  mesure[nom] = Math.round(performance.now() - mesure.t0);
+  if (performance.memory) mesure.tasMo = Math.round(performance.memory.usedJSHeapSize / 1e6);
 }
 
 /* ------------------------------------------------------------------ chargement d'un lieu */
@@ -247,16 +281,39 @@ function reglerRayon(Rz, recharger = true) {
   afficherRayon(Rz);
   if (!recharger || !S.G) return;
   const finAvant = S.G.rayonZone, finApres = Math.min(Rz, RAYON_FIN_MAX);
-  if (finAvant === finApres && S.fin && Rz + 100 < S.fin.n * S.fin.c / 2) { S.rayonZone = Rz; paysageEtAnneau(tache, scene.idScene); }
+  if (finAvant === finApres && S.E0 != null) { S.rayonZone = Rz; paysageEtAnneau(tache, scene.idScene); }
   else depuisAdresse();
 }
 $("#rayonZone").addEventListener("input", e => { $("#rayonZoneVal").textContent = `${e.target.value} m`; });
 $("#rayonZone").addEventListener("change", e => reglerRayon(+e.target.value));
 $("#rayonZone").max = ronde() ? 1000 : RAYON_FIN_MAX;
 afficherRayon(rayonChoisi() || 200);
-/** Anneau (au-delà du relevé fin) et paysage lointain, qui commence au bord du cercle. */
+/**
+ * Terrain swissALTI3D à 2 m autour du lieu (anneau, raccord du paysage), chargé seulement s'il sert (D1) : anneau
+ * (rayon au-delà du relevé fin) ou case « Paysage ». Gardé tant qu'il couvre le rayon voulu.
+ */
+function rayonFinVoulu() {
+  const anneau = S.G?.rayonZone && S.rayonZone > S.G.rayonZone;
+  if (scene.loin.voir) return Math.max(2000, S.rayonZone + 600);
+  return anneau ? S.rayonZone + 300 : 0;
+}
+async function terrainFin(id) {
+  const R = rayonFinVoulu(), E0 = S.E0, N0 = S.N0;
+  if (!R) return null;
+  if (S.fin && S.fin.E0 === E0 && S.fin.N0 === N0 && S.fin.n * S.fin.c / 2 >= R - 1) return S.fin;
+  marquer("altiDebut");
+  const fin = await tuilesAlti2m([E0 - R, N0 - R, E0 + R, N0 + R]).then(l => terrainAutour(l, E0, N0, R))
+    .catch(e => { console.warn("swissALTI3D 2 m :", e.message); return null; });
+  marquer("alti");
+  if (id !== tache) return null;
+  if (fin) Object.assign(fin, { E0, N0 });
+  return S.fin = fin;
+}
+/** Anneau (au-delà du relevé fin) et paysage lointain, qui commence au bord du cercle ; rien de ce qui ne se voit pas. */
 async function paysageEtAnneau(id, idScene) {
-  const G = S.G, Rz = S.rayonZone, fin = S.fin, E0 = S.E0, N0 = S.N0, rond = !!G?.rayonZone;
+  if (!S.G || id !== tache) return;
+  const fin = await terrainFin(id);
+  const G = S.G, Rz = S.rayonZone, E0 = S.E0, N0 = S.N0, rond = !!G?.rayonZone;
   if (!G || id !== tache) return;
   // lac dans la maquette : il continue dans l'anneau (même niveau, fond mesuré s'il y en a)
   let lac = null;
@@ -288,13 +345,16 @@ async function paysageEtAnneau(id, idScene) {
   }
   if (rond) scene.construireAnneau(fin, G.rayonZone, Rz, { E: E0, N: N0 }, lac);
   if (rond && Rz > G.rayonZone + 5) arbresAnneau(id, G.rayonZone, Rz, E0, N0);
+  if (scene.loin.maille) { scene.scene.remove(scene.loin.maille); scene.loin.maille.geometry.dispose(); scene.loin.maille = null; }
+  if (!scene.loin.voir) { marquer("anneau"); return; } // paysage décoché : rien à calculer (chargé si on le coche)
   // raccord du paysage au bord : la surface de l'eau sur le lac (et non le fond), le terrain ailleurs
   const bordSol = rond && Rz > G.rayonZone && scene.altAnneau ? scene.altAnneau : (x, y) => solEn(G, x, y);
   const bord = lac ? (x, y) => Math.max(bordSol(x, y), lac.niveau) : bordSol;
   const g = await reliefLointain(E0, N0, rond ? Math.max(Rz, G.rayonZone) : G.R, scene.zRef, bord, fin, 50000, rond, lac?.niveau ?? NaN);
-  if (id !== tache) { g.dispose(); return; }
+  if (id !== tache || idScene !== scene.idScene) { g.dispose(); return; }
   if (scene.loin.maille) { scene.scene.remove(scene.loin.maille); scene.loin.maille.geometry.dispose(); scene.loin.maille = null; }
   scene.afficherLointain(g, idScene, { E0, N0 });
+  marquer("paysage");
 }
 
 /**
@@ -320,10 +380,12 @@ async function depuisAdresse(o = null) {
   // mode accueil (`o.accueil` = { E, N, R }) : le décor de la page d'entrée, chargé comme un lieu, sans panneau ni parcelle
   const ACC = o?.accueil || null;
   const h = ACC ? new URLSearchParams(`e=${ACC.E}&n=${ACC.N}`) : new URLSearchParams(location.hash.slice(1));
-  if (!ACC && h.get("vol")) return vol(h.get("vol"));
+  if (!ACC && h.get("vol")) return vol(h.get("vol"), +h.get("monde") || 0);
+  if (!ACC && h.get("p")) return paysage(h.get("p"));
   if (!ACC && !h.get("e")) return accueil();
   const et = ACC ? () => {} : etat;
   const E = +h.get("e"), N = +h.get("n"), id = ++tache;
+  mesure = scene.tempsVol = Object.defineProperty({ lieu: ACC ? "accueil" : `${E},${N}` }, "t0", { value: performance.now() });
   // voyage au clavier : le lieu se recentre sur la caméra sans chercher de parcelle, et la vue est gardée telle quelle
   const voyage = !ACC && h.get("t") === "Voyage", E0avant = S.E0, N0avant = S.N0;
   chargement?.abort();
@@ -338,7 +400,10 @@ async function depuisAdresse(o = null) {
   message("");
   try {
     et(0.02, t("etat.parcelle"));
+    // tuiles du relevé demandées en même temps que la parcelle (boîte la plus grande possible autour du point) : D2
+    preparerTuiles([E - RAYON_FIN_MAX - 150, N - RAYON_FIN_MAX - 150, E + RAYON_FIN_MAX + 150, N + RAYON_FIN_MAX + 150]);
     const parcelle = ACC || voyage ? null : await parcelleEn(E, N);
+    marquer("parcelle");
     if (id !== tache) return;
     // centre et rayon : la parcelle et ~120 m autour (bâtiments voisins, arbres)
     let E0 = E, N0 = N, demi = 20;
@@ -372,7 +437,10 @@ async function depuisAdresse(o = null) {
 
     et(0.05, t("etat.releve"));
     let G, nuage = null, source;
+    // ponts du lieu : ne dépendent que du centre, demandés pendant le relevé (D2)
+    const ponts = pontsAutour(E0, N0, R).catch(() => []);
     const copc = await tuilesNuage(boite);
+    marquer("tuiles");
     if (id !== tache) return;
     if (copc) {
       // densité : 0 légère, 1 équilibrée, 2 complète ; la parcelle et 40 m autour gardent toujours toute la finesse
@@ -382,10 +450,12 @@ async function depuisAdresse(o = null) {
       const apercu = voyage ? null : { debut: total => id === tache && scene.debutChargement(total, R, ACC ? { garderVue: true, z0: ACC.z } : {}), bloc: (...a) => id === tache && scene.ajouterBloc(...a) };
       nuage = await chargerNuage(copc, boite, [E0, N0], 0.5, (f, t) => id === tache && et(0.05 + 0.7 * f, t), (chargement = new AbortController()).signal,
         { interieur: coeur, niveau: niv === 2 ? 0 : niv === 1 ? 1 : 2 }, apercu, ACC || ronde() ? { E: E0, N: N0, R: R + 3 } : null);
+      marquer("nuage");
       if (id !== tache) return;
       et(0.78, t("etat.reconstruction"));
       await pause();
       G = depuisPoints(nuage, R);
+      marquer("grille");
       source = t("source.nuage", { annees: [...new Set(copc.map(u => u.annee))].join(", "), n: entier(nuage.n) });
     } else {
       const g = await tuilesGrille(boite);
@@ -416,7 +486,7 @@ async function depuisAdresse(o = null) {
     scene.typeFond = ACC ? "uni" : typeFond();
     // accueil : brume douce (le réglage de l'utilisateur revient en quittant l'accueil)
     if (ACC) { scene.loin.facteurBrume = 0.6; scene.loin.brume = true; }
-    scene.pontsModeles = await pontsAutour(E0, N0, R).catch(() => []); scene.lieuPonts = { E: E0, N: N0 };
+    scene.pontsModeles = await ponts; scene.lieuPonts = { E: E0, N: N0 };
     if (id !== tache) return;
     const vueAvant = voyage ? { p: scene.camera.position.clone(), c: scene.controls.target.clone(), z: scene.zRef } : null;
     // vue gardée pendant le chargement visible (la caméra s'est placée sur les points du nouveau lieu)
@@ -432,6 +502,8 @@ async function depuisAdresse(o = null) {
       scene.camera.position.copy(vuePoints.p); scene.controls.target.copy(vuePoints.c); scene.controls.update();
     }
     scene.finChargement(true);
+    marquer("maquette");
+    requestAnimationFrame(() => requestAnimationFrame(() => id === tache && marquer("image")));
     if (vueAvant && E0avant != null) {
       // même vue qu'avant le rechargement : la caméra est décalée du déplacement du centre (et de l'altitude de référence)
       const dx = E0 - E0avant, dn = N0 - N0avant, dz = scene.zRef - vueAvant.z;
@@ -469,15 +541,10 @@ async function depuisAdresse(o = null) {
     donnerAltitude(scene.zRef + 1.7);
     if (horizonFini < 1) et(0.9 + 0.1 * horizonFini, t("etat.relief"));
     S.horizon = await horizon;
+    marquer("horizon");
     if (id !== tache) return;
-    // paysage jusqu'à 50 km, des mêmes tuiles (déjà en cache), sans bloquer
-    const idScene = scene.idScene;
-    // anneau intermédiaire : terrain swissALTI3D à 2 m jusqu'à 2 km, puis relief libre jusqu'à 50 km
-    const RAYON_FIN = Math.max(2000, Rz + 600);
-    tuilesAlti2m([E0 - RAYON_FIN, N0 - RAYON_FIN, E0 + RAYON_FIN, N0 + RAYON_FIN])
-      .then(l => terrainAutour(l, E0, N0, RAYON_FIN)).catch(e => { console.warn("swissALTI3D 2 m :", e.message); return null; })
-      .then(fin => { if (id === tache) { S.fin = fin; return paysageEtAnneau(id, idScene); } })
-      .catch(e => console.warn("Relief lointain :", e.message));
+    // anneau (terrain swissALTI3D à 2 m) et paysage jusqu'à 50 km, sans bloquer, seulement s'ils se voient (D1)
+    paysageEtAnneau(id, scene.idScene).catch(e => console.warn("Relief lointain :", e.message));
     et(1, "");
     if (ACC) { volAccueil(E0, N0); return; }
     $("#commandes").hidden = $("#panneauPro").hidden = $("#panneauExport").hidden = $("#panneauAffichage").hidden = false; $("#diagramme").hidden = false;
@@ -788,7 +855,11 @@ $("#vCouleursReelles").addEventListener("change", e => {
   if (e.target.checked && !$("#vPoints").checked && !$("#vPoints").disabled) { $("#vPoints").checked = true; appliquerAffichage(); }
 });
 $("#vReel").addEventListener("change", () => scene.fond(typeFond()));
-$("#vLointain").addEventListener("change", e => scene.reglerLointain({ voir: e.target.checked }));
+$("#vLointain").addEventListener("change", e => {
+  scene.reglerLointain({ voir: e.target.checked });
+  // paysage pas encore calculé (D1 : seulement quand il se voit) : chargé maintenant
+  if (e.target.checked && S.G && !scene.loin.maille && !document.body.classList.contains("accueil")) paysageEtAnneau(tache, scene.idScene).catch(e => console.warn("Relief lointain :", e.message));
+});
 $("#vDegrade").addEventListener("change", e => scene.degradeHauteur(e.target.checked));
 scene.surQualite = q => {
   if (q < 2) return;

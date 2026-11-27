@@ -7,7 +7,7 @@
 // en mémoire (nouveau rayon, voyage au clavier). La taille des points suit la finesse affichée à chaque endroit
 // (petite texture), pour que la couverture reste la même d'un niveau à l'autre.
 import * as THREE from "three";
-import { Copc } from "copc";
+import { enteteCopc, pageHierarchie } from "./nuage.js";
 import { materiauPoints } from "./maillages.js";
 
 const VEGETATION = [3, 4, 5];
@@ -34,11 +34,11 @@ function lireMemoire(k) { const v = memoire.get(k); if (v) { memoire.delete(k); 
 /** En-tête et hiérarchie complète d'une tuile (jusqu'à la finesse utile), une fois par tuile. */
 function entete(url) {
   if (!entetes.has(url)) entetes.set(url, (async () => {
-    const copc = await Copc.create(url), noeuds = [];
+    const copc = await enteteCopc(url), noeuds = [];
     const profMax = Math.max(0, Math.ceil(Math.log2(copc.info.spacing / ESPACEMENT_FIN)));
     const pages = [copc.info.rootHierarchyPage];
     while (pages.length) {
-      const { nodes, pages: sous } = await Copc.loadHierarchyPage(url, pages.pop());
+      const { nodes, pages: sous } = await pageHierarchie(url, pages.pop());
       for (const [k, n] of Object.entries(nodes)) if (n?.pointCount && +k.split("-")[0] <= profMax) noeuds.push([k, n]);
       for (const [k, p] of Object.entries(sous)) if (+k.split("-")[0] <= profMax) pages.push(p);
     }

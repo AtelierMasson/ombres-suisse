@@ -1,11 +1,11 @@
 // Comparaison : bâtiments 3D tout faits de swisstopo (swissBUILDINGS3D, tuiles 3D publiques de geo.admin.ch),
 // posés dans le repère de la scène (x = est, y = altitude relative à zRef, z = sud).
 import * as THREE from "three";
-import { TilesRenderer, WGS84_ELLIPSOID } from "3d-tiles-renderer";
+import { TilesRenderer } from "3d-tiles-renderer";
 import { GLTFExtensionsPlugin } from "3d-tiles-renderer/plugins";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { solEn } from "./grille.js";
-import { versWgs } from "./geo.js";
+import { matriceVersScene, bornerCache } from "./monde.js";
 
 const TUILES = "https://3d.geo.admin.ch/ch.swisstopo.swissbuildings3d.3d/v1/tileset.json";
 // arbres isolés et forêts de swisstopo (swissTLM3D) : arbres instanciés (Tree-n.glb), chargés selon la vue
@@ -101,11 +101,19 @@ export class Swiss3D {
     scene3d.scene.add(this.socle);
   }
 
-  /** (Re)charge les tuiles autour du lieu courant ({ E, N } : centre MN95 de la scène). */
-  charger({ E, N }) {
+  /**
+   * (Re)charge les tuiles autour du lieu courant ({ E, N } : centre MN95 de la scène). Les bâtiments déjà chargés
+   * (lieu précédent, maquette ronde) sont gardés : seule leur matrice change, puis ils sont recalés (D5).
+   */
+  charger(lieu) {
+    const { E, N } = lieu;
+    this.lieuCharge = lieu; this.idScene = this.s.idScene;
+    if (this.tuiles && this.reutilisable) return this.repositionner({ E, N });
     this.vider();
-    const s = this.s, G = s.G, rad = Math.PI / 180, h = s.zRef + GEOIDE;
+    const s = this.s, G = s.G, h = s.zRef + GEOIDE;
     const t = this.tuiles = new TilesRenderer(TUILES);
+    bornerCache(t);
+    this.reutilisable = true;
     t.errorTarget = 6;
     t.registerPlugin(new GLTFExtensionsPlugin({ dracoLoader: decodeur() }));
     t.setCamera(s.camera);
@@ -114,14 +122,8 @@ export class Swiss3D {
     // scène suit la grille MN95, tournée de la convergence des méridiens (≈ 0,5° à Lausanne, jusqu'à ~1,5° aux
     // extrémités du pays) : sans correction, les bâtiments tournent autour du centre. On mesure donc localement
     // la correspondance ENU -> MN95 avec deux points voisins (100 m à l'est, 100 m au nord) convertis comme le centre.
-    const ecef = (e, n) => { const [lo, la] = versWgs(e, n); return WGS84_ELLIPSOID.getCartographicToPosition(la * rad, lo * rad, h, new THREE.Vector3()); };
-    const [lo0, la0] = versWgs(E, N), enu = WGS84_ELLIPSOID.getEastNorthUpFrame(la0 * rad, lo0 * rad, h, new THREE.Matrix4());
-    const inv = enu.clone().invert(), o = ecef(E, N).applyMatrix4(inv);
-    const ve = ecef(E + 100, N).applyMatrix4(inv).sub(o).divideScalar(100), vn = ecef(E, N + 100).applyMatrix4(inv).sub(o).divideScalar(100);
-    // [ve vn] : MN95 local -> ENU ; on l'inverse pour ENU -> MN95 (dx, dy), puis scène : x = dx, y = haut, z = -dy
-    const det = ve.x * vn.y - vn.x * ve.y, a = vn.y / det, b = -vn.x / det, c = -ve.y / det, d = ve.x / det;
-    const versScene = new THREE.Matrix4().set(a, b, 0, -(a * o.x + b * o.y), 0, 0, 1, 0, -c, -d, 0, c * o.x + d * o.y, 0, 0, 0, 1);
-    this.versScene = versScene.multiply(inv);
+    // (matriceVersScene, monde.js : formules rigoureuses MN95 -> ECEF, ~1 cm ; avant : versWgs approché, ~0,2–0,8 m)
+    this.versScene = matriceVersScene(E, N, h);
     t.group.matrixAutoUpdate = false;
     t.group.matrix.copy(this.versScene);
     t.group.matrixWorldNeedsUpdate = true;
@@ -137,10 +139,9 @@ export class Swiss3D {
         o.layers.set(k.batVoir ? 0 : 2);
         o.castShadow = k.batOmbre;
         o.receiveShadow = true;
-        this.relever(o, G);
+        if (!this.calageFige) this.relever(o, G);
       });
-      this.caler(G);
-      if (!this.calage) this.calerSol(G);
+      if (!this.calageFige) { this.caler(G); if (!this.calage) this.calerSol(G); }
       s.appliquerCalques(); // tuiles nouvelles : calque et ombre selon l'affichage
       s.majBords();
       s.ombres();
@@ -148,11 +149,41 @@ export class Swiss3D {
     t.addEventListener("tiles-load-end", () => s.demander(3));
   }
 
+  /** Lieu suivant, tuiles gardées : nouvelle matrice, puis calage refait sur les bâtiments déjà chargés. */
+  repositionner({ E, N }) {
+    const s = this.s, G = s.G, t = this.tuiles;
+    if (this.arbres) { this.socle.remove(this.arbres.group); this.arbres.dispose(); this.arbres = null; }
+    if (this.ponts) { this.socle.remove(this.ponts.group); this.ponts.dispose(); this.ponts = null; }
+    this.versScene = matriceVersScene(E, N, s.zRef + GEOIDE);
+    t.group.matrix.copy(this.versScene);
+    t.group.matrixWorldNeedsUpdate = true;
+    this.toits = []; this.ecarts = []; this.bases = []; this.calage = null;
+    this.socle.position.set(0, 0, 0);
+    t.forEachLoadedModel(sc => sc.traverse(o => { if (o.isMesh) this.relever(o, G); }));
+    this.caler(G);
+    if (!this.calage) this.calerSol(G);
+    s.appliquerCalques(); s.majBords(); s.ombres(); s.demander(3);
+  }
+
+  /**
+   * Origine flottante (paysage navigable) : la scène est recentrée sur (E, N) ; bâtiments, arbres et ponts gardent
+   * leurs tuiles et leur calage (le géoïde varie de ~10 cm par km), seule la matrice change.
+   */
+  deplacerOrigine(E, N) {
+    this.calageFige = true; // la grille G du lieu de départ ne vaut plus ici
+    this.versScene = matriceVersScene(E, N, this.s.zRef + GEOIDE);
+    for (const t of [this.tuiles, this.arbres, this.ponts]) if (t) { t.group.matrix.copy(this.versScene); t.group.matrixWorldNeedsUpdate = true; }
+    this.lieu = this.lieuCharge = { E, N };
+  }
+
   /** Garde des sommets de toit (nettement au-dessus de notre sol) pour le calage. */
   relever(mesh, G) {
-    // au chargement, la tuile n'est pas encore rattachée au groupe : on compose sa position avec celle du groupe
-    mesh.updateWorldMatrix(true, false);
-    const M = new THREE.Matrix4().multiplyMatrices(this.tuiles.group.matrix, mesh.matrixWorld);
+    // position du maillage dans le repère des tuiles (chaîne de ses parents jusqu'au groupe, rattaché ou non), puis
+    // matrice du groupe : la tuile n'est pas toujours rattachée (au chargement, ou hors champ)
+    const L = new THREE.Matrix4(), chaine = [];
+    for (let o = mesh; o && o !== this.tuiles.group; o = o.parent) chaine.push(o);
+    for (let k = chaine.length - 1; k >= 0; k--) { if (chaine[k].matrixAutoUpdate) chaine[k].updateMatrix(); L.multiply(chaine[k].matrix); }
+    const M = new THREE.Matrix4().multiplyMatrices(this.tuiles.group.matrix, L);
     const pos = mesh.geometry.attributes.position, v = new THREE.Vector3(), zRef = this.s.zRef;
     // pied du maillage (le point le plus bas) : pour caler sur le terrain là où nous n'avons pas de toits (calerSol)
     let bas = null;
@@ -293,19 +324,24 @@ export class Swiss3D {
   montrer(visible) {
     this.socle.visible = visible;
     if (!visible && this.enCours) { this.enCours = 0; this.s.surTuilesSwiss?.(0); }
-    if (visible && !this.tuiles && this.lieu) this.charger(this.lieu);
+    // tuiles absentes (si visibles), ou gardées d'un autre lieu (vider({ garder }), même cachées : l'impression 3D les lit) :
+    // chargées ou repositionnées pour ce lieu
+    const perimees = this.tuiles && this.lieu && (this.lieuCharge !== this.lieu || this.idScene !== this.s.idScene);
+    if (this.lieu && this.s.G && (perimees || (visible && !this.tuiles))) this.charger(this.lieu);
     this.s.ombres();
   }
 
-  vider() {
+  /** `garder` : bâtiments gardés pour le lieu suivant (repositionner), s'ils n'ont pas été découpés (maquette carrée). */
+  vider({ garder = false } = {}) {
     if (this.enCours) { this.enCours = 0; this.s.surTuilesSwiss?.(0); }
     if (this.arbres) { this.socle.remove(this.arbres.group); this.arbres.dispose(); this.arbres = null; }
     if (this.ponts) { this.socle.remove(this.ponts.group); this.ponts.dispose(); this.ponts = null; }
     if (!this.tuiles) return;
+    if (garder && this.reutilisable) { this.socle.visible = false; return; }
     this.socle.remove(this.tuiles.group);
     this.tuiles.dispose();
     this.tuiles = null;
-    this.calage = null;
+    this.calage = null; this.calageFige = false;
     this.socle.position.y = 0;
   }
 }

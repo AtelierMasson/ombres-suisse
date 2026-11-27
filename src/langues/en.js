@@ -185,6 +185,7 @@ export default {
   "panneau.lien": "Link",
   "panneau.copie": "Copied",
   "lieu.parcelle": "Parcel {n}",
+  "lieu.paysage": "Landscape (preview)",
   "msg.pasDeParcelle": "No parcel found at this location: analysing the area around the point.",
   "msg.erreur": "Error: {m}",
   "etat.parcelle": "Parcel…",

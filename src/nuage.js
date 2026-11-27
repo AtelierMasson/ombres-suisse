@@ -7,6 +7,45 @@ import { t, entier } from "./i18n.js";
 /** Classes swisstopo utiles : 2 sol, 3 végétation, 6 bâtiment, 9 eau, 17 pont ; le reste = autre. */
 export const CLASSES = { 2: "sol", 3: "végétation", 6: "bâtiment", 9: "eau", 17: "pont" };
 
+/* ------------------------------------------------------------------ mémoire d'un lieu à l'autre */
+// En-tête (Copc.create, ~0,7 s) et pages de hiérarchie d'une tuile : gardés pour la session (recentrage, parcelle
+// voisine, arbres de l'anneau). Petits (quelques dizaines de Ko par tuile) : bornés au nombre.
+const MAX_ENTETES = 64, entetes = new Map(), pagesHier = new Map();
+function borner(m, max) { while (m.size > max) m.delete(m.keys().next().value); }
+/** En-tête COPC d'une tuile, une seule fois par session. */
+export function enteteCopc(url) {
+  if (!entetes.has(url)) {
+    entetes.set(url, Copc.create(url).catch(e => { entetes.delete(url); throw e; }));
+    borner(entetes, MAX_ENTETES);
+  }
+  return entetes.get(url);
+}
+/** Page de hiérarchie COPC (nœuds et sous-pages), une seule fois par session. */
+export function pageHierarchie(url, page) {
+  const k = `${url}|${page.pageOffset}`;
+  if (!pagesHier.has(k)) {
+    pagesHier.set(k, Copc.loadHierarchyPage(url, page).catch(e => { pagesHier.delete(k); throw e; }));
+    borner(pagesHier, MAX_ENTETES * 8);
+  }
+  return pagesHier.get(k);
+}
+
+/* ------------------------------------------------------------------ fils de décodage gardés */
+// Les fils (et leur laz-perf, ~0,2 Mo de WASM compilé) restent d'un chargement à l'autre ; ils ne sont arrêtés que si
+// un chargement est abandonné en route (changement de lieu), et recréés au suivant.
+let pool = [];
+function filsNuage(nb) {
+  while (pool.length < nb) {
+    const w = new Worker(new URL("./nuage.worker.js", import.meta.url), { type: "module" });
+    w.postMessage({ chauffer: true }); // compile laz-perf tout de suite (le premier bloc n'attend pas)
+    pool.push(w);
+  }
+  return pool.slice(0, nb);
+}
+function arreterFils() { pool.forEach(w => w.terminate()); pool = []; }
+/** Prépare les fils pendant que la page attend (accueil, recherche) : script et WASM déjà chargés au premier lieu. */
+export function chaufferFils() { filsNuage(Math.min(6, Math.max(1, (navigator.hardwareConcurrency || 2) - 1))); }
+
 /**
  * Points de la boîte [e0, n0, e1, n1] (MN95). Retourne des tableaux typés relatifs à (E0, N0).
  * onProgres(fraction, texte) est appelé pendant le chargement. `signal` (AbortSignal) arrête les fils en cours.
@@ -27,7 +66,7 @@ export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, on
   };
   // en-têtes et hiérarchies des tuiles en parallèle (chacune coûte ~0,7 s)
   const parTuile = await Promise.all(tuiles.map(async t => {
-    const copc = await Copc.create(t.url), liste = [];
+    const copc = await enteteCopc(t.url), liste = [];
     const cube = copc.info.cube, cote = cube[3] - cube[0];
     const profMax = Math.max(0, Math.ceil(Math.log2(copc.info.spacing / espacement)));
     const boiteNoeud = k => {
@@ -39,7 +78,7 @@ export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, on
     // la hiérarchie peut être répartie sur plusieurs pages
     const pages = [copc.info.rootHierarchyPage];
     while (pages.length) {
-      const { nodes, pages: sous } = await Copc.loadHierarchyPage(t.url, pages.pop());
+      const { nodes, pages: sous } = await pageHierarchie(t.url, pages.pop());
       for (const [k, n] of Object.entries(nodes)) if (n && n.pointCount && garder(k)) liste.push({ url: t.url, copc, n });
       for (const [k, p] of Object.entries(sous)) if (+k.split("-")[0] <= profMax && coupe(boiteNoeud(k), boite) && dansCercle(boiteNoeud(k))) pages.push(p);
     }
@@ -53,13 +92,13 @@ export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, on
   // les plus gros blocs d'abord : les fils finissent à peu près ensemble
   taches.sort((a, b) => b.n.pointCount - a.n.pointCount);
   const nb = Math.min(6, Math.max(1, (navigator.hardwareConcurrency || 2) - 1), taches.length);
-  const fils = Array.from({ length: nb }, () => new Worker(new URL("./nuage.worker.js", import.meta.url), { type: "module" }));
-  const arreter = () => fils.forEach(w => w.terminate());
+  const fils = filsNuage(nb);
+  let fini = false;
   try {
     await new Promise((ok, ko) => {
       if (!taches.length) return ok();
       let suivante = 0, restantes = taches.length;
-      signal?.addEventListener("abort", () => ko(new DOMException(t("erreur.chargementAnnule"), "AbortError")), { once: true });
+      signal?.addEventListener("abort", () => { if (!fini) arreterFils(); ko(new DOMException(t("erreur.chargementAnnule"), "AbortError")); }, { once: true });
       const donner = w => {
         if (suivante >= taches.length) return;
         const { url, copc, n: noeud } = taches[suivante];
@@ -80,7 +119,8 @@ export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, on
         donner(w);
       }
     });
-  } finally { arreter(); }
+  } catch (e) { arreterFils(); throw e; } // fils peut-être encore occupés : arrêtés, recréés au prochain lieu
+  finally { fini = true; for (const w of fils) w.onmessage = w.onerror = null; }
   // le nuage est gardé (nuage brut à la demande, points proches de la coupe) : tableaux ramenés à la taille utile
   // (un tableau à la fois : l'ancien est rendu avant de copier le suivant)
   X = X.slice(0, n); Y = Y.slice(0, n); Z = Z.slice(0, n); C = C.slice(0, n);

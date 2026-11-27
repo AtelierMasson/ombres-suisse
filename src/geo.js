@@ -12,6 +12,27 @@ export function versWgs(E, N) {
   return [lon * 100 / 36, lat * 100 / 36];
 }
 
+/*
+ * MN95 -> ECEF WGS84, formules rigoureuses de swisstopo (projection cylindrique conforme à axe oblique sur l'ellipsoïde
+ * de Bessel, puis translation CH1903+ -> ETRS89/WGS84) : ~1 cm, contre ~0,2–0,8 m pour versWgs (vérifié sur
+ * l'origine de Berne). `h` : hauteur sur l'ellipsoïde de Bessel (≈ altitude suisse, à quelques mètres près).
+ */
+const B_A = 6377397.155, B_E2 = 0.006674372230614, B_E = Math.sqrt(B_E2), RAD = Math.PI / 180;
+const PHI0 = (46 + 57 / 60 + 8.66 / 3600) * RAD, LAM0 = (7 + 26 / 60 + 22.5 / 3600) * RAD;
+const P_R = B_A * Math.sqrt(1 - B_E2) / (1 - B_E2 * Math.sin(PHI0) ** 2), P_ALPHA = Math.sqrt(1 + B_E2 / (1 - B_E2) * Math.cos(PHI0) ** 4);
+const P_B0 = Math.asin(Math.sin(PHI0) / P_ALPHA);
+const P_K = Math.log(Math.tan(Math.PI / 4 + P_B0 / 2)) - P_ALPHA * Math.log(Math.tan(Math.PI / 4 + PHI0 / 2)) + P_ALPHA * B_E / 2 * Math.log((1 + B_E * Math.sin(PHI0)) / (1 - B_E * Math.sin(PHI0)));
+export function mn95VersEcef(E, N, h = 0) {
+  const Y = E - 2600000, X = N - 1200000, lb = Y / P_R, bb = 2 * (Math.atan(Math.exp(X / P_R)) - Math.PI / 4);
+  const b = Math.asin(Math.cos(P_B0) * Math.sin(bb) + Math.sin(P_B0) * Math.cos(bb) * Math.cos(lb));
+  const l = Math.atan(Math.sin(lb) / (Math.cos(P_B0) * Math.cos(lb) - Math.sin(P_B0) * Math.tan(bb)));
+  const lam = LAM0 + l / P_ALPHA, S0 = (Math.log(Math.tan(Math.PI / 4 + b / 2)) - P_K) / P_ALPHA;
+  let phi = b;
+  for (let i = 0; i < 6; i++) phi = 2 * Math.atan(Math.exp(S0 + B_E * Math.log(Math.tan(Math.PI / 4 + Math.asin(B_E * Math.sin(phi)) / 2)))) - Math.PI / 2;
+  const Nn = B_A / Math.sqrt(1 - B_E2 * Math.sin(phi) ** 2);
+  return [(Nn + h) * Math.cos(phi) * Math.cos(lam) + 674.374, (Nn + h) * Math.cos(phi) * Math.sin(lam) + 15.056, (Nn * (1 - B_E2) + h) * Math.sin(phi) + 405.346];
+}
+
 // lieux notables (cathédrales, hôtels de ville, ponts, châteaux, gares, musées…) : liste interne tirée d'OpenStreetMap
 // (outils/lieux/extraire_osm.py), servie avec le site et chargée à la première recherche (~150 Ko compressée)
 const normaliser = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -111,58 +132,98 @@ export async function parcelleEn(E, N) {
   return { numero: f.properties.number, egrid: f.properties.egris_egrid, canton: f.properties.ak, anneaux };
 }
 
-/** Éléments STAC (tuiles de 1 km) qui touchent une boîte MN95. */
-async function tuiles(collection, [e0, n0, e1, n1]) {
+/*
+ * Tuiles kilométriques des données swisstopo (année la plus récente et adresse du fichier), par clé « 2542-1150 ».
+ * 1) Index pré-calculé servi avec le site (outils/index_tuiles.mjs, F1) : aucune requête STAC ; 2) sinon le catalogue
+ * STAC, interrogé seulement pour les tuiles pas encore vues (mémoire de session, d'un lieu à l'autre).
+ */
+const INDEX = `${import.meta.env?.BASE_URL ?? "./"}donnees/tuiles-v1.json`;
+let index = null;
+function lireIndex() {
+  index ||= fetch(INDEX).then(r => r.ok ? r.json() : null).then(d => d?.version === 1 ? d : null).catch(() => null);
+  return index;
+}
+// collection STAC -> motif du fichier voulu (le plus récent par tuile)
+const JEUX = {
+  copc: ["ch.swisstopo.swisssurface3d", /copc/],
+  alti2m: ["ch.swisstopo.swissalti3d", /_2_2056_5728\.tif$/],
+  alti05: ["ch.swisstopo.swissalti3d", /_0\.5_2056_5728\.tif$/],
+  surface05: ["ch.swisstopo.swisssurface3d-raster", /_0\.5_2056_5728\.tif$/],
+};
+const vues = new Map(); // `${jeu}|${cle}` -> { url, annee, cle } ou null (tuile absente)
+
+/** Éléments STAC (tuiles de 1 km, toutes années) qui touchent une boîte MN95 ; pages suivantes lues (lien « next »). */
+async function tuilesStac(collection, [e0, n0, e1, n1]) {
   const [lo0, la0] = versWgs(e0, n0), [lo1, la1] = versWgs(e1, n1);
-  const u = `${STAC}/${collection}/items?limit=100&bbox=${lo0},${la0},${lo1},${la1}`;
-  return (await (await fetch(u)).json()).features || [];
+  let u = `${STAC}/${collection}/items?limit=100&bbox=${lo0},${la0},${lo1},${la1}`;
+  const tout = [];
+  for (let page = 0; u && page < 8; page++) {
+    const d = await (await fetch(u)).json();
+    tout.push(...(d.features || []));
+    u = (d.links || []).find(l => l.rel === "next")?.href;
+  }
+  return tout;
 }
 
 // identifiant « 2542-1150 » d'une tuile kilométrique et année du vol
 const cle = f => f.id.split("_").pop();
 const annee = f => +f.id.split("_")[1];
 
+/** Tuiles du jeu `jeu` pour les clés voulues : { cle -> { url, annee, cle } | null }. */
+async function tuilesJeu(jeu, cles) {
+  const idx = await lireIndex(), [collection, motif] = JEUX[jeu];
+  const I = idx?.jeux?.[jeu];
+  // index partiel (boîte d'essai) : hors de sa boîte, on demande à STAC
+  const dansIndex = (e, n) => !idx.boite || (e * 1000 >= idx.boite[0] && (e + 1) * 1000 <= idx.boite[2] && n * 1000 >= idx.boite[1] && (n + 1) * 1000 <= idx.boite[3]);
+  if (I) for (const k of cles) {
+    const [e, n] = k.split("-").map(Number);
+    if (!dansIndex(e, n)) continue;
+    const ligne = I.lignes[e], a = ligne && ligne[n - ligne[0] + 1];
+    vues.set(`${jeu}|${k}`, a ? { url: (I.exceptions?.[k] || I.gabarit).replaceAll("{a}", 2000 + a).replaceAll("{k}", k), annee: 2000 + a, cle: k } : null);
+  }
+  const manquent = cles.filter(k => !vues.has(`${jeu}|${k}`));
+  if (manquent.length) {
+    // une requête pour la boîte des tuiles manquantes (un peu rentrée : pas les tuiles voisines qui la touchent)
+    const es = manquent.map(k => +k.split("-")[0]), ns = manquent.map(k => +k.split("-")[1]);
+    const b = [Math.min(...es) * 1000 + 5, Math.min(...ns) * 1000 + 5, (Math.max(...es) + 1) * 1000 - 5, (Math.max(...ns) + 1) * 1000 - 5];
+    const trouve = new Map();
+    for (const f of await tuilesStac(collection, b)) {
+      const a = Object.values(f.assets).find(a => motif.test(a.type || a.href) || motif.test(a.href));
+      if (a && (!trouve.has(cle(f)) || annee(f) > trouve.get(cle(f)).annee)) trouve.set(cle(f), { url: a.href, annee: annee(f), cle: cle(f) });
+    }
+    for (const k of manquent) vues.set(`${jeu}|${k}`, trouve.get(k) || null);
+    for (const [k, v] of trouve) if (!vues.has(`${jeu}|${k}`)) vues.set(`${jeu}|${k}`, v);
+  }
+  return Object.fromEntries(cles.map(k => [k, vues.get(`${jeu}|${k}`)]));
+}
+
+/** Demande d'avance les tuiles du relevé (index ou STAC) d'une boîte, sans attendre : le chargement les retrouve. */
+export function preparerTuiles(boite, jeux = ["copc"]) {
+  for (const j of jeux) tuilesJeu(j, cles(boite)).catch(() => {});
+}
+
 /**
  * Nuage de points swissSURFACE3D au format COPC (lisible par morceaux) pour chaque tuile de la boîte.
  * Renvoie null si une des tuiles n'existe pas encore dans ce format (vols plus anciens).
  */
 export async function tuilesNuage(boite) {
-  const parTuile = new Map();
-  for (const f of await tuiles("ch.swisstopo.swisssurface3d", boite)) {
-    const a = Object.values(f.assets).find(a => /copc/.test(a.type || a.href));
-    if (!a) continue;
-    const k = cle(f);
-    if (!parTuile.has(k) || annee(f) > parTuile.get(k).annee) parTuile.set(k, { url: a.href, annee: annee(f), cle: k });
-  }
-  const attendues = cles(boite);
-  return attendues.every(k => parTuile.has(k)) ? attendues.map(k => parTuile.get(k)) : null;
+  const attendues = cles(boite), t = await tuilesJeu("copc", attendues);
+  return attendues.every(k => t[k]) ? attendues.map(k => t[k]) : null;
 }
 
 /** Modèles en grille 0,5 m (repli) : terrain swissALTI3D et surface swissSURFACE3D Raster, tous deux tirés du relevé laser. */
 export async function tuilesGrille(boite) {
-  const choisir = async (collection, motif) => {
-    const m = new Map();
-    for (const f of await tuiles(collection, boite)) {
-      const a = Object.values(f.assets).find(a => motif.test(a.href));
-      if (a && (!m.has(cle(f)) || annee(f) > m.get(cle(f)).annee)) m.set(cle(f), { url: a.href, annee: annee(f), cle: cle(f) });
-    }
-    return [...m.values()];
-  };
-  const [terrain, surface] = await Promise.all([
-    choisir("ch.swisstopo.swissalti3d", /_0\.5_2056_5728\.tif$/),
-    choisir("ch.swisstopo.swisssurface3d-raster", /_0\.5_2056_5728\.tif$/),
-  ]);
-  return { terrain, surface };
+  const k = cles(boite), [a, b] = await Promise.all([tuilesJeu("alti05", k), tuilesJeu("surface05", k)]);
+  return { terrain: Object.values(a).filter(Boolean), surface: Object.values(b).filter(Boolean) };
 }
 
 /** Terrain swissALTI3D à 2 m (le plus récent par tuile kilométrique) pour une boîte MN95 : [{ url, annee, cle }]. */
 export async function tuilesAlti2m(boite) {
-  const m = new Map();
-  for (const f of await tuiles("ch.swisstopo.swissalti3d", boite)) {
-    const a = Object.values(f.assets).find(a => /_2_2056_5728\.tif$/.test(a.href));
-    if (a && (!m.has(cle(f)) || annee(f) > m.get(cle(f)).annee)) m.set(cle(f), { url: a.href, annee: annee(f), cle: cle(f) });
-  }
-  return [...m.values()];
+  // grandes boîtes : par morceaux (requêtes parallèles, chacune de quelques pages au plus)
+  const toutes = cles(boite), morceaux = [];
+  for (let i = 0; i < toutes.length; i += 25) morceaux.push(toutes.slice(i, i + 25));
+  const r = await Promise.all(morceaux.map(m => tuilesJeu("alti2m", m)));
+  return r.flatMap(o => Object.values(o).filter(Boolean));
 }
 
 function cles([e0, n0, e1, n1]) {

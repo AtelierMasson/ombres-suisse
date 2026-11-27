@@ -7,6 +7,12 @@
 <meta name="google-adsense-account" content="ca-pub-4424415212884229">
 <meta name="description" content="Maquette 3D d'une parcelle en Suisse à partir du relevé laser de swisstopo : terrain, bâtiments, arbres, ombres, coupes et export.">
 <link rel="icon" href="data:,"><!-- pas de logo : icône d'onglet vide (évite la demande de /favicon.ico) -->
+<!-- services appelés dès le premier lieu : connexions (DNS + TLS) ouvertes d'avance -->
+<link rel="preconnect" href="https://api3.geo.admin.ch" crossorigin>
+<link rel="preconnect" href="https://data.geo.admin.ch" crossorigin>
+<link rel="preconnect" href="https://3d.geo.admin.ch" crossorigin>
+<link rel="preconnect" href="https://wms.geo.admin.ch" crossorigin>
+<link rel="dns-prefetch" href="https://elevation-tiles-prod.s3.amazonaws.com">
 <!-- rien n'est montré avant les styles (en développement, ils arrivent avec le script) -->
 <style>html:not(.pret) body { visibility: hidden; }</style>
 </head>
