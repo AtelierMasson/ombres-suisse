@@ -1,5 +1,5 @@
 <?php
-// POST { langue? }, connecté → crée une session Stripe Checkout (paiement unique CHF 39.–, carte et TWINT).
+// POST { langue?, cgv }, connecté → crée une session Stripe Checkout (paiement unique CHF 39.–, carte et TWINT).
 // Réponse : 200 { url } (page de paiement Stripe), 401 si déconnecté, 409 { erreur: "deja_pro" }.
 declare(strict_types=1);
 require __DIR__ . '/_commun.php';
@@ -16,7 +16,8 @@ $retour = fn(string $etat) => SITE_URL . '/?' . http_build_query(['achat' => $et
 
 $params = [
     'mode' => 'payment',
-    'payment_method_types' => ['card', 'twint'],
+    // API Stripe 2026-09-30 (« endive ») : payment_method_types n'existe plus pour Checkout
+    'allowed_payment_method_types' => ['card', 'twint'],
     'line_items' => [[
         'quantity' => 1,
         'price_data' => [

@@ -45,3 +45,9 @@
 #compte .compte-cgv { display: flex; gap: 6px; align-items: flex-start; font-size: 12px; line-height: 1.4; color: var(--doux, #66727f); margin: 4px 0 8px; text-align: left; }
 #compte .compte-cgv input { margin-top: 2px; flex: none; }
 #compte .compte-supprimer { color: var(--doux, #66727f); font-size: 12px; }
+
+/* achat Pro : ce qui manque (case des conditions non cochée) */
+.compte-cgv-manque { outline: 2px solid var(--bs-danger, #b02a37); outline-offset: 3px; border-radius: 6px; }
+.compte-cgv-manque input { border-color: var(--bs-danger, #b02a37); }
+.compte-manque { color: var(--bs-danger, #b02a37); font-size: .85rem; font-weight: 600; margin: .35rem 0 .5rem; }
+.compte-manque::before { content: "✕ "; }

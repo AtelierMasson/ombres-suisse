@@ -82,7 +82,16 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       if (ev.target === dlg || ev.target.closest("[data-fermer]")) { dlg.close(); return; }
       if (ev.target.closest("[data-legal]")) { dlg.close(); return; } // la boîte légale s'ouvre par main.js
       const a = ev.target.closest("[data-action]")?.dataset.action;
-      if (a === "acheter") acheter();
+      if (a === "acheter") {
+        const c = dlg.querySelector("input[name=cgv]");
+        if (c && !c.checked) {
+          // ce qui manque, bien visible : la case des conditions entourée et une phrase sous elle
+          const lab = c.closest(".compte-cgv"), m = dlg.querySelector(".compte-manque");
+          lab?.classList.add("compte-cgv-manque"); if (m) m.hidden = false; c.focus();
+          return;
+        }
+        acheter();
+      }
       else if (a === "deconnecter") deconnecter();
       else if (a === "supprimer") supprimer();
       else if (a === "retracter") retracter();
@@ -146,10 +155,12 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
         const accord = el("label", "compte-cgv");
         const case_ = el("input"); case_.type = "checkbox"; case_.name = "cgv";
         accord.append(case_, " ", el("span", null, t("compte.accepteCgv")));
+        // bouton toujours actif : sans la case, il dit ce qui manque (au lieu d'un bouton grisé sans explication)
         const acheter = bouton2("btn btn-primary w-100", t("compte.passerPro"), "acheter");
-        acheter.disabled = true;
-        case_.addEventListener("change", () => { acheter.disabled = !case_.checked; });
-        offre.append(accord, acheter);
+        const manque = el("p", "compte-manque", t("compte.cocherCgv"));
+        manque.hidden = true; manque.setAttribute("role", "alert");
+        case_.addEventListener("change", () => { if (case_.checked) { manque.hidden = true; accord.classList.remove("compte-cgv-manque"); } });
+        offre.append(accord, manque, acheter);
         const note = el("p", "compte-note", t("compte.paiement") + " ");
         const cgv = el("a", null, t("compte.conditions"));
         cgv.href = "#";
@@ -225,7 +236,10 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
     try {
       const r = await appel("/achat.php", { method: "POST", body: JSON.stringify({ langue: langueDoc(), cgv: true }) });
       if (r.ok) { location.href = (await r.json()).url; return; }
-      if (r.status === 401 || r.status === 409) { await relire(); ecrire(""); } // session expirée ou déjà pro
+      // une explication pour chaque refus
+      if (r.status === 409) { await relire(); ecrire(t("compte.dejaPro")); }
+      else if (r.status === 401) { await relire(); ecrire(t("compte.sessionExpiree")); }
+      else if (r.status === 400) ecrire(t("compte.cocherCgv"));
       else ecrire(t("compte.erreurPaiement"));
     } catch { ecrire(t("compte.erreurPaiement")); }
     occupe(false);
