@@ -2171,7 +2171,8 @@ void main() {
     if (k.has("KeyQ")) d.y -= 1;
     const sol = this.solSous(cam.position.x, cam.position.z), haut = Math.max(2, cam.position.y - (isNaN(sol) ? cible.y : sol));
     // hauteur au-dessus du sol, et un peu de la distance au point visé (vue rasante lointaine)
-    const vitesse = Math.max(3, 0.9 * haut + 0.1 * cam.position.distanceTo(cible)) * this.facteurVitesse()
+    // plafonnée : 80 m/s (×3 avec Maj, ×8 au plus par la molette) ; sinon, en altitude, on sortait du décor en un instant
+    const vitesse = Math.min(80, Math.max(3, 0.6 * haut + 0.05 * cam.position.distanceTo(cible))) * this.facteurVitesse()
       * (k.has("ShiftLeft") || k.has("ShiftRight") ? 3 : 1);
     if (d.lengthSq()) d.normalize().multiplyScalar(vitesse);
     // la vitesse rejoint la vitesse voulue : vite à l'appui (~0,15 s), un peu plus lentement au lâcher (~0,3 s)
@@ -2182,6 +2183,9 @@ void main() {
     // jamais sous le sol : 2 m au moins au-dessus du terrain (la cible suit)
     const sol2 = this.solSous(cam.position.x, cam.position.z);
     if (!isNaN(sol2) && cam.position.y < sol2 + 2) { const m = sol2 + 2 - cam.position.y; cam.position.y += m; cible.y += m; if (v.y < 0) v.y = 0; }
+    // jamais plus de 3 km au-dessus du lieu (ni du sol sous la caméra)
+    const plafond = (isNaN(sol2) ? 0 : sol2) + 3000;
+    if (cam.position.y > plafond) { const m = cam.position.y - plafond; cam.position.y -= m; cible.y -= m; if (v.y > 0) v.y = 0; }
     // voyage : près du bord de la maquette, le lieu se recharge sous la caméra (main.js, surVoyage)
     const Rv = Math.max(this.G.R, this.rayonExt || 0);
     if (Math.hypot(cible.x, cible.z) > Rv * 0.75) this.surVoyage?.(cible);
