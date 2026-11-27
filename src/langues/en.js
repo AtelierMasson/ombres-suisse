@@ -164,6 +164,10 @@ export default {
   "lieu.coordTitre": "GPS coordinates of the centre: click to edit",
   "lieu.coordInvalides": "Coordinates not recognised (e.g. 46.49123, 6.68434 or 2542768, 1152290).",
   "type.Coordonnees": "Coordinates",
+  "compte.newsletterAccord": "I agree to receive the Topograph newsletter (news about the site, about once a month). You can unsubscribe at any time.",
+  "compte.newsletter": "Receive the Topograph newsletter",
+  "compte.newsletterOui": "You will receive the newsletter.",
+  "compte.newsletterNon": "You will no longer receive the newsletter.",
   "compte.supprimer": "Delete my account",
   "compte.supprimerConfirmer": "Permanently delete your account, details and saved places? To confirm, enter your email address again: {email}",
   "compte.supprime": "Your account has been deleted.",
@@ -712,7 +716,8 @@ export default {
     <p><b>Recipients and transfers abroad</b><br>Infomaniak (hosting, database, sending of emails, Switzerland); Stripe (payment, Ireland and United States, under the Data Privacy Framework and standard contractual clauses); the geographic services named above. We do not sell your data.</p>
     <p><b>Retention periods</b><br>Sign-in links: 15 minutes; sessions: 180 days at most; account, information and places: until the account is deleted; accounting records: 10 years; suggestions: 12 months; host logs: according to Infomaniak.</p>
     <p><b>Local storage and cookies</b><br>A session cookie is set only if you sign in. The browser's local storage keeps your settings (language, theme, display, radius, Pro mode projects). They are necessary for the site to work. No audience measurement tools are used. Google advertising cookies are set only with your consent (see \"Advertising\").</p>
-    <p><b>Your rights</b><br>You may request access to your personal data, ask for rectification, erasure or data portability, or object to the processing of your data. You can delete your account yourself in the "My account" window, or write to us at <a href="mailto:contact@topograph.ch">contact@topograph.ch</a>. You may also contact the Federal Data Protection and Information Commissioner (FDPIC) or, in the European Union, the data protection authority in your country.</p>`,
+    <p><b>Newsletter</b><br>If you tick the box when signing in, or the option in your account, we email you Topograph news (about once a month). We keep your address and the date and source of your consent. You can withdraw it at any time in your account or with the unsubscribe link in each email.</p>
+<p><b>Your rights</b><br>You may request access to your personal data, ask for rectification, erasure or data portability, or object to the processing of your data. You can delete your account yourself in the "My account" window, or write to us at <a href="mailto:contact@topograph.ch">contact@topograph.ch</a>. You may also contact the Federal Data Protection and Information Commissioner (FDPIC) or, in the European Union, the data protection authority in your country.</p>`,
   "legal.pageConditions": `<h2>Terms of use and sale</h2>
     <p><b>Use</b><br>Topograph is published by Atelier Masson Sàrl. The free version is provided without any guarantee of availability.</p>
     <p><b>Indicative results</b><br>The model is reconstructed automatically from laser surveys and may contain errors. Shadows, hours of sunlight, dimensions and exports are for guidance. They do not replace a professional land survey, a sunlight study or the official documents required for a planning application.</p>

@@ -164,6 +164,10 @@ export default {
   "lieu.coordTitre": "Coordinate GPS del centro: cliccare per modificarle",
   "lieu.coordInvalides": "Coordinate non riconosciute (es. 46.49123, 6.68434 o 2542768, 1152290).",
   "type.Coordonnees": "Coordinate",
+  "compte.newsletterAccord": "Accetto di ricevere la newsletter di Topograph (novità, circa una volta al mese). Disiscrizione possibile in ogni momento.",
+  "compte.newsletter": "Ricevere la newsletter di Topograph",
+  "compte.newsletterOui": "Riceverà la newsletter.",
+  "compte.newsletterNon": "Non riceverà più la newsletter.",
   "compte.supprimer": "Eliminare il mio account",
   "compte.supprimerConfirmer": "Vuole eliminare definitivamente il suo account, i suoi dati e i luoghi salvati? Per confermare, inserisca di nuovo il suo indirizzo e-mail: {email}",
   "compte.supprime": "Il suo account è stato eliminato.",
@@ -712,7 +716,8 @@ export default {
     <p><b>Destinatari e trasferimenti all'estero</b><br>Infomaniak (hosting, banca dati, invio delle e-mail, Svizzera); Stripe (pagamento, Irlanda e Stati Uniti, nell'ambito del Data Privacy Framework e di clausole contrattuali tipo); i servizi geografici citati sopra. Non vendiamo i suoi dati.</p>
     <p><b>Durate di conservazione</b><br>Link di accesso: 15 minuti; sessioni: al massimo 180 giorni; account, informazioni e luoghi: fino alla cancellazione dell'account; documenti contabili: 10 anni; suggerimenti: 12 mesi; log del fornitore di hosting: secondo Infomaniak.</p>
     <p><b>Archiviazione locale e cookie</b><br>Un cookie di sessione viene impostato solo se accede. L'archiviazione locale del browser conserva le sue impostazioni (lingua, tema, visualizzazione, raggio, progetti della modalità Pro). Il cookie e le impostazioni sono necessari al funzionamento del sito. Non vengono utilizzati strumenti di misurazione dell'audience. I cookie pubblicitari di Google sono impostati solo con il suo consenso (vedi «Pubblicità»).</p>
-    <p><b>I suoi diritti</b><br>Può chiedere l'accesso ai suoi dati, la loro rettifica, cancellazione o portabilità, oppure opporsi a un trattamento. Può eliminare il suo account dalla finestra «Il mio account» oppure scriverci a <a href="mailto:contact@topograph.ch">contact@topograph.ch</a>. Può anche rivolgersi all'Incaricato federale della protezione dei dati e della trasparenza (IFPDT) o, nell'Unione europea, all'autorità del suo Paese.</p>`,
+    <p><b>Newsletter</b><br>Se seleziona la casella al momento dell'accesso o l'opzione del suo account, le inviamo per e-mail le novità di Topograph (circa una volta al mese). Conserviamo il suo indirizzo, la data e la fonte del consenso. Può revocarlo in ogni momento nel suo account o tramite il link di disiscrizione di ogni invio.</p>
+<p><b>I suoi diritti</b><br>Può chiedere l'accesso ai suoi dati, la loro rettifica, cancellazione o portabilità, oppure opporsi a un trattamento. Può eliminare il suo account dalla finestra «Il mio account» oppure scriverci a <a href="mailto:contact@topograph.ch">contact@topograph.ch</a>. Può anche rivolgersi all'Incaricato federale della protezione dei dati e della trasparenza (IFPDT) o, nell'Unione europea, all'autorità del suo Paese.</p>`,
   "legal.pageConditions": `<h2>Condizioni d'uso e di vendita</h2>
     <p><b>Uso</b><br>Topograph è edito da Atelier Masson Sàrl. La versione gratuita è messa a disposizione senza garanzia di disponibilità.</p>
     <p><b>Risultati indicativi</b><br>Il modello è ricostruito automaticamente a partire da rilievi laser e può contenere errori. Le ombre, le ore di sole, le quote e le esportazioni hanno valore indicativo. Non sostituiscono né il rilievo di un geometra né uno studio sul soleggiamento né i documenti ufficiali di una domanda di costruzione.</p>

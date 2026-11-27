@@ -23,6 +23,7 @@ json(200, [
     'proOffert' => (int) $c['pro_offert'] === 1,
     'admin' => in_array(strtolower($c['email']), $admins, true),
     'profil' => $profil,
+    'newsletter' => newsletter_accord($c['email']),
     'abonnement' => $a ? [
         'statut' => $a['statut'],
         'intervalle' => $a['intervalle'],

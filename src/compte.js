@@ -46,7 +46,7 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
         disponible = true;
         // administrateur : le statut Pro peut être simulé (gratuit ou Pro) pour essayer l'application des deux côtés
         const simule = d.admin ? proSimule() : null;
-        changer({ connecte: true, email: String(d.email || ""), pro: simule ?? !!d.pro, proReel: !!d.pro, admin: !!d.admin, profil: d.profil || {},
+        changer({ connecte: true, email: String(d.email || ""), pro: simule ?? !!d.pro, proReel: !!d.pro, admin: !!d.admin, profil: d.profil || {}, newsletter: !!d.newsletter,
           abonnement: d.abonnement || null, essaiPossible: d.essaiPossible !== false });
       } else disponible = false;
     } catch { disponible = false; }
@@ -99,6 +99,7 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       else if (a === "gerer") gerer();
       else if (a === "formule") changerFormule(ev.target.closest("[data-formule]").dataset.formule);
       else if (a === "basculerPro") basculerPro(ev.target.checked);
+      else if (a === "newsletter") changerNewsletter(ev.target.checked);
       else if (a === "deconnecter") deconnecter();
       else if (a === "supprimer") supprimer();
     });
@@ -137,7 +138,12 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       champ.setAttribute("aria-label", t("compte.email"));
       const envoyer = el("button", "btn btn-primary", t("compte.recevoirLien"));
       envoyer.type = "submit";
-      f.append(champ, envoyer);
+      // newsletter : accord explicite, case décochée par défaut
+      const nl = el("label", "form-check compte-newsletter");
+      const caseNl = el("input", "form-check-input");
+      Object.assign(caseNl, { type: "checkbox", name: "newsletter" });
+      nl.append(caseNl, el("span", "form-check-label", t("compte.newsletterAccord")));
+      f.append(champ, envoyer, nl);
       contenu.push(f);
     } else {
       const dl = el("dl", "compte-infos");
@@ -149,6 +155,17 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       else if (e.pro) contenu.push(el("p", "compte-doux", t("compte.merci")));
       else contenu.push(blocOffre());
       for (const f of sections) { const n = f(); if (n) contenu.push(n); }
+      // newsletter : accord ou retrait à tout moment
+      {
+        const b = el("div", "form-check form-switch compte-newsletter mt-2");
+        const c = el("input", "form-check-input");
+        Object.assign(c, { type: "checkbox", id: "compteNewsletter", checked: !!e.newsletter });
+        c.dataset.action = "newsletter";
+        const l = el("label", "form-check-label small", t("compte.newsletter"));
+        l.htmlFor = "compteNewsletter";
+        b.append(c, l);
+        contenu.push(b);
+      }
       // informations du compte (facultatives) : repliées, un seul formulaire
       const P = e.profil || {}, det = el("details", "compte-profil"), resume = el("summary", null, t("compte.mesInfos"));
       const f = el("form", "compte-profil-form");
@@ -268,10 +285,20 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
 
   // ------------------------------------------------------------------ actions
 
+  async function changerNewsletter(accord) {
+    try {
+      const r = await appel("/newsletter.php", { method: "POST", body: JSON.stringify({ accord, langue: langueDoc() }) });
+      const d = await r.json();
+      e = { ...e, newsletter: !!d.accord };
+      ecrire(t(d.accord ? "compte.newsletterOui" : "compte.newsletterNon"));
+    } catch { ecrire(t("compte.erreur")); }
+  }
+
   async function demanderLien(email) {
     occupe(true);
     try {
-      const r = await appel("/connexion.php", { method: "POST", body: JSON.stringify({ email: email.trim(), langue: langueDoc() }) });
+      const nl = !!dlg?.querySelector("input[name=newsletter]")?.checked;
+      const r = await appel("/connexion.php", { method: "POST", body: JSON.stringify({ email: email.trim(), langue: langueDoc(), newsletter: nl }) });
       if (r.ok) {
         if (raison) memoriser(true);
         ecrire(t("compte.lienEnvoye", { email: email.trim() }));

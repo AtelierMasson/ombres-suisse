@@ -54,6 +54,13 @@ json(200, [
                         (SELECT CONCAT(a.statut, IF(a.intervalle IS NULL, \'\', CONCAT(\' \', a.intervalle)), IF(a.resilie, \' (résilié)\', \'\'))
                          FROM abonnements a WHERE a.compte_id = c.id ORDER BY a.cree_le DESC LIMIT 1) AS abonnement
                       FROM comptes c ORDER BY c.cree_le DESC LIMIT 500'),
+    // newsletter : comptes existants dont la dernière décision est un accord (adresse vérifiée par la connexion)
+    'newsletter'   => (function () use ($tous) {
+        $existants = array_flip(array_column($tous('SELECT email FROM comptes'), 'email'));
+        $l = [];
+        foreach (newsletter_etat() as $email => $e) if (!empty($e['accord']) && isset($existants[$email])) $l[] = ['email' => $email, 'depuis' => $e['date'], 'langue' => $e['langue'] ?? 'fr'];
+        return $l;
+    })(),
     // boîte à suggestions (suggestion.php) : les 200 dernières, la plus récente d'abord
     'suggestions'  => (function () {
         $f = dirname(__DIR__, 2) . '/donnees-topograph/suggestions.jsonl';

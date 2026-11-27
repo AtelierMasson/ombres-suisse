@@ -467,3 +467,39 @@ function email_abonnement(string $quoi, array $abo): bool
     return email_sobre($email, $l, $f($T[$quoi . 'Sujet']), array_map($f, $T[$quoi]),
         [$T['bouton'], SITE_URL . '/?' . http_build_query(['compte' => 'abonnement', 'lang' => $l])], [$T['note']]);
 }
+
+// ---------------------------------------------------------------- newsletter : registre des accords
+// Une ligne par décision (accord ou retrait), avec la date et la source : la preuve du consentement. Fichier hors du
+// dossier du site (les mises en ligne ne l'effacent pas). Seules les adresses de comptes existants (adresse vérifiée par
+// le lien de connexion) peuvent recevoir la newsletter : un accord donné sans connexion confirmée reste sans effet.
+function newsletter_fichier(): string
+{
+    $d = dirname(__DIR__, 2) . '/donnees-topograph';
+    if (!is_dir($d)) @mkdir($d, 0700, true);
+    return "$d/newsletter.jsonl";
+}
+
+function newsletter_noter(string $email, bool $accord, string $source, string $langue = 'fr'): void
+{
+    file_put_contents(newsletter_fichier(), json_encode(['date' => gmdate('c'), 'email' => strtolower(trim($email)),
+        'accord' => $accord, 'source' => $source, 'langue' => $langue, 'texte' => 'newsletter-2026-11'], JSON_UNESCAPED_UNICODE) . "\n",
+        FILE_APPEND | LOCK_EX);
+}
+
+/** Dernière décision pour chaque adresse : [email => ['accord' => bool, 'date' => …, 'langue' => …]]. */
+function newsletter_etat(): array
+{
+    $f = newsletter_fichier(); $etat = [];
+    if (!is_file($f)) return $etat;
+    foreach (file($f, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $l) {
+        $d = json_decode($l, true);
+        if (is_array($d) && isset($d['email'])) $etat[$d['email']] = $d;
+    }
+    return $etat;
+}
+
+function newsletter_accord(string $email): bool
+{
+    return (bool) (newsletter_etat()[strtolower(trim($email))]['accord'] ?? false);
+}
+

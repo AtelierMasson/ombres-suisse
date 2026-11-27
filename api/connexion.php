@@ -12,6 +12,9 @@ if (strlen($email) > 254 || !filter_var($email, FILTER_VALIDATE_EMAIL)) json(400
 
 $pdo = bd();
 
+// case « newsletter » cochée : accord noté (il ne compte qu'une fois l'adresse vérifiée par la connexion)
+if (!empty($d['newsletter'])) newsletter_noter($email, true, 'inscription', $l);
+
 // nettoyage occasionnel des lignes expirées
 if (random_int(1, 50) === 1) {
     $pdo->exec('DELETE FROM jetons WHERE expire < UTC_TIMESTAMP() - INTERVAL 1 DAY');

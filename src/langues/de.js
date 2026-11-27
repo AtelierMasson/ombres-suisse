@@ -164,6 +164,10 @@ export default {
   "lieu.coordTitre": "GPS-Koordinaten des Zentrums: zum Ändern klicken",
   "lieu.coordInvalides": "Koordinaten nicht erkannt (z. B. 46.49123, 6.68434 oder 2542768, 1152290).",
   "type.Coordonnees": "Koordinaten",
+  "compte.newsletterAccord": "Ich möchte den Newsletter von Topograph erhalten (Neuigkeiten, etwa einmal im Monat). Abmeldung jederzeit möglich.",
+  "compte.newsletter": "Newsletter von Topograph erhalten",
+  "compte.newsletterOui": "Sie erhalten den Newsletter.",
+  "compte.newsletterNon": "Sie erhalten den Newsletter nicht mehr.",
   "compte.supprimer": "Konto löschen",
   "compte.supprimerConfirmer": "Möchten Sie Ihr Konto, Ihre Angaben und Ihre gespeicherten Orte endgültig löschen? Geben Sie zur Bestätigung Ihre E-Mail-Adresse erneut ein: {email}",
   "compte.supprime": "Ihr Konto wurde gelöscht.",
@@ -712,7 +716,8 @@ export default {
     <p><b>Empfänger und Datenübermittlung ins Ausland</b><br>Infomaniak (Hosting, Datenbank, Versand der E-Mails, Schweiz); Stripe (Zahlung, Irland und USA, unter dem Data Privacy Framework und mit Standardvertragsklauseln); die oben genannten Geodienste. Wir verkaufen Ihre Daten nicht.</p>
     <p><b>Aufbewahrungsdauer</b><br>Anmeldelinks: 15 Minuten; Sitzungen: höchstens 180 Tage; Konto, Angaben und Orte: bis zur Löschung des Kontos; Buchhaltungsunterlagen: 10 Jahre; Vorschläge: 12 Monate; Protokolle des Hosters: gemäss Infomaniak.</p>
     <p><b>Lokaler Speicher und Cookies</b><br>Ein Sitzungs-Cookie wird nur gesetzt, wenn Sie sich anmelden. Der lokale Speicher des Browsers behält Ihre Einstellungen (Sprache, Thema, Anzeige, Radius, Projekte des Pro-Modus). Sie sind für den Betrieb der Website notwendig. Es werden keine Werkzeuge zur Reichweitenmessung verwendet. Werbe-Cookies von Google werden nur mit Ihrer Einwilligung gesetzt (siehe «Werbung»).</p>
-    <p><b>Ihre Rechte</b><br>Sie können Auskunft über Ihre Daten, deren Berichtigung, Löschung oder Übertragbarkeit verlangen oder einer Bearbeitung widersprechen. Sie können Ihr Konto im Fenster «Mein Konto» selbst löschen oder uns an <a href="mailto:contact@topograph.ch">contact@topograph.ch</a> schreiben. Sie können sich auch an den Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB) oder, in der Europäischen Union, an die Behörde Ihres Landes wenden.</p>`,
+    <p><b>Newsletter</b><br>Wenn Sie das Kästchen bei der Anmeldung oder die Option in Ihrem Konto wählen, senden wir Ihnen die Neuigkeiten von Topograph per E-Mail (etwa einmal im Monat). Wir speichern Ihre Adresse sowie Datum und Herkunft Ihrer Einwilligung. Sie können sie jederzeit in Ihrem Konto oder über den Abmeldelink jeder Sendung widerrufen.</p>
+<p><b>Ihre Rechte</b><br>Sie können Auskunft über Ihre Daten, deren Berichtigung, Löschung oder Übertragbarkeit verlangen oder einer Bearbeitung widersprechen. Sie können Ihr Konto im Fenster «Mein Konto» selbst löschen oder uns an <a href="mailto:contact@topograph.ch">contact@topograph.ch</a> schreiben. Sie können sich auch an den Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB) oder, in der Europäischen Union, an die Behörde Ihres Landes wenden.</p>`,
   "legal.pageConditions": `<h2>Nutzungs- und Verkaufsbedingungen</h2>
     <p><b>Nutzung</b><br>Topograph wird von Atelier Masson Sàrl herausgegeben. Die kostenlose Version wird ohne Gewähr für ihre Verfügbarkeit bereitgestellt.</p>
     <p><b>Unverbindliche Ergebnisse</b><br>Das Modell wird automatisch aus Laserscans rekonstruiert und kann Fehler enthalten. Schatten, Sonnenstunden, Höhenkoten und Exporte sind Richtwerte: Sie ersetzen weder eine Aufnahme durch einen Geometer noch eine Besonnungsstudie noch die offiziellen Unterlagen eines Baugesuchs.</p>
