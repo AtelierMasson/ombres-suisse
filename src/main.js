@@ -132,13 +132,13 @@ function accueil() {
   scene.controls.autoRotate = false;
   scene.animation = null;
   scene.decalage = 0.17; scene.taille();
-  // Gruyères tout de suite : d'abord le bourg (150 m, vite chargé, bâtiments et arbres proches qui montent du sol),
-  // puis toute la zone (450 m, avec l'anneau) qui le remplace sans rejouer l'animation
-  debutAccueil = null;
-  setTimeout(async () => {
+  // Gruyères tout de suite, en un seul chargement : un seul cercle (ACCUEIL.R) et une seule caméra, qui suit son trajet
+  // dès la première image ; les points du relevé apparaissent, puis le terrain, les bâtiments et les arbres montent
+  debutAccueil = null; decalageAccueil = 0;
+  volAccueil(ACCUEIL.E, ACCUEIL.N);
+  setTimeout(() => {
     if (!document.body.classList.contains("accueil") || location.hash.includes("e=")) return;
-    await depuisAdresse({ accueil: { ...ACCUEIL, R: 150 } });
-    if (document.body.classList.contains("accueil") && !location.hash.includes("e=")) depuisAdresse({ accueil: { ...ACCUEIL, suite: true } });
+    depuisAdresse({ accueil: ACCUEIL });
   }, 0);
 }
 // vol de démonstration (#vol=gruyeres) : plan drone lent, rendu en direct (vol.js) ; à terme, le décor de l'accueil
@@ -346,7 +346,7 @@ async function depuisAdresse(o = null) {
       const niv = 1, coeur = parcelle ? [Math.min(...parcelle.anneaux.flat().map(p => p[0])) - 40, Math.min(...parcelle.anneaux.flat().map(p => p[1])) - 40,
         Math.max(...parcelle.anneaux.flat().map(p => p[0])) + 40, Math.max(...parcelle.anneaux.flat().map(p => p[1])) + 40] : [E0 - 60, N0 - 60, E0 + 60, N0 + 60];
       // chargement visible : les points apparaissent au fil de l'arrivée (pas pour la grande zone de l'accueil, déjà affichée)
-      const apercu = ACC?.suite || voyage ? null : { debut: total => id === tache && scene.debutChargement(total, R), bloc: (...a) => id === tache && scene.ajouterBloc(...a) };
+      const apercu = voyage ? null : { debut: total => id === tache && scene.debutChargement(total, R, ACC ? { garderVue: true, z0: ACC.z } : {}), bloc: (...a) => id === tache && scene.ajouterBloc(...a) };
       nuage = await chargerNuage(copc, boite, [E0, N0], 0.5, (f, t) => id === tache && et(0.05 + 0.7 * f, t), (chargement = new AbortController()).signal,
         { interieur: coeur, niveau: niv === 2 ? 0 : niv === 1 ? 1 : 2 }, apercu);
       if (id !== tache) return;
@@ -384,6 +384,9 @@ async function depuisAdresse(o = null) {
     // vue gardée pendant le chargement visible (la caméra s'est placée sur les points du nouveau lieu)
     const vuePoints = scene.chargementPts ? { p: scene.camera.position.clone(), c: scene.controls.target.clone(), z0: scene.chargementPts.z0 } : null;
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite), bruit: urlFond(COUCHES.bruit, boite) });
+    // accueil : les points étaient posés à l'altitude du centre (ACCUEIL.z) ; la maquette prend la sienne (à quelques
+    // décimètres près) : la caméra, qui suit son trajet, est décalée d'autant pour que le décor ne saute pas
+    if (vuePoints && ACC) decalageAccueil = vuePoints.z0 - scene.zRef;
     if (vuePoints && !ACC) {
       // même cadrage que pendant le chargement (les points étaient posés sur le sol bas du premier bloc)
       const dz = scene.zRef - vuePoints.z0;
@@ -398,9 +401,8 @@ async function depuisAdresse(o = null) {
       scene.camera.position.copy(vueAvant.p); scene.controls.target.copy(vueAvant.c); scene.controls.update();
     }
     S.voyage = false;
-    if (ACC) volAccueil(E0, N0);
     // les bâtiments montent du sol, puis les arbres apparaissent ; en voyage, la vague part du lieu d'où l'on vient
-    if (!ACC?.suite) scene.animerConstruction(undefined, { origine: voyage && E0avant != null ? [E0avant - E0, N0avant - N0] : null });
+    scene.animerConstruction(undefined, { origine: voyage && E0avant != null ? [E0avant - E0, N0avant - N0] : null });
     // vue enregistrée (lieu du compte) : la caméra reprend sa place
     const cam = (h.get("cam") || "").split(",").map(Number);
     if (cam.length === 6 && cam.every(Number.isFinite)) { scene.camera.position.set(cam[0], cam[1], cam[2]); scene.controls.target.set(cam[3], cam[4], cam[5]); scene.controls.update(); scene.demander?.(3); }
@@ -468,8 +470,9 @@ scene.surVoyage = cible => {
  * Accueil sur Gruyères : la caméra avance lentement depuis le bas du bourg vers le château, puis revient, en boucle.
  * Un geste sur la vue l'arrête (on reprend la main).
  */
-const ACCUEIL = { E: 2572640, N: 1159220, R: 450, chateau: [2572790, 1159320] };
-let debutAccueil = null; // début du mouvement de la caméra (gardé quand la grande zone remplace le bourg)
+const ACCUEIL = { E: 2572640, N: 1159220, z: 809.1, R: 300, chateau: [2572790, 1159320] }; // z : sol au centre (geo.admin)
+let debutAccueil = null; // début du mouvement de la caméra
+let decalageAccueil = 0; // écart d'altitude entre les points du chargement et la maquette (m), appliqué à la caméra
 function volAccueil(E0, N0) {
   // départ bas, au-dessus des prés à l'ouest du bourg, assez loin du château ; la caméra passe à droite du bourg
   // (par le sud), le regard tourné vers le château, puis revient
@@ -484,6 +487,7 @@ function volAccueil(E0, N0) {
     const u = ((t - t0) / duree) % 2, f = u < 1 ? u : 2 - u, e = f * f * (3 - 2 * f);
     scene.camera.position.set(...A.map((v, k) => v + (B[k] - v) * e));
     scene.controls.target.set(...C);
+    scene.camera.position.y += decalageAccueil; scene.controls.target.y += decalageAccueil;
     scene.controls.update();
   };
   const arret = () => { if (scene.animation) scene.animation = null; scene.controls.removeEventListener("start", arret); };

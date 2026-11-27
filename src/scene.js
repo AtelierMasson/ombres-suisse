@@ -1605,7 +1605,7 @@ void main() {
    * Chargement visible : les points du relevé apparaissent bloc par bloc pendant le téléchargement (sol beige,
    * végétation verte, le reste gris), sur le nouveau lieu ; l'ancienne maquette est masquée. `R` : rayon du lieu.
    */
-  debutChargement(total, R) {
+  debutChargement(total, R, { garderVue = false, z0 = null } = {}) {
     this.finChargement();
     const geo = new THREE.BufferGeometry(), pos = new Float32Array(3 * total), col = new Uint8Array(3 * total);
     geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
@@ -1613,7 +1613,7 @@ void main() {
     geo.setDrawRange(0, 0);
     const pts = new THREE.Points(geo, new THREE.PointsMaterial({ size: 2.4, sizeAttenuation: false, vertexColors: true, fog: false }));
     pts.frustumCulled = false;
-    this.chargementPts = { pts, n: 0, z0: null, R };
+    this.chargementPts = { pts, n: 0, z0, R, garderVue }; // z0 connu (accueil) : les points sont déjà à la hauteur de la maquette
     this.groupe.visible = false;
     if (this.swiss) this.swiss.socle.visible = false;
     if (this.loin.maille) this.loin.maille.visible = false;
@@ -1629,7 +1629,8 @@ void main() {
       let m = Infinity; for (let k = 0; k < n; k++) if (C[k] === 2 && Z[k] < m) m = Z[k];
       c.z0 = isFinite(m) ? m : Z[0];
       const R = c.R || 150;
-      this.camera.position.set(-R * 0.9, R * 0.75, R * 1.1); this.controls.target.set(0, 0, 0); this.controls.update();
+      // accueil : la caméra suit déjà son trajet, on ne la déplace pas
+      if (!c.garderVue) { this.camera.position.set(-R * 0.9, R * 0.75, R * 1.1); this.controls.target.set(0, 0, 0); this.controls.update(); }
     }
     const COUL = { 2: [205, 190, 160], 3: [110, 150, 80], 4: [100, 145, 75], 5: [90, 135, 70], 6: [170, 165, 160], 9: [120, 170, 185], 17: [150, 150, 150] };
     const pas = Math.max(1, Math.round(n / 40000)); // au plus ~40 000 points par bloc (le dessin reste léger)
