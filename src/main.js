@@ -30,6 +30,7 @@ import { brancherSuggestion } from "./suggestion.js";
 brancherSuggestion();
 import { brancherPro } from "./pro.js";
 import { brancherCompte } from "./compte.js";
+import { brancherPub } from "./pub.js";
 import "./compte.css";
 
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
@@ -39,6 +40,7 @@ brancherSelecteur($("#langues"));
 // compte (connexion par lien e-mail, achat de la version pro) : sans l'API (site statique actuel), le bouton reste caché
 // et tout reste ouvert
 const compte = brancherCompte({ api: "/api", t });
+brancherPub(compte); // publicité de la version gratuite (aucune pour les comptes Pro)
 compte.monter($("#langues"));
 // compteurs d'usage anonymes (tableau d'administration) : un simple total par jour et par action, envoyé seulement
 // quand l'API du site est en service ; aucune adresse, aucun lieu, aucun compte

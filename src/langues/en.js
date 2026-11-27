@@ -95,6 +95,7 @@ export default {
   "compte.dejaPro": "This account is already Pro.",
   "compte.sessionExpiree": "Your session has expired (or you are signed in on another device). Sign in again to continue.",
   "compte.gestion": "Account management",
+  "pub.titre": "Advertising",
   "compte.supprimer": "Delete my account",
   "compte.supprimerConfirmer": "Permanently delete your account, details and saved places? To confirm, enter your email address again: {email}",
   "compte.supprime": "Your account has been deleted.",
@@ -541,9 +542,10 @@ export default {
     <p><b>Account</b><br>If you create an account, we process your email address (sign-in by a link sent by email), your status (free or Pro), the details you choose to provide (name, company, address, phone) and the places you save. Legal basis: performance of the contract (Art. 6(1)(b) GDPR). Only one device is signed in at a time.</p>
     <p><b>Purchasing the Pro offer</b><br>Payment is processed by Stripe (Stripe Payments Europe Ltd, Ireland, and Stripe Inc., United States). We do not receive your card details; we keep the amount, the date and the status of the payment for our accounting (legal obligation, 10 years).</p>
     <p><b>Suggestions</b><br>If you send a suggestion, we keep its text, the place displayed, the language, the browser type and, if you provide it, your email address so that we can reply (legitimate interest in improving the site). We delete suggestions within 12 months.</p>
+    <p><b>Advertising</b><br>The free version shows one ad at the bottom of the settings panel, provided by Google AdSense (Google Ireland Limited, Ireland; Google LLC, United States, under the Data Privacy Framework). Google receives your IP address and information about the browser and page. It sets cookies and personalises ads only with your consent, requested in a consent window; without consent, ads are non-personalised. You can change your choice at any time from the link in that window. Pro accounts see no advertising. More information: policies.google.com/technologies/ads.</p>
     <p><b>Recipients and transfers abroad</b><br>Infomaniak (hosting, database, sending of emails, Switzerland); Stripe (payment, Ireland and United States, under the Data Privacy Framework and standard contractual clauses); the geographic services named above. We do not sell your data.</p>
     <p><b>Retention periods</b><br>Sign-in links: 15 minutes; sessions: 180 days at most; account, information and places: until the account is deleted; accounting records: 10 years; suggestions: 12 months; host logs: according to Infomaniak.</p>
-    <p><b>Local storage and cookies</b><br>A session cookie is set only if you sign in. The browser's local storage keeps your settings (language, theme, display, radius, Pro mode projects). They are necessary for the site to work. No advertising cookies or audience measurement tools are used.</p>
+    <p><b>Local storage and cookies</b><br>A session cookie is set only if you sign in. The browser's local storage keeps your settings (language, theme, display, radius, Pro mode projects). They are necessary for the site to work. No audience measurement tools are used. Google advertising cookies are set only with your consent (see \"Advertising\").</p>
     <p><b>Your rights</b><br>You may request access to your personal data, ask for rectification, erasure or data portability, or object to the processing of your data. You can delete your account yourself in the "My account" window, or write to us at <a href="mailto:contact@topograph.ch">contact@topograph.ch</a>. You may also contact the Federal Data Protection and Information Commissioner (FDPIC) or, in the European Union, the data protection authority in your country.</p>`,
   "legal.pageConditions": `<h2>Terms of use and sale</h2>
     <p><b>Use</b><br>Topograph is published by Atelier Masson Sàrl. The free version is provided without any guarantee of availability.</p>
