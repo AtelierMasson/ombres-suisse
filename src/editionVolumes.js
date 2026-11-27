@@ -1,7 +1,11 @@
 // Édition directe des volumes du projet (mode pro), à la souris :
 // - un clic sur un volume le sélectionne (contour) ; Échap ou un clic ailleurs le désélectionne ; Suppr le retire ;
-// - au survol du volume sélectionné, la face sous la souris s'éclaire : tirer un mur le déplace (le volume s'allonge
-//   ou s'élargit), tirer le toit change la hauteur ;
+// - au survol du volume sélectionné, la face sous la souris s'éclaire : pousser-tirer un mur le déplace le long de sa
+//   normale (les murs voisins s'allongent ou se raccourcissent), tirer le toit change la hauteur ; pas de 10 cm, d'un
+//   mètre avec Maj ; la cote du geste s'affiche, et une valeur tapée au clavier puis Entrée fixe la distance exacte
+//   (pendant le geste ou juste après) ;
+// - emprise libre : les pastilles des coins se tirent, la pastille « + » au milieu d'un côté y ajoute un coin, un
+//   double-clic (ou Alt + clic) sur un coin le retire ;
 // - poignées au-dessus du toit, dans le genre de l'étoile d'orientation (axes fins colorés, pastilles cerclées de blanc,
 //   taille constante à l'écran quelle que soit la focale) : la pastille du centre déplace le volume (il garde son
 //   altitude), la pastille sur l'anneau le fait tourner ;
@@ -10,7 +14,9 @@ import * as THREE from "three";
 import { Line2 } from "three/addons/lines/Line2.js";
 import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
-import { reglerCorniche } from "./projet.js";
+import { reglerCorniche, tirerCoteBorne, empriseValide, centroide, pansPossibles, orientationDominante, corniche } from "./projet.js";
+import { accrocherPoint, directions } from "./accrochage.js";
+import { nombre } from "./i18n.js";
 
 const ROUGE = "#c8553d", VERT = "#5b8c3a", BLEU = "#3d6fb6", ENCRE = "#8c1c1c";
 
@@ -52,6 +58,7 @@ function etiquette(txt, couleur) {
 }
 
 export function brancherEdition({ scene, volumes, actif, dessine, changes, retirer, bouge = () => {}, choix = () => {}, cotes = () => [] }) {
+  const fr = (x, d = 2) => nombre(x, d);
   const calque = new THREE.Group();
   calque.renderOrder = 35;
   scene.scene.add(calque);
@@ -121,7 +128,9 @@ export function brancherEdition({ scene, volumes, actif, dessine, changes, retir
 
   const matFace = new THREE.MeshBasicMaterial({ color: "#b84a44", transparent: true, opacity: 0.45, depthTest: false, depthWrite: false, side: THREE.DoubleSide, fog: false });
   const matContour = new THREE.LineBasicMaterial({ color: ENCRE, depthTest: false, transparent: true, fog: false });
-  let sel = null, survol = null, prise = null, avantClic = 0, jetables = [];
+  let sel = null, survol = null, prise = null, avantClic = 0, jetables = [], prisesCoins = [];
+  // dernier geste (pendant ou juste après) : une valeur tapée au clavier puis Entrée le refait à la cote exacte
+  let geste = null, saisie = "";
   const mailles = () => (scene.couches.volumes?.children || []).filter(m => m.visible);
   const volumeDe = id => volumes().find(v => v.id === id);
   const toucher = e => {
@@ -132,7 +141,8 @@ export function brancherEdition({ scene, volumes, actif, dessine, changes, retir
   const viserPoignee = e => {
     if (!poignees.parent) return null;
     ajuster(poignees, scene.camera);
-    return rayon(e).intersectObjects([deplacer, tourner], false)[0] || null;
+    for (const s of prisesCoins) ajuster(s.parent, scene.camera);
+    return rayon(e).intersectObjects([...prisesCoins, deplacer, tourner], false)[0] || null;
   };
 
   /** Contour du volume sélectionné, face survolée, poignées, numéros des coins, cotes. */
@@ -164,13 +174,30 @@ export function brancherEdition({ scene, volumes, actif, dessine, changes, retir
     const a = Math.atan2(v.coins[0][1] - cy, v.coins[0][0] - cx);
     tourner.position.set(RAYON * Math.cos(a), RAYON * Math.sin(a), 0);
     calque.add(poignees);
-    // numéros des coins, au niveau de la corniche
+    // numéros des coins, au niveau de la corniche ; emprise libre : on les tire, et un « + » au milieu de chaque côté
+    // ajoute un coin
     const hc = m.geometry.userData.base + v.hauteur;
+    prisesCoins = [];
+    const N = v.coins.length;
     v.coins.forEach(([x, y], k) => {
       const an = jeter(ancrage());
-      an.position.set(x + (x - cx) * 0.04, hc, -(y + (y - cy) * 0.04));
-      accrocher(an, pastille("#4a4540", texte(String(k + 1), 36), 15));
+      an.position.set(v.libre ? x : x + (x - cx) * 0.04, hc, -(v.libre ? y : y + (y - cy) * 0.04));
+      const s = accrocher(an, pastille(v.libre ? ENCRE : "#4a4540", texte(String(k + 1), 36), v.libre ? 17 : 15));
+      if (v.libre) { s.userData.poignee = "coin"; s.userData.coin = k; prisesCoins.push(s); }
+      if (v.libre && !prise) {
+        const [x2, y2] = v.coins[(k + 1) % N], am = jeter(ancrage());
+        am.position.set((x + x2) / 2, hc, -(y + y2) / 2);
+        const sm = accrocher(am, pastille(VERT, texte("+", 40), 13));
+        sm.userData.poignee = "milieu"; sm.userData.coin = k; prisesCoins.push(sm);
+      }
     });
+    // cote du geste en cours (ou valeur tapée au clavier)
+    const txt = texteGeste();
+    if (txt) {
+      const an = jeter(ancrage());
+      an.position.copy(geste.ici || poignees.position).add(new THREE.Vector3(0, 1.5, 0));
+      accrocher(an, etiquette(txt, saisie ? BLEU : ENCRE));
+    }
     // cotes : bâtiment et limite les plus proches (traits fins et valeur)
     for (const c of cotes(v)) {
       const A = new THREE.Vector3(c.p[0], c.z, -c.p[1]), B = new THREE.Vector3(c.q[0], c.z, -c.q[1]);
@@ -183,13 +210,13 @@ export function brancherEdition({ scene, volumes, actif, dessine, changes, retir
     scene.demander();
   }
 
-  function choisir(id) { const avant = sel; sel = id; survol = null; dessiner(); if (avant !== id) choix(id); }
+  function choisir(id) { const avant = sel; sel = id; survol = null; if (avant !== id) { geste = null; saisie = ""; } dessiner(); if (avant !== id) choix(id); }
 
   el.addEventListener("pointermove", e => {
     if (prise) return glisser(e);
     if (!actif() || dessine()) { if (survol) { survol = null; dessiner(); } return; }
     const h = viserPoignee(e);
-    if (h) { el.style.cursor = h.object.userData.poignee === "tourner" ? "alias" : "move"; if (survol) { survol = null; dessiner(); } return; }
+    if (h) { el.style.cursor = { tourner: "alias", milieu: "copy", coin: "crosshair" }[h.object.userData.poignee] || "move"; if (survol) { survol = null; dessiner(); } return; }
     const t = toucher(e), avant = survol && `${survol.id}/${survol.face}`;
     survol = t && t.id === sel ? t : null;
     el.style.cursor = t ? (t.id === sel ? (t.face === -1 ? "ns-resize" : "ew-resize") : "pointer") : "";
@@ -206,8 +233,26 @@ export function brancherEdition({ scene, volumes, actif, dessine, changes, retir
     const v = volumeDe(sel);
     if (!v) return;
     const cam = scene.camera, vue = cam.getWorldDirection(new THREE.Vector3()), ras = vueRasante(cam);
-    const depart = hp ? poignees.position.clone() : t.point.clone();
-    prise = { mode: hp ? hp.object.userData.poignee : t.face === -1 ? "hauteur" : "mur", face: t?.face, depart, orig: v.coins.map(q => [...q]), hauteur: v.hauteur, v, y0: e.clientY, ras };
+    let mode = hp ? hp.object.userData.poignee : t.face === -1 ? "hauteur" : "mur", coin = hp?.object.userData.coin;
+    let orig = v.coins.map(q => [...q]);
+    if (mode === "coin" && e.altKey) { e.stopImmediatePropagation(); retirerCoin(v, coin); return; } // Alt + clic : le coin est retiré
+    if (mode === "milieu") {
+      // nouveau coin au milieu du côté, aussitôt tiré
+      const a = orig[coin], b = orig[(coin + 1) % orig.length];
+      orig.splice(coin + 1, 0, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]);
+      v.coins = orig.map(q => [...q]);
+      mode = "coin"; coin += 1;
+    }
+    const depart = hp ? hp.object.parent.position.clone() : t.point.clone();
+    prise = { mode, face: t?.face, coin, depart, orig, hauteur: v.hauteur, v, y0: e.clientY, ras };
+    saisie = "";
+    geste = { mode, face: t?.face, coin, orig, hauteur: v.hauteur, v, ici: depart.clone(), valeur: null };
+    if (mode === "coin") {
+      // accrochage du coin : angle droit ou orientation du volume, vers ses deux voisins
+      const n = orig.length, o = orientationDominante(orig.map((p, k) => [p, orig[(k + 1) % n]]));
+      const autres = orig.filter((p, k) => k !== coin && k !== (coin + 1) % n && k !== (coin - 1 + n) % n);
+      prise.dirs = directions([o, orientationDominante(autres.map((p, k) => [p, autres[(k + 1) % autres.length]]))]);
+    }
     prise.parPixel = parPixel(cam, depart);
     // plan de glissement : horizontal (murs, déplacer, tourner) ; en vue rasante (élévations), vertical face à la
     // caméra : on ne glisse alors que de côté ; hauteur : vertical face à la caméra, ou au pixel en vue de dessus
@@ -217,8 +262,8 @@ export function brancherEdition({ scene, volumes, actif, dessine, changes, retir
     const q0 = prise.plan && rayon(e).ray.intersectPlane(prise.plan, new THREE.Vector3());
     if (q0 && prise.mode !== "hauteur") depart.copy(q0); // le volume suit la souris sans saut
     if (prise.mode === "tourner") {
-      const cx = prise.orig.reduce((s, p) => s + p[0], 0) / 4, cy = prise.orig.reduce((s, p) => s + p[1], 0) / 4;
-      prise.centre = [cx, cy];
+      const [cx, cy] = centroide(prise.orig);
+      prise.centre = geste.centre = [cx, cy];
       prise.rayon = Math.max(1, RAYON * prise.parPixel);
       prise.droite = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 0);
       prise.a0 = Math.atan2(-depart.z - cy, depart.x - cx);
@@ -229,47 +274,129 @@ export function brancherEdition({ scene, volumes, actif, dessine, changes, retir
   }, true);
 
   function glisser(e) {
-    const { v, orig, depart } = prise;
+    const { v, orig, depart } = prise, pas = e.shiftKey ? 1 : 0.1, arr = x => Math.round(x / pas) * pas;
     if (prise.mode === "hauteur" && !prise.plan) {
       // vue de dessus : la hauteur suit le déplacement vertical de la souris
-      reglerCorniche(v, Math.round((prise.hauteur - (e.clientY - prise.y0) * prise.parPixel) * 10) / 10);
+      reglerCorniche(v, arr(prise.hauteur - (e.clientY - prise.y0) * prise.parPixel));
+      geste.valeur = corniche(v);
     } else {
       const q = rayon(e).ray.intersectPlane(prise.plan, new THREE.Vector3());
       if (!q) return;
       const dx = q.x - depart.x, dy = -(q.z - depart.z);
-      if (prise.mode === "deplacer") v.coins = orig.map(([x, y]) => [x + dx, y + dy]); // v.base ne change pas : altitude gardée
-      else if (prise.mode === "tourner") {
+      if (prise.mode === "deplacer") {
+        const l = Math.hypot(dx, dy), k = l > 0 ? arr(l) / l : 0;
+        v.coins = orig.map(([x, y]) => [x + dx * k, y + dy * k]); // v.base ne change pas : altitude gardée
+        geste.valeur = arr(l); geste.dir = l > 0 ? [dx / l, dy / l] : null;
+      } else if (prise.mode === "tourner") {
         const [cx, cy] = prise.centre, r = prise.droite;
         // vue rasante : l'angle suit le glissement latéral (rapporté au rayon de l'anneau) ; sinon l'angle autour du centre
-        const a = prise.ras ? -((q.x - depart.x) * r.x + (q.z - depart.z) * r.z) / prise.rayon : Math.atan2(-q.z - cy, q.x - cx) - prise.a0;
-        const co = Math.cos(a), si = Math.sin(a);
-        v.coins = orig.map(([x, y]) => [cx + (x - cx) * co - (y - cy) * si, cy + (x - cx) * si + (y - cy) * co]);
-      } else if (prise.mode === "hauteur") reglerCorniche(v, Math.round((prise.hauteur + q.y - depart.y) * 10) / 10);
-      else {
-        // mur k : ses deux coins avancent le long de la normale extérieure (polygone dans le sens trigonométrique)
+        let a = prise.ras ? -((q.x - depart.x) * r.x + (q.z - depart.z) * r.z) / prise.rayon : Math.atan2(-q.z - cy, q.x - cx) - prise.a0;
+        const pasA = e.shiftKey ? 15 : 0.5; // degrés
+        a = Math.round(a * 180 / Math.PI / pasA) * pasA * Math.PI / 180;
+        tournerCoins(v, orig, prise.centre, a);
+        geste.valeur = a * 180 / Math.PI;
+      } else if (prise.mode === "hauteur") { reglerCorniche(v, arr(prise.hauteur + q.y - depart.y)); geste.valeur = corniche(v); }
+      else if (prise.mode === "coin") {
+        // coin tiré : accroché aux angles droits et à l'orientation du volume, l'emprise doit rester valide
+        const n = orig.length, k = prise.coin, p0 = orig[k], brut = [p0[0] + dx, p0[1] + dy];
+        const r = accrocherPoint(brut, [{ p: orig[(k - 1 + n) % n], dirs: prise.dirs }, { p: orig[(k + 1) % n], dirs: prise.dirs }], { pas });
+        const C = orig.map(c => [...c]); C[k] = r.p;
+        if (empriseValide(C)) { v.coins = C; const l = Math.hypot(r.p[0] - p0[0], r.p[1] - p0[1]); geste.valeur = l; geste.dir = l > 0 ? [(r.p[0] - p0[0]) / l, (r.p[1] - p0[1]) / l] : null; }
+      } else {
+        // pousser-tirer le mur k le long de sa normale extérieure ; les murs voisins suivent ; l'emprise reste valide
         const k = prise.face, n = orig.length, A = orig[k], B = orig[(k + 1) % n], L = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1;
         const nx = (B[1] - A[1]) / L, ny = -(B[0] - A[0]) / L;
-        // le mur ne passe pas à moins d'un mètre du mur opposé
-        const opp = orig.reduce((m, p) => Math.min(m, (p[0] - A[0]) * nx + (p[1] - A[1]) * ny), 0);
-        const d = Math.max(opp + 1, dx * nx + dy * ny);
-        v.coins = orig.map((p, i) => i === k || i === (k + 1) % n ? [p[0] + nx * d, p[1] + ny * d] : [...p]);
+        const r = tirerCoteBorne(orig, k, arr(dx * nx + dy * ny));
+        v.coins = r.coins; geste.valeur = r.d;
       }
+      geste.ici = q.clone();
     }
     scene.afficherVolumes(volumes());
     dessiner();
     bouge(v);
   }
 
-  el.addEventListener("pointerup", e => {
-    if (!prise) return;
+  function tournerCoins(v, orig, [cx, cy], a) {
+    const co = Math.cos(a), si = Math.sin(a);
+    v.coins = orig.map(([x, y]) => [cx + (x - cx) * co - (y - cy) * si, cy + (x - cx) * si + (y - cy) * co]);
+  }
+
+  /** Texte de la cote du geste : valeur tapée, sinon distance, hauteur ou angle du geste en cours. */
+  function texteGeste() {
+    if (!geste || geste.v.id !== sel) return null;
+    if (saisie) return `${saisie.replace(".", ",")}${geste.mode === "tourner" ? "°" : " m"} ↵`;
+    if (!prise || geste.valeur == null) return null;
+    const x = geste.valeur;
+    if (geste.mode === "hauteur") return `↕ ${fr(x, 1)} m`;
+    if (geste.mode === "tourner") return `${fr(x, 1)}°`;
+    if (geste.mode === "mur") return `${x > 0 ? "+" : x < 0 ? "−" : ""}${fr(Math.abs(x))} m`;
+    return `${fr(x)} m`;
+  }
+
+  /** Refait le dernier geste à la valeur tapée (m, ou degrés pour la rotation ; corniche en m pour le toit). */
+  function appliquerSaisie() {
+    const x = parseFloat(saisie.replace(",", "."));
+    saisie = "";
+    const g = geste, v = g && volumeDe(g.v.id);
+    if (!v || !isFinite(x)) { dessiner(); return; }
+    if (g.mode === "mur") v.coins = tirerCoteBorne(g.orig, g.face, x).coins;
+    else if (g.mode === "hauteur") reglerCorniche(v, x);
+    else if (g.mode === "tourner") tournerCoins(v, g.orig, g.centre, x * Math.PI / 180);
+    else if (g.dir && (g.mode === "deplacer" || g.mode === "coin")) {
+      const [ux, uy] = g.dir;
+      if (g.mode === "deplacer") v.coins = g.orig.map(([a, b]) => [a + ux * x, b + uy * x]);
+      else { const C = g.orig.map(c => [...c]); C[g.coin] = [C[g.coin][0] + ux * x, C[g.coin][1] + uy * x]; if (empriseValide(C)) v.coins = C; }
+    }
+    g.valeur = g.mode === "hauteur" ? corniche(v) : x;
+    if (prise) finirPrise();
+    finGeste(v);
+  }
+  function finirPrise(pointerId) {
     prise = null;
     scene.controls.enabled = true;
-    try { el.releasePointerCapture(e.pointerId); } catch { /* déjà relâché */ }
+    if (pointerId != null) try { el.releasePointerCapture(pointerId); } catch { /* déjà relâché */ }
+  }
+  /** Geste terminé : un toit à pans sur une emprise qui n'est plus un rectangle devient plat ; maquette, calculs. */
+  const etatDe = v => v && JSON.stringify([v.coins, v.etages]);
+  function finGeste(v) {
+    if (v.toit !== "plat" && !pansPossibles(v)) v.toit = "plat";
+    if (geste) geste.fin = etatDe(v); // la saisie au clavier vaut tant que le volume n'a pas changé autrement
     changes();
     dessiner();
+    bouge(v);
+  }
+  function retirerCoin(v, k) {
+    if (v.coins.length <= 3) return;
+    const C = v.coins.filter((p, i) => i !== k);
+    if (!empriseValide(C)) return;
+    v.coins = C; geste = null; saisie = "";
+    finGeste(v);
+  }
+  // double-clic sur un coin d'une emprise libre : il est retiré (et la caméra ne vole pas vers le point)
+  el.addEventListener("dblclick", e => {
+    if (!actif() || dessine() || sel == null) return;
+    const h = viserPoignee(e);
+    if (!h) return;
+    e.stopImmediatePropagation();
+    const v = volumeDe(sel);
+    if (v && h.object.userData.poignee === "coin") retirerCoin(v, h.object.userData.coin);
+  }, true);
+
+  el.addEventListener("pointerup", e => {
+    if (!prise) return;
+    const v = prise.v;
+    finirPrise(e.pointerId);
+    finGeste(v);
   });
   addEventListener("keydown", e => {
     if (sel == null || e.target.closest?.("input, textarea, select")) return;
+    // valeur tapée au clavier pour le dernier geste (chiffres, virgule, signe moins) ; Entrée l'applique
+    if (geste && (prise || (geste.v.id === sel && geste.fin === etatDe(volumeDe(sel))))) {
+      if (/^[0-9.,]$/.test(e.key) || (e.key === "-" && !saisie)) { saisie += e.key; e.preventDefault(); dessiner(); return; }
+      if (saisie && e.key === "Backspace") { saisie = saisie.slice(0, -1); e.preventDefault(); dessiner(); return; }
+      if (saisie && e.key === "Enter") { e.preventDefault(); appliquerSaisie(); return; }
+      if (saisie && e.key === "Escape") { saisie = ""; dessiner(); return; }
+    }
     if (e.key === "Escape") choisir(null);
     if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); const id = sel; choisir(null); retirer(id); }
   });

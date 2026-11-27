@@ -130,6 +130,10 @@ npm run build      # site statique dans dist/, à publier tel quel
 | `src/demo.js` | Hameau inventé de l'écran d'accueil |
 | `src/pro.js` | Mode pro : sélection et masquage de bâtiments, taille de la maquette, boutons d'export |
 | `src/volumes.js` | Mode pro : volumes numérotés, regroupés en bâtiments, fiche (hauteur, emprise, niveaux) |
+| `src/projet.js` | Mode pro : volumes du projet (rectangle ou emprise libre, étages, toits), pousser-tirer d'un côté, projets enregistrés |
+| `src/accrochage.js` | Mode pro : accrochage des coins d'une emprise (angles droits, orientation de la parcelle et des voisins) |
+| `src/editionVolumes.js` | Mode pro : édition des volumes à la souris (murs, toit, coins, poignées, cotes, valeur au clavier) |
+| `src/ecran.js` | Étiquettes de cote à taille constante à l'écran |
 | `src/export.js` | Mode pro : export de la maquette en DXF, OBJ, glTF binaire et STL (zip avec LISEZ-MOI) |
 | `src/exportCoupe.js` | Mode pro : export de la coupe A–B en DXF et en SVG |
 

@@ -1,12 +1,14 @@
 // Mode pro : sélection et masquage de bâtiments (retirés aussi des calculs), taille de la maquette, exports.
 // Les outils n'apparaissent que lorsque l'interrupteur « Mode pro » est activé.
+import * as THREE from "three";
 import { ficheVolumes, volumesParcelle } from "./volumes.js";
 import { FORMATS, exporterSite, estimer, sansAccent, nomFichier } from "./export.js";
 import { dessinCoupe, coupeDxf, coupeSvg, coupePdf } from "./exportCoupe.js";
 import { ouvrirImpression3D } from "./impression3dFenetre.js";
 import { toitsReleve, toitsObjets, toitsSwiss } from "./impression3dToits.js";
 import { t, nombre, entier, date } from "./i18n.js";
-import { rectangle, dimensions, reglerCorniche, listerProjets, enregistrerProjet, supprimerProjet, normaliserVolume } from "./projet.js";
+import { rectangle, dimensions, reglerCorniche, listerProjets, enregistrerProjet, supprimerProjet, normaliserVolume, empriseValide, sensDirect, seRecoupe, orientationDominante, aire, pansPossibles } from "./projet.js";
+import { directions, accrocherPoint } from "./accrochage.js";
 import { traceSol } from "./traceVolume.js";
 import { ficheVolume, mesurer, cotesVolume } from "./ficheVolume.js";
 import { importerModele } from "./importer.js";
@@ -132,58 +134,151 @@ export function brancherPro(o) {
   $$("input[name=batiments]").forEach(b => b.addEventListener("change", maj));
 
   /* ---------------------------------------------------------------- volumes du projet */
-  // dessin d'un rectangle en trois clics sur la maquette : A, B (un côté), puis la profondeur ; aperçu qui suit la souris
-  let dessin = null, numero = 0, finAt = 0;
-  const aide = () => $("#aideVolume").textContent = !dessin ? "" : t(["projet.aideA", "projet.aideB", "projet.aideC"][dessin.length]);
+  // Deux façons de dessiner sur la maquette, avec aperçu qui suit la souris :
+  // - « Dessiner un volume » : rectangle en trois clics (A, B pour un côté, puis la profondeur) ;
+  // - « Emprise libre » : un clic par coin ; fermeture par un clic sur le premier point, un double-clic ou Entrée ;
+  //   Retour arrière retire le dernier point, Échap annule. Les côtés s'accrochent aux angles droits et à l'orientation
+  //   de la parcelle et des bâtiments voisins (accrochage.js), leurs longueurs sont cotées, un tracé qui se recoupe est
+  //   refusé.
+  let dessin = null, mode = "rect", numero = 0, finAt = 0, dirs = [], visee = null;
+  const aide = (cle = null) => $("#aideVolume").textContent = !dessin ? "" : t(cle || (mode === "libre"
+    ? (dessin.length < 3 ? ["projet.libreA", "projet.libreB", "projet.libreB"][dessin.length] : "projet.libreC")
+    : ["projet.aideA", "projet.aideB", "projet.aideC"][dessin.length]));
+  const bouton = () => $(mode === "libre" ? "#btnEmprise" : "#btnVolume");
   function finDessin() {
-    dessin = null; finAt = performance.now(); // le clic qui termine ne doit pas aussi choisir une parcelle
-    $("#btnVolume").classList.remove("active");
+    dessin = null; visee = null; finAt = performance.now(); // le clic qui termine ne doit pas aussi choisir une parcelle
+    $("#btnVolume").classList.remove("active"); $("#btnEmprise")?.classList.remove("active");
     scene.renderer.domElement.style.cursor = "";
     scene.afficherVolumes(P.volumes);
-    trace.montrer(null);
+    trace.montrer(null); trace.cotes(null);
     aide();
   }
-  $("#btnVolume").onclick = () => {
-    if (dessin) return finDessin();
+  function commencer(m) {
+    if (dessin) finDessin();
     if (!pret()) return;
-    dessin = [];
-    $("#btnVolume").classList.add("active");
+    mode = m; dessin = []; dirs = [];
+    edition?.deselectionner();
+    bouton().classList.add("active");
     scene.renderer.domElement.style.cursor = "crosshair";
     aide(); maj();
-  };
+  }
+  $("#btnVolume").onclick = () => { if (dessin && mode === "rect") return finDessin(); commencer("rect"); };
+  $("#btnEmprise").onclick = () => { if (dessin && mode === "libre") return finDessin(); commencer("libre"); };
   // Échap : fin du dessin en cours ; sinon, la sélection est vidée et la fiche fermée
   addEventListener("keydown", e => {
-    if (e.key !== "Escape" || e.target.closest?.("input, textarea, select, dialog")) return;
+    if (e.target.closest?.("input, textarea, select, dialog")) return;
+    if (dessin && (e.key === "Backspace" || e.key === "Delete")) {
+      // Retour arrière : le dernier point posé est retiré
+      e.preventDefault(); e.stopImmediatePropagation();
+      dessin.pop(); if (!dessin.length) dirs = [];
+      majDessin(); aide();
+      return;
+    }
+    if (dessin && mode === "libre" && e.key === "Enter") { e.preventDefault(); return fermer(); }
+    if (e.key !== "Escape") return;
     if (dessin) return finDessin();
     if (P.selection.size) { P.selection = new Set(); P.selNom = null; maj(); }
     o.fiche?.fermer();
-  });
+  }, true);
   const pointDessin = e => { const p = scene.pointSol(e); return p && Math.max(Math.abs(p[0]), Math.abs(p[1])) < S.G.R - 1 ? p : null; };
   // un volume neuf est posé sur le terrain (base = sol le plus bas sous l'emprise) ; il garde ensuite cette altitude
   const volumeDe = (coins, base = {}) => ({ id: base.id ?? ++numero, coins, hauteur: base.hauteur ?? 9, toit: base.toit ?? "plat" });
   // tracé drapé sur le terrain pendant le dessin (traceVolume.js)
   let trace = null;
   queueMicrotask(() => { trace = traceSol(scene); });
+  function ajouterVolume(v) {
+    P.volumes.push(v); volumesChanges(); o.compter?.("volume");
+    finDessin();
+    edition?.choisir(v.id); // le nouveau volume est sélectionné : poignées et tableau
+  }
+
+  /** Orientations de référence autour de (x, y) : parcelle, puis bâtiments voisins (les plus proches d'abord). */
+  function orientationsAutour(x, y) {
+    const out = [], q = o.parcelleEn?.(x, y) || S.parcelle;
+    for (const a of q?.anneauxRel || []) out.push(orientationDominante(a.map((p, k) => [p, a[(k + 1) % a.length]])));
+    const C = scene.contours, proches = [];
+    if (C) for (const B of C.boucles) {
+      const poly = B.sommets.map(s => [C.px[B.coins[s]], C.py[B.coins[s]]]);
+      if (poly.length < 3) continue;
+      const d = Math.min(...poly.map(([u, w]) => Math.hypot(u - x, w - y)));
+      if (d < 40) proches.push({ d, o: B.dominante ?? orientationDominante(poly.map((p, k) => [p, poly[(k + 1) % poly.length]])) });
+    }
+    proches.sort((a, b) => a.d - b.d);
+    out.push(...proches.slice(0, 4).map(p => p.o));
+    for (const v of P.volumes) out.push(orientationDominante(v.coins.map((p, k) => [p, v.coins[(k + 1) % v.coins.length]])));
+    return out;
+  }
+  /** Point de l'emprise libre sous la souris, accroché ; `ferme` : la souris est sur le premier point. */
+  function pointLibre(e) {
+    const brut = pointDessin(e);
+    if (!brut) return null;
+    const n = dessin.length;
+    if (n >= 3 && pixelsJusque(e, dessin[0]) < 12) return { p: dessin[0], ferme: true };
+    if (!n) return { p: brut };
+    // directions : angle droit sur le premier côté (s'il existe), orientations de la parcelle et des voisins
+    const D = directions(n >= 2 ? [Math.atan2(dessin[1][1] - dessin[0][1], dessin[1][0] - dessin[0][0]), ...dirs] : dirs);
+    const r = accrocherPoint(brut, [{ p: dessin[n - 1], dirs: D }, n >= 2 ? { p: dessin[0], dirs: D } : null], { pas: e.shiftKey ? 1 : 0.1 });
+    return { p: r.p, guides: r.guides };
+  }
+  function pixelsJusque(e, p) {
+    const r = scene.renderer.domElement.getBoundingClientRect();
+    const v = new THREE.Vector3(p[0], solEn(S.G, p[0], p[1]) - scene.zRef, -p[1]).project(scene.camera);
+    return Math.hypot((v.x + 1) / 2 * r.width + r.left - e.clientX, (1 - v.y) / 2 * r.height + r.top - e.clientY);
+  }
+  const cote = (a, b, plus = "") => ({ a, b, texte: `${fr(Math.hypot(b[0] - a[0], b[1] - a[1]), 2)} m${plus}` });
+  /** Tracé au sol, aperçu du volume et cotes de l'emprise libre (avec le point visé). */
+  function majDessin() {
+    if (!dessin || !trace) return;
+    if (mode !== "libre") { trace.montrer(dessin.length ? dessin : null); scene.afficherVolumes(P.volumes); return; }
+    const pts = visee && !visee.ferme ? [...dessin, visee.p] : [...dessin], n = pts.length;
+    trace.montrer(n ? pts : null, n >= 3);
+    const liste = [];
+    for (let k = 0; k + 1 < n; k++) liste.push(cote(pts[k], pts[k + 1], visee?.guides?.length && k === n - 2 && !visee.ferme ? " ⊥" : ""));
+    if (n >= 3) liste.push(cote(pts[n - 1], pts[0]));
+    trace.cotes(liste);
+    const ok = n >= 3 && empriseValide(pts);
+    scene.afficherVolumes(P.volumes, ok ? volumeDe(sensDirect(pts), { id: 0 }) : null);
+  }
+  /** Ferme l'emprise libre : volume créé, ou refus si elle se recoupe ou est trop petite. */
+  function fermer() {
+    if (!dessin || mode !== "libre") return;
+    if (dessin.length < 3) return aide("projet.libreTrop");
+    if (!empriseValide(dessin)) return aide(seRecoupe(dessin, true) ? "projet.recoupe" : "projet.libreTrop");
+    ajouterVolume(normaliserVolume({ ...volumeDe(sensDirect(dessin)), libre: true }, S.G));
+  }
   function clicDessin(e) {
+    if (mode === "libre") {
+      const r = pointLibre(e);
+      if (!r) return;
+      if (r.ferme) return fermer();
+      const n = dessin.length, p = r.p;
+      if (n && Math.hypot(p[0] - dessin[n - 1][0], p[1] - dessin[n - 1][1]) < 0.2) return; // même point (double-clic)
+      if (n >= 2 && seRecoupe([...dessin, p], false)) return aide("projet.recoupe");
+      dessin.push(p);
+      if (n === 0) dirs = orientationsAutour(...p); // orientations prises autour du premier point
+      visee = null; majDessin(); aide();
+      return;
+    }
     const p = pointDessin(e);
     if (!p) return;
     dessin.push(p);
     if (dessin.length === 3) {
       const coins = rectangle(...dessin);
-      if (coins) {
-        const v = normaliserVolume(volumeDe(coins), S.G);
-        P.volumes.push(v); volumesChanges(); o.compter?.("volume");
-        finDessin();
-        edition?.choisir(v.id); // le nouveau volume est sélectionné : poignées et tableau
-        return;
-      }
+      if (coins) return ajouterVolume(normaliserVolume(volumeDe(coins), S.G));
       return finDessin();
     }
     trace.montrer(dessin);
     aide();
   }
+  // double-clic : ferme l'emprise libre (et ne fait pas voler la caméra vers le point)
+  scene.renderer.domElement.addEventListener("dblclick", e => {
+    if (!dessin) return;
+    e.stopImmediatePropagation(); e.preventDefault();
+    if (mode === "libre") fermer();
+  }, true);
   scene.renderer.domElement.addEventListener("pointermove", e => {
     if (!dessin) return;
+    if (mode === "libre") { const r = pointLibre(e); if (r) { visee = r; majDessin(); } return; }
     const p = pointDessin(e);
     if (!p) return;
     // tracé au sol : le point visé (avant le premier clic), le côté en cours, puis le rectangle
@@ -195,6 +290,8 @@ export function brancherPro(o) {
     const coins = dessin.length === 1 ? mince : rectangle(dessin[0], dessin[1], p);
     scene.afficherVolumes(P.volumes, coins ? volumeDe(coins, { id: 0 }) : null);
     trace.montrer(dessin.length === 1 ? [dessin[0], p] : coins || [dessin[0], dessin[1], p], dessin.length === 2 && !!coins);
+    // cotes du rectangle : côté en cours, puis profondeur
+    trace.cotes(dessin.length === 1 ? [cote(dessin[0], p)] : coins ? [cote(coins[0], coins[1]), cote(coins[1], coins[2])] : null);
   });
   /** Volumes changés : maquette, ombres, coupe, heures de soleil (si affichées), liste du panneau. */
   // édition des volumes à la souris (sélection, faces, déplacer, tourner) : editionVolumes.js
@@ -217,7 +314,41 @@ export function brancherPro(o) {
     // pendant la saisie : maquette et poignées ; à la validation : aussi coupe, heures de soleil et liste
     changer: (v, final) => { if (final) volumesChanges(); else { scene.afficherVolumes(P.volumes); edition?.maj(); } },
   });
-  function volumesChanges() {
+  // Annuler / rétablir (Ctrl+Z, Ctrl+Maj+Z ou Ctrl+Y ; boutons ↶ ↷) : chaque changement validé des volumes (dessin,
+  // geste de souris relâché, champ du tableau validé, liste) devient une étape ; l'état précédent est gardé en JSON.
+  const H = { avant: [], apres: [], etat: "[]" };
+  const instantane = () => JSON.stringify(P.volumes);
+  function oublierHistorique() { H.avant = []; H.apres = []; H.etat = instantane(); majBoutonsHistorique(); }
+  function majBoutonsHistorique() {
+    const a = $("#btnAnnulerVolume"), r = $("#btnRetablirVolume");
+    if (a) a.disabled = !H.avant.length;
+    if (r) r.disabled = !H.apres.length;
+  }
+  function revenir(depuis, vers) {
+    if (!depuis.length) return;
+    if (dessin) finDessin();
+    vers.push(H.etat);
+    H.etat = depuis.pop();
+    const sel = edition?.selection;
+    P.volumes = JSON.parse(H.etat);
+    volumesChanges(true);
+    if (sel != null && P.volumes.some(v => v.id === sel)) edition?.choisir(sel);
+  }
+  const annulerVolumes = () => revenir(H.avant, H.apres), retablirVolumes = () => revenir(H.apres, H.avant);
+  $("#btnAnnulerVolume") && ($("#btnAnnulerVolume").onclick = annulerVolumes);
+  $("#btnRetablirVolume") && ($("#btnRetablirVolume").onclick = retablirVolumes);
+  addEventListener("keydown", e => {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey || !actif() || e.target.closest?.("input, textarea, select, dialog, [contenteditable]")) return;
+    const k = e.key.toLowerCase();
+    if (k === "z" && !e.shiftKey) { e.preventDefault(); annulerVolumes(); }
+    else if ((k === "z" && e.shiftKey) || k === "y") { e.preventDefault(); retablirVolumes(); }
+  });
+  function volumesChanges(depuisHistorique = false) {
+    if (depuisHistorique !== true) {
+      const x = instantane();
+      if (x !== H.etat) { H.avant.push(H.etat); if (H.avant.length > 200) H.avant.shift(); H.apres = []; H.etat = x; }
+    }
+    majBoutonsHistorique();
     scene.afficherVolumes(P.volumes);
     edition?.maj();
     fiche.rafraichir();
@@ -245,18 +376,20 @@ export function brancherPro(o) {
       return d;
     });
     const volumes = P.volumes.map((v, k) => {
-      const [l, p] = dimensions(v), d = document.createElement("div");
+      const [l, p] = dimensions(v), d = document.createElement("div"), pans = pansPossibles(v);
       d.className = "volume";
-      d.innerHTML = `<span>${t("projet.volume", { n: k + 1, l: fr(l), p: fr(p) })}</span>`
+      // emprise libre : son aire ; rectangle : ses deux côtés
+      d.innerHTML = `<span>${v.libre ? t("projet.volumeLibre", { n: k + 1, a: fr(aire(v.coins), 0) }) : t("projet.volume", { n: k + 1, l: fr(l), p: fr(p) })}</span>`
         + `<button type="button" class="pastille" title="${t("projet.couleur")}" aria-label="${t("projet.couleur")}" style="background:${v.couleur || couleurs[0]}"></button>`
         + `<input type="number" class="form-control form-control-sm" min="1" max="200" step="0.5" value="${v.hauteur}" title="${t("projet.hauteur")}" aria-label="${t("projet.hauteur")}">`
-        + `<select class="form-select form-select-sm"><option value="plat">${t("projet.plat")}</option><option value="deux">${t("projet.deuxPans")}</option><option value="quatre">${t("volume.quatrePans")}</option></select>`
+        + `<select class="form-select form-select-sm"><option value="plat">${t("projet.plat")}</option><option value="deux"${pans ? "" : " disabled"}>${t("projet.deuxPans")}</option><option value="quatre"${pans ? "" : " disabled"}>${t("volume.quatrePans")}</option></select>`
         + `<button type="button" title="${t("projet.retirer")}" aria-label="${t("projet.retirer")}">${ICONE.fermer}</button>`
         + `<div class="palette" hidden>${couleurs.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join("")}</div>`;
       d.prepend(oeil(v.visible !== false, t("projet.voir"), ok => { v.visible = ok; volumesChanges(); }));
       const [pastille, h, toit, x] = d.querySelectorAll(":scope > input[type=number], :scope > select, :scope > button");
       const palette = d.querySelector(".palette");
-      toit.value = v.toit;
+      toit.value = pans ? v.toit : "plat";
+      if (!pans) toit.title = t("volume.pansRectangle");
       pastille.onclick = () => { palette.hidden = !palette.hidden; };
       palette.onclick = e => { const c = e.target.dataset?.c; if (c) { v.couleur = c; volumesChanges(); } };
       h.onchange = () => { reglerCorniche(v, Math.max(1, +h.value || v.hauteur)); volumesChanges(); };
@@ -340,7 +473,7 @@ export function brancherPro(o) {
   };
   $("#listeProjets").onchange = () => {
     const p = listerProjets().find(q => q.id === $("#listeProjets").value);
-    if (!p) { P.projet = null; P.volumes = []; volumesChanges(); listeProjets(); return; }
+    if (!p) { P.projet = null; P.volumes = []; volumesChanges(); oublierHistorique(); listeProjets(); return; }
     P.projet = p;
     // le projet est rouvert sur son lieu : chargement si besoin, puis bâtiments démolis, volumes et coupes
     if (+p.rayon > 0) o.reglerRayon?.(+p.rayon, false);
@@ -361,7 +494,7 @@ export function brancherPro(o) {
     appliquer();
     P.volumes = (p.volumes || []).map(v => normaliserVolume({ ...v, coins: v.coins.map(q => [...q]), etages: v.etages && [...v.etages] }, S.G));
     numero = Math.max(0, ...P.volumes.map(v => v.id));
-    volumesChanges();
+    volumesChanges(); oublierHistorique();
     if (p.coupes?.length) o.ouvrirCoupes?.(p.coupes);
     listeProjets();
   }
@@ -503,7 +636,7 @@ export function brancherPro(o) {
   return {
     /** Nouveau lieu : plus de sélection ni de masquage. */
     reinitialiser() {
-      P.selection = new Set(); P.masques = new Set(); P.caches = []; P.historique = []; P.volumes = []; P.imports = []; S.volumesProjet = [];
+      P.selection = new Set(); P.masques = new Set(); P.caches = []; P.historique = []; P.volumes = []; P.imports = []; S.volumesProjet = []; oublierHistorique();
       if (dessin) finDessin();
       edition?.deselectionner();
       $("#resultatExport").textContent = ""; listeVolumes(); maj();

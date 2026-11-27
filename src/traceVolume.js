@@ -1,11 +1,13 @@
-// Tracé d'un volume en cours de dessin, drapé sur le terrain : traits entre les points cliqués et vers la souris,
+// Tracé d'un volume en cours de dessin (rectangle ou emprise libre), drapé sur le terrain : traits entre les points cliqués et vers la souris,
 // qui épousent le relief (un point tous les 25 cm, 12 cm au-dessus du sol), en trait plein là où ils sont visibles et
 // en trait pâle par-dessus le relief, les arbres et les bâtiments qui les cachent : la forme réelle au sol reste lisible.
+// Les cotes des côtés (longueurs, angle droit accroché) s'affichent au milieu de chacun, à taille constante.
 import * as THREE from "three";
 import { Line2 } from "three/addons/lines/Line2.js";
 import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { solEn } from "./grille.js";
+import { etiquetteEcran, jeterEtiquette } from "./ecran.js";
 
 export function traceSol(scene) {
   const groupe = new THREE.Group();
@@ -46,5 +48,20 @@ export function traceSol(scene) {
     }
     scene.demander();
   }
-  return { montrer };
+  /** Cotes du dessin : `liste` = [{ a, b, texte }] (côtés, valeur au milieu, un peu au-dessus du sol) ; null : aucune. */
+  let etiquettes = [];
+  const groupeCotes = new THREE.Group();
+  scene.scene.add(groupeCotes);
+  scene.horsAO.push(groupeCotes);
+  function cotes(liste) {
+    for (const s of etiquettes) jeterEtiquette(s);
+    etiquettes = [];
+    if (liste?.length && scene.G) for (const { a, b, texte } of liste) {
+      const x = (a[0] + b[0]) / 2, y = (a[1] + b[1]) / 2;
+      const s = etiquetteEcran(scene, texte, scene.T?.parcelle || "#e0262b", new THREE.Vector3(x, solEn(scene.G, x, y) - scene.zRef + 0.6, -y));
+      groupeCotes.add(s); etiquettes.push(s);
+    }
+    scene.demander();
+  }
+  return { montrer, cotes };
 }
