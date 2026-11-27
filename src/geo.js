@@ -38,7 +38,8 @@ export function mn95VersEcef(E, N, h = 0) {
 const normaliser = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 let lieux = null;
 const listeLieux = () => lieux ||= fetch(`${import.meta.env.BASE_URL}lieux/lieux-ch.json`).then(r => r.ok ? r.json() : { lieux: [] })
-  .then(d => d.lieux.map(([nom, type, E, N, loc = "", autres = []]) => ({ nom, type, E, N, loc, cle: normaliser([nom, ...autres].join(" | ")), cleLoc: normaliser(loc) })))
+  // [nom, type, E, N, localité, [autres noms]] ; ancien format sans localité : [nom, type, E, N, [autres noms]]
+  .then(d => d.lieux.map(([nom, type, E, N, x = "", y = []]) => { const loc = Array.isArray(x) ? "" : x, autres = Array.isArray(x) ? x : y; return { nom, type, E, N, loc, cle: normaliser([nom, ...autres].join(" | ")), cleLoc: normaliser(loc) }; }))
   .catch(() => []);
 async function chercherLieux(texte) {
   const mots = normaliser(texte).split(/[\s,]+/).filter(m => m.length > 1);
@@ -64,11 +65,19 @@ export async function chercher(texte, signal) {
   const c = lireCoordonnees(texte);
   if (c) return [{ label: c.label, type: "Coordonnées", E: c.E, N: c.N }];
   // adresses et parcelles, plus les noms de swisstopo (swissNAMES3D : rues et ponts nommés, sites historiques, écoles…)
-  const u = `${API}/api/SearchServer?type=locations&origins=address,parcel,gazetteer&sr=2056&limit=10&searchText=${encodeURIComponent(texte)}`;
-  const [d, L] = await Promise.all([fetch(u, { signal }).then(r => r.json()), chercherLieux(texte).catch(() => [])]);
-  const officiels = (d.results || [])
+  // deux requêtes en parallèle : dans une seule, les noms (localités, régions) prenaient toute la place et les
+  // adresses et parcelles ne revenaient plus
+  const q = encodeURIComponent(texte), url = origines => `${API}/api/SearchServer?type=locations&origins=${origines}&sr=2056&limit=8&searchText=${q}`;
+  const [a, n, L] = await Promise.all([
+    fetch(url("address,parcel"), { signal }).then(r => r.json()),
+    // catégories en allemand quelle que soit la langue du navigateur (le filtre ci-dessous les lit) ; les noms ne changent pas
+    fetch(url("gazetteer") + "&lang=de", { signal }).then(r => r.json()).catch(() => ({ results: [] })),
+    chercherLieux(texte).catch(() => []),
+  ]);
+  // sans numéro tapé, les noms (localités, ponts, sites) avant les adresses
+  const officiels = (/\d/.test(texte) ? [...(a.results || []), ...(n.results || [])] : [...(n.results || []), ...(a.results || [])])
     // noms de swisstopo : seulement les objets précis (pas les régions, cantons, communes entières, lieux-dits)
-    .filter(r => r.attrs.origin !== "gazetteer" || /<i>(Strasse|Historisches Areal|Schul- und Hochschulareal|Spital|Sportanlage|Gebäude|Kirche|Schloss|Turm|Brücke|Denkmal|Museum|Bahnhof|Friedhof|Kloster|Burg|Ruine)/.test(r.attrs.label))
+    .filter(r => r.attrs.origin !== "gazetteer" || /<i>(Ort|Strasse|Historisches Areal|Schul- und Hochschulareal|Spital|Sportanlage|Gebäude|Kirche|Schloss|Turm|Brücke|Denkmal|Museum|Bahnhof|Friedhof|Kloster|Burg|Ruine)/.test(r.attrs.label))
     .map(r => ({
       label: r.attrs.label.replace(/<i>[^<]*<\/i>\s*/g, "").replace(/<[^>]+>/g, "").trim(),
       type: r.attrs.origin === "parcel" ? "Parcelle" : r.attrs.origin === "address" ? "Adresse" : "Lieu",
