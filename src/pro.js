@@ -5,7 +5,9 @@ import { FORMATS, exporterSite, estimer, sansAccent, nomFichier } from "./export
 import { dessinCoupe, coupeDxf, coupeSvg, coupePdf } from "./exportCoupe.js";
 import { ouvrirImpression3D } from "./impression3dFenetre.js";
 import { t, nombre, entier, date } from "./i18n.js";
-import { rectangle, dimensions, listerProjets, enregistrerProjet, supprimerProjet } from "./projet.js";
+import { rectangle, dimensions, reglerCorniche, listerProjets, enregistrerProjet, supprimerProjet, normaliserVolume } from "./projet.js";
+import { traceSol } from "./traceVolume.js";
+import { ficheVolume, mesurer, cotesVolume } from "./ficheVolume.js";
 import { importerModele } from "./importer.js";
 import { dxfReference } from "./referenceParcelle.js";
 import { solEn } from "./grille.js";
@@ -137,7 +139,7 @@ export function brancherPro(o) {
     $("#btnVolume").classList.remove("active");
     scene.renderer.domElement.style.cursor = "";
     scene.afficherVolumes(P.volumes);
-    scene.laserVolume(null);
+    trace.montrer(null);
     aide();
   }
   $("#btnVolume").onclick = () => {
@@ -156,29 +158,42 @@ export function brancherPro(o) {
     o.fiche?.fermer();
   });
   const pointDessin = e => { const p = scene.pointSol(e); return p && Math.max(Math.abs(p[0]), Math.abs(p[1])) < S.G.R - 1 ? p : null; };
-  const volumeDe = (coins, base = {}) => ({ id: base.id ?? ++numero, coins, hauteur: base.hauteur ?? 9, toit: base.toit ?? "plat", faite: base.faite ?? 3 });
+  // un volume neuf est posé sur le terrain (base = sol le plus bas sous l'emprise) ; il garde ensuite cette altitude
+  const volumeDe = (coins, base = {}) => ({ id: base.id ?? ++numero, coins, hauteur: base.hauteur ?? 9, toit: base.toit ?? "plat" });
+  // tracé drapé sur le terrain pendant le dessin (traceVolume.js)
+  let trace = null;
+  queueMicrotask(() => { trace = traceSol(scene); });
   function clicDessin(e) {
     const p = pointDessin(e);
     if (!p) return;
     dessin.push(p);
     if (dessin.length === 3) {
       const coins = rectangle(...dessin);
-      if (coins) { P.volumes.push(volumeDe(coins)); volumesChanges(); o.compter?.("volume"); }
+      if (coins) {
+        const v = normaliserVolume(volumeDe(coins), S.G);
+        P.volumes.push(v); volumesChanges(); o.compter?.("volume");
+        finDessin();
+        edition?.choisir(v.id); // le nouveau volume est sélectionné : poignées et tableau
+        return;
+      }
       return finDessin();
     }
+    trace.montrer(dessin);
     aide();
   }
   scene.renderer.domElement.addEventListener("pointermove", e => {
     if (!dessin) return;
     const p = pointDessin(e);
     if (!p) return;
-    // plan laser : où tombe le prochain point (avant le premier clic), le côté en cours, puis le rectangle
-    if (!dessin.length) return scene.laserVolume([p]);
-    // aperçu : après le premier coin, un mur fin le long du côté ; après le deuxième, le volume entier
-    const L = Math.hypot(p[0] - dessin[0][0], p[1] - dessin[0][1]) || 1, n = [-(p[1] - dessin[0][1]) / L * 0.3, (p[0] - dessin[0][0]) / L * 0.3];
-    const coins = dessin.length === 1 ? rectangle(dessin[0], p, [p[0] + n[0] * 4, p[1] + n[1] * 4]) : rectangle(dessin[0], dessin[1], p);
-    scene.afficherVolumes(P.volumes, coins ? volumeDe(coins, { id: 0, hauteur: dessin.length === 1 ? 0.5 : 9 }) : null);
-    scene.laserVolume(dessin.length === 1 ? [dessin[0], p] : coins || [dessin[0], dessin[1]], dessin.length === 2 && !!coins);
+    // tracé au sol : le point visé (avant le premier clic), le côté en cours, puis le rectangle
+    if (!dessin.length) return trace.montrer([p]);
+    // aperçu : après le premier coin, une paroi mince (30 cm) de la hauteur par défaut le long du côté ; après le
+    // deuxième, le volume entier ; faces planes translucides, posées sur le terrain comme le volume final
+    const L = Math.hypot(p[0] - dessin[0][0], p[1] - dessin[0][1]) || 1, n = [-(p[1] - dessin[0][1]) / L, (p[0] - dessin[0][0]) / L];
+    const A = dessin[0], mince = L >= 1 ? [A, p, [p[0] + n[0] * 0.3, p[1] + n[1] * 0.3], [A[0] + n[0] * 0.3, A[1] + n[1] * 0.3]] : null;
+    const coins = dessin.length === 1 ? mince : rectangle(dessin[0], dessin[1], p);
+    scene.afficherVolumes(P.volumes, coins ? volumeDe(coins, { id: 0 }) : null);
+    trace.montrer(dessin.length === 1 ? [dessin[0], p] : coins || [dessin[0], dessin[1], p], dessin.length === 2 && !!coins);
   });
   /** Volumes changés : maquette, ombres, coupe, heures de soleil (si affichées), liste du panneau. */
   // édition des volumes à la souris (sélection, faces, déplacer, tourner) : editionVolumes.js
@@ -187,11 +202,24 @@ export function brancherPro(o) {
     edition = brancherEdition({
       scene, volumes: () => P.volumes, actif, dessine: () => !!dessin, changes: volumesChanges,
       retirer: id => { P.volumes = P.volumes.filter(v => v.id !== id); volumesChanges(); },
+      bouge: () => fiche.rafraichir(), // souris : le tableau suit
+      choix: id => { const v = P.volumes.find(w => w.id === id); fiche.montrer(v || null, P.volumes.indexOf(v) + 1); listeVolumes(); },
+      cotes: v => cotesVolume(v, mesures(v), scene),
     });
+  });
+  // tableau du volume sélectionné (ficheVolume.js), sous l'aide du dessin
+  const mesures = v => mesurer(v, { scene, S, parcelleEn: o.parcelleEn, autres: P.volumes });
+  const boiteFiche = Object.assign(document.createElement("div"), { id: "ficheVolume", hidden: true });
+  $("#aideVolume").after(boiteFiche);
+  const fiche = ficheVolume(boiteFiche, {
+    S, mesures,
+    // pendant la saisie : maquette et poignées ; à la validation : aussi coupe, heures de soleil et liste
+    changer: (v, final) => { if (final) volumesChanges(); else { scene.afficherVolumes(P.volumes); edition?.maj(); } },
   });
   function volumesChanges() {
     scene.afficherVolumes(P.volumes);
     edition?.maj();
+    fiche.rafraichir();
     S.versionProjet = (S.versionProjet || 0) + 1;
     S.volumesProjet = P.volumes;
     if (S.coupe) o.majCoupe(S.coupe.A, S.coupe.B);
@@ -221,7 +249,7 @@ export function brancherPro(o) {
       d.innerHTML = `<span>${t("projet.volume", { n: k + 1, l: fr(l), p: fr(p) })}</span>`
         + `<button type="button" class="pastille" title="${t("projet.couleur")}" aria-label="${t("projet.couleur")}" style="background:${v.couleur || couleurs[0]}"></button>`
         + `<input type="number" class="form-control form-control-sm" min="1" max="200" step="0.5" value="${v.hauteur}" title="${t("projet.hauteur")}" aria-label="${t("projet.hauteur")}">`
-        + `<select class="form-select form-select-sm"><option value="plat">${t("projet.plat")}</option><option value="deux">${t("projet.deuxPans")}</option></select>`
+        + `<select class="form-select form-select-sm"><option value="plat">${t("projet.plat")}</option><option value="deux">${t("projet.deuxPans")}</option><option value="quatre">${t("volume.quatrePans")}</option></select>`
         + `<button type="button" title="${t("projet.retirer")}" aria-label="${t("projet.retirer")}">${ICONE.fermer}</button>`
         + `<div class="palette" hidden>${couleurs.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join("")}</div>`;
       d.prepend(oeil(v.visible !== false, t("projet.voir"), ok => { v.visible = ok; volumesChanges(); }));
@@ -230,7 +258,12 @@ export function brancherPro(o) {
       toit.value = v.toit;
       pastille.onclick = () => { palette.hidden = !palette.hidden; };
       palette.onclick = e => { const c = e.target.dataset?.c; if (c) { v.couleur = c; volumesChanges(); } };
-      h.onchange = () => { v.hauteur = Math.max(1, +h.value || v.hauteur); volumesChanges(); };
+      h.onchange = () => { reglerCorniche(v, Math.max(1, +h.value || v.hauteur)); volumesChanges(); };
+      // un clic sur le nom choisit le volume (poignées et tableau)
+      const nom = d.querySelector("span");
+      nom.classList.add("nom-volume"); nom.title = t("volume.choisir");
+      nom.onclick = () => edition?.choisir(edition.selection === v.id ? null : v.id);
+      d.classList.toggle("choisi", edition?.selection === v.id);
       toit.onchange = () => { v.toit = toit.value; volumesChanges(); };
       x.onclick = () => { P.volumes = P.volumes.filter(w => w !== v); volumesChanges(); };
       return d;
@@ -325,7 +358,7 @@ export function brancherPro(o) {
     numeroCache = Math.max(0, ...P.caches.map(c => c.id));
     P.historique = []; P.selection.clear();
     appliquer();
-    P.volumes = (p.volumes || []).map(v => ({ ...v }));
+    P.volumes = (p.volumes || []).map(v => normaliserVolume({ ...v, coins: v.coins.map(q => [...q]), etages: v.etages && [...v.etages] }, S.G));
     numero = Math.max(0, ...P.volumes.map(v => v.id));
     volumesChanges();
     if (p.coupes?.length) o.ouvrirCoupes?.(p.coupes);
@@ -466,6 +499,7 @@ export function brancherPro(o) {
     reinitialiser() {
       P.selection = new Set(); P.masques = new Set(); P.caches = []; P.historique = []; P.volumes = []; P.imports = []; S.volumesProjet = [];
       if (dessin) finDessin();
+      edition?.deselectionner();
       $("#resultatExport").textContent = ""; listeVolumes(); maj();
     },
     /** Dessin d'un volume en cours (les clics sur la maquette lui reviennent). */

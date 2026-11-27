@@ -34,7 +34,7 @@ function traitNet() {
 }
 import { carteRelief, materiauLointain } from "./lointain.js";
 import { TuilesPlan } from "./plan.js";
-import { volumeGeometrie } from "./projet.js";
+import { volumeGeometrie, traitsEtages } from "./projet.js";
 
 const CIEL_SOMMETS = /* glsl */`
 varying vec3 vDir;
@@ -397,7 +397,7 @@ export class Scene3D {
     const rendu = ao.render.bind(ao);
     ao.render = (...a) => {
       // les points n'entrent jamais dans l'occlusion (sinon chaque point a son halo sombre)
-      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, ...(this.reperesAutres || []), ...(this.traitsAutres || []), c.heures, c.limite, c.voisines, c.arbres, c.tous, c.selection, c.laser, c.eau, ...(this.horsAO || []), // l'eau : plate et translucide, l'occlusion y dessinait des arcs
+      const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, ...(this.reperesAutres || []), ...(this.traitsAutres || []), c.heures, c.limite, c.voisines, c.arbres, c.tous, c.selection, c.laser, c.apercuVolume, c.eau, ...(this.horsAO || []), // l'eau : plate et translucide, l'occlusion y dessinait des arcs
         this.coupe ? this.tranche?.userData.arbres : null, ...(this.coupe && this.tranche?.userData.traits || []),
         c.canopee?.material.colorWrite === false ? c.canopee : null].filter(o => o && o.visible);
       for (const o of caches) o.visible = false;
@@ -1333,29 +1333,56 @@ void main() {
     for (const k of ["volumes", "apercuVolume"]) if (c[k]) { this.groupe.remove(c[k]); c[k].traverse(o => o.geometry?.dispose()); c[k] = null; }
     if (!this.G) return;
     this.mat.projets ||= new Map();
-    const matVolume = couleur => {
+    // matériau par couleur et opacité (volume translucide : on voit à travers, il porte toujours ses ombres)
+    const matVolume = (couleur, opacite = 1) => {
       couleur ||= "#fbf7ee";
-      let m = this.mat.projets.get(couleur);
-      if (!m) { m = new THREE.MeshStandardMaterial({ color: couleur, roughness: 0.9, side: THREE.DoubleSide }); grainPlatre(m, 0.05); this.mat.projets.set(couleur, m); }
+      const cle = `${couleur}|${opacite}`;
+      let m = this.mat.projets.get(cle);
+      if (!m) {
+        m = new THREE.MeshStandardMaterial({ color: couleur, roughness: 0.9, side: THREE.DoubleSide, transparent: opacite < 1, opacity: opacite, depthWrite: opacite >= 1 });
+        grainPlatre(m, 0.05); this.mat.projets.set(cle, m);
+      }
       return m;
     };
+    if (!this.mat.projets.has("etages")) this.mat.projets.set("etages", new THREE.LineBasicMaterial({ color: "#3a332c", transparent: true, opacity: 0.55 }));
     if (!this.mat.apercu) {
-      this.mat.apercu = new THREE.MeshBasicMaterial({ color: this.T.parcelle, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false });
+      // aperçu du dessin : faces planes translucides, une seule épaisseur (la passe de profondeur cache les faces arrière,
+      // sinon les faces qui se recouvrent dessinaient des triangles plus foncés), arêtes nettes
+      this.mat.apercu = new THREE.MeshBasicMaterial({ color: this.T.parcelle, transparent: true, opacity: 0.32, side: THREE.DoubleSide, depthWrite: false, depthFunc: THREE.LessEqualDepth, fog: false });
+      this.mat.apercuProfondeur = new THREE.MeshBasicMaterial({ colorWrite: false, side: THREE.DoubleSide });
+      this.mat.apercuArete = new THREE.LineBasicMaterial({ color: this.T.parcelle, fog: false });
     }
     if (volumes?.length) {
       const g = c.volumes = new THREE.Group();
       for (const v of volumes) {
         if (v.visible === false) continue;
-        const m = new THREE.Mesh(volumeGeometrie(v, this.G, this.zRef), matVolume(v.couleur));
+        const op = Math.max(0.1, Math.min(1, v.opacite ?? 1)), m = new THREE.Mesh(volumeGeometrie(v, this.G, this.zRef), matVolume(v.couleur, op));
         m.castShadow = m.receiveShadow = true; m.userData.volume = v.id;
+        if (op < 1) {
+          // translucide : une passe de profondeur d'abord, pour ne voir que les faces avant (pas l'intérieur du volume)
+          if (!this.mat.projets.has("profondeur")) this.mat.projets.set("profondeur", new THREE.MeshBasicMaterial({ colorWrite: false, transparent: true, side: THREE.DoubleSide }));
+          const p = new THREE.Mesh(m.geometry, this.mat.projets.get("profondeur"));
+          p.renderOrder = 2; p.raycast = () => {};
+          m.renderOrder = 3; m.add(p);
+        }
+        // étages : traits sur les façades (hors des clics et du calcul des hauteurs, qui ne voient que les maillages)
+        const e = traitsEtages(v, this.zRef);
+        if (e) {
+          const ge = new THREE.BufferGeometry(); ge.setAttribute("position", new THREE.BufferAttribute(e, 3));
+          const l = new THREE.LineSegments(ge, this.mat.projets.get("etages"));
+          l.raycast = () => {};
+          m.add(l);
+        }
         g.add(m);
       }
       this.groupe.add(g);
     }
     if (apercu) {
-      const m = c.apercuVolume = new THREE.Mesh(volumeGeometrie(apercu, this.G, this.zRef), this.mat.apercu);
-      m.renderOrder = 4;
-      this.groupe.add(m);
+      const geo = volumeGeometrie(apercu, this.G, this.zRef), g = c.apercuVolume = new THREE.Group();
+      const prof = new THREE.Mesh(geo, this.mat.apercuProfondeur), face = new THREE.Mesh(geo, this.mat.apercu), aretes = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 20), this.mat.apercuArete);
+      prof.renderOrder = 3; face.renderOrder = 4; aretes.renderOrder = 4;
+      g.add(prof, face, aretes);
+      this.groupe.add(g);
     }
     this.appliquerCoupe();
     if (!apercu) this.ombres(); else this.demander();

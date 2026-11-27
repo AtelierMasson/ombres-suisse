@@ -1,5 +1,5 @@
-// Projet (mode pro) : volumes dessinés sur la maquette (rectangle en trois clics, toit plat ou à deux pans) et
-// projets enregistrés dans le navigateur (lieu, date, bâtiments démolis, volumes ajoutés, coupes).
+// Projet (mode pro) : volumes dessinés sur la maquette (rectangle en trois clics ; toit plat, à deux pans ou à quatre
+// pans ; étages) et projets enregistrés dans le navigateur (lieu, date, bâtiments démolis, volumes ajoutés, coupes).
 import * as THREE from "three";
 import { solEn } from "./grille.js";
 
@@ -25,52 +25,126 @@ export function dimensions(v) {
 }
 
 /**
- * Géométrie d'un volume : murs posés sur le point le plus bas du terrain sous l'emprise (et enfoncés de 0,5 m pour ne
- * pas flotter sur une pente), toit plat à `hauteur` ou à deux pans (corniche à `hauteur`, faîte `faite` m plus haut,
- * parallèle au grand côté). Repère de la scène (x est, y altitude − zRef, z sud).
+ * Cadre d'un volume rectangulaire : centre (cx, cy), largeur L (côté 1-2 des coins), profondeur P (côté 2-3), angle
+ * (radians, du côté 1-2 depuis l'est, sens trigonométrique), vecteurs unitaires u (le long de L) et n (le long de P).
+ */
+export function cadre(v) {
+  const [a, b, , d] = v.coins, L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, P = Math.hypot(d[0] - a[0], d[1] - a[1]) || 1;
+  const u = [(b[0] - a[0]) / L, (b[1] - a[1]) / L], n = [-u[1], u[0]];
+  const cx = v.coins.reduce((s, q) => s + q[0], 0) / v.coins.length, cy = v.coins.reduce((s, q) => s + q[1], 0) / v.coins.length;
+  return { cx, cy, L, P, angle: Math.atan2(u[1], u[0]), u, n };
+}
+
+/** Coins (sens trigonométrique) d'un cadre { cx, cy, L, P, angle }. */
+export function coinsDe({ cx, cy, L, P, angle }) {
+  const ux = Math.cos(angle), uy = Math.sin(angle), nx = -uy, ny = ux;
+  return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([s, t]) => [cx + s * L / 2 * ux + t * P / 2 * nx, cy + s * L / 2 * uy + t * P / 2 * ny]);
+}
+
+const r2 = x => Math.round(x * 100) / 100;
+/** Sol le plus bas sous l'emprise (altitude absolue). */
+export const solMinimum = (v, G) => Math.min(...v.coins.map(([x, y]) => solEn(G, x, y)));
+
+/**
+ * Complète un volume (anciens projets, volume tout juste dessiné) : base (altitude absolue du pied des murs, fixée une
+ * fois pour toutes : le volume garde son altitude quand on le déplace), étages, pente du toit, sens du faîtage, opacité.
+ */
+export function normaliserVolume(v, G) {
+  if (!(v.base > -1000) && G) v.base = r2(solMinimum(v, G));
+  if (!Array.isArray(v.etages) || !v.etages.length) {
+    const h = v.hauteur > 0 ? v.hauteur : 9, n = Math.max(1, Math.round(h / 3)), e = r2(h / n);
+    v.etages = Array.from({ length: n }, (_, k) => k < n - 1 ? e : r2(h - e * (n - 1)));
+  }
+  v.hauteur = corniche(v);
+  if (v.toit !== "deux" && v.toit !== "quatre") v.toit = "plat";
+  v.sensFaite ||= "long";
+  v.unitePente ||= "deg";
+  if (!(v.pente > 0)) {
+    // anciens projets : faîte donné en mètres au-dessus de la corniche, le long du grand côté
+    const [L, P] = dimensions(v), demi = Math.min(L, P) / 2;
+    v.pente = v.faite > 0 && demi > 0 ? Math.round(Math.atan(v.faite / demi) * 180 / Math.PI) : 30;
+  }
+  delete v.faite;
+  if (!(v.opacite > 0)) v.opacite = 1;
+  return v;
+}
+
+/** Hauteur à la corniche (m au-dessus de la base) : somme des étages. */
+export const corniche = v => r2((v.etages || [v.hauteur || 9]).reduce((s, e) => s + e, 0));
+
+/**
+ * Change la hauteur à la corniche : les étages du bas restent, le dernier prend la différence ; s'il devient plus d'une
+ * fois et demie plus haut qu'un étage courant, des étages s'ajoutent (moins de la moitié : le dernier disparaît).
+ */
+export function reglerCorniche(v, h) {
+  h = Math.max(1, Math.min(300, h));
+  const somme = E => E.reduce((s, e) => s + e, 0), courant = v.etages.length > 1 ? v.etages[v.etages.length - 2] : 3;
+  const bas = v.etages.slice(0, -1);
+  while (bas.length && h - somme(bas) < courant * 0.5) bas.pop();
+  let reste = h - somme(bas);
+  while (reste > courant * 1.5 && bas.length < 79) { bas.push(courant); reste -= courant; }
+  v.etages = [...bas, r2(reste)];
+  v.hauteur = corniche(v);
+}
+
+/** Nombre d'étages : les nouveaux reprennent la hauteur du dernier ; la corniche suit. */
+export function reglerEtages(v, n) {
+  n = Math.max(1, Math.min(80, Math.round(n)));
+  const E = v.etages, dernier = E[E.length - 1] || 3;
+  while (E.length < n) E.push(dernier);
+  E.length = n;
+  v.hauteur = corniche(v);
+}
+
+/** Axe du faîtage et demi-portées : { axe: "u" | "n", A (demi-longueur le long du faîte), B (demi-portée) }. */
+function faitage(v, L, P) {
+  const longU = L >= P, surU = v.toit === "quatre" ? longU : (v.sensFaite === "court" ? !longU : longU);
+  return surU ? { axe: "u", A: L / 2, B: P / 2 } : { axe: "n", A: P / 2, B: L / 2 };
+}
+
+/** Hauteur du faîte au-dessus de la corniche (m) : 0 pour un toit plat. */
+export function hauteurToit(v) {
+  if (v.toit === "plat" || !(v.pente > 0)) return 0;
+  const { L, P } = cadre(v), { B } = faitage(v, L, P);
+  return r2(Math.tan(Math.min(80, v.pente) * Math.PI / 180) * B);
+}
+
+/** Règle la pente pour que le faîte soit à `h` m au-dessus de la corniche. */
+export function reglerFaite(v, h) {
+  if (v.toit === "plat") return;
+  const { L, P } = cadre(v), { B } = faitage(v, L, P);
+  v.pente = Math.round(Math.max(1, Math.min(80, Math.atan(Math.max(0.05, h) / B) * 180 / Math.PI)) * 10) / 10;
+}
+
+/**
+ * Géométrie d'un volume : murs du pied (`base`, altitude fixe) à la corniche, prolongés jusque sous le terrain le plus
+ * bas de l'emprise (0,5 m) pour ne jamais flotter ; toit plat, à deux pans (pignons) ou à quatre pans (croupes), pente
+ * `pente` (°). Repère de la scène (x est, y altitude − zRef, z sud). `userData.faces` : face de chaque triangle pour
+ * l'édition (k ≥ 0 = mur du côté k, coins k → k+1 ; −1 = toit).
  */
 export function volumeGeometrie(v, G, zRef) {
-  const P = v.coins, base = Math.min(...P.map(([x, y]) => solEn(G, x, y))) - zRef;
-  const bas = base - 0.5, h = base + v.hauteur, pos = [];
-  const S = ([x, y], z) => [x, z, -y];
-  // face de chaque triangle (édition) : k ≥ 0 = mur du côté k (coins k → k+1), −1 = toit
-  const faces = [];
+  const sol = solMinimum(v, G), base = (v.base > -1000 ? v.base : sol) - zRef;
+  const bas = Math.min(base, sol - zRef) - 0.5, h = base + (v.etages ? corniche(v) : v.hauteur), pos = [], faces = [];
+  const C = v.coins, S = ([x, y], z) => [x, z, -y];
   let face = -1;
   const tri = (a, b, c) => { pos.push(...a, ...b, ...c); faces.push(face); };
   const quad = (a, b, c, d) => { tri(a, b, c); tri(a, c, d); };
-  // toit à deux pans : faîte au milieu, parallèle au grand côté (rectangle seulement)
-  const deuxPans = v.toit === "deux" && P.length === 4 && v.faite > 0;
-  let haut = P.map(() => h);
-  let faite = null;
-  if (deuxPans) {
-    const [L0, L1] = dimensions(v), long = L0 >= L1; // grand côté : 0-1 (et 2-3) ou 1-2 (et 3-0)
-    const m = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-    faite = long ? [m(P[1], P[2]), m(P[3], P[0])] : [m(P[0], P[1]), m(P[2], P[3])];
-    v._long = long;
-  }
-  // murs
-  for (let k = 0; k < P.length; k++) {
-    const a = P[k], b = P[(k + 1) % P.length];
-    face = k;
-    quad(S(a, bas), S(b, bas), S(b, haut[(k + 1) % P.length]), S(a, haut[k]));
-  }
+  for (let k = 0; k < C.length; k++) { face = k; quad(S(C[k], bas), S(C[(k + 1) % C.length], bas), S(C[(k + 1) % C.length], h), S(C[k], h)); }
   face = -1;
-  if (!deuxPans) {
-    for (let k = 1; k + 1 < P.length; k++) tri(S(P[0], h), S(P[k], h), S(P[k + 1], h));
-  } else {
-    const zf = h + v.faite, [f0, f1] = faite;
-    if (v._long) {
-      // pans le long de 0-1 et 2-3 ; pignons sur 1-2 et 3-0
-      quad(S(P[0], h), S(P[1], h), S(f0, zf), S(f1, zf));
-      quad(S(P[2], h), S(P[3], h), S(f1, zf), S(f0, zf));
-      tri(S(P[1], h), S(P[2], h), S(f0, zf));
-      tri(S(P[3], h), S(P[0], h), S(f1, zf));
-    } else {
-      quad(S(P[1], h), S(P[2], h), S(f1, zf), S(f0, zf));
-      quad(S(P[3], h), S(P[0], h), S(f0, zf), S(f1, zf));
-      tri(S(P[0], h), S(P[1], h), S(f0, zf));
-      tri(S(P[2], h), S(P[3], h), S(f1, zf));
-    }
+  const pans = (v.toit === "deux" || v.toit === "quatre") && C.length === 4 && v.pente > 0;
+  if (!pans) for (let k = 1; k + 1 < C.length; k++) tri(S(C[0], h), S(C[k], h), S(C[k + 1], h));
+  else {
+    const { cx, cy, L, P, u, n } = cadre(v), { axe, A, B } = faitage(v, L, P);
+    const a = axe === "u" ? u : n, b = axe === "u" ? n : [-u[0], -u[1]];
+    const W = (s, t) => [cx + s * a[0] + t * b[0], cy + s * a[1] + t * b[1]];
+    const zf = h + Math.tan(Math.min(80, v.pente) * Math.PI / 180) * B, R = v.toit === "quatre" ? Math.max(0, A - B) : A;
+    const c1 = S(W(-A, -B), h), c2 = S(W(A, -B), h), c3 = S(W(A, B), h), c4 = S(W(-A, B), h), f1 = S(W(R, 0), zf), f0 = S(W(-R, 0), zf);
+    quad(c1, c2, f1, f0);
+    quad(c3, c4, f0, f1);
+    // bouts : pignons (murs, à tirer comme eux) ou croupes (toit)
+    const murBout = s => axe === "u" ? (s > 0 ? 1 : 3) : (s > 0 ? 2 : 0);
+    if (v.toit === "deux") { face = murBout(1); tri(c2, c3, f1); face = murBout(-1); tri(c4, c1, f0); }
+    else { tri(c2, c3, f1); tri(c4, c1, f0); }
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
@@ -78,6 +152,62 @@ export function volumeGeometrie(v, G, zRef) {
   g.userData.faces = faces;
   g.userData.base = base; // pied des murs (repère de la scène)
   return g;
+}
+
+/** Traits des étages sur les façades (segments, repère de la scène), à 4 cm devant les murs. */
+export function traitsEtages(v, zRef) {
+  if (!v.etages || v.etages.length < 2 || !(v.base > -1000)) return null;
+  const { cx, cy, L, P, u, n } = cadre(v), e = 0.04, pos = [];
+  const coins = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([s, t]) => [cx + s * (L / 2 + e) * u[0] + t * (P / 2 + e) * n[0], cy + s * (L / 2 + e) * u[1] + t * (P / 2 + e) * n[1]]);
+  let z = v.base - zRef;
+  for (let k = 0; k + 1 < v.etages.length; k++) {
+    z += v.etages[k];
+    for (let i = 0; i < 4; i++) { const a = coins[i], b = coins[(i + 1) % 4]; pos.push(a[0], z, -a[1], b[0], z, -b[1]); }
+  }
+  return new Float32Array(pos);
+}
+
+/* ------------------------------------------------------------------ distances (emprises, en plan) */
+
+/** Points les plus proches de deux segments [a, b] et [c, d] : { d, p, q }. */
+export function segmentSegment(a, b, c, d) {
+  const croise = (p, q, r) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+  const s1 = croise(a, b, c), s2 = croise(a, b, d), s3 = croise(c, d, a), s4 = croise(c, d, b);
+  if (((s1 > 0) !== (s2 > 0)) && ((s3 > 0) !== (s4 > 0)) && s1 && s2 && s3 && s4) {
+    const t = s3 / (s3 - s4), p = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+    return { d: 0, p, q: p };
+  }
+  const proj = (p, x, y) => { // point de [x, y] le plus proche de p
+    const dx = y[0] - x[0], dy = y[1] - x[1], l = dx * dx + dy * dy, t = l ? Math.max(0, Math.min(1, ((p[0] - x[0]) * dx + (p[1] - x[1]) * dy) / l)) : 0;
+    return [x[0] + dx * t, x[1] + dy * t];
+  };
+  let best = null;
+  for (const [p, x, y, inverse] of [[a, c, d, false], [b, c, d, false], [c, a, b, true], [d, a, b, true]]) {
+    const q = proj(p, x, y), dist = Math.hypot(q[0] - p[0], q[1] - p[1]);
+    if (!best || dist < best.d) best = inverse ? { d: dist, p: q, q: p } : { d: dist, p, q };
+  }
+  return best;
+}
+
+/** Distance la plus courte entre une liste de segments (côtés du volume) et un polygone (fermé) ou une polyligne. */
+export function distanceSegments(segs, poly, ferme = true) {
+  let best = null;
+  const m = poly.length;
+  for (const [a, b] of segs) for (let i = 0; i < (ferme ? m : m - 1); i++) {
+    const r = segmentSegment(a, b, poly[i], poly[(i + 1) % m]);
+    if (!best || r.d < best.d) best = r;
+  }
+  return best;
+}
+
+/** Vrai si (x, y) est dans le polygone (pair-impair). */
+export function dansPolygone(poly, x, y) {
+  let dedans = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) dedans = !dedans;
+  }
+  return dedans;
 }
 
 /* ------------------------------------------------------------------ projets enregistrés */
