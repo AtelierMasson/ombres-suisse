@@ -61,7 +61,8 @@ export function profilCoupe(G, contours, A, B, parcelle, pas = 0.25, voisines = 
     const d = s0 + k * pas, x = A[0] + ux * d, y = A[1] + uy * d;
     // dans l'anneau : terrain à 2 m (pas de bâtiments ni d'arbres du relevé là)
     const dehors = Rext && x * x + y * y > (G.rayonZone - 0.5) ** 2;
-    s[k] = d; sol[k] = dehors ? o.solHors(x, y) : solEn(G, x, y);
+    // terrain TIN affiché (terrainTIN.js) : la coupe suit ses triangles, sinon la grille 0,5 m
+    s[k] = d; sol[k] = dehors ? o.solHors(x, y) : G.tin?.hauteur ? G.tin.hauteur(x, y) : solEn(G, x, y);
     if (dehors) { bat[k] = veg[k] = NaN; continue; }
     bat[k] = toit(d);
     const v = isNaN(bat[k]) ? valeurEn(G, G.veg, x, y) : NaN;

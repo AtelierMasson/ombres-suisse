@@ -66,6 +66,7 @@ import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contou
 import { chargerImage, teinterCadastre, adoucirPhoto } from "./fond.js";
 import { maillageBassins } from "./piscines.js";
 import { trancheCoupe } from "./coupe.js";
+import { calculerTerrainTIN, maillageTIN, hauteurTIN } from "./terrainTIN.js";
 
 /**
  * Trait de coupe « 2D » : épaisseur constante en pixels, dessiné par-dessus tout (sans test de profondeur), avec des
@@ -736,8 +737,13 @@ void main() {
     this.idScene++;
   }
 
-  /** Construit la scène depuis les grilles. `urls` = { cadastre } (image du plan cadastral) ou null. */
-  construire(G, nuage, parcelle, urls) {
+  /**
+   * Construit la scène depuis les grilles. `urls` = { cadastre } (image du plan cadastral) ou null.
+   * `o.terrain` : "grille" (relevé 0,5 m, maillage de 1 m) ou "tin" (triangulation adaptative, posée dès qu'elle est
+   * calculée) ; sans `o.terrain`, le choix précédent (terrainAffiche) est gardé.
+   */
+  construire(G, nuage, parcelle, urls, o = {}) {
+    if (o.terrain) this.modeTerrain = o.terrain;
     this.vider();
     this.G = G;
     // le nuage est gardé (tableaux typés X, Y, Z, C) : nuage brut construit à la demande, points proches de la coupe
@@ -832,6 +838,34 @@ void main() {
     this.vueDepart();
     if (this.modeVue) { const m = this.modeVue; this.modeVue = null; this.avant3D = null; this.vueOrtho(m); }
     this.ombres();
+    if (this.modeTerrain === "tin") this.terrainAffiche("tin");
+  }
+
+  /**
+   * Maillage du terrain affiché : "grille" (relevé 0,5 m, sommets tous les 1 m) ou "tin" (terrainTIN.js, calculé dans
+   * un Web Worker, gardé sur G). Les calculs (ombres, heures) restent sur la grille G.sol ; le profil de la coupe suit
+   * le TIN (G.tin.hauteur). Promesse résolue une fois le maillage posé (false si le lieu a changé entre-temps).
+   */
+  async terrainAffiche(mode = "grille") {
+    this.modeTerrain = mode;
+    const G = this.G, o = this.couches?.terrain, id = this.idScene;
+    if (!G || !o) return false;
+    let geo;
+    if (mode === "tin") {
+      const tin = await calculerTerrainTIN(G);
+      if (id !== this.idScene || this.modeTerrain !== "tin" || this.G !== G) return false;
+      geo = maillageTIN(G, tin, this.zRef);
+      G.tin = { ...geo.userData.tin, hauteur: hauteurTIN(G, tin) };
+    } else {
+      if (!o.geometry.userData.tin) return true;
+      geo = terrain(G, this.zRef);
+      G.tin = null;
+    }
+    o.geometry.dispose();
+    o.geometry = geo;
+    if (this.coupe) this.appliquerCoupe();
+    this.demander();
+    return true;
   }
 
   /**
