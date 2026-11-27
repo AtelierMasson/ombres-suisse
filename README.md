@@ -56,6 +56,16 @@ l'interface reste celle décrite ci-dessus.
 - **Masquer la sélection** : le bâtiment disparaît de l'écran **et des calculs** — ombres portées, ombre de contact,
   bord du socle, heures de soleil (sol, toits, façades : la carte se recalcule si elle est affichée) et coupe.
   « Tout réafficher » les remet, « Annuler » revient d'un pas en arrière (autant de fois que nécessaire).
+- **Projets** (onglet Projet) : les projets enregistrés dans ce navigateur s'affichent en cartes (nom, lieu, date de
+  modification, volumes ajoutés, bâtiments démolis, vignette en plan) avec Renommer, Dupliquer, Fermer et Supprimer
+  (après confirmation) ; « Nouveau projet sur ce lieu » en ouvre un vide. Le projet ouvert **s'enregistre tout seul**
+  peu après chaque modification (volumes, démolitions, coupes, date et heure, taille de la maquette) et à la fermeture
+  de l'onglet ; le premier volume dessiné (ou le premier bâtiment masqué) crée un projet s'il n'y en a pas. Le dernier
+  projet ouvert revient au rechargement de la page.
+- **Volumes en cartes** : une carte par volume (dimensions, étages, corniche, faîte, toit, base, surfaces au sol et de
+  plancher) avec, au centimètre et en plan, la distance à chaque limite de la parcelle (une par parcelle voisine) et
+  aux bâtiments les plus proches ; un volume qui dépasse la limite est signalé en rouge, dans sa carte et dans la
+  scène (traits cotés). La carte et le volume de la scène se sélectionnent l'un l'autre ; tout suit le glissement.
 - **Taille de la maquette** : rayon chargé autour du lieu (automatique, 100, 150, 250 ou 400 m). Le lieu est rechargé ;
   à 400 m, compter une quinzaine de millions de points et de l'ordre de 1 Go de mémoire.
 - **Exporter la maquette** : boutons directs OBJ et DXF (« maquette complète »), ou « Au choix… » :
@@ -128,7 +138,7 @@ npm run build      # site statique dans dist/, à publier tel quel
 | `src/roofer.js` | Comparaison (essais Lutry et Lausanne av. Floréal) : bâtiments LoD2.2 reconstruits hors ligne par roofer (TU Delft) à partir des emprises officielles vaudoises et du nuage 2025 (`public/essais/roofer_*.json`) |
 | `src/diagramme.js` | Diagramme horizon + course du soleil |
 | `src/demo.js` | Hameau inventé de l'écran d'accueil |
-| `src/pro.js` | Mode pro : sélection et masquage de bâtiments, taille de la maquette, boutons d'export |
+| `src/pro.js` | Mode pro : sélection et masquage de bâtiments, projets en cartes et enregistrement automatique, cartes des volumes, taille de la maquette, boutons d'export |
 | `src/volumes.js` | Mode pro : volumes numérotés, regroupés en bâtiments, fiche (hauteur, emprise, niveaux) |
 | `src/export.js` | Mode pro : export de la maquette en DXF, OBJ, glTF binaire et STL (zip avec LISEZ-MOI) |
 | `src/exportCoupe.js` | Mode pro : export de la coupe A–B en DXF et en SVG |

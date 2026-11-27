@@ -3,7 +3,7 @@
 // Les champs mettent la maquette à jour aussitôt ; la souris (déplacer, tourner, tirer une face) les met à jour en retour.
 import { t, nombre } from "./i18n.js";
 import { solEn } from "./grille.js";
-import { cadre, coinsDe, corniche, hauteurToit, reglerCorniche, reglerEtages, reglerFaite, distanceSegments, dansPolygone, reglerEtage, etageCourant } from "./projet.js";
+import { cadre, coinsDe, corniche, hauteurToit, reglerCorniche, reglerEtages, reglerFaite, distanceSegments, dansPolygone, reglerEtage, etageCourant, limitesParVoisin, distancesLimites, depassementLimite } from "./projet.js";
 
 const fr = (v, d = 1) => nombre(v, d);
 const deg = r => ((r * 180 / Math.PI) % 360 + 360) % 360;
@@ -11,7 +11,9 @@ const deg = r => ((r * 180 / Math.PI) % 360 + 360) % 360;
 /**
  * Mesures d'un volume (en plan, entre emprises, pas entre centres) :
  * batiment { d, p, q } le plus proche, voisins (bâtiments à moins de 50 m : nombre et distance moyenne),
- * limite { d, p, q } la plus proche et moyenne des quatre façades, altitudes et hauteurs au-dessus du terrain aux coins.
+ * limite { d, p, q } la plus proche et moyenne des façades, altitudes et hauteurs au-dessus du terrain aux coins ;
+ * batiments (les trois plus proches), limites (une par parcelle voisine : { numero, d, p, q }), depasse ({ d, p, q } :
+ * coin le plus loin hors de la parcelle, ou null). Emprise polygonale quelconque.
  * `o` = { scene, S, parcelleEn, autres (autres volumes du projet) }.
  */
 export function mesurer(v, { scene, S, parcelleEn, autres = [] }) {
@@ -46,17 +48,30 @@ export function mesurer(v, { scene, S, parcelleEn, autres = [] }) {
     limite = parFacade.reduce((m, r) => !m || r.d < m.d ? r : m, null);
     moyenneLimite = parFacade.reduce((s, r) => s + r.d, 0) / parFacade.length;
   }
+  // limites par voisin (calculées une fois par parcelle et par liste de voisines)
+  if (q && (limitesCache.q !== q || limitesCache.n !== (S.toutes?.length || 0))) {
+    limitesCache = { q, n: S.toutes?.length || 0, l: limitesParVoisin(anneaux, (S.toutes || []).filter(w => w.numero !== q.numero)) };
+  }
+  const limites = anneaux.length ? distancesLimites(v.coins, limitesCache.l) : [];
+  const depasse = depassementLimite(v.coins, anneaux) || (limite && limite.d < 0.005 ? { d: 0, p: limite.p, q: limite.q } : null);
   const hc = corniche(v), ht = hauteurToit(v), zc = v.base + hc, zf = zc + ht;
   const coins = v.coins.map(([x, y]) => { const sol = solEn(G, x, y); return { sol, corniche: zc - sol, faite: zf - sol }; });
-  return { batiment, voisins, limite, moyenneLimite, parcelle: q?.numero, base: v.base, zc, zf, coins };
+  return { batiment, batiments: liste.slice(0, 3), voisins, limite, moyenneLimite, limites, depasse, parcelle: q?.numero, base: v.base, zc, zf, coins };
 }
+let limitesCache = {};
 
-/** Cotes à dessiner en 3D (editionVolumes) : vers le bâtiment et la limite les plus proches. */
+/**
+ * Cotes à dessiner en 3D (editionVolumes), au centimètre : vers les trois limites de la parcelle les plus proches (une par
+ * voisin) et vers les deux bâtiments les plus proches ; dépassement de la limite en rouge vif (coin hors parcelle → limite).
+ */
 export function cotesVolume(v, M, scene) {
   const G = scene.G, out = [];
   const z = (p, q) => Math.max(solEn(G, ...p), solEn(G, ...q), v.base) - scene.zRef + 0.3;
-  if (M.batiment && M.batiment.d > 0.05 && M.batiment.d < 80) out.push({ p: M.batiment.p, q: M.batiment.q, z: z(M.batiment.p, M.batiment.q), texte: `${fr(M.batiment.d)} m`, couleur: "#3a332c" });
-  if (M.limite && M.limite.d > 0.05) out.push({ p: M.limite.p, q: M.limite.q, z: z(M.limite.p, M.limite.q), texte: `${fr(M.limite.d)} m`, couleur: scene.T?.parcelle || "#e0262b" });
+  const cote = (r, texte, couleur, alerte = false) => out.push({ p: r.p, q: r.q, z: z(r.p, r.q), texte, couleur, alerte });
+  for (const b of (M.batiments || (M.batiment ? [M.batiment] : [])).slice(0, 2)) if (b.d > 0.05 && b.d < 80) cote(b, `${fr(b.d, 2)} m`, "#3a332c");
+  const limites = M.limites?.length ? M.limites : M.limite ? [M.limite] : [];
+  for (const l of limites.slice(0, 3)) if (l.d > 0.05 && l.d < 80) cote(l, `${fr(l.d, 2)} m`, scene.T?.parcelle || "#e0262b");
+  if (M.depasse && M.depasse.d > 0.005) cote(M.depasse, t("carte.depasseCote", { d: fr(M.depasse.d, 2) }), "#c4001a", true);
   return out;
 }
 

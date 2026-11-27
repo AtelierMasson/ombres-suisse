@@ -226,6 +226,65 @@ export function dansPolygone(poly, x, y) {
   return dedans;
 }
 
+/** Aire (m², en plan) d'une emprise polygonale quelconque (coins dans un sens ou dans l'autre). */
+export function aireEmprise(coins) {
+  let a = 0;
+  for (let i = 0, j = coins.length - 1; i < coins.length; j = i++) a += coins[j][0] * coins[i][1] - coins[i][0] * coins[j][1];
+  return Math.abs(a) / 2;
+}
+
+/** Surface de plancher (m²) : emprise × nombre d'étages (brute, sans déduction). */
+export const surfacePlancher = v => aireEmprise(v.coins) * Math.max(1, v.etages?.length || Math.round((v.hauteur || 3) / 3));
+
+/**
+ * Limites d'une parcelle, regroupées par voisin : chaque côté de l'anneau va à la parcelle voisine qui le touche (point à
+ * 30 cm à l'extérieur du milieu du côté), ou à `null` (voisin inconnu, domaine non cadastré). Renvoie
+ * [{ numero, segments: [[a, b], …] }].
+ */
+export function limitesParVoisin(anneaux, voisines = []) {
+  const groupes = new Map();
+  for (const a of anneaux) for (let i = 0; i < a.length; i++) {
+    const p = a[i], q = a[(i + 1) % a.length], L = Math.hypot(q[0] - p[0], q[1] - p[1]);
+    if (L < 0.01) continue;
+    const mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2, nx = (q[1] - p[1]) / L * 0.3, ny = -(q[0] - p[0]) / L * 0.3;
+    // côté extérieur : celui des deux points qui n'est pas dans la parcelle
+    const [ex, ey] = anneaux.some(b => dansPolygone(b, mx + nx, my + ny)) ? [mx - nx, my - ny] : [mx + nx, my + ny];
+    const v = voisines.find(w => w.anneauxRel?.some(b => b.length > 2 && dansPolygone(b, ex, ey)));
+    const cle = v?.numero ?? null;
+    if (!groupes.has(cle)) groupes.set(cle, { numero: cle, segments: [] });
+    groupes.get(cle).segments.push([p, q]);
+  }
+  return [...groupes.values()];
+}
+
+/**
+ * Distance la plus courte d'une emprise (polygone quelconque) à chaque limite (groupes de `limitesParVoisin`) :
+ * [{ numero, d, p (sur le volume), q (sur la limite) }], de la plus proche à la plus lointaine.
+ */
+export function distancesLimites(coins, limites) {
+  const segs = coins.map((p, k) => [p, coins[(k + 1) % coins.length]]);
+  return limites.map(g => {
+    let best = null;
+    for (const [a, b] of segs) for (const [c, d] of g.segments) { const r = segmentSegment(a, b, c, d); if (!best || r.d < best.d) best = r; }
+    return best && { numero: g.numero, ...best };
+  }).filter(Boolean).sort((x, y) => x.d - y.d);
+}
+
+/**
+ * Dépassement de la limite : coins de l'emprise hors de la parcelle (anneaux), le plus éloigné de la limite.
+ * Renvoie { d, p (coin hors limite), q (point de la limite le plus proche) } ou null si l'emprise est dans la parcelle.
+ */
+export function depassementLimite(coins, anneaux) {
+  if (!anneaux.length) return null;
+  let pire = null;
+  for (const c of coins) {
+    if (anneaux.some(a => dansPolygone(a, c[0], c[1]))) continue;
+    const r = anneaux.map(a => distanceSegments([[c, c]], a)).reduce((m, x) => !m || (x && x.d < m.d) ? x : m, null);
+    if (r && (!pire || r.d > pire.d)) pire = { d: r.d, p: c, q: r.q };
+  }
+  return pire;
+}
+
 /* ------------------------------------------------------------------ projets enregistrés */
 
 const CLE = "ombres.projets";
@@ -242,3 +301,28 @@ export function enregistrerProjet(p) {
   return ecrire(liste);
 }
 export function supprimerProjet(id) { ecrire(listerProjets().filter(q => q.id !== id)); }
+/** Projet enregistré `id`, ou null. */
+export const lireProjet = id => listerProjets().find(q => q.id === id) || null;
+/** Identifiant neuf de projet. */
+export const nouvelId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+/** Renomme un projet enregistré (sa date de modification suit). */
+export function renommerProjet(id, nom) {
+  const p = lireProjet(id);
+  return !!p && enregistrerProjet({ ...p, nom });
+}
+/** Copie d'un projet enregistré sous un nouveau nom ; renvoie la copie (ou null). */
+export function dupliquerProjet(id, nom) {
+  const p = lireProjet(id);
+  if (!p) return null;
+  const q = { ...JSON.parse(JSON.stringify(p)), id: nouvelId(), nom };
+  return enregistrerProjet(q) ? lireProjet(q.id) : null;
+}
+const CLE_OUVERT = "ombres.projetOuvert";
+/** Dernier projet ouvert (retrouvé au rechargement de la page) : lecture, ou écriture (null : aucun). */
+export function projetOuvert(id) {
+  try {
+    if (id === undefined) return localStorage.getItem(CLE_OUVERT);
+    if (id == null) localStorage.removeItem(CLE_OUVERT); else localStorage.setItem(CLE_OUVERT, id);
+  } catch { /* stockage indisponible */ }
+  return null;
+}
