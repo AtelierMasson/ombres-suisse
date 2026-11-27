@@ -37,6 +37,7 @@ import { bassinsAutour, creuserBassins, baseAuPlanDEau } from "./piscines.js";
 import { brancherInterface } from "./interface.js";
 import { brancherVuePlan } from "./vuePlan.js";
 import { brancherZones } from "./zonesSoleil.js";
+import { brancherBrumeCinematique } from "./brumeCinematique.js";
 import "./compte.css";
 
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
@@ -1036,6 +1037,7 @@ scene.loin.facteurBrume = $("#brume").value / 100; scene.loin.brume = +$("#brume
 curseurs();
 $("#qualite").addEventListener("input", e => { scene.reglerQualite(+e.target.value); garder("ombres.qualite", e.target.value); curseurs(); });
 $("#brume").addEventListener("input", e => { scene.loin.facteurBrume = e.target.value / 100; scene.reglerLointain({ brume: +e.target.value > 0 }); garder("ombres.brume", e.target.value); curseurs(); });
+brancherBrumeCinematique(scene, $); // brume cinématique : case et curseurs d'Affichage (brumeCinematique.js)
 $("#vCouleursReelles").addEventListener("change", e => {
   scene.couleursPoints(e.target.checked);
   if (e.target.checked && !$("#vPoints").checked && !$("#vPoints").disabled) { $("#vPoints").checked = true; appliquerAffichage(); }

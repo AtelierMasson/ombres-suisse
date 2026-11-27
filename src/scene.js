@@ -1,5 +1,6 @@
 // Scène three.js. Repère : x = est, y = altitude (relative à zRef), z = sud (−nord).
 import * as THREE from "three";
+import { BrumeCinematique, BRUME_SOL_GLSL } from "./brumeCinematique.js";
 
 // Brume (FogExp2) plus naturelle, pour tous les matériaux : elle monte plus lentement près de la caméra puis plus vite
 // au loin (exposant 2,8 au lieu de 2), et sa densité varie un peu d'un endroit à l'autre (bruit doux à grande échelle,
@@ -22,6 +23,7 @@ THREE.ShaderChunk.fog_pars_fragment = `#ifdef USE_FOG
     uniform float fogNear;
     uniform float fogFar;
   #endif
+  uniform vec4 brumeSol, brumeSolTeinte; // brume cinématique au sol (brumeCinematique.js) ; z = 0 : coupée
   float brumeHasard(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
   float brumeBruit(vec2 p) {
     vec2 i = floor(p), f = fract(p), u = f * f * (3.0 - 2.0 * f);
@@ -38,6 +40,8 @@ THREE.ShaderChunk.fog_fragment = `#ifdef USE_FOG
   #else
     float fogFactor = smoothstep(fogNear, fogFar, vFogDepth);
   #endif
+  // brume cinématique (nappe au sol, sa propre teinte), puis la brume de distance par-dessus
+  ${BRUME_SOL_GLSL}
   // couleur du ciel juste sous l'horizon (shader du ciel : horizon × 0,94), passée par le même rendu que le ciel ; au
   // bout de la brume, rien n'est plus clair que le ciel (neige, façades claires) : la teinte est d'abord plafonnée
   vec3 couleurBrume = fogColor * 0.94;
@@ -409,6 +413,7 @@ export class Scene3D {
       u.tPlanP.value = p; u.tPlanL.value = l; u.cPlanP.value = cp; u.cPlanL.value = cl;
     }
     this.controls.addEventListener("change", () => this.tuilesPlan.demander());
+    this.brumeCine = new BrumeCinematique(this); // brume au sol, mer de brouillard (case d'Affichage, coupée par défaut)
     this.groupe = new THREE.Group();
     this.outils = new THREE.Group(); // tranche de coupe et poignées
     this.scene.add(this.voute, this.disque, this.groupe, this.outils);
@@ -640,6 +645,7 @@ void main() {
     }
     this.swiss?.mettreAJour();
     this.monde?.mettreAJour();
+    this.brumeCine.mettreAJour();
     const leger = this.allegerMouvement !== false && performance.now() - (this.dernierMouvement ?? -Infinity) < 120;
     this.imageLegere = leger && this.effets && this.qualite < 2;
     this.ao.enabled = this.rebond.enabled = !this.imageLegere;
