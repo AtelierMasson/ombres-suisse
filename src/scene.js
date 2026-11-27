@@ -1973,23 +1973,23 @@ void main() {
 
   /** Souris : déplacer les poignées A et B de la coupe, ou tracer une coupe en deux clics (voir `tracer`). */
   /**
-   * Déplacement au clavier, comme dans un jeu : W / S avancer et reculer, A / D de côté, E / Q monter et descendre,
-   * Maj pour aller plus vite. Touches physiques (KeyW…) : ZQSD sur un clavier français. La vitesse suit la distance
-   * au point visé (lent de près, rapide de loin) ; la caméra et le point visé bougent ensemble.
+   * Déplacement au clavier, sur les principes de Google Earth et des vues de vol des logiciels 3D (Unreal, Blender) :
+   * W / S avancer et reculer à plat (on ne plonge pas dans le sol en regardant vers le bas), A / D de côté, E / Q monter
+   * et descendre ; Maj pour aller trois fois plus vite. La vitesse suit la hauteur au-dessus du sol (lent près du sol,
+   * rapide en altitude) ; la molette, touche de déplacement enfoncée, règle la vitesse de base (×¼ à ×8, gardée).
+   * Élan doux au départ et à l'arrêt ; jamais sous le sol. Touches physiques (KeyW…) : ZQSD sur un clavier français.
    */
   deplacerClavier(t) {
     const k = this.touches, avant = this.dernierClavier ?? t, v = (this.vitesseClavier ||= new THREE.Vector3());
     this.dernierClavier = t;
-    // élan : on accélère et on ralentit en douceur (comme dans un jeu), même après avoir lâché la touche
     if ((!k?.size && v.lengthSq() < 1e-4) || this.vol || !this.G) { this.dernierClavier = null; v.set(0, 0, 0); return false; }
     const dt = Math.min(0.1, (t - avant) / 1000);
     if (!dt) return true;
     const cam = this.camera, cible = this.controls.target, e = cam.matrixWorld.elements;
-    // devant : l'axe de visée de la caméra, montée ou descente comprise (comme un vol) ; vue de dessus : le haut de
-    // l'écran ; de côté : toujours à plat
-    const devant = this.modeVue === "plan" ? new THREE.Vector3(e[4], 0, e[6]) : new THREE.Vector3(-e[8], -e[9], -e[10]);
+    // devant : à plat, dans la direction de la vue (vue de dessus : le haut de l'écran)
+    const devant = this.modeVue === "plan" || Math.abs(e[9]) > 0.97 ? new THREE.Vector3(e[4], 0, e[6]) : new THREE.Vector3(-e[8], 0, -e[10]);
     devant.normalize();
-    const droite = new THREE.Vector3(-e[0] === 0 && -e[2] === 0 ? 1 : e[0], 0, e[2]).normalize();
+    const droite = new THREE.Vector3(e[0], 0, e[2]).normalize();
     const d = new THREE.Vector3();
     if (k.has("KeyW") || k.has("ArrowUp")) d.add(devant);
     if (k.has("KeyS") || k.has("ArrowDown")) d.sub(devant);
@@ -1997,17 +1997,70 @@ void main() {
     if (k.has("KeyA") || k.has("ArrowLeft")) d.sub(droite);
     if (k.has("KeyE")) d.y += 1;
     if (k.has("KeyQ")) d.y -= 1;
-    const vitesse = Math.max(4, cam.position.distanceTo(cible) * 0.35) * (k.has("ShiftLeft") || k.has("ShiftRight") ? 3 : 1);
+    const sol = this.solSous(cam.position.x, cam.position.z), haut = Math.max(2, cam.position.y - (isNaN(sol) ? cible.y : sol));
+    // hauteur au-dessus du sol, et un peu de la distance au point visé (vue rasante lointaine)
+    const vitesse = Math.max(3, 0.9 * haut + 0.1 * cam.position.distanceTo(cible)) * this.facteurVitesse()
+      * (k.has("ShiftLeft") || k.has("ShiftRight") ? 3 : 1);
     if (d.lengthSq()) d.normalize().multiplyScalar(vitesse);
     // la vitesse rejoint la vitesse voulue : vite à l'appui (~0,15 s), un peu plus lentement au lâcher (~0,3 s)
     v.lerp(d, 1 - Math.exp(-dt * (d.lengthSq() ? 9 : 6)));
     if (!k.size && v.lengthSq() < 0.01) { v.set(0, 0, 0); return false; }
     const pas = v.clone().multiplyScalar(dt);
     cam.position.add(pas); cible.add(pas);
+    // jamais sous le sol : 2 m au moins au-dessus du terrain (la cible suit)
+    const sol2 = this.solSous(cam.position.x, cam.position.z);
+    if (!isNaN(sol2) && cam.position.y < sol2 + 2) { const m = sol2 + 2 - cam.position.y; cam.position.y += m; cible.y += m; if (v.y < 0) v.y = 0; }
     // voyage : près du bord de la maquette, le lieu se recharge sous la caméra (main.js, surVoyage)
     const Rv = Math.max(this.G.R, this.rayonExt || 0);
     if (Math.hypot(cible.x, cible.z) > Rv * 0.75) this.surVoyage?.(cible);
     return true;
+  }
+
+  /** Altitude du sol (repère de la scène) sous un point x, z : maquette fine, puis anneau ; NaN hors du modèle. */
+  solSous(x, z) {
+    const G = this.G;
+    if (G && Math.hypot(x, z) < G.R - 1) return solEn(G, x, -z) - this.zRef;
+    const a = this.couches?.anneau;
+    if (!a?.visible) return NaN;
+    (this.rayonSol ||= new THREE.Raycaster()).set(new THREE.Vector3(x, 1e4, z), new THREE.Vector3(0, -1, 0));
+    return this.rayonSol.intersectObject(a, false)[0]?.point.y ?? NaN;
+  }
+
+  /** Vitesse de base du clavier (molette pendant un déplacement), gardée d'une visite à l'autre. */
+  facteurVitesse() {
+    if (this._vitesse == null) { try { this._vitesse = +localStorage.getItem("ombres.vitesseVol") || 1; } catch { this._vitesse = 1; } }
+    return this._vitesse;
+  }
+
+  reglerVitesse(sens) {
+    const f = Math.min(8, Math.max(0.25, this.facteurVitesse() * (sens > 0 ? 1 / 1.25 : 1.25)));
+    this._vitesse = f;
+    try { localStorage.setItem("ombres.vitesseVol", String(f)); } catch { /* stockage indisponible */ }
+    let b = document.getElementById("vitesseVol");
+    if (!b) {
+      b = Object.assign(document.createElement("div"), { id: "vitesseVol" });
+      b.style.cssText = "position:fixed;left:50%;bottom:64px;transform:translateX(-50%);padding:6px 12px;border-radius:8px;"
+        + "background:rgba(20,30,50,.82);color:#fff;font:600 14px system-ui;pointer-events:none;transition:opacity .3s;z-index:50";
+      document.body.append(b);
+    }
+    const n = Math.round(Math.log(f) / Math.log(1.25)), barres = "▮".repeat(Math.max(0, n + 7)) + "▯".repeat(Math.max(0, 9 - n));
+    b.textContent = `${barres}  ×${f < 1 ? f.toFixed(2) : f.toFixed(1)}`;
+    b.style.opacity = "1";
+    clearTimeout(this._vitesseT); this._vitesseT = setTimeout(() => { b.style.opacity = "0"; }, 1200);
+  }
+
+  /** Double-clic sur le sol ou un bâtiment : la vue y glisse en douceur (Google Earth), même orientation, deux fois plus près. */
+  volerVers(point) {
+    const cam = this.camera, cible = this.controls.target, p0 = cam.position.clone(), c0 = cible.clone();
+    const dir = p0.clone().sub(c0), dist = Math.max(15, dir.length() * 0.5);
+    const p1 = point.clone().add(dir.normalize().multiplyScalar(dist)), t0 = performance.now(), duree = 900;
+    const pas = () => {
+      const u = Math.min(1, (performance.now() - t0) / duree), e = u < 0.5 ? 4 * u * u * u : 1 - (-2 * u + 2) ** 3 / 2;
+      cam.position.lerpVectors(p0, p1, e); cible.lerpVectors(c0, point, e);
+      this.controls.update(); this.demander(2);
+      if (u < 1) requestAnimationFrame(pas);
+    };
+    requestAnimationFrame(pas);
   }
 
   interactions() {
@@ -2020,6 +2073,19 @@ void main() {
       if (DEPL.includes(e.code) || e.code.startsWith("Shift")) { this.touches.add(e.code); if (DEPL.includes(e.code)) e.preventDefault(); }
     });
     addEventListener("keyup", e => this.touches.delete(e.code));
+    // molette pendant un déplacement au clavier : vitesse de vol (comme Unreal) au lieu du zoom
+    const DEPL2 = new Set(DEPL);
+    this.renderer.domElement.addEventListener("wheel", e => {
+      if (![...this.touches].some(c => DEPL2.has(c))) return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      this.reglerVitesse(e.deltaY);
+    }, { capture: true, passive: false });
+    this.renderer.domElement.addEventListener("dblclick", e => {
+      if (this.trace || this.modeVue) return;
+      const cibles = [this.couches.terrain, this.couches.anneau, ...(this.couches.bati?.visible ? this.couches.bati.children : [])].filter(o => o?.visible);
+      const t = this.viser(e).intersectObjects(cibles, false)[0];
+      if (t) this.volerVers(t.point);
+    });
     addEventListener("blur", () => this.touches.clear());
     const el = this.renderer.domElement, sol = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), v = new THREE.Vector3();
     this.rayon = new THREE.Raycaster();

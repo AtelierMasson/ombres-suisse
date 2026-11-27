@@ -774,7 +774,7 @@ function coupeParDefaut(travers = false) {
   return travers ? [[-L, 0], [L, 0]] : [[0, -L], [0, L]];
 }
 function dessinCoupe() {
-  const r = dessinerCoupe($("#svgCoupe"), S.coupe.P, soleilActuel(), { audela: "plans" });
+  const r = dessinerCoupe($("#svgCoupe"), S.coupe.P, null, { audela: "plans" }); // sans soleil : plus de place pour le profil
   $("#coupeTexte").textContent = r ? `· ${nombre(r.long, 0)} m${r.note ? " · " + r.note : ""}` : "";
 }
 // inverser la coupe : A et A' échangés, on regarde de l'autre côté (jamais automatique)

@@ -460,9 +460,9 @@ export function dessinerCoupe(svg, P, soleil, o = {}) {
   }
   // au-delà de la coupe : ce qui est proche (< 30 m) entre dans le cadre ; le lointain peut en sortir
   if (vue) for (const a of P.audela.plans.slice(0, 4)) for (const z of a) if (z > zmax) zmax = z;
-  const long = P.s[k1] - P.s[k0], bas = zmin - Math.max(2, long * 0.03), haut = Math.max(zmax + Math.max(3, long * 0.05), bas + long * 0.22);
+  const long = P.s[k1] - P.s[k0], bas = zmin - Math.max(1.5, long * 0.015), haut = Math.max(zmax + Math.max(2, long * 0.02), bas + long * 0.12);
   // largeur de la carte (pixels de l'écran, textes à leur taille), hauteur limitée ; échelle identique en x et en z
-  const m = { g: 46, d: 12, h: 8, b: 20 }, largeDispo = Math.max(360, (svg.parentElement?.clientWidth || 736) - 16), Hmax = Math.max(250, Math.round(innerHeight * 0.32));
+  const m = { g: 46, d: 12, h: 8, b: 20 }, largeDispo = Math.max(360, (svg.parentElement?.clientWidth || 736) - 16), Hmax = Math.max(260, Math.round(innerHeight * 0.36));
   const e = Math.min((largeDispo - m.g - m.d) / long, (Hmax - m.h - m.b) / (haut - bas));
   const W = Math.round(long * e + m.g + m.d), H = Math.round((haut - bas) * e + m.h + m.b);
   svg.style.width = `${W}px`;

@@ -247,7 +247,7 @@ export default {
   "coupe.ajouter": "+ Add a section",
   "coupe.retirer": "Remove this section",
   "coupe.ab": "Section A–B",
-  "coupe.legende": "<span class=\"l-terrain\"></span>Terrain and buildings cut <span class=\"l-arbres\"></span>Trees <span class=\"l-limite\"></span>Plot boundary <span class=\"l-course\"></span>Sun",
+  "coupe.legende": "<span class=\"l-terrain\"></span>Terrain and buildings cut <span class=\"l-arbres\"></span>Trees <span class=\"l-limite\"></span>Plot boundary",
   "coupe.legendePoints": "Point cloud: <span class=\"l-pt pt0\"></span>ground <span class=\"l-pt pt1\"></span>vegetation <span class=\"l-pt pt2\"></span>building <span class=\"l-pt pt3\"></span>other",
   "coupe.soleilPlan": "sun at {heure}: {angle}° in the section plane",
   "coupe.soleilCouche": "sun set at {heure}",
