@@ -843,9 +843,12 @@ void main() {
     let Gp = G;
     if (modeles.length && G.pont) {
       const pont = G.pont.slice();
+      // marge élargie (4 m de plus de chaque côté) : les bords du tablier relevé, un peu décalés ou plus larges que le
+      // modèle, restaient en petits morceaux de tablier visibles à travers le pont fait main
+      const larges = modeles.map(P => ({ ...P, largeur: P.largeur + 8 }));
       for (let j = 0; j < G.n; j++) for (let i = 0; i < G.n; i++) {
         const p = j * G.n + i;
-        if (!isNaN(pont[p]) && modeles.some(P => dansPont(P, Ep, Np, G.x0 + (i + 0.5) * G.c, G.x0 + (j + 0.5) * G.c))) pont[p] = NaN;
+        if (!isNaN(pont[p]) && larges.some(P => dansPont(P, Ep, Np, G.x0 + (i + 0.5) * G.c, G.x0 + (j + 0.5) * G.c))) pont[p] = NaN;
       }
       Gp = { ...G, pont };
     }

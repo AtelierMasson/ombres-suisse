@@ -1029,10 +1029,13 @@ export function pontsLegers(G, zRef, nuage = null) {
   // normale du terrain affiché (repère de la scène), pour fondre l'éclairage de la chaussée dans celui de la route
   const normaleSol = (x, y) => { const a = -(solEn(G, lim(x + 1), lim(y)) - solEn(G, lim(x - 1), lim(y))) / 2, b = (solEn(G, lim(x), lim(y + 1)) - solEn(G, lim(x), lim(y - 1))) / 2, l = Math.hypot(a, 1, b); return [a / l, 1 / l, b / l]; };
   const haut = [], uv = [], nor = [], bas = [], infos = [];
+  // pont reconstruit qui chevauche un pont fait main (cases effacées par scene.construire) : son modèle n'est pas maillé
+  // (son tablier lissé débordait sous et à travers le pont fait main) ; ses cases restantes sont rendues telles que relevées
+  const repliPlus = [];
   for (const M of G.ponts) {
     let restent = 0;
     for (const p of M.cellules) if (!isNaN(pont[p])) restent++;
-    if (restent < 0.5 * M.cellules.length) continue;
+    if (restent < M.cellules.length) { for (const p of M.cellules) if (!isNaN(pont[p])) repliPlus.push(p); continue; }
     const g = maillagePont(M, 0, 0, zRef, sol, UV, { normaleSol, rayon: G.rayonZone });
     const ajouter = (o, a) => { for (let k = 0; k < a.length; k++) o.push(a[k]); };
     ajouter(haut, g.dessus.attributes.position.array); ajouter(uv, g.dessus.attributes.uv.array); ajouter(nor, g.dessus.attributes.normal.array);
@@ -1042,9 +1045,9 @@ export function pontsLegers(G, zRef, nuage = null) {
   }
   // ponts que le modèle décrit mal : rendus tels que relevés, case par case
   let brutG = null;
-  if (G.pontsRepli?.length) {
+  if (G.pontsRepli?.length || repliPlus.length) {
     const repli = new Float32Array(n * n).fill(NaN);
-    for (const p of G.pontsRepli) repli[p] = pont[p];
+    for (const p of [...(G.pontsRepli || []), ...repliPlus]) repli[p] = pont[p];
     brutG = tabliersPonts({ ...G, pont: repli }, zRef);
   }
   if (!haut.length && !brutG) return null;
