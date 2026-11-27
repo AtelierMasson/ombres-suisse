@@ -386,12 +386,10 @@ async function depuisAdresse(o = null) {
     const apresReleve = new Promise(r => { finReleve = r; }); // tenue à la fin du chargement (finally, plus bas)
     const terrainLarge = Promise.all([terrainBase.catch(() => null), apresReleve]).then(() => alti).then(l => terrainAutour(l, E0, N0, RAYON_FIN));
     terrainBase.catch(() => {}); terrainLarge.catch(() => {});
-    // terrain swisstopo 0,5 m de la maquette (choix « Terrain swisstopo ») : lu après la vue de base, sans rien bloquer
-    let sol05 = null;
-    const n05 = Math.round(2 * R / 0.5);
-    const attente05 = ACC ? Promise.resolve(null) : apresReleve.then(() => tuilesAlti05(boite))
-      .then(l => solAlti05(l, { n: n05, c: 0.5, x0: -R, R }, E0, N0)).catch(e => { console.warn("swissALTI3D 0,5 m :", e.message); return null; });
-    attente05.then(s => { sol05 = s; });
+    // terrain swisstopo 0,5 m de la maquette : lu seulement si ce terrain est choisi, après le relevé (le 2 m sert d'ici là)
+    let attente05 = null;
+    const charger05 = () => attente05 ||= apresReleve.then(() => tuilesAlti05(boite))
+      .then(l => solAlti05(l, { n: Math.round(2 * R / 0.5), c: 0.5, x0: -R, R }, E0, N0)).catch(e => { console.warn("swissALTI3D 0,5 m :", e.message); return null; });
 
     et(0.05, t("etat.releve"));
     // vue de base (terrain swisstopo, bâtiments Swiss3D) affichée en attendant le relevé ; null tant qu'elle ne l'est pas
@@ -537,11 +535,11 @@ async function depuisAdresse(o = null) {
     try { await fondLacs(G, E0, N0); } catch (e) { console.warn("Fond des lacs :", e.message); }
     // sous l'eau, le sol reste sous la surface : des mâts de bateaux (ports) levaient sinon des aiguilles de terrain
     if (G.eau) for (let p = 0; p < G.sol.length; p++) if (!isNaN(G.eau[p]) && !(G.sol[p] < G.eau[p] - 0.1)) G.sol[p] = G.eau[p] - 0.3;
-    // terrains au choix (onglet Affichage, Sol) : celui du relevé, et celui de swisstopo (0,5 m s'il est arrivé, sinon 2 m)
+    // terrains au choix (onglet Affichage, Sol) : celui du relevé, et celui de swisstopo (2 m, puis 0,5 m s'il est choisi)
     G.solReleve = G.sol.slice();
     const T2 = await terrainBase.catch(() => null);
     if (id !== tache) return;
-    const sw = sol05 || (T2 && couvreLieu(T2, E0, N0, R) ? solDepuisTerrain(T2, G, E0, N0) : null);
+    const sw = T2 && couvreLieu(T2, E0, N0, R) ? solDepuisTerrain(T2, G, E0, N0) : null;
     if (sw) G.solSwisstopo = solComposeSwisstopo(G, sw);
     if (choixTerrain() === "swisstopo" && G.solSwisstopo) G.sol = G.solSwisstopo.slice();
     // piscines : abords aplanis, fond à −1,60 m, eau à −0,20 m (au plus 4 s d'attente du service cantonal)
@@ -553,12 +551,13 @@ async function depuisAdresse(o = null) {
     majSurface(G);
     if (id !== tache) return;
     if (ACC || ronde()) garderCercle(G, R); // ne montrer que le cercle (sinon : maquette carrée, comme avant)
-    // terrain swisstopo 0,5 m arrivé après coup : il remplace le 2 m (et la maquette, si ce terrain est choisi)
-    if (!sol05) attente05.then(s => {
-      if (!s || id !== tache || S.G !== G) return;
-      G.solSwisstopo = solComposeSwisstopo(G, s);
+    // terrain swisstopo 0,5 m, à la demande (appliquerTerrain) : il remplace le 2 m, et la maquette si ce terrain est choisi
+    S.charger05 = () => charger05().then(s => {
+      if (!s || id !== tache || S.G !== G || G.alti05) return;
+      G.solSwisstopo = solComposeSwisstopo(G, s); G.alti05 = true;
       if (choixTerrain() === "swisstopo") appliquerTerrain();
     });
+    if (!ACC && choixTerrain() === "swisstopo") S.charger05();
     if (!base) { await monter(G, nuage, source, false); return; }
 
     // bascule : la maquette du relevé remplace la vue de base, sans recharger ni bouger la caméra
@@ -914,6 +913,7 @@ function remplacerMaquette(G, nuage, point = null) {
 function appliquerTerrain() {
   const G = S.G;
   if (!G || G.provisoire || !G.solReleve) return;
+  if (choixTerrain() === "swisstopo" && !G.alti05) S.charger05?.(); // 0,5 m lu en arrière-plan, appliqué à son arrivée
   const src = choixTerrain() === "swisstopo" && G.solSwisstopo ? G.solSwisstopo : G.solReleve;
   if (scene.batOrigine) G.bat.set(scene.batOrigine); // bâtiments masqués (Pro) : réappliqués après (pro.apresTerrain)
   G.sol = src.slice(); G.bassins = [];
