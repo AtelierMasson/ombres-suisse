@@ -168,7 +168,7 @@ async function lireFenetre(url, fenetre, essais = 3) {
  */
 // tuiles swissALTI3D 2 m déjà lues, gardées d'un lieu à l'autre (environ 1 Mo chacune, au plus 80)
 const ALTI = new Map();
-function lireAlti(url) {
+export function lireAlti(url) {
   if (!ALTI.has(url)) {
     const p = (async () => {
       const img = await (await fromUrl(url, { maxRanges: 1 })).getImage();

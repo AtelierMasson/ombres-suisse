@@ -640,6 +640,7 @@ void main() {
     }
     this.swiss?.mettreAJour();
     this.monde?.mettreAJour();
+    this.eauVecteur?.mettreAJour(); // rivières et lacs hors de la maquette fine (eau.js)
     const leger = this.allegerMouvement !== false && performance.now() - (this.dernierMouvement ?? -Infinity) < 120;
     this.imageLegere = leger && this.effets && this.qualite < 2;
     this.ao.enabled = this.rebond.enabled = !this.imageLegere;
@@ -733,6 +734,7 @@ void main() {
     this.contoursTous = this.volumes = this.batOrigine = this.nuage = this.grilleComp = null;
     if (this.loin.maille) { this.scene.remove(this.loin.maille); this.loin.maille.geometry.dispose(); this.loin.maille = null; }
     this.tuilesPlan.vider();
+    this.eauVecteur?.cacher(); // reconfigurée par le lieu suivant (vol, paysage, anneau)
     this.idScene++;
   }
 

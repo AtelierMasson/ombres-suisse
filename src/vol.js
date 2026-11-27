@@ -8,6 +8,7 @@ import { reliefLointain, materiauLointain } from "./lointain.js";
 import { materiauPoints } from "./maillages.js";
 import { Monde } from "./monde.js";
 import { pontsAutour } from "./pontsModeles.js";
+import { EauVecteur } from "./eau.js";
 
 /**
  * Lieux et trajectoires. Coordonnées MN95 du centre ; une trajectoire = des clés [x est, y nord, hauteur] (m, depuis le
@@ -61,7 +62,9 @@ export async function lancerVol(scene, cle, o) {
   scene.animation = t => {
     if (arret) return;
     t0 ??= t;
-    const phase = ((t - t0) / 1000 / V.duree) % 2, u = 0.5 - 0.5 * Math.cos(Math.PI * (phase < 1 ? phase : 2 - phase));
+    const phase = ((t - t0) / 1000 / V.duree) % 2;
+    // `scene.volU` (0 à 1) : position figée sur le trajet (vérifications, captures)
+    const u = scene.volU ?? 0.5 - 0.5 * Math.cos(Math.PI * (phase < 1 ? phase : 2 - phase));
     scene.camera.position.copy(pos(u));
     ctl.target.copy(cib(u));
     scene.camera.lookAt(ctl.target);
@@ -145,6 +148,12 @@ async function decor(scene, V, o, marque) {
       .then(g => { marque("paysage"); return o.actif() && scene.afficherLointain(g, idScene, { E0: E, N0: N }); })
       .catch(e => console.warn("Relief lointain :", e.message));
   }
+  // rivières et lacs (la grille du vol n'a pas de nuage, donc pas d'eau) : polygones swisstopo, niveau tiré du terrain
+  // dessiné — grille 2 m du lieu, ou, avec le monde, swissALTI3D lu autour de la caméra
+  const eau = scene.eauVecteur ||= new EauVecteur(scene), m = scene.monde;
+  // (terrain du monde : maillage plus grossier que la grille 2 m et calé à quelques décimètres près, d'où 30 cm de plus)
+  if (o.monde) eau.configurer({ origine: () => ({ E: m.E0, N: m.N0, zRef: m.zRef }), alti: true, courbure: 1, hausse: 0.3, rayonSansPaysage: V.R });
+  else eau.configurer({ origine: () => ({ E, N, zRef: scene.zRef }), fin, rayonSansPaysage: V.R });
   marque("maquette");
   return { G, voirAvant, jeuAvant };
 }

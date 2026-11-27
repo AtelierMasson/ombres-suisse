@@ -12,6 +12,7 @@ import { chargerNuage, chaufferFils } from "./nuage.js";
 import { LodAnneau } from "./lodAnneau.js";
 import { depuisPoints, depuisRasters, solEn, terrainAutour, garderCercle, majSurface } from "./grille.js";
 import { reliefLointain } from "./lointain.js";
+import { EauVecteur } from "./eau.js";
 import { Scene3D } from "./scene.js";
 import { essaiRoofer, maillageRoofer, maillagePolygones } from "./roofer.js";
 import { emprisesOfficielles } from "./reconstruction/emprises.js";
@@ -344,6 +345,12 @@ async function paysageEtAnneau(id, idScene) {
     }
   }
   if (rond) scene.construireAnneau(fin, G.rayonZone, Rz, { E: E0, N: N0 }, lac);
+  // rivières et lacs de l'anneau et du paysage (polygones swisstopo, eau.js) ; la maquette fine garde l'eau du nuage
+  // (sans nuage, maquette tirée des grilles : pas d'eau mesurée, celle des polygones la couvre aussi)
+  const eauFine = !!G.eau?.some(v => !isNaN(v));
+  (scene.eauVecteur ||= new EauVecteur(scene)).configurer({ origine: () => ({ E: E0, N: N0, zRef: scene.zRef }), fin,
+    sol: eauFine ? null : (E, N) => Math.max(Math.abs(E - E0), Math.abs(N - N0)) < G.R - 1 ? solEn(G, E - E0, N - N0) : NaN,
+    trou: !eauFine ? 0 : rond ? G.rayonZone : G.R, carre: !rond, rayonSansPaysage: rond ? G.rayonZone : G.R, trouLac: lac && rond && Rz > G.rayonZone ? Rz : 0, niveauLac: lac?.niveau ?? NaN });
   if (rond && Rz > G.rayonZone + 5) arbresAnneau(id, G.rayonZone, Rz, E0, N0);
   if (scene.loin.maille) { scene.scene.remove(scene.loin.maille); scene.loin.maille.geometry.dispose(); scene.loin.maille = null; }
   if (!scene.loin.voir) { marquer("anneau"); return; } // paysage décoché : rien à calculer (chargé si on le coche)
