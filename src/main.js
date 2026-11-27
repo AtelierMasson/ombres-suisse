@@ -1055,7 +1055,10 @@ marquerTheme();
 let demandeAilleurs = 0;
 async function proposerAilleurs(E, N, x, y, interieur = false) {
   const b = $("#ailleurs"), id = ++demandeAilleurs;
-  $("#btnAilleurs").textContent = t(interieur ? "ailleurs.centrer" : "ailleurs.construire");
+  // bouton : un petit viseur à côté du nom (le texte reste en info-bulle et pour les lecteurs d'écran)
+  const libelle = t(interieur ? "ailleurs.centrer" : "ailleurs.construire");
+  $("#btnAilleurs").innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>';
+  $("#btnAilleurs").title = libelle; $("#btnAilleurs").setAttribute("aria-label", libelle);
   b.style.left = `${x}px`; b.style.top = `${y}px`;
   $("#ailleursNom").textContent = t("ailleurs.recherche");
   $("#btnAilleurs").disabled = true;
