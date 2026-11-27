@@ -9,6 +9,7 @@ import { brancherFiche } from "./fiche.js";
 import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
 import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, versWgs } from "./geo.js";
 import { chargerNuage } from "./nuage.js";
+import { LodAnneau } from "./lodAnneau.js";
 import { depuisPoints, depuisRasters, solEn, terrainAutour, garderCercle } from "./grille.js";
 import { reliefLointain } from "./lointain.js";
 import { Scene3D } from "./scene.js";
@@ -280,19 +281,22 @@ async function paysageEtAnneau(id, idScene) {
   scene.afficherLointain(g, idScene, { E0, N0 });
 }
 
-/** Vrais arbres de l'anneau : points de végétation du relevé laser, chargés moins denses (en arrière-plan). */
-let chargementAnneau = null;
+/**
+ * Vrais arbres de l'anneau : points de végétation du relevé laser, chargés selon la caméra (lodAnneau.js : plus fins
+ * près de la caméra et dans le champ, plus grossiers au loin, dans un budget de points).
+ */
+let chargementAnneau = null, lodAnneau = null;
 async function arbresAnneau(id, Rint, Rext, E0, N0) {
-  chargementAnneau?.abort();
+  chargementAnneau?.abort(); lodAnneau?.detruire(); lodAnneau = null;
   const ctrl = chargementAnneau = new AbortController();
   try {
     const boite = [E0 - Rext, N0 - Rext, E0 + Rext, N0 + Rext];
     const copc = await tuilesNuage(boite);
     if (!copc || id !== tache || ctrl.signal.aborted) return;
-    // finesse selon la taille de l'anneau : ~1 m jusqu'à 500 m, ~2 m au-delà (le nombre de points reste raisonnable)
-    const nuage = await chargerNuage(copc, boite, [E0, N0], Rext <= 500 ? 1 : 2, () => {}, ctrl.signal);
-    if (id !== tache || ctrl.signal.aborted) return;
-    scene.arbresReleveAnneau(nuage, Rint, Rext);
+    const lod = lodAnneau = new LodAnneau(scene, copc, { E0, N0, Rint, Rext });
+    ctrl.signal.addEventListener("abort", () => lod.detruire(), { once: true });
+    if (import.meta.env.DEV) window.__lodAnneau = lod;
+    await lod.demarrer();
   } catch (e) { if (e?.name !== "AbortError") console.warn("arbres de l'anneau", e); }
 }
 
