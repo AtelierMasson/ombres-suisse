@@ -880,6 +880,12 @@ $("#vCoupe").addEventListener("change", e => {
   majCoupe(...coupeParDefaut());
   compter("coupe");
 });
+// « Nouvelle coupe » : la première coupe s'ouvre ; ensuite, une coupe de plus (réservé au Pro, comme « Ajouter une coupe »)
+$("#btnNouvelleCoupe").onclick = () => {
+  if (!$("#vCoupe").checked) { $("#vCoupe").checked = true; $("#vCoupe").dispatchEvent(new Event("change")); return; }
+  if (!(!compte.disponible() || compte.etat().pro) && !compte.exigerPro(t("coupe.ajouterPro"))) return;
+  S.coupe = null; majCoupe(...coupeParDefaut(S.coupes.length % 2 === 1));
+};
 $("#btnTracer").onclick = () => {
   const actif = !$("#btnTracer").classList.contains("active");
   $("#btnTracer").classList.toggle("active", actif);

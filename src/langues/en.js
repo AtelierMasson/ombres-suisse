@@ -121,6 +121,7 @@ export default {
   "coupe.ajouterPro": "Several sections: part of the Pro offer.",
   "onglet.projet": "Project",
   "onglet.export": "Export",
+  "coupe.nouvelle": "New section",
   "compte.supprimer": "Delete my account",
   "compte.supprimerConfirmer": "Permanently delete your account, details and saved places? To confirm, enter your email address again: {email}",
   "compte.supprime": "Your account has been deleted.",

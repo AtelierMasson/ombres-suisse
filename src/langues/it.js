@@ -121,6 +121,7 @@ export default {
   "coupe.ajouterPro": "Più sezioni: riservato all’offerta Pro.",
   "onglet.projet": "Progetto",
   "onglet.export": "Esporta",
+  "coupe.nouvelle": "Nuova sezione",
   "compte.supprimer": "Eliminare il mio account",
   "compte.supprimerConfirmer": "Vuole eliminare definitivamente il suo account, i suoi dati e i luoghi salvati? Per confermare, inserisca di nuovo il suo indirizzo e-mail: {email}",
   "compte.supprime": "Il suo account è stato eliminato.",

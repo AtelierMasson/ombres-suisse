@@ -121,6 +121,7 @@ export default {
   "coupe.ajouterPro": "Mehrere Schnitte: Teil des Pro-Angebots.",
   "onglet.projet": "Projekt",
   "onglet.export": "Export",
+  "coupe.nouvelle": "Neuer Schnitt",
   "compte.supprimer": "Konto löschen",
   "compte.supprimerConfirmer": "Möchten Sie Ihr Konto, Ihre Angaben und Ihre gespeicherten Orte endgültig löschen? Geben Sie zur Bestätigung Ihre E-Mail-Adresse erneut ein: {email}",
   "compte.supprime": "Ihr Konto wurde gelöscht.",

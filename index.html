@@ -173,7 +173,9 @@
 
         <section id="sectionCoupe" class="cellule" data-onglet="coupe">
           <h3 class="cellule-titre" data-i18n="coupe.titre">Coupe</h3>
-          <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vCoupe"><label class="form-check-label small" for="vCoupe" data-i18n="coupe.activer">Couper le terrain et les bâtiments</label></div>
+          <!-- plus d'interrupteur : « Nouvelle coupe » ouvre la première coupe, puis en ajoute (#vCoupe reste, caché, pour le code) -->
+          <input class="d-none" type="checkbox" id="vCoupe" tabindex="-1" aria-hidden="true">
+          <button type="button" class="btn btn-sm btn-primary w-100" id="btnNouvelleCoupe"><span data-i18n="coupe.nouvelle">Nouvelle coupe</span></button>
           <div id="outilsCoupe" hidden>
             <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vCouperModele"><label class="form-check-label small" for="vCouperModele" data-i18n-html="coupe.couperModele">Couper la maquette <span class="text-secondary">(sinon, ligne de coupe seule)</span></label></div>
             <button class="btn btn-sm btn-outline-secondary w-100 mt-1" id="btnTracer" data-i18n="coupe.tracer">Tracer la coupe (2 clics)</button>

@@ -122,6 +122,7 @@ export default {
   "coupe.ajouterPro": "Plusieurs coupes : réservé à l'offre Pro.",
   "onglet.projet": "Projet",
   "onglet.export": "Export",
+  "coupe.nouvelle": "Nouvelle coupe",
   "compte.supprimer": "Supprimer mon compte",
   "compte.supprimerConfirmer": "Supprimer définitivement votre compte, vos informations et vos lieux enregistrés ? Pour confirmer, saisissez à nouveau votre adresse e-mail : {email}",
   "compte.supprime": "Votre compte a été supprimé.",
