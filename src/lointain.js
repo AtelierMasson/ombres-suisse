@@ -4,6 +4,7 @@
 import * as THREE from "three";
 import { tuile, versTuile } from "./horizon.js";
 import { versWgs } from "./geo.js";
+import { DEGRADE, RAMPE_GLSL } from "./maillages.js";
 
 const RAYON_TERRE = 6371000, REFRACTION = 0.13;
 
@@ -165,8 +166,15 @@ const COULEUR = /* glsl */`
     base *= 1.0 + 0.07 * ((g - 0.5) * 1.4 * mix(0.5, 1.0, fin) + (pixel - 0.5) * 0.9 * fin);
   }
   diffuseColor.rgb *= base;`;
+// dégradé selon la hauteur : même rampe et même grain que le sol de la maquette fine (scene.js)
+const DEGRADE_GLSL = /* glsl */`
+  if (degrade > 0.5) {
+    float gD = 0.55 * bruit3(vMonde * 2.7) + 0.3 * bruit3(vMonde * 9.0) + 0.15 * bruit3(vMonde * 0.35);
+    diffuseColor.rgb = rampeHaut(vMonde.y) * (1.0 + 0.07 * (gD - 0.5) * 1.4);
+  }`;
 
-export function materiauLointain(partages = null) {
+export function materiauLointain(partages = null, { degrade = false } = {}) {
+  // `degrade` : suit la case « Couleur selon la hauteur » comme la maquette fine (anneau du grand périmètre)
   // `partages` : uniformes d'un autre matériau du paysage (l'anneau de la maquette réutilise ceux du paysage)
   const uniforms = partages || {
     sol: { value: new THREE.Color() }, lac: { value: new THREE.Color() },
@@ -176,13 +184,14 @@ export function materiauLointain(partages = null) {
   mat.uniforms = uniforms; // réglés par la scène (couleurs du thème, plans drapés)
   mat.onBeforeCompile = sh => {
     Object.assign(sh.uniforms, uniforms);
+    if (degrade) Object.assign(sh.uniforms, DEGRADE);
     sh.vertexShader = sh.vertexShader
       .replace("#include <common>", "#include <common>\nattribute float eau;\nvarying vec3 vMonde;\nvarying float vEau;")
       .replace("#include <begin_vertex>", "#include <begin_vertex>\nvMonde = (modelMatrix * vec4(transformed, 1.0)).xyz; vEau = eau;");
     sh.fragmentShader = sh.fragmentShader
-      .replace("#include <common>", "#include <common>\n" + DECLARATIONS)
-      .replace("#include <map_fragment>", "#include <map_fragment>\n" + COULEUR);
+      .replace("#include <common>", "#include <common>\n" + DECLARATIONS + (degrade ? RAMPE_GLSL : ""))
+      .replace("#include <map_fragment>", "#include <map_fragment>\n" + COULEUR + (degrade ? DEGRADE_GLSL : ""));
   };
-  mat.customProgramCacheKey = () => "paysage";
+  mat.customProgramCacheKey = () => degrade ? "paysage-degrade" : "paysage";
   return mat;
 }

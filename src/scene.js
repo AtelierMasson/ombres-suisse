@@ -908,7 +908,7 @@ void main() {
     g.computeVertexNormals();
     // même matière que le paysage : plan cadastral en tuiles, grain, brume (la maquette fine garde son plan propre)
     // matière du paysage (mêmes uniformes : plan, lacs, grain), mais à part : elle reçoit le plan de coupe
-    this.mat.anneau ||= materiauLointain(this.loin.mat.uniforms);
+    this.mat.anneau ||= materiauLointain(this.loin.mat.uniforms, { degrade: true });
     c.anneau = new THREE.Mesh(g, this.mat.anneau);
     c.anneau.receiveShadow = true;
     this.groupe.add(c.anneau);
