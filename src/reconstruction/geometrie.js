@@ -142,6 +142,105 @@ export function couperConvexe(P, L, eps = 1e-7) {
   return [A, B];
 }
 
+/**
+ * Partition locale d'une boîte par des droites { nx, ny, d, appuis: [[t0, t1], …] } : une droite ne coupe que les
+ * cellules qu'elle traverse le long d'un de ses appuis (intervalles du paramètre t = −ny·x + nx·y), au lieu de
+ * traverser tout le bâtiment. Chaque arête d'une cellule garde le numéro de sa droite porteuse : un sommet de coupe
+ * est l'intersection de deux porteuses (calculée dans un ordre fixe), donc identique dans toutes les cellules.
+ * @returns {{ cellules: { P: [x, y][], A: number[] }[], porteuses }} A[i] = porteuse de l'arête P[i] → P[i + 1].
+ */
+export function partitionLocale(droites, [x0, y0, x1, y1]) {
+  const porteuses = [{ nx: 0, ny: 1, d: y0 }, { nx: 1, ny: 0, d: x1 }, { nx: 0, ny: 1, d: y1 }, { nx: 1, ny: 0, d: x0 }];
+  let cellules = [{ P: [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], A: [0, 1, 2, 3] }];
+  for (const L of droites) {
+    const id = porteuses.push(L) - 1, suite = [];
+    for (const c of cellules) { const d = couperCellule(c, L, id, porteuses); if (d) suite.push(d[0], d[1]); else suite.push(c); }
+    cellules = suite;
+  }
+  return { cellules, porteuses };
+}
+
+/**
+ * Coupe la cellule { P, A } par la droite L (porteuse n° id) si sa corde recouvre un appui de L (ou toujours si
+ * `partout`). @returns {[{ P, A }, { P, A }] | null} côté positif puis côté négatif de la droite.
+ */
+export function couperCellule(c, L, id, porteuses, partout = false, eps = 1e-7) {
+  const P = c.P, n = P.length, s = new Float64Array(n);
+  let pos = false, neg = false;
+  for (let i = 0; i < n; i++) {
+    let v = L.nx * P[i][0] + L.ny * P[i][1] - L.d;
+    if (Math.abs(v) < eps) v = 0;
+    s[i] = v;
+    if (v > 0) pos = true; else if (v < 0) neg = true;
+  }
+  if (!pos || !neg) return null;
+  // corde de la droite dans la cellule : doit recouvrir un appui
+  const X = new Array(n);
+  let ta = Infinity, tb = -Infinity;
+  const voir = p => { const t = -L.ny * p[0] + L.nx * p[1]; if (t < ta) ta = t; if (t > tb) tb = t; };
+  for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n;
+    if (s[i] === 0) voir(P[i]);
+    else if ((s[i] > 0 && s[j] < 0) || (s[i] < 0 && s[j] > 0)) {
+      const a = c.A[i], U = porteuses[Math.min(a, id)], V = porteuses[Math.max(a, id)], det = U.nx * V.ny - U.ny * V.nx;
+      if (Math.abs(det) > 1e-3) X[i] = [(U.d * V.ny - V.d * U.ny) / det, (U.nx * V.d - V.nx * U.d) / det];
+      else { // porteuses presque parallèles : interpolation sur l'arête, extrémités dans un ordre fixe
+        const p = P[i], q = P[j], inv = p[0] > q[0] || (p[0] === q[0] && p[1] > q[1]);
+        const u = inv ? q : p, w = inv ? p : q, su = inv ? s[j] : s[i], sw = inv ? s[i] : s[j], t = su / (su - sw);
+        X[i] = [u[0] + t * (w[0] - u[0]), u[1] + t * (w[1] - u[1])];
+      }
+      voir(X[i]);
+    }
+  }
+  let touche = partout;
+  if (!touche) for (const a of L.appuis) if (Math.min(tb, a[1]) - Math.max(ta, a[0]) > 1e-4) { touche = true; break; }
+  if (!touche) return null;
+  const PA = [], AA = [], PB = [], AB = [];
+  for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n;
+    if (s[i] >= 0) { PA.push(P[i]); AA.push(s[i] === 0 && s[j] < 0 ? id : c.A[i]); }
+    if (s[i] <= 0) { PB.push(P[i]); AB.push(s[i] === 0 && s[j] > 0 ? id : c.A[i]); }
+    if (X[i]) {
+      PA.push(X[i]); PB.push(X[i]);
+      if (s[i] > 0) { AA.push(id); AB.push(c.A[i]); } else { AA.push(c.A[i]); AB.push(id); }
+    }
+  }
+  if (PA.length < 3 || PB.length < 3) return null;
+  return [{ P: PA, A: AA }, { P: PB, A: AB }];
+}
+
+/**
+ * Raccorde les cellules d'une partition locale : un sommet posé sur l'arête d'une cellule voisine (la coupe s'est
+ * arrêtée là) est inséré dans cette arête. Après cela deux cellules voisines partagent des arêtes identiques.
+ */
+export function raccorderCellules(cellules, porteuses) {
+  const cle = p => Math.round(p[0] * 1e5) + ":" + Math.round(p[1] * 1e5), sur = new Map();
+  for (const c of cellules) for (let i = 0; i < c.P.length; i++) {
+    const a = c.A[i], L = porteuses[a];
+    let m = sur.get(a);
+    if (!m) sur.set(a, m = new Map());
+    for (const p of [c.P[i], c.P[(i + 1) % c.P.length]]) { const k = cle(p); if (!m.has(k)) m.set(k, [-L.ny * p[0] + L.nx * p[1], p]); }
+  }
+  const tri = new Map();
+  for (const [a, m] of sur) tri.set(a, [...m.values()].sort((u, v) => u[0] - v[0]));
+  for (const c of cellules) {
+    const P = [], A = [];
+    for (let i = 0; i < c.P.length; i++) {
+      const p = c.P[i], q = c.P[(i + 1) % c.P.length], a = c.A[i], L = porteuses[a], T = tri.get(a);
+      const tp = -L.ny * p[0] + L.nx * p[1], tq = -L.ny * q[0] + L.nx * q[1], bas = Math.min(tp, tq) + 2e-5, haut = Math.max(tp, tq) - 2e-5;
+      P.push(p); A.push(a);
+      if (T.length <= 2 || haut <= bas) continue;
+      let g = 0, d = T.length;
+      while (g < d) { const m = (g + d) >> 1; if (T[m][0] < bas) g = m + 1; else d = m; }
+      const entre = [];
+      for (let k = g; k < T.length && T[k][0] <= haut; k++) entre.push(T[k][1]);
+      if (tp > tq) entre.reverse();
+      for (const r of entre) { P.push(r); A.push(a); }
+    }
+    c.P = P; c.A = A;
+  }
+}
+
 /** Centre de gravité d'un polygone. */
 export function centroide(P) {
   let a = 0, cx = 0, cy = 0;

@@ -4,14 +4,16 @@
 //     zones de sol vues à travers l'emprise (cours, passages) retirées ;
 //  3. droites candidates : côtés de l'emprise, intersections de pans voisins (faîtages, noues, arêtiers),
 //     ressauts entre pans de hauteurs différentes (droites dans l'axe des façades, ajustées sur la limite des pans) ;
-//  4. partition de l'emprise par ces droites (cellules convexes, sommets partagés exactement) ;
-//  5. chaque cellule prend le pan majoritaire de la carte ; cellules voisines du même pan réunies en un polygone ;
+//  4. partition locale de l'emprise par ces droites : chacune ne coupe que le long de son appui (côté de l'emprise,
+//     limite entre deux pans), cellules convexes raccordées (sommets partagés exactement) ;
+//  5. chaque cellule prend le pan majoritaire de la carte ; une cellule qui mêle deux pans est recoupée par la droite
+//     connue qui les sépare le mieux ; cellules voisines du même pan réunies en un polygone ;
 //  6. murs extérieurs (du sol au toit, le long de l'emprise) et murs de ressaut entre pans.
-// Repli : LoD1.2 (emprise extrudée à la hauteur médiane du toit) si aucun pan n'est trouvé ou si le modèle s'écarte
-// trop des points. Code écrit pour ce projet, sans reprise de code tiers.
+// Repli : LoD1.2 (emprise extrudée à la hauteur médiane du toit) si aucun pan n'est trouvé, si le modèle s'écarte
+// trop des points ou si l'emprise extrudée les suit nettement mieux. Code écrit pour ce projet, sans reprise de code tiers.
 import {
   dansAnneaux, distanceBord, boite, simplifierAnneau, directionsFacades, aireSignee, droiteParPoints, normaliserDroite,
-  droitesProches, couperConvexe, centroide, dansConvexe,
+  droitesProches, partitionLocale, couperCellule, raccorderCellules, centroide, dansConvexe,
 } from "./geometrie.js";
 import { detecterPlans } from "./plans.js";
 
@@ -21,7 +23,12 @@ export const OPTIONS_BATIMENT = {
   tolerance: 0.2,      // m : simplification de l'emprise
   solMin: 4,           // m² : zone de sol vue dans l'emprise en dessous de laquelle elle est ignorée
   appuiMin: 4,         // cellules de limite entre deux pans pour chercher une droite
-  maxDroites: 90,      // droites au plus (partition)
+  maxDroites: 400,     // droites de toit au plus (partition)
+  penteMin: 0.02,      // écart de pente (m/m) entre deux pans à partir duquel leur intersection sert de droite
+  ecartLimite: 2.5,    // m : écart moyen admis entre la limite de deux pans et leur intersection (pentes voisines)
+  avantagePlat: 0.15,  // part des points : le repli LoD1.2 est pris s'il suit mieux les points de plus que cela
+  impurMin: 4,         // cases (de 0,25 m²) d'un autre pan à partir desquelles une cellule est recoupée
+  margeAppui: 1,       // m : une droite de toit coupe jusqu'à cette distance au-delà de la limite qui la justifie
   qualiteMin: 0.35,    // part des points de toit à moins de 0,5 m du modèle en dessous de laquelle on se replie
 };
 
@@ -138,13 +145,33 @@ export function reconstruireBatiment(bat, options = {}) {
   R.qualite = bons / nT;
   if (R.qualite < o.qualiteMin) return repli(`modèle trop éloigné des points (${Math.round(100 * R.qualite)} %)`);
 
-  // 3. droites candidates
+  // 3. droites candidates, chacune avec ses appuis (intervalles le long de la droite, t = −ny·x + nx·y) : une droite
+  //    ne coupe que là où elle est utile (partition locale)
   const [cx, cy] = [(bx0 + bx1) / 2, (by0 + by1) / 2];
-  const emprise = [];
+  const tDe = (L, p) => -L.ny * p[0] + L.nx * p[1];
+  const droites = [];
   for (const a of anneaux) for (let i = 0; i < a.length; i++) {
-    const L = droiteParPoints(a[i], a[(i + 1) % a.length]);
-    if (!emprise.some(M => droitesProches(M, L, 1e-4, 1e-3, cx, cy))) emprise.push(L);
+    const p = a[i], q = a[(i + 1) % a.length], L = droiteParPoints(p, q);
+    const M = droites.find(M => droitesProches(M, L, 1e-4, 1e-3, cx, cy)) || (droites.push({ ...L, appuis: [] }), droites.at(-1));
+    const t0 = tDe(M, p), t1 = tDe(M, q);
+    M.appuis.push([Math.min(t0, t1), Math.max(t0, t1)]);
   }
+  const nbEmprise = droites.length, cosProche = Math.cos(0.05);
+  /** Droite de toit appuyée sur les points M (± marge) ; si elle longe une droite déjà là, celle-ci reçoit l'appui. */
+  const ajouter = (L, M) => {
+    let t0 = Infinity, t1 = -Infinity;
+    for (const m of M) { const t = tDe(L, m); if (t < t0) t0 = t; if (t > t1) t1 = t; }
+    t0 -= o.margeAppui; t1 += o.margeAppui;
+    const a = [L.nx * L.d - L.ny * t0, L.ny * L.d + L.nx * t0], b = [L.nx * L.d - L.ny * t1, L.ny * L.d + L.nx * t1];
+    for (const D of droites) {
+      if (Math.abs(D.nx * L.nx + D.ny * L.ny) < cosProche) continue;
+      if (Math.abs(D.nx * a[0] + D.ny * a[1] - D.d) > 0.3 || Math.abs(D.nx * b[0] + D.ny * b[1] - D.d) > 0.3) continue;
+      const u = tDe(D, a), v = tDe(D, b);
+      D.appuis.push([Math.min(u, v), Math.max(u, v)]);
+      return;
+    }
+    droites.push({ ...L, appuis: [[t0, t1]] });
+  };
   const limites = new Map(); // paire de pans -> points milieux de la limite
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
     const p = j * nx + i, u = lab[p];
@@ -164,49 +191,98 @@ export function reconstruireBatiment(bat, options = {}) {
     const [u, v] = cle.split(",").map(Number);
     if (u >= 0 && v >= 0) {
       const A = plans[u], B = plans[v], da = A.a - B.a, db = A.b - B.b, g = Math.hypot(da, db);
-      if (g > 0.08) {
+      if (g > o.penteMin) {
         const L = normaliserDroite({ nx: da / g, ny: db / g, d: -(A.c - B.c) / g });
         let s = 0;
         for (const m of M) s += Math.abs(L.nx * m[0] + L.ny * m[1] - L.d);
-        if (s / M.length < 0.6) { toit.push({ L, appui: M.length }); continue; }
+        // deux pans de pentes proches se confondent près de leur intersection : la limite des étiquettes peut s'en écarter
+        if (s / M.length < Math.max(0.6, Math.min(o.ecartLimite, 0.18 / g))) { toit.push({ L, appui: M.length, M }); continue; }
       }
     }
     for (const L of droitesRessaut(M, directions, o.appuiMin)) toit.push(L);
   }
   toit.sort((u, v) => v.appui - u.appui);
-  const droites = emprise.slice();
-  for (const { L } of toit) {
-    if (droites.length >= o.maxDroites) break;
-    if (!droites.some(M => droitesProches(M, L, 0.05, 0.3, cx, cy))) droites.push(L);
+  for (const { L, M } of toit) {
+    if (droites.length - nbEmprise >= o.maxDroites) break;
+    ajouter(L, M);
   }
 
-  // 4. partition (cellules convexes) de la boîte de l'emprise
-  let cellules = [[[bx0 - 1, by0 - 1], [bx1 + 1, by0 - 1], [bx1 + 1, by1 + 1], [bx0 - 1, by1 + 1]]];
-  for (const L of droites) {
-    const suite = [];
-    for (const P of cellules) { const d = couperConvexe(P, L); if (d) suite.push(d[0], d[1]); else suite.push(P); }
-    cellules = suite;
-  }
-  // 5. pan de chaque cellule (vote des cases de la carte dont le centre est dedans)
-  const C = [];
-  for (const P of cellules) {
-    if (P.length < 3 || aireSignee(P) < 1e-4) continue;
-    const [gx, gy] = centroide(P);
-    if (!dansAnneaux(anneaux, gx, gy)) continue;
+  // (pour les outils de mise au point)
+  if (o.detail) R.detail = { plans, droites, nbEmprise, limites: [...limites].map(([cle, M]) => ({ cle, n: M.length })), toit: toit.map(t => ({ L: t.L, appui: t.appui })) };
+  // 4. partition locale (cellules convexes) de la boîte de l'emprise
+  const { cellules, porteuses } = partitionLocale(droites, [bx0 - 1, by0 - 1, bx1 + 1, by1 + 1]);
+  // 5. pan de chaque cellule : vote des cases de la carte dont le centre est dedans. Une cellule qui mêle deux pans
+  //    (la droite qui les sépare s'est arrêtée avant, ou appartient à une autre limite) est recoupée par la droite
+  //    connue qui les sépare le mieux.
+  const casesDe = P => {
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     for (const p of P) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }
-    const cpt = new Map();
+    const X = [], Y = [], V = [], I = [];
     for (let j = Math.max(0, Math.floor((y0 - gy0) / cs)); j <= Math.min(ny - 1, Math.floor((y1 - gy0) / cs)); j++)
       for (let i = Math.max(0, Math.floor((x0 - gx0) / cs)); i <= Math.min(nx - 1, Math.floor((x1 - gx0) / cs)); i++) {
-        const v = lab[j * nx + i];
-        if (v >= SOL && dansConvexe(P, gx0 + (i + 0.5) * cs, gy0 + (j + 0.5) * cs)) cpt.set(v, (cpt.get(v) || 0) + 1);
+        const v = lab[j * nx + i], x = gx0 + (i + 0.5) * cs, y = gy0 + (j + 0.5) * cs;
+        if (v >= SOL && dansConvexe(P, x, y)) { X.push(x); Y.push(y); V.push(v); I.push(j * nx + i); }
       }
-    let e;
-    if (cpt.size) e = [...cpt].sort((u, v) => v[1] - u[1])[0][0];
-    else e = etiquetteProche(lab, nx, ny, Math.floor((gx - gx0) / cs), Math.floor((gy - gy0) / cs), SOL);
-    if (e >= 0) C.push({ P, e });
+    return { X, Y, V, I };
+  };
+  const compte = new Map();
+  /** [étiquette majoritaire, son nombre de cases] des cases V[t] pour lesquelles garder(t). */
+  const majorite = (V, garder) => {
+    compte.clear();
+    let e = -3, m = 0;
+    for (let t = 0; t < V.length; t++) if (!garder || garder(t)) { const k = (compte.get(V[t]) || 0) + 1; compte.set(V[t], k); if (k > m) { m = k; e = V[t]; } }
+    return [e, m];
+  };
+  const C = [], pile = [], labFinal = lab.slice(); // labFinal : pan retenu pour chaque case après la partition
+  for (const c of cellules) {
+    if (c.P.length < 3 || aireSignee(c.P) < 1e-4) continue;
+    const [gx, gy] = centroide(c.P);
+    if (!dansAnneaux(anneaux, gx, gy)) continue;
+    c.cases = casesDe(c.P); c.prof = 0;
+    pile.push(c);
+  }
+  while (pile.length) {
+    const c = pile.pop(), { X, Y, V, I } = c.cases;
+    let [e, m] = majorite(V);
+    if (V.length - m >= o.impurMin && c.prof < 8) {
+      let best = -1, gainMax = o.impurMin - 1;
+      for (let k = 0; k < droites.length; k++) {
+        const L = droites[k];
+        let pos = false, neg = false;
+        for (const p of c.P) { const s = L.nx * p[0] + L.ny * p[1] - L.d; if (s > 0.2) pos = true; else if (s < -0.2) neg = true; }
+        if (!pos || !neg) continue;
+        const cote = t => L.nx * X[t] + L.ny * Y[t] - L.d > 0;
+        const gain = majorite(V, cote)[1] + majorite(V, t => !cote(t))[1] - m;
+        if (gain > gainMax) { gainMax = gain; best = k; }
+      }
+      const d = best >= 0 ? couperCellule(c, droites[best], 4 + best, porteuses, true) : null;
+      if (d) {
+        const L = droites[best], cote = X.map((x, t) => L.nx * x + L.ny * Y[t] - L.d > 0);
+        d.forEach((f, q) => {
+          const g = (_, t) => cote[t] === !q;
+          f.cases = { X: X.filter(g), Y: Y.filter(g), V: V.filter(g), I: I.filter(g) };
+          f.prof = c.prof + 1; pile.push(f);
+        });
+        continue;
+      }
+    }
+    if (!V.length) { const [gx, gy] = centroide(c.P); e = etiquetteProche(lab, nx, ny, Math.floor((gx - gx0) / cs), Math.floor((gy - gy0) / cs), SOL); }
+    for (const p of I) labFinal[p] = e;
+    if (e >= 0) C.push({ P: c.P, A: c.A, e });
   }
   if (!C.length) return repli("partition vide");
+  // contrôle : le modèle final doit suivre les points à peu près aussi bien que l'emprise extrudée (écarts < 0,25 m)
+  let bonsFinal = 0, bonsPlat = 0, proches = 0;
+  for (let k = 0; k < nT; k++) {
+    const p = cel(tx[k], ty[k]), e = p >= 0 ? labFinal[p] : -1, d = e >= 0 ? Math.abs(tz[k] - plans[e].a * tx[k] - plans[e].b * ty[k] - plans[e].c) : Infinity;
+    if (d < 0.5) proches++;
+    if (d < 0.25) bonsFinal++;
+    if (Math.abs(tz[k] - R.zToit) < 0.25) bonsPlat++;
+  }
+  R.qualite = proches / nT;
+  if (bonsFinal < bonsPlat - o.avantagePlat * nT) return repli(`le toit plat suit mieux les points (${Math.round(100 * bonsPlat / nT)} % contre ${Math.round(100 * bonsFinal / nT)} %)`);
+
+  raccorderCellules(C, porteuses);
 
   // 6. polygones des toits et murs
   const zPlan = (e, px, py) => Math.min(zMax + 0.5, Math.max(R.zSol + 0.5, plans[e].a * px + plans[e].b * py + plans[e].c));
@@ -264,7 +340,7 @@ function droitesRessaut(M, directions, appuiMin) {
     if (!best || best.s < appuiMin) break;
     const pres = reste.filter(m => Math.abs(best.nx * m[0] + best.ny * m[1] - best.o) <= 0.45);
     const o = pres.map(m => best.nx * m[0] + best.ny * m[1]).sort((u, v) => u - v)[Math.floor(pres.length / 2)];
-    R.push({ L: normaliserDroite({ nx: best.nx, ny: best.ny, d: o }), appui: pres.length });
+    R.push({ L: normaliserDroite({ nx: best.nx, ny: best.ny, d: o }), appui: pres.length, M: pres });
     reste = reste.filter(m => Math.abs(best.nx * m[0] + best.ny * m[1] - best.o) > 0.45);
   }
   return R;

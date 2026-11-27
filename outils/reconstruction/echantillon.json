@@ -1,0 +1,801 @@
+{
+ "commentaire": "Échantillon d'évaluation de la reconstruction Advanced : lieux (boîte de ±R m autour de E, N en MN95) et bâtiments (point E, N dans l'emprise ; pans = pans visibles sur la photo aérienne, comptés à l'œil, lucarnes comprises).",
+ "lieux": {
+  "lausanne-cite": {
+   "E": 2538280,
+   "N": 1152740,
+   "R": 170,
+   "toujours": true
+  },
+  "cath-fribourg": {
+   "E": 2578965,
+   "N": 1183925,
+   "R": 80,
+   "toujours": true
+  },
+  "zurich-grossmunster": {
+   "E": 2683480,
+   "N": 1247180,
+   "R": 80,
+   "toujours": true
+  },
+  "zurich-hb": {
+   "E": 2683150,
+   "N": 1248030,
+   "R": 220,
+   "toujours": true
+  },
+  "zurich-eth": {
+   "E": 2683800,
+   "N": 1247886,
+   "R": 130,
+   "toujours": true
+  },
+  "prime-tower": {
+   "E": 2681452,
+   "N": 1248937,
+   "R": 90,
+   "toujours": true
+  },
+  "hallenstadion": {
+   "E": 2684002,
+   "N": 1251778,
+   "R": 100,
+   "toujours": true
+  },
+  "chillon": {
+   "E": 2560696,
+   "N": 1140483,
+   "R": 100,
+   "toujours": true
+  },
+  "gruyeres": {
+   "E": 2572850,
+   "N": 1159330,
+   "R": 150,
+   "toujours": true
+  },
+  "tuiliere": {
+   "E": 2537358,
+   "N": 1154958,
+   "R": 140,
+   "toujours": true
+  },
+  "einsiedeln": {
+   "E": 2699700,
+   "N": 1220350,
+   "R": 170,
+   "toujours": true
+  },
+  "winterthur-sulzer": {
+   "E": 2696427,
+   "N": 1261368,
+   "R": 160,
+   "toujours": true
+  },
+  "beau-rivage": {
+   "E": 2537933,
+   "N": 1151110,
+   "R": 110,
+   "toujours": true
+  },
+  "tribunal-federal": {
+   "E": 2539031,
+   "N": 1152338,
+   "R": 100,
+   "toujours": true
+  },
+  "montreux-palace": {
+   "E": 2559139,
+   "N": 1143130,
+   "R": 100,
+   "toujours": true
+  },
+  "bobst-mex": {
+   "E": 2532042,
+   "N": 1157835,
+   "R": 200,
+   "toujours": true
+  },
+  "lutry": {
+   "E": 2542766,
+   "N": 1152300,
+   "R": 150,
+   "toujours": true
+  },
+  "floreal": {
+   "E": 2537679,
+   "N": 1151560,
+   "R": 150,
+   "toujours": true
+  },
+  "zurich-bernoulli": {
+   "E": 2680865,
+   "N": 1249809,
+   "R": 120,
+   "toujours": true
+  },
+  "zurich-rontgen": {
+   "E": 2682230,
+   "N": 1248668,
+   "R": 130,
+   "toujours": true
+  },
+  "glattpark": {
+   "E": 2684557,
+   "N": 1253041,
+   "R": 130,
+   "toujours": true
+  },
+  "uster": {
+   "E": 2696138,
+   "N": 1244936,
+   "R": 130,
+   "toujours": true
+  },
+  "schaffhouse-munot": {
+   "E": 2690200,
+   "N": 1283607,
+   "R": 80,
+   "toujours": true
+  },
+  "rossiniere": {
+   "E": 2572668,
+   "N": 1146195,
+   "R": 90,
+   "toujours": true
+  },
+  "chateau-doex": {
+   "E": 2576265,
+   "N": 1146944,
+   "R": 130,
+   "toujours": true
+  },
+  "letzigrund": {
+   "E": 2680450,
+   "N": 1248560,
+   "R": 170,
+   "toujours": true
+  },
+  "palexpo": {
+   "E": 2498396,
+   "N": 1121686,
+   "R": 200,
+   "toujours": true
+  },
+  "stein-am-rhein": {
+   "E": 2706742,
+   "N": 1279702,
+   "R": 90,
+   "toujours": true
+  },
+  "appenzell": {
+   "E": 2748915,
+   "N": 1244086,
+   "R": 100,
+   "toujours": true
+  },
+  "morat": {
+   "E": 2575559,
+   "N": 1197516,
+   "R": 100,
+   "toujours": true
+  },
+  "peney-le-jorat": {
+   "E": 2545587,
+   "N": 1164922,
+   "R": 170,
+   "toujours": true
+  },
+  "grandson": {
+   "E": 2539459,
+   "N": 1184546,
+   "R": 90,
+   "toujours": true
+  },
+  "stade-geneve": {
+   "E": 2498720,
+   "N": 1114850,
+   "R": 170,
+   "toujours": true
+  },
+  "rapperswil": {
+   "E": 2704193,
+   "N": 1231616,
+   "R": 80,
+   "toujours": true
+  },
+  "nyon-chateau": {
+   "E": 2507806,
+   "N": 1137472,
+   "R": 70,
+   "toujours": true
+  },
+  "rolex-epfl": {
+   "E": 2533215,
+   "N": 1152330,
+   "R": 110,
+   "toujours": true
+  },
+  "st-gall-abbaye": {
+   "E": 2746230,
+   "N": 1254300,
+   "R": 130,
+   "toujours": true
+  },
+  "geneve-cathedrale": {
+   "E": 2500420,
+   "N": 1117440,
+   "R": 100,
+   "toujours": true
+  },
+  "payerne-abbatiale": {
+   "E": 2561770,
+   "N": 1185620,
+   "R": 100,
+   "toujours": true
+  }
+ },
+ "batiments": [
+  {
+   "id": "cath-lausanne",
+   "nom": "Cathédrale de Lausanne",
+   "categorie": "édifice remarquable",
+   "lieu": "lausanne-cite",
+   "E": 2538353,
+   "N": 1152683
+  },
+  {
+   "id": "rumine",
+   "nom": "Palais de Rumine, Lausanne",
+   "categorie": "édifice remarquable",
+   "lieu": "lausanne-cite",
+   "E": 2538253,
+   "N": 1152790
+  },
+  {
+   "id": "academie-lausanne",
+   "nom": "Ancienne Académie, Lausanne (long bâtiment en L)",
+   "categorie": "bâtiment en L",
+   "lieu": "lausanne-cite",
+   "E": 2538331,
+   "N": 1152799,
+   "pans": 12
+  },
+  {
+   "id": "eveche-lausanne",
+   "nom": "Ancien Évêché, Lausanne (grand toit à 4 pans)",
+   "categorie": "toit à 4 pans",
+   "lieu": "lausanne-cite",
+   "E": 2538316,
+   "N": 1152623,
+   "pans": 8
+  },
+  {
+   "id": "cite-mitoyen",
+   "nom": "Maison mitoyenne de la Cité, Lausanne",
+   "categorie": "maisons mitoyennes",
+   "lieu": "lausanne-cite",
+   "E": 2538194,
+   "N": 1152681
+  },
+  {
+   "id": "cath-fribourg",
+   "nom": "Cathédrale Saint-Nicolas, Fribourg",
+   "categorie": "édifice remarquable",
+   "lieu": "cath-fribourg",
+   "E": 2578965,
+   "N": 1183925
+  },
+  {
+   "id": "grossmunster",
+   "nom": "Grossmünster, Zurich",
+   "categorie": "édifice remarquable",
+   "lieu": "zurich-grossmunster",
+   "E": 2683480,
+   "N": 1247180
+  },
+  {
+   "id": "gare-zurich",
+   "nom": "Gare centrale de Zurich",
+   "categorie": "édifice remarquable",
+   "lieu": "zurich-hb",
+   "E": 2683150,
+   "N": 1248030
+  },
+  {
+   "id": "eth-zurich",
+   "nom": "EPF Zurich, bâtiment principal (coupole, cours)",
+   "categorie": "cour intérieure",
+   "lieu": "zurich-eth",
+   "E": 2683800,
+   "N": 1247886
+  },
+  {
+   "id": "prime-tower",
+   "nom": "Prime Tower, Zurich",
+   "categorie": "tour",
+   "lieu": "prime-tower",
+   "E": 2681452,
+   "N": 1248937
+  },
+  {
+   "id": "hallenstadion",
+   "nom": "Hallenstadion, Zurich",
+   "categorie": "halle",
+   "lieu": "hallenstadion",
+   "E": 2684002,
+   "N": 1251778
+  },
+  {
+   "id": "chillon",
+   "nom": "Château de Chillon",
+   "categorie": "édifice remarquable",
+   "lieu": "chillon",
+   "E": 2560696,
+   "N": 1140483
+  },
+  {
+   "id": "chateau-gruyeres",
+   "nom": "Château de Gruyères",
+   "categorie": "édifice remarquable",
+   "lieu": "gruyeres",
+   "E": 2572830,
+   "N": 1159329
+  },
+  {
+   "id": "eglise-gruyeres",
+   "nom": "Église Saint-Théodule, Gruyères",
+   "categorie": "église",
+   "lieu": "gruyeres",
+   "E": 2572781,
+   "N": 1159209,
+   "pans": 9
+  },
+  {
+   "id": "tuiliere",
+   "nom": "Stade de la Tuilière, Lausanne",
+   "categorie": "stade",
+   "lieu": "tuiliere",
+   "E": 2537302,
+   "N": 1155011
+  },
+  {
+   "id": "rolex",
+   "nom": "Rolex Learning Center, EPFL",
+   "categorie": "édifice remarquable",
+   "lieu": "rolex-epfl",
+   "E": 2533215,
+   "N": 1152330
+  },
+  {
+   "id": "abbatiale-st-gall",
+   "nom": "Cathédrale (abbatiale) de Saint-Gall",
+   "categorie": "édifice remarquable",
+   "lieu": "st-gall-abbaye",
+   "E": 2746227,
+   "N": 1254290
+  },
+  {
+   "id": "cath-geneve",
+   "nom": "Cathédrale Saint-Pierre, Genève",
+   "categorie": "édifice remarquable",
+   "lieu": "geneve-cathedrale",
+   "E": 2500418,
+   "N": 1117449
+  },
+  {
+   "id": "abbatiale-payerne",
+   "nom": "Abbatiale de Payerne",
+   "categorie": "édifice remarquable",
+   "lieu": "payerne-abbatiale",
+   "E": 2561776,
+   "N": 1185639
+  },
+  {
+   "id": "einsiedeln",
+   "nom": "Abbaye d'Einsiedeln",
+   "categorie": "édifice remarquable",
+   "lieu": "einsiedeln",
+   "E": 2699700,
+   "N": 1220350
+  },
+  {
+   "id": "sulzer-sheds",
+   "nom": "Halle Sulzer à sheds, Winterthour",
+   "categorie": "toit en shed",
+   "lieu": "winterthur-sulzer",
+   "E": 2696405,
+   "N": 1261370
+  },
+  {
+   "id": "sulzer-halle",
+   "nom": "Halle Sulzer à lanterneaux, Winterthour",
+   "categorie": "halle industrielle",
+   "lieu": "winterthur-sulzer",
+   "E": 2696479,
+   "N": 1261300
+  },
+  {
+   "id": "sulzer-rotonde",
+   "nom": "Rotonde des locomotives, Winterthour",
+   "categorie": "halle industrielle",
+   "lieu": "winterthur-sulzer",
+   "E": 2696505,
+   "N": 1261363,
+   "pans": 8
+  },
+  {
+   "id": "sulzer-peigne",
+   "nom": "Immeuble en peigne, Winterthour",
+   "categorie": "bâtiment en U",
+   "lieu": "winterthur-sulzer",
+   "E": 2696490,
+   "N": 1261506
+  },
+  {
+   "id": "beau-rivage",
+   "nom": "Beau-Rivage Palace, Lausanne",
+   "categorie": "toit à la Mansart",
+   "lieu": "beau-rivage",
+   "E": 2537941,
+   "N": 1151064
+  },
+  {
+   "id": "tribunal-federal",
+   "nom": "Tribunal fédéral, Lausanne",
+   "categorie": "édifice remarquable",
+   "lieu": "tribunal-federal",
+   "E": 2539031,
+   "N": 1152338
+  },
+  {
+   "id": "montreux-palace",
+   "nom": "Montreux Palace",
+   "categorie": "toit à la Mansart",
+   "lieu": "montreux-palace",
+   "E": 2559139,
+   "N": 1143130
+  },
+  {
+   "id": "bobst",
+   "nom": "Usine Bobst, Mex",
+   "categorie": "halle industrielle",
+   "lieu": "bobst-mex",
+   "E": 2532042,
+   "N": 1157835
+  },
+  {
+   "id": "lutry-4pans",
+   "nom": "Villa à 4 pans, Lutry",
+   "categorie": "villa à 4 pans",
+   "lieu": "lutry",
+   "E": 2542772,
+   "N": 1152236,
+   "pans": 4
+  },
+  {
+   "id": "lutry-2pans",
+   "nom": "Villa à 2 pans, Lutry",
+   "categorie": "villa à 2 pans",
+   "lieu": "lutry",
+   "E": 2542792,
+   "N": 1152365,
+   "pans": 2
+  },
+  {
+   "id": "lutry-plat",
+   "nom": "Villa à toit plat, Lutry",
+   "categorie": "toit plat",
+   "lieu": "lutry",
+   "E": 2542682,
+   "N": 1152331,
+   "pans": 5
+  },
+  {
+   "id": "lutry-immeuble",
+   "nom": "Petit immeuble récent, Lutry",
+   "categorie": "toit à 4 pans",
+   "lieu": "lutry",
+   "E": 2542869,
+   "N": 1152351,
+   "pans": 4
+  },
+  {
+   "id": "lutry-mitoyen",
+   "nom": "Maison en rangée, Lutry",
+   "categorie": "maisons mitoyennes",
+   "lieu": "lutry",
+   "E": 2542818,
+   "N": 1152399,
+   "pans": 1
+  },
+  {
+   "id": "lutry-villa-l",
+   "nom": "Villa en L, Lutry",
+   "categorie": "bâtiment en L",
+   "lieu": "lutry",
+   "E": 2542751,
+   "N": 1152357,
+   "pans": 4
+  },
+  {
+   "id": "lutry-annexe",
+   "nom": "Annexe de jardin, Lutry",
+   "categorie": "annexe / garage",
+   "lieu": "lutry",
+   "E": 2542746,
+   "N": 1152312,
+   "pans": 4
+  },
+  {
+   "id": "lutry-grande-villa",
+   "nom": "Grande villa, Lutry",
+   "categorie": "villa à 4 pans",
+   "lieu": "lutry",
+   "E": 2542823,
+   "N": 1152187,
+   "pans": 15
+  },
+  {
+   "id": "floreal-18",
+   "nom": "Immeuble av. Floréal 18, Lausanne",
+   "categorie": "immeuble mitoyen",
+   "lieu": "floreal",
+   "E": 2537676,
+   "N": 1151559,
+   "pans": 4
+  },
+  {
+   "id": "floreal-angle",
+   "nom": "Immeuble d'angle arrondi, Lausanne",
+   "categorie": "immeuble mitoyen",
+   "lieu": "floreal",
+   "E": 2537682,
+   "N": 1151635,
+   "pans": 10
+  },
+  {
+   "id": "floreal-lucarnes",
+   "nom": "Immeuble à lucarnes, Lausanne",
+   "categorie": "toit à la Mansart",
+   "lieu": "floreal",
+   "E": 2537640,
+   "N": 1151511,
+   "pans": 16
+  },
+  {
+   "id": "floreal-plat",
+   "nom": "Immeuble à toit plat, Lausanne",
+   "categorie": "toit plat",
+   "lieu": "floreal",
+   "E": 2537756,
+   "N": 1151478,
+   "pans": 3
+  },
+  {
+   "id": "floreal-attique",
+   "nom": "Immeuble récent à attique, Lausanne",
+   "categorie": "toit plat avec attique",
+   "lieu": "floreal",
+   "E": 2537757,
+   "N": 1151683,
+   "pans": 3
+  },
+  {
+   "id": "floreal-eglise",
+   "nom": "Église sous-gare, Lausanne",
+   "categorie": "église",
+   "lieu": "floreal",
+   "E": 2537771,
+   "N": 1151547,
+   "pans": 8
+  },
+  {
+   "id": "bernoulli",
+   "nom": "Maison en rangée Bernoulli, Zurich",
+   "categorie": "maisons mitoyennes",
+   "lieu": "zurich-bernoulli",
+   "E": 2680829,
+   "N": 1249805,
+   "pans": 6
+  },
+  {
+   "id": "bernoulli-cour",
+   "nom": "Immeuble à cour, Zurich Hardturm",
+   "categorie": "cour intérieure",
+   "lieu": "zurich-bernoulli",
+   "E": 2680949,
+   "N": 1249808,
+   "pans": 5
+  },
+  {
+   "id": "rontgen",
+   "nom": "Îlot Röntgenstrasse, Zurich",
+   "categorie": "cour intérieure",
+   "lieu": "zurich-rontgen",
+   "E": 2682230,
+   "N": 1248668,
+   "pans": 8
+  },
+  {
+   "id": "glattpark",
+   "nom": "Immeuble Glattpark, Opfikon",
+   "categorie": "toit plat avec attique",
+   "lieu": "glattpark",
+   "E": 2684557,
+   "N": 1253041,
+   "pans": 8
+  },
+  {
+   "id": "uster",
+   "nom": "Bâtiment Im Lot, Uster",
+   "categorie": "immeuble",
+   "lieu": "uster",
+   "E": 2696138,
+   "N": 1244936,
+   "pans": 2
+  },
+  {
+   "id": "peney-ferme",
+   "nom": "Grande ferme, Peney-le-Jorat",
+   "categorie": "ferme",
+   "lieu": "peney-le-jorat",
+   "E": 2545577,
+   "N": 1164851,
+   "pans": 6
+  },
+  {
+   "id": "peney-ferme2",
+   "nom": "Ferme, Peney-le-Jorat",
+   "categorie": "ferme",
+   "lieu": "peney-le-jorat",
+   "E": 2545557,
+   "N": 1164942,
+   "pans": 8
+  },
+  {
+   "id": "peney-hangar",
+   "nom": "Hangar agricole, Peney-le-Jorat",
+   "categorie": "hangar",
+   "lieu": "peney-le-jorat",
+   "E": 2545527,
+   "N": 1165065,
+   "pans": 2
+  },
+  {
+   "id": "oex-temple",
+   "nom": "Temple de Château-d'Oex",
+   "categorie": "église",
+   "lieu": "chateau-doex",
+   "E": 2576243,
+   "N": 1146862,
+   "pans": 8
+  },
+  {
+   "id": "oex-chalet",
+   "nom": "Grand chalet, Château-d'Oex",
+   "categorie": "chalet",
+   "lieu": "chateau-doex",
+   "E": 2576339,
+   "N": 1146978,
+   "pans": 8
+  },
+  {
+   "id": "oex-chalet2",
+   "nom": "Chalet à 2 pans, Château-d'Oex",
+   "categorie": "chalet",
+   "lieu": "chateau-doex",
+   "E": 2576195,
+   "N": 1147000,
+   "pans": 2
+  },
+  {
+   "id": "oex-garage",
+   "nom": "Petite annexe, Château-d'Oex",
+   "categorie": "annexe / garage",
+   "lieu": "chateau-doex",
+   "E": 2576212,
+   "N": 1146981,
+   "pans": 2
+  },
+  {
+   "id": "grand-chalet",
+   "nom": "Grand Chalet de Rossinière",
+   "categorie": "chalet",
+   "lieu": "rossiniere",
+   "E": 2572668,
+   "N": 1146195,
+   "pans": 2
+  },
+  {
+   "id": "munot",
+   "nom": "Forteresse du Munot, Schaffhouse",
+   "categorie": "édifice remarquable",
+   "lieu": "schaffhouse-munot",
+   "E": 2690200,
+   "N": 1283607
+  },
+  {
+   "id": "letzigrund",
+   "nom": "Letzigrund, Zurich : bâtiment sous la tribune ouest (le toit du stade n'a pas d'emprise)",
+   "categorie": "stade",
+   "lieu": "letzigrund",
+   "E": 2680450,
+   "N": 1248560
+  },
+  {
+   "id": "octogones-geneve",
+   "nom": "Bâtiment à plan en octogones, Le Grand-Saconnex (près de Palexpo)",
+   "categorie": "cour intérieure",
+   "lieu": "palexpo",
+   "E": 2498396,
+   "N": 1121686
+  },
+  {
+   "id": "stein-am-rhein",
+   "nom": "Hôtel de ville, Stein am Rhein",
+   "categorie": "maisons mitoyennes",
+   "lieu": "stein-am-rhein",
+   "E": 2706742,
+   "N": 1279702,
+   "pans": 5
+  },
+  {
+   "id": "appenzell",
+   "nom": "Maison de la Hauptgasse, Appenzell",
+   "categorie": "maisons mitoyennes",
+   "lieu": "appenzell",
+   "E": 2748915,
+   "N": 1244086
+  },
+  {
+   "id": "morat",
+   "nom": "Maison de la Hauptgasse, Morat",
+   "categorie": "maisons mitoyennes",
+   "lieu": "morat",
+   "E": 2575559,
+   "N": 1197516
+  },
+  {
+   "id": "chateau-grandson",
+   "nom": "Château de Grandson",
+   "categorie": "édifice remarquable",
+   "lieu": "grandson",
+   "E": 2539459,
+   "N": 1184546
+  },
+  {
+   "id": "stade-geneve",
+   "nom": "Stade de Genève",
+   "categorie": "stade",
+   "lieu": "stade-geneve",
+   "E": 2498720,
+   "N": 1114850
+  },
+  {
+   "id": "chateau-rapperswil",
+   "nom": "Château de Rapperswil",
+   "categorie": "édifice remarquable",
+   "lieu": "rapperswil",
+   "E": 2704193,
+   "N": 1231616
+  },
+  {
+   "id": "chateau-nyon",
+   "nom": "Château de Nyon",
+   "categorie": "édifice remarquable",
+   "lieu": "nyon-chateau",
+   "E": 2507806,
+   "N": 1137472
+  },
+  {
+   "id": "letzigrund-halle",
+   "nom": "Halle à toiture photovoltaïque, Zurich Letzigrund",
+   "categorie": "halle industrielle",
+   "lieu": "letzigrund",
+   "E": 2680580,
+   "N": 1248485
+  }
+ ]
+}

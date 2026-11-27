@@ -6,8 +6,8 @@
 export const OPTIONS_PLANS = {
   rayon: 0.7,          // m : voisinage pour le plan local et la croissance
   angle: 0.30,         // rad (~17°) : écart de normale admis pendant la croissance
-  distance: 0.18,      // m : écart vertical admis au plan de la région
-  minimum: 25,         // points d'une région pour faire un pan (≈ 1,5 m² à 18 pts/m²)
+  distance: 0.18,      // m : écart admis au plan de la région, perpendiculairement au plan (toits raides)
+  minimum: 16,         // points d'une région pour faire un pan (≈ 1 m² à 18 pts/m²)
   fusionAngle: 0.10,   // rad (~6°) : deux régions voisines sont fusionnées en dessous…
   fusionEcart: 0.15,   // … et si l'écart moyen de l'une au plan de l'autre est sous cette valeur (m)
   plat: 0.04,          // pente (m/m) en dessous de laquelle un pan devient horizontal
@@ -76,7 +76,7 @@ export function detecterPlans(pts, directions = [], options = {}) {
     if (tampon.length < 6) continue;
     const p = ajuster(x, y, z, tampon, x[k], y[k]);
     if (!p) continue;
-    ga[k] = p.a; gb[k] = p.b; res[k] = p.rms;
+    ga[k] = p.a; gb[k] = p.b; res[k] = p.rms / Math.hypot(p.a, p.b, 1); // écart perpendiculaire au plan
   }
 
   // 2. croissance de régions, des points les plus « plans » vers les autres
@@ -88,18 +88,19 @@ export function detecterPlans(pts, directions = [], options = {}) {
     const id = regions.length, membres = [s];
     etiquette[s] = id;
     let P = { a: ga[s], b: gb[s], c: z[s] - ga[s] * x[s] - gb[s] * y[s] }, Np = normale(P.a, P.b), dernier = 1;
+    let tol = o.distance * Math.hypot(P.a, P.b, 1); // tolérance perpendiculaire au plan, ramenée à la verticale
     for (let t = 0; t < membres.length; t++) {
       const k = membres[t];
       V.autour(x[k], y[k], o.rayon * 0.8, q => {
         if (etiquette[q] >= 0 || res[q] === Infinity) return;
         const Nq = normale(ga[q], gb[q]);
         if (Nq[0] * Np[0] + Nq[1] * Np[1] + Nq[2] * Np[2] < cosMax) return;
-        if (Math.abs(z[q] - P.a * x[q] - P.b * y[q] - P.c) > o.distance) return;
+        if (Math.abs(z[q] - P.a * x[q] - P.b * y[q] - P.c) > tol) return;
         etiquette[q] = id; membres.push(q);
       });
       if (membres.length >= 2 * dernier && membres.length >= 10) {
         const F = ajuster(x, y, z, membres);
-        if (F) { P = F; Np = normale(P.a, P.b); }
+        if (F) { P = F; Np = normale(P.a, P.b); tol = o.distance * Math.hypot(P.a, P.b, 1); }
         dernier = membres.length;
       }
     }
