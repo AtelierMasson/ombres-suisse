@@ -58,11 +58,17 @@ export function brancherFiche(conteneur, t) {
    */
   async function montrer(E, N, { batiment = false, mesures = null, surface = null, numero = null } = {}) {
     const id = ++demande;
-    boite.hidden = false;
-    // aussitôt : ce que la maquette sait déjà (numéro et surface de la parcelle), le reste arrive du service
-    boite.innerHTML = `<button type="button" class="btn-close btn-sm" data-fermer aria-label="${esc(t("fiche.fermer"))}"></button><div class="card-body">`
-      + (numero ? `<div class="fiche-titre">${esc(t("fiche.parcelle", { n: numero }))}</div><dl>${ligne("fiche.surface", surface ? `${Math.round(surface).toLocaleString("fr-CH")} m²` : null)}</dl>` : "")
-      + `<div class="small text-secondary mt-1">${esc(t("fiche.chargement"))}</div></div>`;
+    // pas d'état « recherche… » qui fait sauter la fiche : l'ancienne reste (estompée) jusqu'à la nouvelle ; une fiche
+    // encore fermée n'apparaît qu'avec ses informations (ou, si le service tarde plus d'une seconde, avec l'attente)
+    clearTimeout(boite._attente);
+    if (!boite.hidden) boite.classList.add("fiche-maj");
+    else boite._attente = setTimeout(() => {
+      if (id !== demande) return;
+      boite.innerHTML = `<button type="button" class="btn-close btn-sm" data-fermer aria-label="${esc(t("fiche.fermer"))}"></button><div class="card-body">`
+        + (numero ? `<div class="fiche-titre">${esc(t("fiche.parcelle", { n: numero }))}</div>` : "")
+        + `<div class="small text-secondary mt-1">${esc(t("fiche.chargement"))}</div></div>`;
+      boite.hidden = false;
+    }, 1000);
     let parc = null, bat = null, liste = [];
     try {
       const [p, b] = await Promise.all([
@@ -79,6 +85,9 @@ export function brancherFiche(conteneur, t) {
       else if (liste.length === 1) bat = liste[0];
     } catch { /* réseau : la fiche dit ce qu'elle a */ }
     if (id !== demande) return;
+    clearTimeout(boite._attente);
+    boite.classList.remove("fiche-maj");
+    boite.hidden = false;
     let h = `<button type="button" class="btn-close btn-sm" data-fermer aria-label="${esc(t("fiche.fermer"))}"></button><div class="card-body">`;
     if (bat) {
       const adresse = [bat.strname_deinr, [bat.dplz4, bat.dplzname || bat.ggdename].filter(Boolean).join(" ")].filter(Boolean).join(", ");

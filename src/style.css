@@ -506,3 +506,7 @@ body.accueil #fiche { display: none; }
 /* bouton réservé au Pro, pour un compte gratuit : grisé (un clic ouvre l'offre) */
 .pro-grise { opacity: .5; filter: grayscale(1); }
 .pro-grise::after { content: " · Pro"; color: #861f31; font-weight: 600; }
+
+/* fiche en cours de mise à jour : l'ancienne reste, estompée, sans changer de taille */
+#fiche { transition: opacity .15s; }
+#fiche.fiche-maj { opacity: .55; }

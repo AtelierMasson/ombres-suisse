@@ -1035,6 +1035,12 @@ marquerTheme();
     if ($("#vPro")?.checked && $("#colonne")?.dataset.onglet === "projet") return;
     const choisie = S.toutes.find(q => dansParcelle(p[0], p[1], q.anneauxRel));
     if (choisie && choisie.numero !== S.parcelle?.numero) choisirParcelle(choisie);
+    // fiche (registre des bâtiments, parcelle) : le bâtiment cliqué, sinon la parcelle
+    {
+      const c = scene.couches, surBati = !!(c.bati?.visible && scene.viser(e).intersectObjects([c.bati], true)[0]);
+      const aire = choisie ? choisie.anneauxRel.reduce((t, a) => t + Math.abs(a.reduce((u, q, k) => { const r = a[(k + 1) % a.length]; return u + q[0] * r[1] - r[0] * q[1]; }, 0) / 2), 0) : null;
+      fiche.montrer(S.E0 + p[0], S.N0 + p[1], { batiment: surBati, surface: aire, numero: choisie?.numero });
+    }
     // loin du centre : on propose aussi d'y recentrer la maquette (comme un clic sur le plan au-delà)
     if (Math.hypot(p[0], p[1]) > 40) proposerAilleurs(S.E0 + p[0], S.N0 + p[1], e.clientX, e.clientY, true);
   });
