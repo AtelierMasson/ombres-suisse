@@ -13,6 +13,7 @@
 // rapprochée de la caméra dans la profondeur (proportionnellement à la distance) : jamais de scintillement avec le
 // terrain qu'elle recouvre, les berges plus hautes la coupent.
 import * as THREE from "three";
+import { PROF, EAU_DECL, EAU_FRAG } from "./eauShader.js";
 import { lireCouche } from "./mvt.js";
 import { versWgs, versMn95, tuilesAlti2m } from "./geo.js";
 import { tuile as tuileRelief, versTuile } from "./horizon.js";
@@ -193,7 +194,7 @@ function champRiviere(anneaux, hauteur, g) {
 function materiau(U) {
   const m = new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0.05, transparent: true, opacity: 0.88, side: THREE.DoubleSide });
   m.onBeforeCompile = sh => {
-    Object.assign(sh.uniforms, U);
+    Object.assign(sh.uniforms, U, PROF);
     sh.vertexShader = sh.vertexShader
       .replace("#include <common>", "#include <common>\nattribute float lac;\nvarying vec3 vEauM;\nvarying float vLac;\nuniform float courbure, hausse;")
       .replace("#include <begin_vertex>", `#include <begin_vertex>
@@ -214,12 +215,7 @@ uniform vec3 proche; // centre (x, z) et rayon de la zone des tuiles proches
 uniform float cote;  // 1 : tuile proche (gardée dans le disque), -1 : lointaine (gardée hors du disque)
 uniform vec3 trou;   // maquette fine : rayon, 1 si carrée ; rayon réservé aux lacs (lac de l'anneau)
 uniform float exterieur; // au-delà, pas de terrain dessiné (paysage masqué) : pas d'eau non plus
-float eauHasard(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
-float eauBruit(vec3 x) {
-  vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
-  return mix(mix(mix(eauHasard(i), eauHasard(i + vec3(1, 0, 0)), f.x), mix(eauHasard(i + vec3(0, 1, 0)), eauHasard(i + vec3(1, 1, 0)), f.x), f.y),
-             mix(mix(eauHasard(i + vec3(0, 0, 1)), eauHasard(i + vec3(1, 0, 1)), f.x), mix(eauHasard(i + vec3(0, 1, 1)), eauHasard(i + vec3(1, 1, 1)), f.x), f.y), f.z);
-}`)
+${EAU_DECL}`)
       .replace("void main() {", `void main() {
   {
     float dP = length(vEauM.xz - proche.xy);
@@ -229,10 +225,7 @@ float eauBruit(vec3 x) {
     if (dT < trou.x || (vLac > 0.5 && dO < trou.z) || dO > exterieur) discard;
   }`)
       .replace("#include <map_fragment>", `#include <map_fragment>
-{ // même grain léger que l'eau de la maquette (force 0,025)
-  float gE = 0.55 * eauBruit(vEauM * 2.7) + 0.3 * eauBruit(vEauM * 9.0) + 0.15 * eauBruit(vEauM * 0.35);
-  diffuseColor.rgb *= 1.0 + 0.025 * (gE - 0.5) * 1.4;
-}`);
+${EAU_FRAG}`);
   };
   m.customProgramCacheKey = () => "eauVecteur";
   return m;
