@@ -45,7 +45,11 @@ Coordonnées MN95 (EPSG:2056), altitudes en m (NF02). `s` = distance le long de 
     {"s0": 3.0, "s1": 45.0, "z_naissance": 490.0, "z_cle": 505.0, "epaisseur": 1.5, "larg": 10.0, "plein": false,
      "nervures": 2, "larg_nervure": 2.5, "montants_pas": 6, "montant_ep": 0.8}
   ],                                    // plein=true : maçonnerie pleine jusqu'au tablier (voûte en pierre) ;
-                                        // false : arc porteur et montants ; nervures = nombre d'arcs parallèles
+                                        // false : arc porteur et montants ; nervures = nombre d'arcs parallèles ;
+                                        // "forme": "cintre" = arc de cercle (plein cintre, surhaussé si flèche > ouverture/2,
+                                        // ou surbaissé), sinon parabole ; arc asymétrique : "s_cle" (clé décentrée) et
+                                        // "z_naissance_fin" (altitude de la seconde naissance) ; "montants_pas": 9999 = pas
+                                        // de montants réguliers (voiles posés comme des piles)
   "pylones": [
     {"s": 300.0, "forme": "mat", "z_bas": 560.0, "z_haut": 680.0, "epaisseur": 4.0, "ecart": 28.0}
   ],                                    // pont à haubans : forme "mat" (un mât dans l'axe), "H" ou "A" ; ecart = entre

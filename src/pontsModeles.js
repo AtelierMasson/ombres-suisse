@@ -107,9 +107,25 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0]) {
   // arches : arc parabolique de la naissance à la clé ; pleines (maçonnerie jusqu'au tablier) ou arc porteur et montants
   const arcs = P.arches || [];
   for (const A of arcs) {
-    const zA = t => { const u = (2 * (t - A.s0) / ((A.s1 - A.s0) || 1)) - 1; return A.z_naissance + (A.z_cle - A.z_naissance) * (1 - u * u); };
+    // forme de l'arc : parabole (par défaut), ou arc de cercle (`forme: "cintre"` : plein cintre ou arc surbaissé, de
+    // rayon tiré de l'ouverture et de la flèche)
+    const c = A.s1 - A.s0 || 1, f = Math.max(0.1, A.z_cle - A.z_naissance), Rc = (c * c / 4 + f * f) / (2 * f);
+    // flèche plus grande que la demi-ouverture : plein cintre surhaussé (piédroits verticaux, puis demi-cercle)
+    const zA = A.forme === "cintre" && f >= c / 2
+      ? t => { const x = t - (A.s0 + A.s1) / 2, r = c / 2; return A.z_naissance + (f - r) + Math.sqrt(Math.max(0, r * r - x * x)); }
+      : A.forme === "cintre"
+      ? t => { const x = t - (A.s0 + A.s1) / 2; return A.z_naissance + Math.sqrt(Math.max(0, Rc * Rc - x * x)) - (Rc - f); }
+      : A.s_cle != null
+      // arc asymétrique : clé en `s_cle` (altitude `z_cle`), deux demi-paraboles jusqu'aux naissances, la seconde à
+      // `z_naissance_fin` (versants de hauteurs différentes)
+      ? t => {
+        const avant = t <= A.s_cle, s0 = avant ? A.s0 : A.s1, zn = avant ? A.z_naissance : (A.z_naissance_fin ?? A.z_naissance);
+        const u = (t - A.s_cle) / ((A.s_cle - s0) || 1);
+        return A.z_cle - (A.z_cle - zn) * u * u;
+      }
+      : t => { const u = (2 * (t - A.s0) / c) - 1; return A.z_naissance + f * (1 - u * u); };
     const e = A.epaisseur || 1, l = A.larg || P.largeur * 0.85;
-    if (A.plein) balaye(A.s0, A.s1, l, zA, dessous, 1.5);
+    if (A.plein) balaye(A.s0, A.s1, l, zA, dessous, 0.75);
     else {
       // arc porteur : une dalle, ou plusieurs nervures parallèles (`nervures`, `larg_nervure`) ; montants sur chacune
       const nN = Math.max(1, A.nervures || 1), lN = nN > 1 ? (A.larg_nervure || l / nN * 0.5) : l;

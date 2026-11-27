@@ -1,0 +1,190 @@
+{
+ "nom": "Pont de Zaehringen (Zähringerbrücke), Fribourg",
+ "axe": [
+  [
+   2579155.9,
+   1183885.1,
+   580.6
+  ],
+  [
+   2579247.2,
+   1183967.2,
+   581.1
+  ],
+  [
+   2579338.4,
+   1184049.3,
+   580.6
+  ]
+ ],
+ "largeur": 12.2,
+ "largeur_dessous": 11.0,
+ "epaisseur": 1.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 29.5,
+   "forme": "rect",
+   "long": 5.5,
+   "larg": 11.0,
+   "z_bas": 540.0,
+   "fruit": 0.01
+  },
+  {
+   "type": "pile",
+   "s": 63.1,
+   "forme": "rect",
+   "long": 5.5,
+   "larg": 11.0,
+   "z_bas": 529.5,
+   "fruit": 0.01
+  },
+  {
+   "type": "pile",
+   "s": 96.7,
+   "forme": "rect",
+   "long": 5.5,
+   "larg": 11.0,
+   "z_bas": 533.5,
+   "fruit": 0.01
+  },
+  {
+   "type": "pile",
+   "s": 130.3,
+   "forme": "rect",
+   "long": 5.5,
+   "larg": 11.0,
+   "z_bas": 536.0,
+   "fruit": 0.01
+  },
+  {
+   "type": "pile",
+   "s": 163.9,
+   "forme": "rect",
+   "long": 5.5,
+   "larg": 11.0,
+   "z_bas": 544.0,
+   "fruit": 0.01
+  },
+  {
+   "type": "pile",
+   "s": 197.5,
+   "forme": "rect",
+   "long": 5.5,
+   "larg": 11.0,
+   "z_bas": 550.0,
+   "fruit": 0.01
+  },
+  {
+   "type": "pile",
+   "s": 238.0,
+   "forme": "rect",
+   "long": 14.0,
+   "larg": 11.0,
+   "z_bas": 571.0,
+   "fruit": 0
+  },
+  {
+   "type": "culee",
+   "s": 245.6
+  }
+ ],
+ "arches": [
+  {
+   "s0": 0.5,
+   "s1": 26.75,
+   "z_naissance": 560.0,
+   "z_cle": 577.5,
+   "epaisseur": 1.2,
+   "larg": 11.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 32.25,
+   "s1": 60.35,
+   "z_naissance": 560.0,
+   "z_cle": 577.5,
+   "epaisseur": 1.2,
+   "larg": 11.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 65.85,
+   "s1": 93.95,
+   "z_naissance": 560.0,
+   "z_cle": 577.5,
+   "epaisseur": 1.2,
+   "larg": 11.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 99.45,
+   "s1": 127.55,
+   "z_naissance": 560.0,
+   "z_cle": 577.5,
+   "epaisseur": 1.2,
+   "larg": 11.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 133.05,
+   "s1": 161.15,
+   "z_naissance": 560.0,
+   "z_cle": 577.5,
+   "epaisseur": 1.2,
+   "larg": 11.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 166.65,
+   "s1": 194.75,
+   "z_naissance": 560.0,
+   "z_cle": 577.5,
+   "epaisseur": 1.2,
+   "larg": 11.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 200.25,
+   "s1": 231.1,
+   "z_naissance": 560.0,
+   "z_cle": 577.5,
+   "epaisseur": 1.2,
+   "larg": 11.0,
+   "plein": true,
+   "forme": "cintre"
+  }
+ ],
+ "pylones": [],
+ "sources": [
+  "https://fribourg.ch/fr/fribourg/architecture-et-monuments/pont-de-zaehringen/",
+  "https://fr.wikipedia.org/wiki/Pont_de_Zaehringen",
+  "https://structurae.net/de/bauwerke/zaehringerbruecke",
+  "https://commons.wikimedia.org/wiki/File:Pont_de_Zaehringen_von_der_Kathedrale_Fribourg-1.jpg",
+  "https://commons.wikimedia.org/wiki/File:Pont_de_Zaehringen_Fribourg-2.jpg"
+ ],
+ "photo": {
+  "fichier": "photo.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Fribourg_-_Pont_de_Zaehringen.jpg",
+  "auteur": "Ludovic Péron",
+  "licence": "CC BY-SA 3.0"
+ },
+ "photos_vues": 3,
+ "confiance": "bonne",
+ "notes": "Viaduc de 7 arches pleines en béton (1924), 6 piles ; longueur publiée 235,55 m, largeur 12,2 m, tablier ~49 m au-dessus de la Sarine. Le relevé relancé sur un rayon plus large donne un axe de 245,6 m (le résumé initial, 179,9 m, était tronqué côté Schoenberg) ; piles placées sur les pics de points sous le tablier (entraxe régularisé à 33,6 m, ±1,5 m), altitudes de naissance et de clé estimées sur photo (±1,5 m). Non représenté : arcs en plein cintre (le schéma les trace en parabole), balustrade à balustres, ouvertures voûtées au pied des piles et pont routier inférieur (vers 543,8 m) qui les traverse ; la culée massive côté Schoenberg est approchée par une pile pleine de 14 m (s=238)."
+}
