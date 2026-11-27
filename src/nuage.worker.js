@@ -7,7 +7,11 @@ import wasmUrl from "laz-perf/lib/web/laz-perf.wasm?url";
 let lazPerf;
 const decodeur = () => (lazPerf ||= createLazPerf({ locateFile: () => wasmUrl }));
 
-self.onmessage = async ({ data: { id, url, copc, noeud, boite: [e0, n0, e1, n1], origine: [E0, N0], cercle = null, classes = null } }) => {
+self.onmessage = async ({ data }) => {
+  if (data.chauffer) { decodeur().catch(() => {}); return; }
+  decoder(data);
+};
+async function decoder({ id, url, copc, noeud, boite: [e0, n0, e1, n1], origine: [E0, N0], cercle = null, classes = null }) {
   try {
     const v = await Copc.loadPointDataView(url, copc, noeud, { lazPerf: await decodeur(), include: ["X", "Y", "Z", "Classification"] });
     const gx = v.getter("X"), gy = v.getter("Y"), gz = v.getter("Z"), gc = v.getter("Classification"), nb = v.pointCount;
@@ -24,4 +28,4 @@ self.onmessage = async ({ data: { id, url, copc, noeud, boite: [e0, n0, e1, n1],
   } catch (e) {
     self.postMessage({ id, erreur: e.message || String(e) });
   }
-};
+}

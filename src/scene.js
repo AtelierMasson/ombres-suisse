@@ -401,7 +401,8 @@ export class Scene3D {
       // les points n'entrent jamais dans l'occlusion (sinon chaque point a son halo sombre)
       const c = this.couches, caches = [this.voute, this.disque, ...this.poignees, ...(this.reperesAutres || []), ...(this.traitsAutres || []), c.heures, c.limite, c.voisines, c.arbres, c.tous, c.selection, c.laser, c.apercuVolume, c.eau, ...(this.horsAO || []), // l'eau : plate et translucide, l'occlusion y dessinait des arcs
         this.coupe ? this.tranche?.userData.arbres : null, ...(this.coupe && this.tranche?.userData.traits || []),
-        c.canopee?.material.colorWrite === false ? c.canopee : null].filter(o => o && o.visible);
+        c.canopee?.material.colorWrite === false ? c.canopee : null,
+        this.loin.maille, this.monde?.racine].filter(o => o && o.visible); // paysage et monde : trop loin pour l'occlusion de 12 m (D9)
       for (const o of caches) o.visible = false;
       rendu(...a);
       for (const o of caches) o.visible = true;
@@ -445,9 +446,15 @@ void main() {
     let avant = 0;
     r.setAnimationLoop(t => {
       this.animation?.(t);
-      if (this.deplacerClavier(t)) this.demander(2);
+      const clavier = this.deplacerClavier(t);
+      if (clavier) this.demander(2);
       const bouge = this.controls.update();
-      if (!bouge && this.aRendre <= 0) { avant = 0; return; }
+      // navigation à la main (souris, clavier) : images sans occlusion ni rebond, puis une image complète à l'arrêt (D9)
+      if ((bouge || clavier) && !this.animation) this.dernierMouvement = t;
+      if (!bouge && this.aRendre <= 0) {
+        if (!this.imageLegere) { avant = 0; return; }
+        this.dernierMouvement = -Infinity; // l'image d'arrêt, avec tous les effets
+      }
       this.aRendre = Math.max(0, this.aRendre - 1);
       this.rendre();
       // images qui se suivent trop lentement : on allège
@@ -572,6 +579,10 @@ void main() {
       this.voute.position.copy(avecLoin ? cam.position : new THREE.Vector3());
     }
     this.swiss?.mettreAJour();
+    this.monde?.mettreAJour();
+    const leger = this.allegerMouvement !== false && performance.now() - (this.dernierMouvement ?? -Infinity) < 120;
+    this.imageLegere = leger && this.effets && this.qualite < 2;
+    this.ao.enabled = this.rebond.enabled = !this.imageLegere;
     if (this.effets && this.qualite < 2) this.composeur.render(); else this.renderer.render(this.scene, this.camera);
   }
 
@@ -645,7 +656,7 @@ void main() {
   }
 
   vider() {
-    this.swiss?.vider();
+    this.swiss?.vider({ garder: true }); // bâtiments swisstopo gardés d'un lieu à l'autre (D5)
     this.rayonExt = 0;
     this.liberer(this.groupe); this.liberer(this.outils);
     for (const F of Object.values(this.fonds)) F.tex?.dispose();
@@ -976,15 +987,16 @@ void main() {
         uv.set([(x - G.x0) / (2 * G.R), (y - G.x0) / (2 * G.R)], 2 * q);
       }
     }
-    const idx = [];
-    for (let a = 0; a < nA; a++) {
+    // index typé, rempli d'un coup (jusqu'à ~3,5 M d'entrées : plus de push) : D10
+    const idx = nA * nR < 65536 ? new Uint16Array(nA * (nR - 1) * 6) : new Uint32Array(nA * (nR - 1) * 6);
+    for (let a = 0, w = 0; a < nA; a++) {
       const a2 = (a + 1) % nA;
-      for (let k = 0; k < nR - 1; k++) { const p = a * nR + k, q = a2 * nR + k; idx.push(p, p + 1, q, q, p + 1, q + 1); }
+      for (let k = 0; k < nR - 1; k++, w += 6) { const p = a * nR + k, q = a2 * nR + k; idx[w] = p; idx[w + 1] = p + 1; idx[w + 2] = q; idx[w + 3] = q; idx[w + 4] = p + 1; idx[w + 5] = q + 1; }
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
-    g.setIndex(idx);
+    g.setIndex(new THREE.BufferAttribute(idx, 1));
     g.computeVertexNormals();
     // même matière que le paysage : plan cadastral en tuiles, grain, brume (la maquette fine garde son plan propre)
     // matière du paysage (mêmes uniformes : plan, lacs, grain), mais à part : elle reçoit le plan de coupe
@@ -1164,6 +1176,7 @@ void main() {
       const objets = voir ? [k.jeu === "swiss" ? this.swiss?.socle : null, k.jeu === "roofer" ? this.couches.roofer : null].filter(Boolean) : [];
       const releve = voir && k.jeu === "releve";
       // swisstopo et roofer : géométrie coupée 3 cm en retrait du bord, à leur position calée du moment
+      if (!this.G.rayonZone && this.swiss) this.swiss.reutilisable = false; // géométrie découpée : pas réutilisable ailleurs
       if (!this.G.rayonZone) for (const o of [this.swiss?.socle, this.couches.roofer]) o?.traverse(m => m.isMesh && decouperBord(m, this.G.R - 0.03));
       this.majZone();
       base.geometry.dispose();

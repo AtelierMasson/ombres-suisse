@@ -4,11 +4,14 @@ import { versWgs } from "./geo.js";
 import { t } from "./i18n.js";
 
 const TUILE = (z, x, y) => `https://elevation-tiles-prod.s3.amazonaws.com/terrarium/${z}/${x}/${y}.png`;
-const cache = new Map();
+// tuiles décodées (~330 Ko chacune : altitudes et masque des lacs), gardées d'un lieu à l'autre ; bornées (D10)
+const cache = new Map(), CACHE_MAX = (globalThis.navigator?.deviceMemory || 8) <= 4 ? 120 : 300;
 
 export function tuile(z, x, y) {
   const k = `${z}/${x}/${y}`;
-  if (!cache.has(k)) cache.set(k, new Promise((ok, ko) => {
+  if (cache.has(k)) { const p = cache.get(k); cache.delete(k); cache.set(k, p); return p; } // la plus récente à la fin
+  while (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value);
+  cache.set(k, new Promise((ok, ko) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {

@@ -171,7 +171,7 @@ function lireAlti(url) {
     })();
     p.catch(() => ALTI.delete(url));
     ALTI.set(url, p);
-    if (ALTI.size > 80) ALTI.delete(ALTI.keys().next().value);
+    if (ALTI.size > ((globalThis.navigator?.deviceMemory || 8) <= 4 ? 32 : 80)) ALTI.delete(ALTI.keys().next().value); // ~1 Mo chacune
   }
   return ALTI.get(url);
 }
