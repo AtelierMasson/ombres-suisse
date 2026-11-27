@@ -9,6 +9,7 @@ import * as THREE from "three";
 import { solEn } from "./grille.js";
 import { decouperCercle } from "./maillages.js";
 import { calculerTIN, masqueTIN } from "./tinNoyau.js";
+import { MARGE_RACCORD, procheDe, boite, bordZone } from "./raccordsPonts.js";
 
 /** Écart vertical maximal toléré entre le TIN et la grille du sol (m). */
 export const TOLERANCE_TIN = 0.1;
@@ -133,20 +134,43 @@ function trouerBassins(G, V, tri) {
     for (let v = debut; bord.length <= suivant.size; ) { bord.push(v); v = suivant.get(v); if (v === debut || v === undefined) break; }
     if (bord.length !== suivant.size) continue;
     for (const t of ici) retire[t] = 1;
-    plus.push({ bord, trou: B.anneau, niveau: B.niveau });
+    plus.push({ bord, X: B.anneau.map(p => p[0]), Y: B.anneau.map(p => p[1]), Z: B.anneau.map(() => B.niveau), trou: B.anneau.map((_, i) => i), tri: [] });
   }
-  // sommets du contour des bassins, après ceux du TIN
+  // arrivées des ponts faits main (G.raccordsPonts, raccordsPonts.js) : triangles du TIN à moins de MARGE_RACCORD du
+  // raccord retirés, puis retriangulés de leur bord (sommets du TIN) au contour exact ; sinon (zone pas d'un seul
+  // tenant, contre une piscine ou le bord) le TIN reste tel quel
+  for (const Rc of G.raccordsPonts || []) {
+    const [x0, x1, y0, y1] = boite(Rc.zone, MARGE_RACCORD);
+    const Rz = G.rayonZone || Infinity, lim = G.n * G.c / 2 - 0.5;
+    if ([[x0, y0], [x1, y0], [x0, y1], [x1, y1]].some(([x, y]) => Math.abs(x) > lim || Math.abs(y) > lim) || Rc.zone.some(([x, y]) => Math.hypot(x, y) > Rz - MARGE_RACCORD - 1)) continue;
+    const ici = [];
+    let libre = true;
+    for (let t = 0; t < nt && libre; t++) {
+      if (bbT[4 * t] > x1 || bbT[4 * t + 1] < x0 || bbT[4 * t + 2] > y1 || bbT[4 * t + 3] < y0) continue;
+      const a = tri[3 * t], b = tri[3 * t + 1], c = tri[3 * t + 2];
+      if (!procheDe([[V.X[a], V.Y[a]], [V.X[b], V.Y[b]], [V.X[c], V.Y[c]]], Rc.zone, MARGE_RACCORD)) continue;
+      if (retire[t]) libre = false; else ici.push(t);
+    }
+    if (!libre || !ici.length) continue;
+    const bord = bordZone(ici.flatMap(t => [tri[3 * t], tri[3 * t + 1], tri[3 * t + 2]]), nv);
+    // le bord ne doit pas passer par le cercle de la maquette (sommets recalés par decouperCercle)
+    if (!bord || bord.some(v => Math.hypot(V.X[v], V.Y[v]) > Rz - 0.05)) continue;
+    for (const t of ici) retire[t] = 1;
+    plus.push({ bord, X: Rc.X, Y: Rc.Y, Z: Rc.Z, trou: Rc.trou, tri: Rc.tri });
+  }
+  // sommets ajoutés (contours des bassins, raccords des ponts), après ceux du TIN
   const X = [], Y = [], Z = [];
+  const xy = k => k < V.nv ? new THREE.Vector2(V.X[k], V.Y[k]) : new THREE.Vector2(X[k - V.nv], Y[k - V.nv]);
+  const poser = (A, Bv, Cv) => {
+    const pa = xy(A), pb = xy(Bv), pc = xy(Cv), cr = (pb.x - pa.x) * (pc.y - pa.y) - (pb.y - pa.y) * (pc.x - pa.x);
+    if (cr >= 0) ajout.push(A, Bv, Cv); else ajout.push(A, Cv, Bv);
+  };
   for (const P of plus) {
     const base = nv;
-    for (const [x, y] of P.trou) { X.push(x); Y.push(y); Z.push(P.niveau); nv++; }
-    const xy = k => k < V.nv ? new THREE.Vector2(V.X[k], V.Y[k]) : new THREE.Vector2(X[k - V.nv], Y[k - V.nv]);
-    const ids = [...P.bord, ...P.trou.map((_, i) => base + i)];
-    for (const [i, j, l] of THREE.ShapeUtils.triangulateShape(P.bord.map(xy), [P.trou.map((_, i) => xy(base + i))])) {
-      const A = ids[i], Bv = ids[j], Cv = ids[l], pa = xy(A), pb = xy(Bv), pc = xy(Cv);
-      const cr = (pb.x - pa.x) * (pc.y - pa.y) - (pb.y - pa.y) * (pc.x - pa.x);
-      if (cr >= 0) ajout.push(A, Bv, Cv); else ajout.push(A, Cv, Bv);
-    }
+    for (let i = 0; i < P.X.length; i++) { X.push(P.X[i]); Y.push(P.Y[i]); Z.push(P.Z[i]); nv++; }
+    const ids = [...P.bord, ...P.trou.map(i => base + i)];
+    for (const [i, j, l] of THREE.ShapeUtils.triangulateShape(P.bord.map(xy), [P.trou.map(i => xy(base + i))])) poser(ids[i], ids[j], ids[l]);
+    for (let t = 0; t < P.tri.length; t += 3) poser(base + P.tri[t], base + P.tri[t + 1], base + P.tri[t + 2]);
   }
   if (!plus.length) return { tri, X, Y, Z };
   let nRet = 0;

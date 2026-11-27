@@ -683,7 +683,9 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0], opts =
     if (p.type === "culee") {
       // bloc de 4 m vers l'extérieur, du tablier au terrain (ou aux naissances des arches voisines)
       const dehors = s < L / 2 ? -1 : 1, s0 = s < L / 2 ? s : s - 4, s1 = s0 + 4;
-      const zs = sol(A.x + ux * 2 * dehors, A.y + uy * 2 * dehors), naiss = Math.min(...arcs.map(x => x.z_naissance), Infinity);
+      // pied : le terrain le plus bas sous le bloc et juste au-delà (la route d'accès relevée au bout ne le raccourcit pas)
+      const zsT = [2, 0, -2, -4].flatMap(e => [A.g, (A.g + A.d) / 2, A.d].map(t => sol(A.x + ux * e * dehors + A.nx * t, A.y + uy * e * dehors + A.ny * t))).filter(Number.isFinite);
+      const zs = zsT.length ? Math.min(...zsT) : NaN, naiss = Math.min(...arcs.map(x => x.z_naissance), Infinity);
       const b = Math.min(isNaN(zs) ? naiss : zs, naiss) - 1;
       if (b < dessous(s) - 0.5) balaye(Math.max(0, s0), Math.min(L, s1), A.d - A.g, () => b, dessous, 4, (A.g + A.d) / 2);
       continue;
@@ -894,10 +896,11 @@ export function creuserSousPonts(G, modeles, E0, N0) {
       if (!(z > chaussee(sb) - ep - 1) || !(z > zp + 0.3)) continue;
       G.sol[p] = zp; n++;
     }
-    // arrivées du pont : le terrain rejoint la chaussée sur RAMPE m dans le prolongement de l'axe (et se fond sur 3 m de
-    // part et d'autre), pour que la route se raccorde au tablier sans marche ni fossé. Pas là où le bout est très
-    // au-dessus ou au-dessous du terrain (culée contre une falaise, tunnel), ni sur l'eau ou un bâtiment.
-    const RAMPE = 14, FONDU = 3, lisse = u => { const v = Math.min(1, Math.max(0, u)); return v * v * (3 - 2 * v); };
+    // bouts du pont : sous les 3 derniers mètres du tablier, le terrain monte jusque sous la chaussée (culée en terre,
+    // fondue sur 3 m de part et d'autre), sans jour sous le tablier. Pas là où le bout est très au-dessus ou au-dessous
+    // du terrain (culée contre une falaise, tunnel), ni sur l'eau ou un bâtiment. La route d'accès, au-delà du joint,
+    // est faite par raccordsPonts.js (longueur : RAMPE_MIN à RAMPE_MAX).
+    const RAMPE = 0, FONDU = 3, lisse = u => { const v = Math.min(1, Math.max(0, u)); return v * v * (3 - 2 * v); };
     for (const bout of [0, 1]) {
       const A = bout ? a[a.length - 1] : a[0], B = bout ? a[a.length - 2] : a[1];
       let ux = A[0] - B[0], uy = A[1] - B[1]; const lu = Math.hypot(ux, uy) || 1; ux /= lu; uy /= lu;
@@ -908,7 +911,7 @@ export function creuserSousPonts(G, modeles, E0, N0) {
         const dx = G.x0 + (i + 0.5) * G.c - A[0], dy = G.x0 + (j + 0.5) * G.c - A[1];
         const le = dx * ux + dy * uy, tr = Math.abs(-dx * uy + dy * ux);
         if (le < -3 || le > RAMPE || tr > w0 + FONDU) continue;
-        const w = (le <= 0 ? 1 : 1 - lisse(le / RAMPE)) * (tr <= w0 ? 1 : 1 - lisse((tr - w0) / FONDU));
+        const w = tr <= w0 ? 1 : 1 - lisse((tr - w0) / FONDU);
         const p = j * G.n + i, z = G.sol[p];
         if (!(w > 0) || !(Math.abs(z - zb) < 6) || (G.bat && !isNaN(G.bat[p])) || (G.eau && !isNaN(G.eau[p]))) continue;
         G.sol[p] = z + (zb - z) * w; n++;

@@ -71,6 +71,7 @@ import { chargerImage, teinterCadastre, adoucirPhoto } from "./fond.js";
 import { maillageBassins } from "./piscines.js";
 import { trancheCoupe } from "./coupe.js";
 import { calculerTerrainTIN, maillageTIN, hauteurTIN } from "./terrainTIN.js";
+import { raccordsPonts, raccordsAuSol, effacerPontsAuRaccord } from "./raccordsPonts.js";
 import { affinerParMelange } from "./arbresEspeces.js";
 
 /**
@@ -786,6 +787,15 @@ void main() {
     this.G = G;
     // sol sous les ponts faits main : abaissé là où il bouchait l'ouvrage jusqu'au tablier (pontsModeles.js)
     if (this.pontsModeles?.length && !G.provisoire && creuserSousPonts(G, this.pontsModeles, this.lieuPonts?.E ?? 0, this.lieuPonts?.N ?? 0)) majSurface(G);
+    // arrivées des ponts faits main : sommets exacts du joint, des rives et de la route d'accès, raccordés au terrain
+    // affiché (grille ou TIN) comme les piscines (raccordsPonts.js) ; G.sol (calculs) n'en dépend pas
+    // la route d'accès est reportée dans G.sol, puis les raccords recalculés sur ce sol (celui que verra le tablier)
+    G.raccordsPonts = null;
+    if (this.pontsModeles?.length && !G.provisoire) {
+      const [Er, Nr] = [this.lieuPonts?.E ?? 0, this.lieuPonts?.N ?? 0];
+      G.raccordsPonts = raccordsPonts(G, this.pontsModeles, Er, Nr);
+      if (raccordsAuSol(G, G.raccordsPonts)) { majSurface(G); G.raccordsPonts = raccordsPonts(G, this.pontsModeles, Er, Nr); }
+    }
     // le nuage est gardé (tableaux typés X, Y, Z, C) : nuage brut construit à la demande, points proches de la coupe
     this.nuage = nuage;
     if (!remplacer) {
@@ -854,6 +864,8 @@ void main() {
         const x = G.x0 + (i + 0.5) * G.c, y = G.x0 + (j + 0.5) * G.c;
         if (modeles.some(P => Math.abs(chausseeEn(P, Ep, Np, x, y, 6) - pont[p]) < 4)) pont[p] = NaN;
       }
+      // et sur la route d'accès des raccords (bouts de tablier relevé au-delà du joint)
+      effacerPontsAuRaccord(G, pont, G.raccordsPonts);
       Gp = { ...G, pont };
     }
     const gp = this.pontsDetailles ? tabliersPonts(Gp, this.zRef) : pontsLegers(Gp, this.zRef, nuage) || tabliersPonts(Gp, this.zRef);
