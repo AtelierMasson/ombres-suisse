@@ -872,6 +872,26 @@ export function creuserSousPonts(G, modeles, E0, N0) {
       if (!(z > chaussee(sb) - ep - 1) || !(z > zp + 0.3)) continue;
       G.sol[p] = zp; n++;
     }
+    // arrivées du pont : le terrain rejoint la chaussée sur RAMPE m dans le prolongement de l'axe (et se fond sur 3 m de
+    // part et d'autre), pour que la route se raccorde au tablier sans marche ni fossé. Pas là où le bout est très
+    // au-dessus ou au-dessous du terrain (culée contre une falaise, tunnel), ni sur l'eau ou un bâtiment.
+    const RAMPE = 14, FONDU = 3, lisse = u => { const v = Math.min(1, Math.max(0, u)); return v * v * (3 - 2 * v); };
+    for (const bout of [0, 1]) {
+      const A = bout ? a[a.length - 1] : a[0], B = bout ? a[a.length - 2] : a[1];
+      let ux = A[0] - B[0], uy = A[1] - B[1]; const lu = Math.hypot(ux, uy) || 1; ux /= lu; uy /= lu;
+      const zb = A[2] - 0.05, w0 = P.largeur / 2 + 1, R = RAMPE + w0 + FONDU;
+      const ia = Math.max(0, Math.floor((A[0] - R - G.x0) / G.c)), ib = Math.min(G.n - 1, Math.ceil((A[0] + R - G.x0) / G.c));
+      const ja = Math.max(0, Math.floor((A[1] - R - G.x0) / G.c)), jb = Math.min(G.n - 1, Math.ceil((A[1] + R - G.x0) / G.c));
+      for (let j = ja; j <= jb; j++) for (let i = ia; i <= ib; i++) {
+        const dx = G.x0 + (i + 0.5) * G.c - A[0], dy = G.x0 + (j + 0.5) * G.c - A[1];
+        const le = dx * ux + dy * uy, tr = Math.abs(-dx * uy + dy * ux);
+        if (le < -3 || le > RAMPE || tr > w0 + FONDU) continue;
+        const w = (le <= 0 ? 1 : 1 - lisse(le / RAMPE)) * (tr <= w0 ? 1 : 1 - lisse((tr - w0) / FONDU));
+        const p = j * G.n + i, z = G.sol[p];
+        if (!(w > 0) || !(Math.abs(z - zb) < 6) || (G.bat && !isNaN(G.bat[p])) || (G.eau && !isNaN(G.eau[p]))) continue;
+        G.sol[p] = z + (zb - z) * w; n++;
+      }
+    }
   }
   return n;
 }
