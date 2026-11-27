@@ -2,7 +2,7 @@
 // swissBUILDINGS3D : tablier, culées, piles, arches. Ils remplacent le pont reconstruit automatiquement à leur place.
 import * as THREE from "three";
 
-const BASE = `${import.meta.env.BASE_URL}ponts/`;
+const BASE = `${import.meta.env?.BASE_URL ?? "/"}ponts/`;
 let index = null;
 
 /** Ponts modélisés qui touchent le carré de demi-côté `R` autour de (E0, N0). */
@@ -141,6 +141,26 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0]) {
       }
     }
   }
+  // barre de a à b (points [x, y, z]) : section w × h au départ, wb × hb à l'arrivée (effilée) ; w est la largeur
+  // horizontale (perpendiculaire à la barre), h l'autre dimension
+  const segment = (a, b, w, h = w, wb = w, hb = h) => {
+    const d = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], l = Math.hypot(...d) || 1, u = d.map(x => x / l);
+    const r = Math.abs(u[2]) < 0.95 ? [0, 0, 1] : [1, 0, 0];
+    const p1 = [u[1] * r[2] - u[2] * r[1], u[2] * r[0] - u[0] * r[2], u[0] * r[1] - u[1] * r[0]], n1 = Math.hypot(...p1) || 1;
+    const e1 = p1.map(x => x / n1), e2 = [u[1] * e1[2] - u[2] * e1[1], u[2] * e1[0] - u[0] * e1[2], u[0] * e1[1] - u[1] * e1[0]];
+    const c = (q, i, j, W, H) => [0, 1, 2].map(k => q[k] + i * e1[k] * W / 2 + j * e2[k] * H / 2);
+    const S4 = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+    const A4 = S4.map(([i, j]) => c(a, i, j, w, h)), B4 = S4.map(([i, j]) => c(b, i, j, wb, hb));
+    for (let f = 0; f < 4; f++) quad(A4[f], A4[(f + 1) % 4], B4[(f + 1) % 4], B4[f]);
+    quad(...A4); quad(...B4);
+  };
+  // point dans le repère du pont : distance s le long de l'axe, décalage o en travers (positif à gauche), altitude z ;
+  // z peut être "tablier" (dessous du tablier), "chaussee" (dessus) ou "sol" (terrain), avec un décalage `dz`
+  const local = ([t, o, z], dz = 0) => {
+    const A = surAxe(Math.max(0, Math.min(L, t))), x = A.x - A.uy * o, y = A.y + A.ux * o;
+    const zz = z === "tablier" ? dessous(t) : z === "chaussee" ? dessus(t) : z === "sol" ? sol(x, y) : z;
+    return [x, y, zz + dz];
+  };
   // culées et piles
   for (const p of P.appuis || []) {
     const t = Math.max(0, Math.min(L, p.s)), A = surAxe(t);
@@ -163,41 +183,57 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0]) {
     } else {
       // pile rectangulaire (avec fruit : plus large en bas), ou deux colonnes (`forme: "double"`, `larg_colonne`)
       const colonnes = p.forme === "double" ? (() => { const lc = p.larg_colonne || la * 0.3; return [[-(la - lc) / 2, lc], [(la - lc) / 2, lc]]; })() : [[0, la]];
+      // profil : la pile est UN seul volume, lissé d'une section à l'autre. `profil` = [[profondeur sous le tablier (m),
+      // long, larg], …] du haut vers le bas ; la dernière section descend jusqu'au pied (z_bas), élargie par le fruit
+      if (p.profil?.length) {
+        const zt = p.z_haut ?? dessous(t), S4 = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+        const secs = p.profil.map(([dz, l1, w1]) => [zt - dz, l1, w1]);
+        const [, lD, wD] = secs.at(-1), hD = Math.max(0, secs.at(-1)[0] - zb);
+        if (zb < secs.at(-1)[0] - 0.01) secs.push([zb, lD + 2 * fr * hD, wD + 2 * fr * hD]);
+        const anneau = ([z, l1, w1]) => S4.map(([a, b]) => [A.x + A.ux * l1 / 2 * a - A.uy * w1 / 2 * b, A.y + A.uy * l1 / 2 * a + A.ux * w1 / 2 * b, z]);
+        const R = secs.map(anneau);
+        for (let k = 0; k + 1 < R.length; k++) for (let f = 0; f < 4; f++) quad(R[k + 1][f], R[k + 1][(f + 1) % 4], R[k][(f + 1) % 4], R[k][f]);
+        quad(...R.at(-1));
+        continue;
+      }
+      // chapiteau (tête en marteau) : bloc sous le tablier, plus large que le fût (`chapiteau`: {hauteur, larg, long})
+      // `z_haut` : la pile s'arrête plus bas (fût sous une fourche faite d'éléments libres, par exemple)
+      const CH = p.chapiteau, zh = (p.z_haut ?? dessous(t)) - (CH ? CH.hauteur || 2 : 0);
       for (const [o, lc] of colonnes) {
-        const h = Math.max(0, dessous(t) - zb), dl = fr * h;
-        // tronc de pyramide : sommet lo × lc, pied (lo + 2 dl) × (lc + 2 dl)
-        const coin = (a, b, z, g) => { const L2 = (lo / 2 + g) * a, W = (lc / 2 + g) * b; return [A.x + A.ux * L2 - A.uy * (o + W), A.y + A.uy * L2 + A.ux * (o + W), z]; };
-        const zh = dessous(t), bas4 = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => coin(a, b, zb, dl)), haut4 = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => coin(a, b, zh, 0));
+        const h = Math.max(0, zh - zb), dl = fr * h;
+        // tronc de pyramide : haut (long_haut ou lo) × (larg_haut ou lc), pied (lo + 2 dl) × (lc + 2 dl)
+        const loH = p.long_haut ?? lo, lcH = colonnes.length > 1 ? lc : (p.larg_haut ?? lc);
+        const coin = (a, b, z, L1, W1) => { const L2 = L1 / 2 * a, W = W1 / 2 * b; return [A.x + A.ux * L2 - A.uy * (o + W), A.y + A.uy * L2 + A.ux * (o + W), z]; };
+        const S4 = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+        const bas4 = S4.map(([a, b]) => coin(a, b, zb, lo + 2 * dl, lc + 2 * dl)), haut4 = S4.map(([a, b]) => coin(a, b, zh, loH, lcH));
         for (let f = 0; f < 4; f++) quad(bas4[f], bas4[(f + 1) % 4], haut4[(f + 1) % 4], haut4[f]);
         quad(...bas4);
+      }
+      if (CH) {
+        const lC = CH.larg || P.largeur_dessous || P.largeur, oC = CH.long || (p.long_haut ?? lo), hC = CH.hauteur || 2;
+        // bas du chapiteau plus étroit (`larg_bas`) : forme évasée vers le haut
+        segment(local([t, 0, zh]), local([t, 0, zh + hC]), CH.larg_bas || lC, oC, lC, oC);
       }
     }
   }
   // pylônes (pont à haubans ou suspendu) : mât unique dans l'axe, en H (deux mâts et une traverse) ou en A (deux mâts
   // qui se rejoignent en haut) ; du pied `z_bas` (sinon le terrain) au sommet `z_haut`
-  const segment = (a, b, e) => {
-    // barre de section carrée e × e de a à b (points [x, y, z])
-    const d = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], l = Math.hypot(...d) || 1, u = d.map(x => x / l);
-    const r = Math.abs(u[2]) < 0.9 ? [0, 0, 1] : [1, 0, 0];
-    const p1 = [u[1] * r[2] - u[2] * r[1], u[2] * r[0] - u[0] * r[2], u[0] * r[1] - u[1] * r[0]], n1 = Math.hypot(...p1) || 1;
-    const v1 = p1.map(x => x / n1 * e / 2), v2 = [u[1] * v1[2] - u[2] * v1[1], u[2] * v1[0] - u[0] * v1[2], u[0] * v1[1] - u[1] * v1[0]];
-    const c = (q, i, j) => [q[0] + i * v1[0] + j * v2[0], q[1] + i * v1[1] + j * v2[1], q[2] + i * v1[2] + j * v2[2]];
-    const A4 = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([i, j]) => c(a, i, j)), B4 = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([i, j]) => c(b, i, j));
-    for (let f = 0; f < 4; f++) quad(A4[f], A4[(f + 1) % 4], B4[(f + 1) % 4], B4[f]);
-  };
   const sommets = [];
   for (const Y of P.pylones || []) {
     const t = Math.max(0, Math.min(L, Y.s)), A = surAxe(t), px = -A.uy, py = A.ux, zb = Y.z_bas ?? sol(A.x, A.y) - 1;
     const zh = Y.z_haut, e = Y.epaisseur || 3, ecart = Y.ecart ?? P.largeur + 2;
     const pt = (o, z) => [A.x + px * o, A.y + py * o, z];
+    // zone d'ancrage des haubans sur le pylône : de z_haut - 2 à z_ancrage_bas (semi-harpe), ou un point (éventail)
+    const zA0 = zh - 2, zA1 = Y.z_ancrage_bas ?? zA0;
+    if (Y.forme === "aucun") { sommets.push({ t, haut: (c, k = 0, n = 1) => pt(0, zA0 - (zA0 - zA1) * (n > 1 ? k / (n - 1) : 0)) }); continue; }
     if (Y.forme === "H" || Y.forme === "A") {
       const oh = Y.forme === "A" ? 0 : ecart / 2;
       for (const c of [-1, 1]) segment(pt(c * ecart / 2, zb), pt(c * oh, zh), e);
       if (Y.forme === "H") segment(pt(-ecart / 2, dessous(t) - 1), pt(ecart / 2, dessous(t) - 1), e);
-      sommets.push({ t, haut: c => pt(c * oh, zh - 2) });
+      sommets.push({ t, haut: (c, k = 0, n = 1) => pt(c * oh, zA0 - (zA0 - zA1) * (n > 1 ? k / (n - 1) : 0)) });
     } else {
       segment(pt(0, zb), pt(0, zh), e);
-      sommets.push({ t, haut: () => pt(0, zh - 2) });
+      sommets.push({ t, haut: (c, k = 0, n = 1) => pt(0, zA0 - (zA0 - zA1) * (n > 1 ? k / (n - 1) : 0)) });
     }
   }
   // haubans : de chaque pylône vers le tablier, en éventail, des deux côtés du pylône ; nappe axiale (au milieu du
@@ -211,9 +247,15 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0]) {
       const A = surAxe(t), px = -A.uy, py = A.ux;
       for (const c of lat ? [-1, 1] : [0]) {
         const o = c * (P.largeur / 2 - 0.5);
-        segment(S.haut(c), [A.x + px * o, A.y + py * o, dessus(t) + 0.5], ep);
+        segment(S.haut(c, nb - k, nb), [A.x + px * o, A.y + py * o, dessus(t) + 0.5], ep);
       }
     }
+  }
+  // éléments libres : { de: [s, o, z], a: [s, o, z], larg, ep, larg_fin, ep_fin } (larg : en travers du pont, ep : dans
+  // l'autre sens) ; z en mètres ou "tablier" / "chaussee" / "sol", avec `dz_de` / `dz_a`
+  for (const E of P.elements || []) {
+    const w = E.larg || 1, h = E.ep || w;
+    segment(local(E.de, E.dz_de || 0), local(E.a, E.dz_a || 0), w, h, E.larg_fin ?? w, E.ep_fin ?? h);
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));

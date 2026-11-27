@@ -81,7 +81,8 @@ export function depuisPoints(nuage, R, c = 0.5) {
     }
     for (let p = 0; p < n * n; p++) if (!isNaN(E[p])) {
       const d = dist[p] === Infinity ? 200 : dist[p];
-      sol[p] = Math.min(sol[p], E[p] - 0.3 - Math.min(40, d * 0.12));
+      // au moins 1,2 m sous l'eau : à 0,3 m, vus de loin, le fond et la surface se disputaient l'affichage (rayures)
+      sol[p] = Math.min(sol[p], E[p] - 1.2 - Math.min(40, d * 0.12));
     }
   }
   fermer(bat, n, 2); fermer(veg, n, 1); fermer(pont, n, 2);

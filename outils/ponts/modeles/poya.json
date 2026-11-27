@@ -59,97 +59,293 @@
    "type": "pile",
    "s": 39.6,
    "forme": "rect",
-   "long": 3.0,
+   "long": 4.0,
    "larg": 5.5,
-   "z_bas": 588.0
+   "z_bas": 588.0,
+   "profil": [
+    [
+     0,
+     4.0,
+     12.0
+    ],
+    [
+     1.0,
+     4.0,
+     12.0
+    ],
+    [
+     9.0,
+     4.0,
+     5.5
+    ]
+   ]
   },
   {
    "type": "pile",
    "s": 90.6,
    "forme": "rect",
-   "long": 3.0,
+   "long": 4.0,
    "larg": 5.5,
-   "z_bas": 587.0
+   "z_bas": 587.0,
+   "profil": [
+    [
+     0,
+     4.0,
+     12.0
+    ],
+    [
+     1.0,
+     4.0,
+     12.0
+    ],
+    [
+     9.0,
+     4.0,
+     5.5
+    ]
+   ]
   },
   {
    "type": "pile",
    "s": 144.6,
    "forme": "rect",
-   "long": 3.0,
+   "long": 4.0,
    "larg": 5.5,
-   "z_bas": 560.0
+   "z_bas": 560.0,
+   "profil": [
+    [
+     0,
+     4.0,
+     12.0
+    ],
+    [
+     1.0,
+     4.0,
+     12.0
+    ],
+    [
+     9.0,
+     4.0,
+     5.5
+    ]
+   ]
   },
   {
    "type": "pile",
    "s": 198.6,
    "forme": "rect",
-   "long": 3.0,
+   "long": 4.0,
    "larg": 5.5,
-   "z_bas": 560.5
+   "z_bas": 560.5,
+   "profil": [
+    [
+     0,
+     4.0,
+     12.0
+    ],
+    [
+     1.0,
+     4.0,
+     12.0
+    ],
+    [
+     9.0,
+     4.0,
+     5.5
+    ]
+   ]
   },
   {
    "type": "pile",
    "s": 252.6,
    "forme": "rect",
-   "long": 3.0,
+   "long": 4.0,
    "larg": 5.5,
-   "z_bas": 562.5
+   "z_bas": 562.5,
+   "profil": [
+    [
+     0,
+     4.0,
+     12.0
+    ],
+    [
+     1.0,
+     4.0,
+     12.0
+    ],
+    [
+     9.0,
+     4.0,
+     5.5
+    ]
+   ]
   },
   {
    "type": "pile",
    "s": 338.6,
    "forme": "rect",
-   "long": 4.5,
-   "larg": 9.5,
-   "z_bas": 548.3
+   "long": 5.0,
+   "larg": 6.0,
+   "z_bas": 548.3,
+   "z_haut": 574.5,
+   "profil": [
+    [
+     0,
+     5.0,
+     7.0
+    ],
+    [
+     3.0,
+     5.0,
+     6.0
+    ]
+   ]
   },
   {
    "type": "pile",
    "s": 534.6,
    "forme": "rect",
-   "long": 4.5,
-   "larg": 9.5,
-   "z_bas": 533.0
+   "long": 5.0,
+   "larg": 6.0,
+   "z_bas": 533.0,
+   "z_haut": 578.4,
+   "profil": [
+    [
+     0,
+     5.0,
+     7.0
+    ],
+    [
+     3.0,
+     5.0,
+     6.0
+    ]
+   ]
   },
   {
    "type": "pile",
    "s": 620.6,
    "forme": "rect",
-   "long": 3.0,
+   "long": 4.0,
    "larg": 5.5,
-   "z_bas": 551.0
+   "z_bas": 551.0,
+   "profil": [
+    [
+     0,
+     4.0,
+     12.0
+    ],
+    [
+     1.0,
+     4.0,
+     12.0
+    ],
+    [
+     9.0,
+     4.0,
+     5.5
+    ]
+   ]
   },
   {
    "type": "pile",
    "s": 674.6,
    "forme": "rect",
-   "long": 3.0,
+   "long": 4.0,
    "larg": 5.5,
-   "z_bas": 579.4
+   "z_bas": 579.4,
+   "profil": [
+    [
+     0,
+     4.0,
+     12.0
+    ],
+    [
+     1.0,
+     4.0,
+     12.0
+    ],
+    [
+     9.0,
+     4.0,
+     5.5
+    ]
+   ]
   },
   {
    "type": "pile",
    "s": 728.6,
    "forme": "rect",
-   "long": 3.0,
+   "long": 4.0,
    "larg": 5.5,
-   "z_bas": 581.3
+   "z_bas": 581.3,
+   "profil": [
+    [
+     0,
+     4.0,
+     12.0
+    ],
+    [
+     1.0,
+     4.0,
+     12.0
+    ],
+    [
+     9.0,
+     4.0,
+     5.5
+    ]
+   ]
   },
   {
    "type": "pile",
    "s": 776.6,
    "forme": "rect",
-   "long": 3.0,
+   "long": 4.0,
    "larg": 5.5,
-   "z_bas": 585.8
+   "z_bas": 585.8,
+   "profil": [
+    [
+     0,
+     4.0,
+     12.0
+    ],
+    [
+     1.0,
+     4.0,
+     12.0
+    ],
+    [
+     9.0,
+     4.0,
+     5.5
+    ]
+   ]
   },
   {
    "type": "pile",
    "s": 816.6,
    "forme": "rect",
-   "long": 3.0,
+   "long": 4.0,
    "larg": 5.5,
-   "z_bas": 591.5
+   "z_bas": 591.5,
+   "profil": [
+    [
+     0,
+     4.0,
+     12.0
+    ],
+    [
+     1.0,
+     4.0,
+     12.0
+    ],
+    [
+     9.0,
+     4.0,
+     5.5
+    ]
+   ]
   },
   {
    "type": "culee",
@@ -198,5 +394,71 @@
  },
  "photos_vues": 4,
  "confiance": "bonne",
- "notes": "Axe refait sur le nuage : l'ouvrage est courbe aux deux bouts (le résumé droit de 760 m en coupait 90 m côté Schoenberg) ; longueur modélisée 851.6 m pour 851,6 m publiés, pente constante 2 %. Pylônes (s 338,6 et 534,6, portée 196 m), sommets laser 636,3 et 640,1 m, 7 haubans par côté et par nappe (56 au total) comptés dans le nuage : sûrs. Portées du viaduc Palatinat publiées (39,6 + 51 + 3 x 54) ; celles du viaduc Schoenberg (231 m, 5 travées) supposées 54 + 54 + 48 + 40 + 35, piles non vues par le laser ; section des piles et épaisseur du tablier (mixte acier-béton, 2 m) estimées sur photos. Non représentable : pylône en losange (fût unique 9,5 x 4,5 m sous le tablier, fourche en Y, puis V renversé coiffé d'un mât : rendu par une pile + un pylône A posé au niveau du tablier) ; têtes de piles évasées en marteau ; galerie antibruit couverte sur les 160 premiers mètres côté tunnel (toit à 599-602 m, soit 6-7 m au-dessus de la chaussée : c'est lui que donne la colonne chaussee du résumé pour s < 170) ; élargissement du tablier à 22 m vers la culée est."
+ "notes": "Axe refait sur le nuage : l'ouvrage est courbe aux deux bouts (le résumé droit de 760 m en coupait 90 m côté Schoenberg) ; longueur modélisée 851.6 m pour 851,6 m publiés, pente constante 2 %. Pylônes (s 338,6 et 534,6, portée 196 m), sommets laser 636,3 et 640,1 m, 7 haubans par côté et par nappe (56 au total) comptés dans le nuage : sûrs. Portées du viaduc Palatinat publiées (39,6 + 51 + 3 x 54) ; celles du viaduc Schoenberg (231 m, 5 travées) supposées 54 + 54 + 48 + 40 + 35, piles non vues par le laser ; section des piles et épaisseur du tablier (mixte acier-béton, 2 m) estimées sur photos. Non représentable : pylône en losange (fût unique 9,5 x 4,5 m sous le tablier, fourche en Y, puis V renversé coiffé d'un mât : rendu par une pile + un pylône A posé au niveau du tablier) ; têtes de piles évasées en marteau ; galerie antibruit couverte sur les 160 premiers mètres côté tunnel (toit à 599-602 m, soit 6-7 m au-dessus de la chaussée : c'est lui que donne la colonne chaussee du résumé pour s < 170) ; élargissement du tablier à 22 m vers la culée est. Calage photo (v3.1) : fourche en Y sous les pylônes (fût jusqu'à 22 m sous le tablier, deux jambes vers les bords du caisson), têtes de piles évasées en V (9 m, 5,5 -> 12 m).",
+ "elements": [
+  {
+   "de": [
+    338.6,
+    -1.9,
+    574.5
+   ],
+   "a": [
+    338.6,
+    -9.5,
+    "tablier"
+   ],
+   "larg": 3.2,
+   "ep": 5.0,
+   "larg_fin": 3.0,
+   "ep_fin": 4.5
+  },
+  {
+   "de": [
+    338.6,
+    1.9,
+    574.5
+   ],
+   "a": [
+    338.6,
+    9.5,
+    "tablier"
+   ],
+   "larg": 3.2,
+   "ep": 5.0,
+   "larg_fin": 3.0,
+   "ep_fin": 4.5
+  },
+  {
+   "de": [
+    534.6,
+    -1.9,
+    578.4
+   ],
+   "a": [
+    534.6,
+    -9.5,
+    "tablier"
+   ],
+   "larg": 3.2,
+   "ep": 5.0,
+   "larg_fin": 3.0,
+   "ep_fin": 4.5
+  },
+  {
+   "de": [
+    534.6,
+    1.9,
+    578.4
+   ],
+   "a": [
+    534.6,
+    9.5,
+    "tablier"
+   ],
+   "larg": 3.2,
+   "ep": 5.0,
+   "larg_fin": 3.0,
+   "ep_fin": 4.5
+  }
+ ]
 }
