@@ -199,7 +199,7 @@ export default {
   "aff.terrainReleve": "Vermessung 0,5 m",
   "aff.terrainReleveTitre": "Gelände aus der Punktwolke der Laservermessung, Raster 0,5 m: am genauesten",
   "aff.terrainAdaptatif": "Adaptiv",
-  "aff.terrainAdaptatifTitre": "Adaptive Vermessung: unregelmässiges Netz aus den Bodenpunkten, dicht an Randsteinen und Böschungen (bald verfügbar)",
+  "aff.terrainAdaptatifTitre": "Adaptive Vermessung: unregelmässiges Netz aus den Bodenpunkten, dicht an Randsteinen und Böschungen; genau, leichter auf glattem Gelände",
   "aff.terrainNote": "Das Gelände der Vermessung ist bereit, sobald die Punktwolke geladen ist.",
   "etat.relief": "Fernes Relief (Berge)…",
   "etat.nuage": "Punktwolke: {faits} k / {total} k Punkte",

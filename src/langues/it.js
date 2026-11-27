@@ -199,7 +199,7 @@ export default {
   "aff.terrainReleve": "Rilievo 0,5 m",
   "aff.terrainReleveTitre": "Terreno calcolato dalla nuvola di punti del rilievo laser, griglia di 0,5 m: il più preciso",
   "aff.terrainAdaptatif": "Adattivo",
-  "aff.terrainAdaptatifTitre": "Rilievo adattivo: maglia irregolare dai punti del suolo, fitta su cordoli e scarpate (presto disponibile)",
+  "aff.terrainAdaptatifTitre": "Rilievo adattivo: maglia irregolare dai punti del suolo, fitta su cordoli e scarpate; preciso, più leggero sui terreni lisci",
   "aff.terrainNote": "Il terreno del rilievo è pronto una volta caricata la nuvola di punti.",
   "etat.relief": "Rilievo lontano (montagne)…",
   "etat.nuage": "Nuvola di punti: {faits} k / {total} k punti",

@@ -959,13 +959,14 @@ synchroSwiss();
 window.addEventListener("pageshow", synchroSwiss);
 /* ------------------------------------------------------------------ terrain de la maquette */
 // « swisstopo » (swissALTI3D, celui de la vue de base), « releve » (grille 0,5 m tirée du nuage, par défaut),
-// « adaptatif » (maillage irrégulier du relevé : pas encore disponible, bouton désactivé). Retenu par ce navigateur.
+// « adaptatif » (même sol que le relevé, affiché en triangulation adaptative TIN : terrainTIN.js). Retenu par ce navigateur.
 function choixTerrain() {
   let v = null;
   try { v = localStorage.getItem("ombres.terrain"); } catch { /* stockage indisponible */ }
-  return v === "swisstopo" ? "swisstopo" : "releve";
+  return v === "swisstopo" || v === "adaptatif" ? v : "releve";
 }
-$(choixTerrain() === "swisstopo" ? "#tSwiss" : "#tReleve").checked = true;
+$(choixTerrain() === "swisstopo" ? "#tSwiss" : choixTerrain() === "adaptatif" ? "#tAdaptatif" : "#tReleve").checked = true;
+scene.modeTerrain = choixTerrain() === "adaptatif" ? "tin" : "grille"; // maillage du terrain affiché (scene.construire)
 $$("input[name=terrain]").forEach(b => b.addEventListener("change", e => {
   if (!e.target.checked) return;
   try { localStorage.setItem("ombres.terrain", e.target.value); } catch { /* stockage indisponible */ }
@@ -992,7 +993,7 @@ function solComposeSwisstopo(G, sw) {
  */
 function remplacerMaquette(G, nuage, point = null) {
   Object.assign(S, { G, zone: null, facades: null, resultat: null, contoursSwiss: null });
-  scene.construire(G, nuage, S.parcelle, null, { remplacer: true });
+  scene.construire(G, nuage, S.parcelle, null, { remplacer: true, terrain: choixTerrain() === "adaptatif" ? "tin" : "grille" });
   scene.surligner(S.parcelle, point);
   if (S.voisines?.length) scene.afficherParcelles(S.voisines, $("#vParcelles").checked);
   scene.comparerSwiss(jeuAffiche() === "swiss", { E: S.E0, N: S.N0 });

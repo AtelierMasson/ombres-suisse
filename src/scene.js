@@ -70,6 +70,7 @@ import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contou
 import { chargerImage, teinterCadastre, adoucirPhoto } from "./fond.js";
 import { maillageBassins } from "./piscines.js";
 import { trancheCoupe } from "./coupe.js";
+import { calculerTerrainTIN, maillageTIN, hauteurTIN } from "./terrainTIN.js";
 
 /**
  * Trait de coupe « 2D » : épaisseur constante en pixels, dessiné par-dessus tout (sans test de profondeur), avec des
@@ -763,8 +764,11 @@ void main() {
    * Construit la scène depuis les grilles. `urls` = { cadastre } (image du plan cadastral) ou null.
    * `remplacer` : bascule de la vue de base vers la maquette fine (ou changement de terrain) sans rien recharger : seules
    * les couches de la maquette changent ; l'altitude de référence, la caméra, l'anneau, le paysage et les tuiles restent.
+   * `terrain` : "grille" (relevé 0,5 m, maillage de 1 m) ou "tin" (triangulation adaptative, posée dès qu'elle est
+   * calculée) ; sans `terrain`, le choix précédent (terrainAffiche) est gardé.
    */
-  construire(G, nuage, parcelle, urls, { remplacer = false } = {}) {
+  construire(G, nuage, parcelle, urls, { remplacer = false, terrain = null } = {}) {
+    if (terrain) this.modeTerrain = terrain;
     remplacer &&= !!this.G && this.zRef != null;
     if (remplacer) this.retirerFine(); else this.vider();
     this.G = G;
@@ -872,6 +876,34 @@ void main() {
     this.vueDepart();
     if (this.modeVue) { const m = this.modeVue; this.modeVue = null; this.avant3D = null; this.vueOrtho(m); }
     this.ombres();
+    if (this.modeTerrain === "tin") this.terrainAffiche("tin").catch(e => console.warn("Terrain TIN :", e.message));
+  }
+
+  /**
+   * Maillage du terrain affiché : "grille" (relevé 0,5 m, sommets tous les 1 m) ou "tin" (terrainTIN.js, calculé dans
+   * un Web Worker, gardé sur G). Les calculs (ombres, heures) restent sur la grille G.sol ; le profil de la coupe suit
+   * le TIN (G.tin.hauteur). Promesse résolue une fois le maillage posé (false si le lieu a changé entre-temps).
+   */
+  async terrainAffiche(mode = "grille") {
+    this.modeTerrain = mode;
+    const G = this.G, o = this.couches?.terrain, id = this.idScene;
+    if (!G || !o) return false;
+    let geo;
+    if (mode === "tin") {
+      const tin = await calculerTerrainTIN(G);
+      if (id !== this.idScene || this.modeTerrain !== "tin" || this.G !== G) return false;
+      geo = maillageTIN(G, tin, this.zRef);
+      G.tin = { ...geo.userData.tin, hauteur: hauteurTIN(G, tin) };
+    } else {
+      if (!o.geometry.userData.tin) return true;
+      geo = terrain(G, this.zRef);
+      G.tin = null;
+    }
+    o.geometry.dispose();
+    o.geometry = geo;
+    if (this.coupe) this.appliquerCoupe();
+    this.demander();
+    return true;
   }
 
   /**

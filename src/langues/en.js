@@ -199,7 +199,7 @@ export default {
   "aff.terrainReleve": "Survey 0.5 m",
   "aff.terrainReleveTitre": "Terrain computed from the laser survey point cloud, 0.5 m grid: the most accurate",
   "aff.terrainAdaptatif": "Adaptive",
-  "aff.terrainAdaptatifTitre": "Adaptive survey: irregular mesh from the ground points, dense at kerbs and embankments (coming soon)",
+  "aff.terrainAdaptatifTitre": "Adaptive survey: irregular mesh from the ground points, dense at kerbs and embankments; precise, lighter on smooth ground",
   "aff.terrainNote": "The survey terrain is ready once the point cloud has loaded.",
   "etat.relief": "Distant terrain (mountains)…",
   "etat.nuage": "Point cloud: {faits} k / {total} k points",

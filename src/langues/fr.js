@@ -200,7 +200,7 @@ export default {
   "aff.terrainReleve": "Relevé 0,5 m",
   "aff.terrainReleveTitre": "Terrain calculé depuis le nuage de points du relevé laser, grille de 0,5 m : le plus précis",
   "aff.terrainAdaptatif": "Adaptatif",
-  "aff.terrainAdaptatifTitre": "Relevé adaptatif : maillage irrégulier tiré des points du sol, serré aux bordures et talus (bientôt disponible)",
+  "aff.terrainAdaptatifTitre": "Relevé adaptatif : maillage irrégulier tiré des points du sol, serré aux bordures et talus ; précis, plus léger sur les sols lisses",
   "aff.terrainNote": "Le terrain du relevé est prêt une fois le nuage de points chargé.",
   "etat.relief": "Relief lointain (montagnes)…",
   "etat.nuage": "Nuage de points : {faits} k / {total} k points",
