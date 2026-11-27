@@ -175,7 +175,7 @@ export function brancherPro(o) {
       majDessin(); aide();
       return;
     }
-    if (dessin && mode === "libre" && e.key === "Enter") { e.preventDefault(); return fermer(); }
+    if (dessin && mode === "libre" && e.key === "Enter") { e.preventDefault(); return fermerEmprise(); }
     if (e.key !== "Escape") return;
     if (dessin) return finDessin();
     if (P.selection.size) { P.selection = new Set(); P.selNom = null; maj(); }
@@ -240,8 +240,8 @@ export function brancherPro(o) {
     const ok = n >= 3 && empriseValide(pts);
     scene.afficherVolumes(P.volumes, ok ? volumeDe(sensDirect(pts), { id: 0 }) : null);
   }
-  /** Ferme l'emprise libre : volume créé, ou refus si elle se recoupe ou est trop petite. */
-  function fermer() {
+  /** Ferme l'emprise libre : volume créé, ou refus si elle se recoupe ou est trop petite (`fermer`, plus bas, ferme le projet). */
+  function fermerEmprise() {
     if (!dessin || mode !== "libre") return;
     if (dessin.length < 3) return aide("projet.libreTrop");
     if (!empriseValide(dessin)) return aide(seRecoupe(dessin, true) ? "projet.recoupe" : "projet.libreTrop");
@@ -251,7 +251,7 @@ export function brancherPro(o) {
     if (mode === "libre") {
       const r = pointLibre(e);
       if (!r) return;
-      if (r.ferme) return fermer();
+      if (r.ferme) return fermerEmprise();
       const n = dessin.length, p = r.p;
       if (n && Math.hypot(p[0] - dessin[n - 1][0], p[1] - dessin[n - 1][1]) < 0.2) return; // même point (double-clic)
       if (n >= 2 && seRecoupe([...dessin, p], false)) return aide("projet.recoupe");
@@ -275,7 +275,7 @@ export function brancherPro(o) {
   scene.renderer.domElement.addEventListener("dblclick", e => {
     if (!dessin) return;
     e.stopImmediatePropagation(); e.preventDefault();
-    if (mode === "libre") fermer();
+    if (mode === "libre") fermerEmprise();
   }, true);
   scene.renderer.domElement.addEventListener("pointermove", e => {
     if (!dessin) return;
