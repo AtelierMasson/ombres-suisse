@@ -24,8 +24,10 @@ export function brancherPub(compte) {
     document.head.append(s);
     const ins = document.createElement("ins");
     ins.className = "adsbygoogle";
-    // bannière horizontale dans la place réservée (90 px de haut) ; un cadre discret tant qu'aucune annonce n'est servie
-    Object.assign(ins.dataset, { adClient: CLIENT, adSlot: SLOT, adFormat: "horizontal", fullWidthResponsive: "false" });
+    // annonce dans la place réservée ; un cadre discret tant qu'aucune annonce n'est servie
+    // ordinateur : rectangle (250 px de haut, le format le mieux payé) ; mobile : bannière horizontale (90 px)
+    const grand = matchMedia("(min-width: 768px)").matches;
+    Object.assign(ins.dataset, { adClient: CLIENT, adSlot: SLOT, adFormat: grand ? "rectangle" : "horizontal", fullWidthResponsive: "false" });
     const place = document.createElement("div");
     place.className = "pub-place";
     place.append(ins);
