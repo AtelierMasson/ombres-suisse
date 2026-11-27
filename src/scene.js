@@ -64,6 +64,7 @@ import { socleRond, materiauPoints, bordEauRond, normalesVersLeHaut } from "./ma
 import { dansPont, maillagePont } from "./pontsModeles.js";
 import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord, decouperCercle, tabliersPonts, pontsLegers } from "./maillages.js";
 import { chargerImage, teinterCadastre, adoucirPhoto } from "./fond.js";
+import { maillageBassins } from "./piscines.js";
 import { trancheCoupe } from "./coupe.js";
 
 /**
@@ -756,6 +757,14 @@ void main() {
     const gb = eau ? bordEauRond(G, this.zRef) : null;
     if (gb) { const mb = new THREE.Mesh(gb, this.mat.eauBord = Object.assign(m.eau.clone(), { side: THREE.DoubleSide })); mb.raycast = () => {}; eau.add(mb); }
     RAYON_EAU.value = G.rayonZone ? G.rayonZone - 0.02 : 1e9;
+    // piscines : eau, parois et margelle sur le contour exact du cadastre (pas sur les cellules de la grille)
+    const gpis = maillageBassins(G, this.zRef, THREE, (x, y) => [(x - G.x0) / (2 * G.R), (y - G.x0) / (2 * G.R)]);
+    let piscines = null;
+    if (gpis) {
+      piscines = new THREE.Group();
+      piscines.add(maille(gpis.eau, m.eau, false, false), maille(gpis.parois, m.mur, false, true), maille(gpis.margelle, m.terrain, true, true));
+      if (G.rayonZone) piscines.children.forEach(o => decouperBord(o, G.R - 0.03));
+    }
     // ponts : tablier (dalle et rives) avec le vide dessous, du même plâtre que les murs
     // la chaussée prend la matière du terrain (le plan, le grain, les couleurs réelles continuent sur le pont)
     // ponts allégés (par défaut : quelques centaines de triangles par pont) ou tels que relevés (cellule par cellule)
@@ -786,7 +795,7 @@ void main() {
       if (G.rayonZone) ponts.children.forEach(o => { if (o.material === m.terrain) o.geometry = decouperCercle(o.geometry, G.rayonZone - 0.03); });
       ponts.children.forEach(o => decouperBord(o, G.R - 0.03));
     }
-    this.couches = { terrain: sol, socle: base, bati, canopee, arbres, limite, eau, ponts };
+    this.couches = { terrain: sol, socle: base, bati, canopee, arbres, limite, eau, ponts, piscines };
     for (const o of Object.values(this.couches)) if (o) this.groupe.add(o);
     // la canopée qui porte l'ombre des points est un peu abaissée : le haut des couronnes reste au soleil,
     // l'intérieur et le bas s'assombrissent

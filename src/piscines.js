@@ -8,7 +8,7 @@
 const VAUD = "https://www.ogc.vd.ch/public/rest/services/OGC/wmsVD/MapServer/283/query";
 const GEODIENSTE = "https://geodienste.ch/db/av_0/fra";
 const BOITE_VAUD = [2494000, 1115000, 2586000, 1204000];
-export const PROFONDEUR = 1.6, EAU = 0.2, ABORDS = 1.0;
+export const PROFONDEUR = 1.6, EAU = 0.2, ABORDS = 1.0, RACCORD = 2.5;
 
 const anneauxDe = g => g?.type === "Polygon" ? [g.coordinates] : g?.type === "MultiPolygon" ? g.coordinates : [];
 
@@ -63,7 +63,6 @@ const distBord = (x, y, a) => { let d = Infinity; for (let i = 0, j = a.length -
  */
 export function creuserBassins(G, bassins, E0, N0) {
   const { n, c, x0, sol, bat } = G;
-  G.eau ||= new Float32Array(n * n).fill(NaN);
   let nb = 0;
   for (const poly of bassins) {
     const ext = poly[0]?.map(([e, nn]) => [e - E0, nn - N0]);
@@ -75,23 +74,74 @@ export function creuserBassins(G, bassins, E0, N0) {
     const i0 = Math.max(0, Math.floor((Math.min(...xs) - ABORDS - 3 - x0) / c)), i1 = Math.min(n - 1, Math.ceil((Math.max(...xs) + ABORDS + 3 - x0) / c));
     const j0 = Math.max(0, Math.floor((Math.min(...ys) - ABORDS - 3 - x0) / c)), j1 = Math.min(n - 1, Math.ceil((Math.max(...ys) + ABORDS + 3 - x0) / c));
     if (i0 > i1 || j0 > j1) continue;
-    const interieur = [], abords = [], couronne = [];
+    // creusé : toute cellule qui touche le bassin (centre dedans ou à moins d'une demi-diagonale du bord) ; la pente de
+    // la grille tombe ainsi hors du contour exact, sous la margelle dessinée à part (maillageBassins)
+    const interieur = [], abords = [], couronne = [], demi = c * 0.72;
     for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
       const x = x0 + (i + 0.5) * c, y = x0 + (j + 0.5) * c, p = j * n + i;
       const d = distBord(x, y, ext), dans = dedans(x, y, ext) && !trous.some(t => dedans(x, y, t));
-      if (dans) interieur.push(p);
-      else if (d <= ABORDS) abords.push(p);
-      else if (d <= ABORDS + 2.5 && isNaN(bat[p])) couronne.push(p);
+      if (dans || d <= demi) interieur.push(p);
+      else if (d <= ABORDS + demi) abords.push(p);
+      else if (d <= ABORDS + demi + RACCORD && isNaN(bat[p])) couronne.push([p, (d - ABORDS - demi) / RACCORD]);
     }
     if (!interieur.length) continue;
     if (interieur.filter(p => !isNaN(bat[p])).length > interieur.length / 2) continue; // bassin couvert (sous un toit)
     // niveau du terrain propre : médiane du sol mesuré sur la couronne, au-delà des abords (hors du creux du relevé)
-    const z = couronne.map(p => sol[p]).filter(v => !isNaN(v)).sort((a, b) => a - b);
+    const z = couronne.map(([p]) => sol[p]).filter(v => !isNaN(v)).sort((a, b) => a - b);
     if (!z.length) continue;
     const niveau = z[z.length >> 1];
     for (const p of abords) if (isNaN(bat[p])) sol[p] = niveau;
-    for (const p of interieur) { sol[p] = niveau - PROFONDEUR; G.eau[p] = niveau - EAU; bat[p] = NaN; if (G.veg) G.veg[p] = NaN; if (G.pont) G.pont[p] = NaN; }
+    // raccord : du niveau de la piscine à la pente naturelle, en douceur (pas de marche au bord des abords)
+    for (const [p, u] of couronne) if (!isNaN(sol[p])) { const w = u * u * (3 - 2 * u); sol[p] = niveau + (sol[p] - niveau) * w; }
+    for (const p of interieur) { sol[p] = niveau - PROFONDEUR - 0.05; bat[p] = NaN; if (G.veg) G.veg[p] = NaN; if (G.pont) G.pont[p] = NaN; }
+    // l'eau, les parois et la margelle sont dessinées sur le contour exact (maillageBassins), pas par cellules
+    (G.bassins ||= []).push({ anneau: ext, trous, niveau });
     nb++;
   }
   return nb;
+}
+
+/**
+ * Maillages des bassins de G.bassins, dans le repère de la scène (x est, y altitude − zRef, z = −nord) :
+ *  - eau : polygone exact à niveau − 0,20 m ;
+ *  - parois : faces verticales sur le contour exact, du niveau au fond (−1,60 m) ;
+ *  - margelle : bande plate de 0,8 m au niveau du terrain, autour du contour (elle couvre la pente de la grille).
+ * `uvPlan(x, y)` : coordonnées du plan au sol pour la margelle (même matière que le terrain).
+ */
+export function maillageBassins(G, zRef, THREE, uvPlan) {
+  const eau = [], parois = [], marg = [], uvM = [];
+  const v = (x, y, z) => [x, z - zRef, -y];
+  for (const B of G.bassins || []) {
+    let A = B.anneau.slice();
+    let aire = 0; for (let i = 0, j = A.length - 1; i < A.length; j = i++) aire += A[j][0] * A[i][1] - A[i][0] * A[j][1];
+    if (aire < 0) A.reverse(); // sens trigonométrique : la normale extérieure d'une arête (a -> b) est (dy, -dx)
+    const zE = B.niveau - EAU, zF = B.niveau - PROFONDEUR, zM = B.niveau + 0.01, L = 0.6;
+    // eau : triangulation du contour exact (trous compris)
+    const tri = THREE.ShapeUtils.triangulateShape(A.map(p => new THREE.Vector2(p[0], p[1])), (B.trous || []).map(t => t.map(p => new THREE.Vector2(p[0], p[1]))));
+    const tous = [A, ...(B.trous || [])].flat();
+    for (const [a, b, c] of tri) for (const k of [a, b, c]) eau.push(...v(tous[k][0], tous[k][1], zE));
+    for (let i = 0; i < A.length; i++) {
+      const a = A[i], b = A[(i + 1) % A.length], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
+      const nx = dy / l * L, ny = -dx / l * L;
+      // paroi verticale (vue de l'intérieur du bassin)
+      parois.push(...v(a[0], a[1], zM), ...v(b[0], b[1], zM), ...v(b[0], b[1], zF), ...v(a[0], a[1], zM), ...v(b[0], b[1], zF), ...v(a[0], a[1], zF));
+      // margelle : bande extérieure le long de l'arête, plus un coin (triangle) vers l'arête suivante
+      const q = [[a[0], a[1]], [b[0], b[1]], [b[0] + nx, b[1] + ny], [a[0] + nx, a[1] + ny]];
+      for (const k of [0, 2, 1, 0, 3, 2]) { marg.push(...v(q[k][0], q[k][1], zM)); uvM.push(...uvPlan(q[k][0], q[k][1])); }
+      // jupe sous le bord extérieur de la margelle (ferme toute fente avec le terrain de la grille)
+      const j4 = [[a[0] + nx, a[1] + ny, zM], [b[0] + nx, b[1] + ny, zM], [b[0] + nx, b[1] + ny, zM - 0.8], [a[0] + nx, a[1] + ny, zM - 0.8]];
+      for (const k of [0, 1, 2, 0, 2, 3]) { marg.push(...v(...j4[k])); uvM.push(...uvPlan(j4[k][0], j4[k][1])); }
+      const c2 = A[(i + 2) % A.length], ex = c2[0] - b[0], ey = c2[1] - b[1], l2 = Math.hypot(ex, ey) || 1;
+      const n2 = [b[0] + ey / l2 * L, b[1] - ex / l2 * L], coin = [[b[0], b[1]], n2, [b[0] + nx, b[1] + ny]];
+      for (const p of [coin[0], coin[2], coin[1]]) { marg.push(...v(p[0], p[1], zM)); uvM.push(...uvPlan(p[0], p[1])); }
+    }
+  }
+  const geo = (pos, uv = null) => {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    if (uv) g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+    g.computeVertexNormals();
+    return g;
+  };
+  return eau.length ? { eau: geo(eau), parois: geo(parois), margelle: geo(marg, uvM) } : null;
 }
