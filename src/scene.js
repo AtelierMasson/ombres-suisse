@@ -81,6 +81,8 @@ const CONTACT = { tSol: { value: null }, tDist: { value: null }, grille: { value
  * Zone ronde : rayons (m, depuis le centre) entre lesquels un matériau est dessiné. Sert aux tuiles swisstopo (bâtiments,
  * roofer) : maquette ronde (0 à R) ou anneau autour de la maquette fine (R fin à R zone). Partagé par les matériaux.
  */
+// rayon (m) jusqu'où les bâtiments swisstopo sont montrés dans le paysage (au-delà, la brume et le relief suffisent)
+const RAYON_BATI_LOIN = 3000;
 export const ZONE = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
 /** Zone de nos propres bâtiments, ponts et volumes : le disque de la maquette fine. */
 const ZONE_FINE = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
@@ -483,6 +485,7 @@ void main() {
     this.scene.add(L.maille);
     this.scene.fog.density = this.densiteBrume();
     this.majLointain();
+    if (this.batiLoin() && this.G) { this.comparerSwiss(this.calques.jeu === "swiss"); this.majZone(); this.appliquerCoupe(); }
     this.demander();
     // ombre des montagnes sur le paysage : carte des altitudes calculée ensuite, sans retarder l'affichage
     const u = L.mat.uniforms;
@@ -497,7 +500,9 @@ void main() {
 
   /** Relief lointain visible ou non, brume avec la distance ou non (maquette et paysage). */
   reglerLointain({ voir = this.loin.voir, brume = this.loin.brume } = {}) {
+    const avant = this.batiLoin();
     Object.assign(this.loin, { voir, brume });
+    if (this.batiLoin() !== avant && this.G) { this.comparerSwiss(this.calques.jeu === "swiss"); this.majZone(); this.appliquerCoupe(); }
     this.scene.fog.density = this.densiteBrume();
     this.majLointain();
     if (this.etatSoleil) this.placerSoleil(...this.etatSoleil);
@@ -859,7 +864,7 @@ void main() {
     const jeux = { releve: c.bati, swiss: this.swiss?.tuiles?.group, roofer: c.roofer };
     for (const [j, o] of Object.entries(jeux)) {
       // anneau autour de la maquette fine : les bâtiments swisstopo y sont toujours montrés (au-delà du rayon fin)
-      const anneau = j === "swiss" && this.rayonExt > (this.G?.rayonZone || Infinity);
+      const anneau = j === "swiss" && (this.rayonExt > (this.G?.rayonZone || Infinity) || this.batiLoin());
       regler(o, (j === k.jeu || anneau) && k.batVoir, (j === k.jeu || anneau) && k.batOmbre);
     }
     this.majZone();
@@ -881,19 +886,23 @@ void main() {
       this.appliquerCoupe();
     }
     if (lieu) this.swiss.lieu = lieu;
-    this.swiss.montrer((!!actif || this.rayonExt > (this.G?.rayonZone || Infinity)) && !!this.G);
+    // montrés aussi avec le paysage : bâtiments swisstopo autour de la maquette, jusqu'à RAYON_BATI_LOIN
+    this.swiss.montrer((!!actif || this.rayonExt > (this.G?.rayonZone || Infinity) || this.batiLoin()) && !!this.G);
     this.appliquerCalques();
     this.majBords();
     this.demander(5);
   }
 
-  /** Rayons de la zone des tuiles swisstopo : toute la maquette ronde (comparaison), ou seulement l'anneau. */
+  /** Paysage affiché : les bâtiments swisstopo l'habitent aussi, au-delà de la maquette (et de l'anneau). */
+  batiLoin() { return !!(this.G?.rayonZone && this.loin?.voir && this.loin.maille && !this.modeVue); } // maquette ronde : la zone découpe le cercle
+
+  /** Rayons de la zone des tuiles swisstopo : toute la maquette ronde (comparaison), ou seulement l'anneau (et le paysage). */
   majZone() {
-    const Rf = this.G?.rayonZone;
+    const Rf = this.G?.rayonZone, Rloin = this.batiLoin() ? RAYON_BATI_LOIN : 0;
     ZONE_FINE.zoneMax.value = Rf ? Rf - 0.03 : 1e9;
     ZONE_AO.zoneMax.value = Rf ? Math.max(Rf, this.rayonExt || 0) + 0.5 : 1e9;
     if (!Rf) { ZONE.zoneMin.value = 0; ZONE.zoneMax.value = 1e9; return; }
-    ZONE.zoneMax.value = Math.max(Rf, this.rayonExt || 0) - 0.03;
+    ZONE.zoneMax.value = Math.max(Rf, this.rayonExt || 0, Rloin) - 0.03;
     ZONE_ANNEAU.zoneMin.value = Rf - 0.03; ZONE_ANNEAU.zoneMax.value = Math.max(Rf, this.rayonExt || 0) - 0.03;
     ZONE.zoneMin.value = this.calques.jeu === "swiss" ? 0 : Rf - 0.03;
     this.demander();
@@ -2058,7 +2067,9 @@ void main() {
       for (const x of [c.roofer?.material, this.swiss?.materiau]) if (x) {
         // Advanced (roofer ou reconstruction) ne couvre que la maquette fine ; swisstopo : cercle ou anneau selon le jeu
         if (this.G.rayonZone) decoupeZone(x, x === c.roofer?.material ? ZONE_FINE : ZONE);
-        poserPlans(x, this.G.rayonZone ? plans : [...dedans, ...(plans || [])]);
+        // maquette carrée avec le paysage : swisstopo n'est plus coupé au bord (il habite le paysage)
+        const libre = !this.G.rayonZone && x === this.swiss?.materiau && this.batiLoin();
+        poserPlans(x, this.G.rayonZone || libre ? plans : [...dedans, ...(plans || [])]);
       }
       // swisstopo et roofer débordent du modèle : la partie coupée ne doit pas non plus porter d'ombre (stries sur la
       // face du socle, ombres de bâtiments invisibles au bord du terrain)
