@@ -247,7 +247,9 @@ ecrire(`Image : ${sortie} (haut : élévation le long de l'axe ; bas : plan ; bl
   pts.forEach((p, k) => { nuageG.X[k] = p[0] - cx; nuageG.Y[k] = p[1] - cy; nuageG.Z[k] = p[2]; nuageG.C[k] = p[3]; });
   const G = depuisPoints(nuageG, Rg);
   const sol = (x, y) => solEn(G, x - cx, y - cy);
-  const ep = P.epaisseur || 1, conflits = [];
+  // voûtes pleines (maçonnerie) : le sol peut monter contre les tympans (vallée remblayée) sans conflit
+  const plein = s => (P.arches || []).some(a => a.plein && s >= a.s0 - 1 && s <= a.s1 + 1);
+  const ep = P.epaisseur || 1, conflits = [], perce = [];
   for (let s = 4; s <= L - 4; s += 2) {
     let i = 0; while (i < sA.length - 2 && sA[i + 1] < s) i++;
     const t = (s - sA[i]) / ((sA[i + 1] - sA[i]) || 1), ax = axe[i], bx = axe[i + 1];
@@ -255,9 +257,11 @@ ecrire(`Image : ${sortie} (haut : élévation le long de l'axe ; bas : plan ; bl
     const lx = -(bx[1] - ax[1]), ly = bx[0] - ax[0], ll = Math.hypot(lx, ly) || 1;
     let pire = -Infinity;
     for (const o of [-0.4, 0, 0.4]) pire = Math.max(pire, sol(x + o * P.largeur * lx / ll, y + o * P.largeur * ly / ll) - (z - ep));
-    if (pire > -0.3) conflits.push([s, pire]);
+    if (pire > ep - 0.2) perce.push(s); // sol au-dessus de la chaussée : visible, à corriger
+    if (pire > -0.3 && !plein(s)) conflits.push([s, pire]);
   }
   const tr = conflits.reduce((r, [s, d]) => { if (r.length && s - r.at(-1)[1] <= 2) { r.at(-1)[1] = s; r.at(-1)[2] = Math.max(r.at(-1)[2], d); } else r.push([s, s, d]); return r; }, []);
+  if (perce.length) ecrire(`Sol qui perce la chaussée : s ${perce[0]}..${perce.at(-1)} m (${perce.length} stations de 2 m)`);
   ecrire(`Terrain de la maquette : ${tr.length ? tr.map(([a, b, d]) => `s ${a}..${b} m (sol jusqu'à ${d.toFixed(1)} m au-dessus du dessous du tablier)`).join(" ; ") : "aucun conflit sous le tablier"}`);
   const flottent = [];
   for (const a of P.appuis || []) {

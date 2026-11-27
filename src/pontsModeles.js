@@ -519,3 +519,54 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0], opts =
   d.userData.sections = sec.length;
   return { dessus: d, reste: g };
 }
+
+/**
+ * Sol sous les ponts faits main. Le laser ne voit pas sous un tablier : la grille y interpole le sol depuis les bords de
+ * l'emprise, souvent des rues au niveau de la chaussée (viaduc urbain), et le terrain bouchait l'ouvrage jusqu'au
+ * tablier (Grand-Pont à Lausanne). Là où le sol monte à moins d'un mètre du dessous du tablier, il est abaissé sur la
+ * ligne qui joint les pieds connus de l'ouvrage (piles : `z_bas`, arches : naissances), jamais relevé. Sans pied connu
+ * (pont d'une seule portée), rien ne change. Renvoie le nombre de cellules abaissées.
+ */
+export function creuserSousPonts(G, modeles, E0, N0) {
+  let n = 0;
+  for (const P of modeles || []) {
+    const a = P.axe.map(([e, nn, z]) => [e - E0, nn - N0, z]), cum = [0];
+    for (let i = 1; i < a.length; i++) cum.push(cum[i - 1] + Math.hypot(a[i][0] - a[i - 1][0], a[i][1] - a[i - 1][1]));
+    const L = cum.at(-1), ep = P.epaisseur || 1, l2 = P.largeur / 2 + 1;
+    const pieds = [];
+    for (const p of P.appuis || []) if (p.type === "pile" && Number.isFinite(p.z_bas)) pieds.push([p.s, p.z_bas]);
+    for (const A of P.arches || []) {
+      if (Number.isFinite(A.z_naissance)) pieds.push([A.s0, A.z_naissance]);
+      const zf = A.z_naissance_fin ?? A.z_naissance;
+      if (Number.isFinite(zf)) pieds.push([A.s1, zf]);
+    }
+    if (!pieds.length) continue;
+    pieds.sort((p, q) => p[0] - q[0]);
+    const profil = s => {
+      if (s <= pieds[0][0]) return pieds[0][1];
+      if (s >= pieds.at(-1)[0]) return pieds.at(-1)[1];
+      let i = 0; while (pieds[i + 1][0] < s) i++;
+      const [s0, z0] = pieds[i], [s1, z1] = pieds[i + 1];
+      return z0 + (z1 - z0) * (s - s0) / ((s1 - s0) || 1);
+    };
+    const chaussee = s => { let i = 0; while (i < a.length - 2 && cum[i + 1] < s) i++; const t = (s - cum[i]) / ((cum[i + 1] - cum[i]) || 1); return a[i][2] + (a[i + 1][2] - a[i][2]) * t; };
+    const xs = a.map(p => p[0]), ys = a.map(p => p[1]);
+    const i0 = Math.max(0, Math.floor((Math.min(...xs) - l2 - G.x0) / G.c)), i1 = Math.min(G.n - 1, Math.ceil((Math.max(...xs) + l2 - G.x0) / G.c));
+    const j0 = Math.max(0, Math.floor((Math.min(...ys) - l2 - G.x0) / G.c)), j1 = Math.min(G.n - 1, Math.ceil((Math.max(...ys) + l2 - G.x0) / G.c));
+    for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
+      const x = G.x0 + (i + 0.5) * G.c, y = G.x0 + (j + 0.5) * G.c;
+      // projection sur l'axe : abscisse s, distance au centre du tablier
+      let best = Infinity, sb = 0;
+      for (let k = 0; k < a.length - 1; k++) {
+        const ax = a[k][0], ay = a[k][1], dx = a[k + 1][0] - ax, dy = a[k + 1][1] - ay, l = dx * dx + dy * dy || 1;
+        const u = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / l)), d = Math.hypot(x - ax - u * dx, y - ay - u * dy);
+        if (d < best) { best = d; sb = cum[k] + u * Math.sqrt(l); }
+      }
+      if (best > l2 || sb < 3 || sb > L - 3) continue;
+      const p = j * G.n + i, z = G.sol[p], zp = profil(sb);
+      if (!(z > chaussee(sb) - ep - 1) || !(z > zp + 0.3)) continue;
+      G.sol[p] = zp; n++;
+    }
+  }
+  return n;
+}

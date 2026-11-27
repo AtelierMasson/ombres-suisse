@@ -65,7 +65,7 @@ import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { solEn, majSurface } from "./grille.js";
 import { indexVolumes } from "./volumes.js";
 import { socleRond, materiauPoints, bordEauRond, normalesVersLeHaut } from "./maillages.js";
-import { dansPont, maillagePont } from "./pontsModeles.js";
+import { dansPont, maillagePont, creuserSousPonts } from "./pontsModeles.js";
 import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord, decouperCercle, tabliersPonts, pontsLegers } from "./maillages.js";
 import { chargerImage, teinterCadastre, adoucirPhoto } from "./fond.js";
 import { maillageBassins } from "./piscines.js";
@@ -774,6 +774,8 @@ void main() {
     remplacer &&= !!this.G && this.zRef != null;
     if (remplacer) this.retirerFine(); else this.vider();
     this.G = G;
+    // sol sous les ponts faits main : abaissé là où il bouchait l'ouvrage jusqu'au tablier (pontsModeles.js)
+    if (this.pontsModeles?.length && !G.provisoire && creuserSousPonts(G, this.pontsModeles, this.lieuPonts?.E ?? 0, this.lieuPonts?.N ?? 0)) majSurface(G);
     // le nuage est gardé (tableaux typés X, Y, Z, C) : nuage brut construit à la demande, points proches de la coupe
     this.nuage = nuage;
     if (!remplacer) {
