@@ -50,6 +50,9 @@ Référence de précision : `outils/ponts/modeles/poya.json` (pont de la Poya). 
 (`ch.swisstopo.swisssurface3d`, items de la même tuile) ; sinon lis seulement la tuile LAS/LAZ utile avec
 `python3 outils/ponts/zip_distant.py <url>` (téléchargement partiel) ; en dernier recours modèle depuis l'axe TLM,
 swissALTI3D et les photos, `confiance` « faible », et écris « non vérifié au laser » dans `notes`.
+**Disque** : les dalles LAS/LAZ/ZIP et les tableaux `.npy` téléchargés ou extraits (souvent 0,3 à 2 Go par pont) sont
+**supprimés dès que le pont est vérifié** ; ne garde que le JSON du modèle, les photos, le calage et les images. Le disque
+de la machine est presque plein.
 
 ## Au style du pont
 | Type | Ce qui compte |
