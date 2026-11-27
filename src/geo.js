@@ -12,18 +12,50 @@ export function versWgs(E, N) {
   return [lon * 100 / 36, lat * 100 / 36];
 }
 
-/** Adresses et parcelles de toute la Suisse. */
+// lieux notables (cathédrales, hôtels de ville, ponts, châteaux, gares, musées…) : liste interne tirée d'OpenStreetMap
+// (outils/lieux/extraire_osm.py), servie avec le site et chargée à la première recherche (~150 Ko compressée)
+const normaliser = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+let lieux = null;
+const listeLieux = () => lieux ||= fetch(`${import.meta.env.BASE_URL}lieux/lieux-ch.json`).then(r => r.ok ? r.json() : { lieux: [] })
+  .then(d => d.lieux.map(([nom, type, E, N, loc = "", autres = []]) => ({ nom, type, E, N, loc, cle: normaliser([nom, ...autres].join(" | ")), cleLoc: normaliser(loc) })))
+  .catch(() => []);
+async function chercherLieux(texte) {
+  const mots = normaliser(texte).split(/[\s,]+/).filter(m => m.length > 1);
+  if (!mots.length) return [];
+  const L = await listeLieux(), r = [];
+  for (const l of L) {
+    // chaque mot doit être dans le nom (ou un autre nom) ou dans la localité ; le nom compte plus que la localité
+    let score = 0, ok = true;
+    for (const m of mots) {
+      if (l.cle.includes(m)) score += l.cle.startsWith(m) || l.cle.includes(" " + m) ? 3 : 2;
+      else if (l.cleLoc.includes(m)) score += 1;
+      else { ok = false; break; }
+    }
+    if (ok) r.push([score, l]);
+  }
+  r.sort((a, b) => b[0] - a[0] || a[1].nom.length - b[1].nom.length);
+  return r.slice(0, 5).map(([, l]) => ({ label: l.loc && !normaliser(l.nom).includes(l.cleLoc) ? `${l.nom}, ${l.loc}` : l.nom, type: "Lieu", E: l.E, N: l.N }));
+}
+
+/** Adresses, parcelles et lieux de toute la Suisse. */
 export async function chercher(texte, signal) {
   // coordonnées tapées (GPS en degrés décimaux ou degrés-minutes-secondes, MN95, MN03) : le lieu directement
   const c = lireCoordonnees(texte);
   if (c) return [{ label: c.label, type: "Coordonnées", E: c.E, N: c.N }];
-  const u = `${API}/api/SearchServer?type=locations&origins=address,parcel&sr=2056&limit=8&searchText=${encodeURIComponent(texte)}`;
-  const d = await (await fetch(u, { signal })).json();
-  return (d.results || []).map(r => ({
-    label: r.attrs.label.replace(/<[^>]+>/g, ""),
-    type: r.attrs.origin === "parcel" ? "Parcelle" : "Adresse",
-    E: r.attrs.y, N: r.attrs.x,
-  }));
+  // adresses et parcelles, plus les noms de swisstopo (swissNAMES3D : rues et ponts nommés, sites historiques, écoles…)
+  const u = `${API}/api/SearchServer?type=locations&origins=address,parcel,gazetteer&sr=2056&limit=10&searchText=${encodeURIComponent(texte)}`;
+  const [d, L] = await Promise.all([fetch(u, { signal }).then(r => r.json()), chercherLieux(texte).catch(() => [])]);
+  const officiels = (d.results || [])
+    // noms de swisstopo : seulement les objets précis (pas les régions, cantons, communes entières, lieux-dits)
+    .filter(r => r.attrs.origin !== "gazetteer" || /<i>(Strasse|Historisches Areal|Schul- und Hochschulareal|Spital|Sportanlage|Gebäude|Kirche|Schloss|Turm|Brücke|Denkmal|Museum|Bahnhof|Friedhof|Kloster|Burg|Ruine)/.test(r.attrs.label))
+    .map(r => ({
+      label: r.attrs.label.replace(/<i>[^<]*<\/i>\s*/g, "").replace(/<[^>]+>/g, "").trim(),
+      type: r.attrs.origin === "parcel" ? "Parcelle" : r.attrs.origin === "address" ? "Adresse" : "Lieu",
+      E: r.attrs.y, N: r.attrs.x,
+    }));
+  // une adresse tapée (avec un numéro) passe d'abord ; sinon les lieux notables d'abord
+  const adresse = /\d/.test(texte), vus = new Set(), tous = adresse ? [...officiels, ...L] : [...L, ...officiels];
+  return tous.filter(r => { const k = r.label.toLowerCase(); if (vus.has(k)) return false; vus.add(k); return true; }).slice(0, 10);
 }
 
 /** WGS84 (degrés) -> MN95, formules approchées de swisstopo (précision ~1 m). */

@@ -72,7 +72,7 @@ function aujourdhui() { const d = new Date(); return `${d.getFullYear()}-${Strin
 const hhmm = m => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 const duree = v => { const m = Math.round(v * 60); return t("duree", { h: Math.floor(m / 60), m: String(m % 60).padStart(2, "0") }); };
 // type de lieu (« Adresse », « Parcelle » : codes internes, aussi dans l'adresse de la page) dans la langue choisie
-const nomType = c => c === "Adresse" || c === "Parcelle" ? t(`type.${c}`) : c;
+const nomType = c => c === "Adresse" || c === "Parcelle" || c === "Lieu" ? t(`type.${c}`) : c;
 const echap = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 let finMessage;
 function message(texte, tenir = 6000) {

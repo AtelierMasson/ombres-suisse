@@ -158,6 +158,7 @@ export default {
   "rapport.envoi": "Invio…",
   "rapport.envoye": "Inviato ({id}).",
   "rapport.echec": "Invio non riuscito: {erreur}",
+  "type.Lieu": "Luogo",
   "compte.supprimer": "Eliminare il mio account",
   "compte.supprimerConfirmer": "Vuole eliminare definitivamente il suo account, i suoi dati e i luoghi salvati? Per confermare, inserisca di nuovo il suo indirizzo e-mail: {email}",
   "compte.supprime": "Il suo account è stato eliminato.",

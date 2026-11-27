@@ -158,6 +158,7 @@ export default {
   "rapport.envoi": "Wird gesendet…",
   "rapport.envoye": "Gesendet ({id}).",
   "rapport.echec": "Senden fehlgeschlagen: {erreur}",
+  "type.Lieu": "Ort",
   "compte.supprimer": "Konto löschen",
   "compte.supprimerConfirmer": "Möchten Sie Ihr Konto, Ihre Angaben und Ihre gespeicherten Orte endgültig löschen? Geben Sie zur Bestätigung Ihre E-Mail-Adresse erneut ein: {email}",
   "compte.supprime": "Ihr Konto wurde gelöscht.",

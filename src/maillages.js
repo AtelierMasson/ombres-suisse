@@ -39,16 +39,60 @@ export function terrain(G, zRef) {
     pos[3 * k] = x; pos[3 * k + 1] = solEn(G, x, y) - zRef; pos[3 * k + 2] = -y;
     uv[2 * k] = (x - G.x0) / (2 * G.R); uv[2 * k + 1] = (y - G.x0) / (2 * G.R);
   }
-  const idx = new Uint32Array((m - 1) * (m - 1) * 6);
+  // piscines (G.bassins) : un rectangle de cases autour de chaque bassin est retiré de la grille, puis retriangulé du
+  // bord du rectangle (sommets de la grille, raccord exact avec les cases voisines) jusqu'au contour exact du bassin,
+  // qui reste un trou (parois, fond et eau : maillageBassins). Le terrain rejoint ainsi le bord sans jonction.
+  const pasM = pas * G.c, retire = new Uint8Array((m - 1) * (m - 1)), plus = [];
+  for (const B of G.bassins || []) {
+    const xs = B.anneau.map(p => p[0]), ys = B.anneau.map(p => p[1]);
+    const a0 = Math.max(0, Math.floor((Math.min(...xs) - 1 - G.x0) / pasM)), a1 = Math.min(m - 1, Math.ceil((Math.max(...xs) + 1 - G.x0) / pasM));
+    const b0 = Math.max(0, Math.floor((Math.min(...ys) - 1 - G.x0) / pasM)), b1 = Math.min(m - 1, Math.ceil((Math.max(...ys) + 1 - G.x0) / pasM));
+    let libre = a1 > a0 && b1 > b0;
+    for (let b = b0; b < b1 && libre; b++) for (let a = a0; a < a1; a++) if (retire[b * (m - 1) + a] || dehors[b * m + a]) { libre = false; break; }
+    if (!libre) continue; // deux bassins collés, ou au bord du cercle : celui-ci garde la grille
+    for (let b = b0; b < b1; b++) for (let a = a0; a < a1; a++) retire[b * (m - 1) + a] = 1;
+    // bord du rectangle, sommet par sommet de la grille (sens trigonométrique)
+    const bord = [];
+    for (let a = a0; a < a1; a++) bord.push(b0 * m + a);
+    for (let b = b0; b < b1; b++) bord.push(b * m + a1);
+    for (let a = a1; a > a0; a--) bord.push(b1 * m + a);
+    for (let b = b1; b > b0; b--) bord.push(b * m + a0);
+    plus.push({ bord, trou: B.anneau, niveau: B.niveau });
+  }
+  // sommets ajoutés (contours des bassins) après ceux de la grille
+  let nAjout = 0; for (const P of plus) nAjout += P.trou.length;
+  const posT = new Float32Array(pos.length + nAjout * 3), uvT = new Float32Array(uv.length + nAjout * 2);
+  posT.set(pos); uvT.set(uv);
+  let k0 = m * m;
+  const tris = [];
+  for (const P of plus) {
+    const base = k0;
+    for (const [x, y] of P.trou) {
+      posT[3 * k0] = x; posT[3 * k0 + 1] = P.niveau - zRef; posT[3 * k0 + 2] = -y;
+      uvT[2 * k0] = (x - G.x0) / (2 * G.R); uvT[2 * k0 + 1] = (y - G.x0) / (2 * G.R); k0++;
+    }
+    const v2 = k => new THREE.Vector2(posT[3 * k], -posT[3 * k + 2]);
+    const contour = P.bord.map(v2), trou = P.trou.map((_, i) => v2(base + i));
+    const ids = [...P.bord, ...P.trou.map((_, i) => base + i)];
+    for (const [i, j, l] of THREE.ShapeUtils.triangulateShape(contour, [trou])) {
+      // même sens que la grille (normale vers le haut : sens trigonométrique vu de dessus)
+      const A = ids[i], Bv = ids[j], C = ids[l];
+      const cr = (posT[3 * Bv] - posT[3 * A]) * (-posT[3 * C + 2] + posT[3 * A + 2]) - (-posT[3 * Bv + 2] + posT[3 * A + 2]) * (posT[3 * C] - posT[3 * A]);
+      if (cr >= 0) tris.push(A, Bv, C); else tris.push(A, C, Bv);
+    }
+  }
+  const idx = new Uint32Array((m - 1) * (m - 1) * 6 + tris.length);
   let q = 0;
   for (let b = 0; b < m - 1; b++) for (let a = 0; a < m - 1; a++) {
+    if (retire[b * (m - 1) + a]) continue;
     const p = b * m + a;
     if (!(dehors[p] && dehors[p + 1] && dehors[p + m + 1])) { idx[q++] = p; idx[q++] = p + 1; idx[q++] = p + m + 1; }
     if (!(dehors[p] && dehors[p + m + 1] && dehors[p + m])) { idx[q++] = p; idx[q++] = p + m + 1; idx[q++] = p + m; }
   }
+  for (const v of tris) idx[q++] = v;
   const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+  g.setAttribute("position", new THREE.BufferAttribute(posT, 3));
+  g.setAttribute("uv", new THREE.BufferAttribute(uvT, 2));
   g.setIndex(new THREE.BufferAttribute(idx.subarray(0, q), 1));
   g.computeVertexNormals();
   return g;

@@ -159,6 +159,7 @@ export default {
   "rapport.envoi": "Envoi…",
   "rapport.envoye": "Envoyé ({id}).",
   "rapport.echec": "Échec de l’envoi : {erreur}",
+  "type.Lieu": "Lieu",
   "compte.supprimer": "Supprimer mon compte",
   "compte.supprimerConfirmer": "Supprimer définitivement votre compte, vos informations et vos lieux enregistrés ? Pour confirmer, saisissez à nouveau votre adresse e-mail : {email}",
   "compte.supprime": "Votre compte a été supprimé.",

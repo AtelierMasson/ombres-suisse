@@ -762,7 +762,7 @@ void main() {
     let piscines = null;
     if (gpis) {
       piscines = new THREE.Group();
-      piscines.add(maille(gpis.eau, m.eau, false, false), maille(gpis.parois, m.mur, false, true), maille(gpis.margelle, m.terrain, true, true));
+      piscines.add(maille(gpis.eau, m.eau, false, false), maille(gpis.parois, m.mur, false, true), maille(gpis.fond, m.mur, false, true));
       if (G.rayonZone) piscines.children.forEach(o => decouperBord(o, G.R - 0.03));
     }
     // ponts : tablier (dalle et rives) avec le vide dessous, du même plâtre que les murs

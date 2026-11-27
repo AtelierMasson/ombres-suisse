@@ -158,6 +158,7 @@ export default {
   "rapport.envoi": "Sending…",
   "rapport.envoye": "Sent ({id}).",
   "rapport.echec": "Sending failed: {erreur}",
+  "type.Lieu": "Place",
   "compte.supprimer": "Delete my account",
   "compte.supprimerConfirmer": "Permanently delete your account, details and saved places? To confirm, enter your email address again: {email}",
   "compte.supprime": "Your account has been deleted.",

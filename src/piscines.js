@@ -115,25 +115,17 @@ export function maillageBassins(G, zRef, THREE, uvPlan) {
     let A = B.anneau.slice();
     let aire = 0; for (let i = 0, j = A.length - 1; i < A.length; j = i++) aire += A[j][0] * A[i][1] - A[i][0] * A[j][1];
     if (aire < 0) A.reverse(); // sens trigonométrique : la normale extérieure d'une arête (a -> b) est (dy, -dx)
-    const zE = B.niveau - EAU, zF = B.niveau - PROFONDEUR, zM = B.niveau + 0.01, L = 0.6;
+    const zE = B.niveau - EAU, zF = B.niveau - PROFONDEUR, zM = B.niveau;
     // eau : triangulation du contour exact (trous compris)
     const tri = THREE.ShapeUtils.triangulateShape(A.map(p => new THREE.Vector2(p[0], p[1])), (B.trous || []).map(t => t.map(p => new THREE.Vector2(p[0], p[1]))));
     const tous = [A, ...(B.trous || [])].flat();
     for (const [a, b, c] of tri) for (const k of [a, b, c]) eau.push(...v(tous[k][0], tous[k][1], zE));
+    // fond du bassin, au contour exact (vu d'en haut à travers l'eau)
+    for (const [a, b, c] of tri) for (const k of [a, b, c]) { marg.push(...v(tous[k][0], tous[k][1], zF)); uvM.push(...uvPlan(tous[k][0], tous[k][1])); }
     for (let i = 0; i < A.length; i++) {
-      const a = A[i], b = A[(i + 1) % A.length], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
-      const nx = dy / l * L, ny = -dx / l * L;
+      const a = A[i], b = A[(i + 1) % A.length];
       // paroi verticale (vue de l'intérieur du bassin)
       parois.push(...v(a[0], a[1], zM), ...v(b[0], b[1], zM), ...v(b[0], b[1], zF), ...v(a[0], a[1], zM), ...v(b[0], b[1], zF), ...v(a[0], a[1], zF));
-      // margelle : bande extérieure le long de l'arête, plus un coin (triangle) vers l'arête suivante
-      const q = [[a[0], a[1]], [b[0], b[1]], [b[0] + nx, b[1] + ny], [a[0] + nx, a[1] + ny]];
-      for (const k of [0, 2, 1, 0, 3, 2]) { marg.push(...v(q[k][0], q[k][1], zM)); uvM.push(...uvPlan(q[k][0], q[k][1])); }
-      // jupe sous le bord extérieur de la margelle (ferme toute fente avec le terrain de la grille)
-      const j4 = [[a[0] + nx, a[1] + ny, zM], [b[0] + nx, b[1] + ny, zM], [b[0] + nx, b[1] + ny, zM - 0.8], [a[0] + nx, a[1] + ny, zM - 0.8]];
-      for (const k of [0, 1, 2, 0, 2, 3]) { marg.push(...v(...j4[k])); uvM.push(...uvPlan(j4[k][0], j4[k][1])); }
-      const c2 = A[(i + 2) % A.length], ex = c2[0] - b[0], ey = c2[1] - b[1], l2 = Math.hypot(ex, ey) || 1;
-      const n2 = [b[0] + ey / l2 * L, b[1] - ex / l2 * L], coin = [[b[0], b[1]], n2, [b[0] + nx, b[1] + ny]];
-      for (const p of [coin[0], coin[2], coin[1]]) { marg.push(...v(p[0], p[1], zM)); uvM.push(...uvPlan(p[0], p[1])); }
     }
   }
   const geo = (pos, uv = null) => {
@@ -143,5 +135,5 @@ export function maillageBassins(G, zRef, THREE, uvPlan) {
     g.computeVertexNormals();
     return g;
   };
-  return eau.length ? { eau: geo(eau), parois: geo(parois), margelle: geo(marg, uvM) } : null;
+  return eau.length ? { eau: geo(eau), parois: geo(parois), fond: geo(marg, uvM) } : null;
 }
