@@ -22,7 +22,10 @@ export async function maillageRoofer(essai, [E0, N0], zRef, materiau, onProgres 
     const { done, value } = await lecteur.read();
     if (done) break;
     morceaux.push(value); recu += value.length;
-    onProgres(total ? recu / total : null, t("unite.mo", { n: `${nombre(recu / 1e6, 1)}${total ? ` / ${nombre(total / 1e6, 1)}` : ""}` }));
+    // fichier compressé par le serveur : la longueur annoncée est celle du fichier compressé (plus petite que ce qui
+    // est reçu) ; la progression reste alors indéterminée (sinon « 0,2 / 0,0 Mo » et 672 %)
+    const connu = total && recu <= total;
+    onProgres(connu ? recu / total : null, t("unite.mo", { n: `${nombre(recu / 1e6, 1)}${connu ? ` / ${nombre(total / 1e6, 1)}` : ""}` }));
   }
   const d = JSON.parse(new TextDecoder().decode(await new Blob(morceaux).arrayBuffer()));
   return maillagePolygones(d, [E0, N0], zRef, materiau);

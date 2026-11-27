@@ -999,7 +999,9 @@ void main() {
     // Léman) avait des pans de paroi sous le fond : paroi retournée, dont le bas suivait le terrain (bord dentelé).
     const nBord = Math.min(4096, Math.max(256, Math.ceil(2 * Math.PI * Rext)));
     let zMinBord = Infinity;
-    for (let k = 0; k < nBord; k++) { const a = k / nBord * 2 * Math.PI, z = altFin(Math.cos(a) * Rext, Math.sin(a) * Rext); if (z < zMinBord) zMinBord = z; }
+    // altitudes impossibles en Suisse (donnée corrompue) : ignorées, elles descendaient le fond à des millions de mètres
+    for (let k = 0; k < nBord; k++) { const a = k / nBord * 2 * Math.PI, z = altFin(Math.cos(a) * Rext, Math.sin(a) * Rext); if (z > -50 && z < 5000 && z < zMinBord) zMinBord = z; }
+    if (!isFinite(zMinBord)) zMinBord = this.zRef + (this.zBas ?? -50);
     const zBasA = Math.min(lac ? Math.min(this.zBas, lac.niveau - this.zRef - 60) : this.zBas, zMinBord - this.zRef - 8);
     this.zBasAnneau = zBasA;
     // la paroi s'arrête au fond du lac : au-dessus, la bordure est de l'eau (bande translucide, plus bas)
