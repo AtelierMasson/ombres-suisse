@@ -5,3 +5,7 @@ dist/
 # fond des lacs en tuiles (outils/bathy_tuiles.py) : mis sur le serveur à part, trop lourd pour le dépôt
 public/bathy/
 *.verrou
+
+# secrets locaux (jetons) : jamais versionnés
+.env
+.env.*
