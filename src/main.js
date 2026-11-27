@@ -352,7 +352,7 @@ async function depuisAdresse(o = null) {
       // chargement visible : les points apparaissent au fil de l'arrivée (pas pour la grande zone de l'accueil, déjà affichée)
       const apercu = voyage ? null : { debut: total => id === tache && scene.debutChargement(total, R, ACC ? { garderVue: true, z0: ACC.z } : {}), bloc: (...a) => id === tache && scene.ajouterBloc(...a) };
       nuage = await chargerNuage(copc, boite, [E0, N0], 0.5, (f, t) => id === tache && et(0.05 + 0.7 * f, t), (chargement = new AbortController()).signal,
-        { interieur: coeur, niveau: niv === 2 ? 0 : niv === 1 ? 1 : 2 }, apercu);
+        { interieur: coeur, niveau: niv === 2 ? 0 : niv === 1 ? 1 : 2 }, apercu, ACC || ronde() ? { E: E0, N: N0, R: R + 3 } : null);
       if (id !== tache) return;
       et(0.78, t("etat.reconstruction"));
       await pause();

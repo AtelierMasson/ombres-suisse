@@ -11,7 +11,8 @@ export const CLASSES = { 2: "sol", 3: "végétation", 6: "bâtiment", 9: "eau", 
  * Points de la boîte [e0, n0, e1, n1] (MN95). Retourne des tableaux typés relatifs à (E0, N0).
  * onProgres(fraction, texte) est appelé pendant le chargement. `signal` (AbortSignal) arrête les fils en cours.
  */
-export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, onProgres = () => {}, signal = null, densite = null, apercu = null) {
+export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, onProgres = () => {}, signal = null, densite = null, apercu = null, cercle = null) {
+  // `cercle` = { E, N, R } (maquette ronde) : seuls les nœuds et les points qui touchent le disque sont lus (pas les coins du carré)
   // `apercu` (facultatif) = { debut(total), bloc(X, Y, Z, C, n) } : les points arrivent, bloc par bloc (chargement visible)
   const [e0, n0, e1, n1] = boite;
   // densité selon la distance : toute la finesse dans la boîte intérieure (parcelle et ses abords), un niveau de moins
@@ -33,13 +34,14 @@ export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, on
       const [d, x, y] = k.split("-").map(Number), s = cote / 2 ** d, x0 = cube[0] + x * s, y0 = cube[1] + y * s;
       return [x0, y0, x0 + s, y0 + s];
     };
-    const garder = k => { const b = boiteNoeud(k); return coupe(b, boite) && +k.split("-")[0] <= niveauMax(b, profMax); };
+    const dansCercle = b => !cercle || Math.hypot(Math.max(b[0] - cercle.E, 0, cercle.E - b[2]), Math.max(b[1] - cercle.N, 0, cercle.N - b[3])) <= cercle.R;
+    const garder = k => { const b = boiteNoeud(k); return coupe(b, boite) && dansCercle(b) && +k.split("-")[0] <= niveauMax(b, profMax); };
     // la hiérarchie peut être répartie sur plusieurs pages
     const pages = [copc.info.rootHierarchyPage];
     while (pages.length) {
       const { nodes, pages: sous } = await Copc.loadHierarchyPage(t.url, pages.pop());
       for (const [k, n] of Object.entries(nodes)) if (n && n.pointCount && garder(k)) liste.push({ url: t.url, copc, n });
-      for (const [k, p] of Object.entries(sous)) if (+k.split("-")[0] <= profMax && coupe(boiteNoeud(k), boite)) pages.push(p);
+      for (const [k, p] of Object.entries(sous)) if (+k.split("-")[0] <= profMax && coupe(boiteNoeud(k), boite) && dansCercle(boiteNoeud(k))) pages.push(p);
     }
     return liste;
   }));
@@ -61,7 +63,7 @@ export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, on
       const donner = w => {
         if (suivante >= taches.length) return;
         const { url, copc, n: noeud } = taches[suivante];
-        w.postMessage({ id: suivante++, url, copc, noeud, boite, origine: [E0, N0] });
+        w.postMessage({ id: suivante++, url, copc, noeud, boite, origine: [E0, N0], cercle });
       };
       for (const w of fils) {
         w.onerror = e => ko(new Error(t("erreur.nuageDecodage", { m: e.message || t("erreur.filEchec") })));
