@@ -7,7 +7,11 @@ require __DIR__ . '/_commun.php';
 entree('POST');
 $c = exiger_compte();
 if ((int) $c['pro'] === 1) json(409, ['erreur' => 'deja_pro']);
-$l = langue(corps()['langue'] ?? null);
+$d = corps();
+$l = langue($d['langue'] ?? null);
+// conditions de vente acceptées et exécution immédiate demandée (renonciation au droit de rétractation, clients UE)
+if (empty($d['cgv'])) json(400, ['erreur' => 'conditions']);
+$versionCgv = '2026-11-27';
 $retour = fn(string $etat) => SITE_URL . '/?' . http_build_query(['achat' => $etat, 'lang' => $l]);
 
 $params = [
@@ -24,7 +28,7 @@ $params = [
     'client_reference_id' => (string) $c['id'],
     'customer_email' => $c['email'],
     'payment_intent_data' => ['receipt_email' => $c['email']],
-    'metadata' => ['compte_id' => (string) $c['id']],
+    'metadata' => ['compte_id' => (string) $c['id'], 'cgv' => $versionCgv],
     'locale' => $l,
     'success_url' => $retour('ok'),
     'cancel_url' => $retour('annule'),
@@ -46,7 +50,7 @@ if ($code !== 200 || !is_array($s) || empty($s['url'])) {
     json(502, ['erreur' => 'paiement_indisponible']);
 }
 
-bd()->prepare('INSERT INTO achats (id, compte_id, montant, devise, etat) VALUES (?, ?, ?, ?, ?)')
-    ->execute([$s['id'], $c['id'], PRIX_CENTIMES, DEVISE, 'ouvert']);
+bd()->prepare('INSERT INTO achats (id, compte_id, montant, devise, etat, cgv_version, cgv_le) VALUES (?, ?, ?, ?, ?, ?, UTC_TIMESTAMP())')
+    ->execute([$s['id'], $c['id'], PRIX_CENTIMES, DEVISE, 'ouvert', $versionCgv]);
 
 json(200, ['url' => $s['url']]);

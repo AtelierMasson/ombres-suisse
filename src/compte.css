@@ -41,3 +41,7 @@
 #compte .compte-lieux li a { color: var(--texte, inherit); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #compte .compte-lieux li a:hover { text-decoration: underline; }
 #compte .compte-lieux .btn-close { width: .6em; height: .6em; flex: none; }
+
+#compte .compte-cgv { display: flex; gap: 6px; align-items: flex-start; font-size: 12px; line-height: 1.4; color: var(--doux, #66727f); margin: 4px 0 8px; text-align: left; }
+#compte .compte-cgv input { margin-top: 2px; flex: none; }
+#compte .compte-supprimer { color: var(--doux, #66727f); font-size: 12px; }

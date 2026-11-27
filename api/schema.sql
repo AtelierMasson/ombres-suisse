@@ -78,3 +78,8 @@ CREATE TABLE IF NOT EXISTS lieux (
   KEY compte_idx (compte_id),
   CONSTRAINT lieux_compte FOREIGN KEY (compte_id) REFERENCES comptes (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Acceptation des conditions de vente (version et date) pour chaque achat
+ALTER TABLE achats
+  ADD COLUMN IF NOT EXISTS cgv_version VARCHAR(20) NULL,
+  ADD COLUMN IF NOT EXISTS cgv_le DATETIME NULL;

@@ -84,6 +84,7 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       const a = ev.target.closest("[data-action]")?.dataset.action;
       if (a === "acheter") acheter();
       else if (a === "deconnecter") deconnecter();
+      else if (a === "supprimer") supprimer();
     });
     dlg.addEventListener("submit", ev => {
       ev.preventDefault();
@@ -132,7 +133,14 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
         // offre Pro : titre, avantages, bouton et conditions dans un même encadré, bien visible
         const offre = el("div", "compte-offre");
         offre.append(el("div", "compte-offre-titre", "Topograph Pro"), el("p", "compte-offre-texte", t("compte.avantages")));
-        offre.append(bouton2("btn btn-primary w-100", t("compte.passerPro"), "acheter"));
+        // conditions de vente : case obligatoire avant le paiement (exécution immédiate, renonciation à la rétractation)
+        const accord = el("label", "compte-cgv");
+        const case_ = el("input"); case_.type = "checkbox"; case_.name = "cgv";
+        accord.append(case_, " ", el("span", null, t("compte.accepteCgv")));
+        const acheter = bouton2("btn btn-primary w-100", t("compte.passerPro"), "acheter");
+        acheter.disabled = true;
+        case_.addEventListener("change", () => { acheter.disabled = !case_.checked; });
+        offre.append(accord, acheter);
         const note = el("p", "compte-note", t("compte.paiement") + " ");
         const cgv = el("a", null, t("compte.conditions"));
         cgv.href = "#";
@@ -167,6 +175,7 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
         contenu.push(a);
       }
       contenu.push(bouton2("btn btn-link btn-sm compte-deconnexion", t("compte.deconnecter"), "deconnecter"));
+      contenu.push(bouton2("btn btn-link btn-sm compte-supprimer", t("compte.supprimer"), "supprimer"));
     }
     if (message) {
       const m = el("p", "compte-message", message);
@@ -205,7 +214,7 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
     ecrire(t("compte.redirection"));
     occupe(true);
     try {
-      const r = await appel("/achat.php", { method: "POST", body: JSON.stringify({ langue: langueDoc() }) });
+      const r = await appel("/achat.php", { method: "POST", body: JSON.stringify({ langue: langueDoc(), cgv: true }) });
       if (r.ok) { location.href = (await r.json()).url; return; }
       if (r.status === 401 || r.status === 409) { await relire(); ecrire(""); } // session expirée ou déjà pro
       else ecrire(t("compte.erreurPaiement"));
@@ -222,6 +231,19 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       message = t("compte.enregistre");
     } catch { message = t("compte.erreur"); }
     dessiner();
+  }
+
+  /** Suppression du compte : l'adresse retapée confirme ; lieux, informations et sessions sont effacés. */
+  async function supprimer() {
+    const saisie = prompt(t("compte.supprimerConfirmer", { email: e.email }));
+    if (saisie === null) return;
+    occupe(true);
+    try {
+      const r = await appel("/supprimer.php", { method: "POST", body: JSON.stringify({ email: saisie.trim() }) });
+      if (r.ok) { message = t("compte.supprime"); changer({ connecte: false, email: null, pro: false }); }
+      else ecrire(t(r.status === 400 ? "compte.supprimerErreur" : "compte.erreur"));
+    } catch { ecrire(t("compte.erreur")); }
+    occupe(false);
   }
 
   async function deconnecter() {
