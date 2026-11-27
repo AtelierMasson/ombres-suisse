@@ -893,6 +893,67 @@ export function plansEau(G, zRef) {
 }
 
 /**
+ * Axe droit d'un pont court : les bouts sont les cases du bord du tablier dont la voisine hors du pont est au sol, au
+ * niveau de la chaussée (± 0,75 m), regroupées par contiguïté ; l'axe relie les centres des deux plus grands groupes,
+ * prolongé de 6 m au-delà des cases extrêmes. Null si le pont n'a pas deux bouts nets, ou s'ils sont à plus de 60 m.
+ */
+function axeDroit(G, cel, rang, X, Y) {
+  const { n, c, pont, sol } = G, bord = [];
+  for (let k = 0; k < cel.length; k++) {
+    const p = cel[k], i = p % n;
+    for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n])
+      if (q >= 0 && q < n * n && !rang.has(q) && Math.abs(sol[q] - pont[p]) < 0.75) { bord.push(k); break; }
+  }
+  // groupes de cases de bout voisines (à 1 m près)
+  const dansBord = new Map(bord.map(k => [cel[k], k])), vu = new Set(), groupes = [], r = Math.round(1 / c);
+  for (const k0 of bord) {
+    if (vu.has(k0)) continue;
+    const g = [k0], pile = [k0];
+    vu.add(k0);
+    while (pile.length) {
+      const k = pile.pop(), p = cel[k], i = p % n, j = Math.floor(p / n);
+      for (let b = j - r; b <= j + r; b++) for (let a = i - r; a <= i + r; a++) {
+        const kk = a >= 0 && a < n ? dansBord.get(b * n + a) : undefined;
+        if (kk !== undefined && !vu.has(kk)) { vu.add(kk); g.push(kk); pile.push(kk); }
+      }
+    }
+    groupes.push(g);
+  }
+  groupes.sort((a, b) => b.length - a.length);
+  if (groupes.length < 2 || groupes[1].length < 6) return null;
+  const centre = g => [g.reduce((s, k) => s + X[k], 0) / g.length, g.reduce((s, k) => s + Y[k], 0) / g.length];
+  const A = centre(groupes[0]), B = centre(groupes[1]), L = Math.hypot(B[0] - A[0], B[1] - A[1]);
+  if (L < 4 || L > 60) return null;
+  const ux = (B[0] - A[0]) / L, uy = (B[1] - A[1]) / L;
+  let s0 = Infinity, s1 = -Infinity, t0 = Infinity, t1 = -Infinity;
+  for (let k = 0; k < cel.length; k++) {
+    const s = (X[k] - A[0]) * ux + (Y[k] - A[1]) * uy, t = (Y[k] - A[1]) * ux - (X[k] - A[0]) * uy;
+    if (s < s0) s0 = s; if (s > s1) s1 = s; if (t < t0) t0 = t; if (t > t1) t1 = t;
+  }
+  // le tablier entier doit être petit, dans les deux sens : un long pont dont deux groupes proches touchent le sol
+  // (rampe, trottoir au niveau de la rue) garde l'axe suivi dans le tablier
+  if (s1 - s0 > 80 || t1 - t0 > 60) return null;
+  return [[A[0] + ux * (s0 - 6), A[1] + uy * (s0 - 6)], [A[0] + ux * (s1 + 6), A[1] + uy * (s1 + 6)]];
+}
+
+/** Droite ajustée sur des points [x, y] par moindres carrés, en écartant à trois reprises les points trop éloignés. */
+function droiteRobuste(P) {
+  let pts = P, f = () => 0;
+  for (let tour = 0; tour < 4; tour++) {
+    let sx = 0, sy = 0, sxx = 0, sxy = 0;
+    for (const [x, y] of pts) { sx += x; sy += y; sxx += x * x; sxy += x * y; }
+    const m = pts.length, det = m * sxx - sx * sx, a = det > 1e-9 ? (m * sxy - sx * sy) / det : 0, b = (sy - a * sx) / m;
+    f = x => a * x + b;
+    if (tour === 3) break;
+    const e = pts.map(([x, y]) => Math.abs(y - f(x))).sort((u, v) => u - v), lim = Math.max(0.3, 2.5 * e[e.length >> 1]);
+    const garde = pts.filter(([x, y]) => Math.abs(y - f(x)) <= lim);
+    if (garde.length < 3) break;
+    pts = garde;
+  }
+  return f;
+}
+
+/**
  * Ponts allégés : chaque pont (cellules de tablier connexes) devient un solide balayé le long de son axe principal.
  * On relève, tous les mètres le long de l'axe, les deux rives (écart à l'axe), le dessus du tablier et le dessous
  * relevé (intrados des arches, pied des piles) ; ces quatre profils sont simplifiés (Douglas-Peucker), puis reliés
@@ -942,34 +1003,41 @@ export function pontsLegers(G, zRef, nuage = null) {
     // sur cet axe : abscisse curviligne s et écart t (positif à gauche)
     const X = cel.map(p => x0 + (p % n + 0.5) * c), Y = cel.map(p => x0 + (Math.floor(p / n) + 0.5) * c);
     const rang = new Map(cel.map((p, k) => [p, k]));
-    const parcours = depart => {
-      const d = new Int32Array(cel.length).fill(-1), file = [depart];
-      d[depart] = 0;
-      for (let f = 0; f < file.length; f++) {
-        const k = file[f], p = cel[k], i = p % n;
-        for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n, i > 0 ? p - n - 1 : -1, i < n - 1 ? p - n + 1 : -1, i > 0 ? p + n - 1 : -1, i < n - 1 ? p + n + 1 : -1]) {
-          const r = rang.get(q);
-          if (r !== undefined && d[r] < 0) { d[r] = d[k] + 1; file.push(r); }
+    // pont court (bouts à moins de 60 m l'un de l'autre) : axe droit d'un bout à l'autre. Pour un pont aussi large que
+    // long (rue qui franchit un canal), le parcours dans le tablier part d'un coin et donne un axe en biais : tablier
+    // en losange, rives en dents de scie
+    const droit = axeDroit(G, cel, rang, X, Y);
+    let axe = droit;
+    if (!axe) {
+      const parcours = depart => {
+        const d = new Int32Array(cel.length).fill(-1), file = [depart];
+        d[depart] = 0;
+        for (let f = 0; f < file.length; f++) {
+          const k = file[f], p = cel[k], i = p % n;
+          for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n, i > 0 ? p - n - 1 : -1, i < n - 1 ? p - n + 1 : -1, i > 0 ? p + n - 1 : -1, i < n - 1 ? p + n + 1 : -1]) {
+            const r = rang.get(q);
+            if (r !== undefined && d[r] < 0) { d[r] = d[k] + 1; file.push(r); }
+          }
         }
-      }
-      return d;
-    };
-    let d0 = parcours(0), bout = 0;
-    for (let k = 0; k < cel.length; k++) if (d0[k] > d0[bout]) bout = k;
-    const dA = parcours(bout);
-    let dmax = 0;
-    for (let k = 0; k < cel.length; k++) if (dA[k] > dmax) dmax = dA[k];
-    // centres par tranche de 4 m de parcours
-    const tr = Math.max(1, Math.round(4 / c)), nt = Math.floor(dmax / tr) + 1, cx = new Float64Array(nt), cy = new Float64Array(nt), cn = new Int32Array(nt);
-    for (let k = 0; k < cel.length; k++) { if (dA[k] < 0) continue; const q = Math.floor(dA[k] / tr); cx[q] += X[k]; cy[q] += Y[k]; cn[q]++; }
-    let axe = [];
-    for (let q = 0; q < nt; q++) if (cn[q]) axe.push([cx[q] / cn[q], cy[q] / cn[q]]);
-    if (axe.length < 2) continue;
-    // lissage (moyenne glissante sur 3) puis prolongement aux deux bouts, et simplification (20 cm)
-    axe = axe.map((v, i) => i === 0 || i === axe.length - 1 ? v : [(axe[i - 1][0] + v[0] + axe[i + 1][0]) / 3, (axe[i - 1][1] + v[1] + axe[i + 1][1]) / 3]);
-    const prolonger = (A, B) => { const dx = A[0] - B[0], dy = A[1] - B[1], l = Math.hypot(dx, dy) || 1; return [A[0] + dx / l * 6, A[1] + dy / l * 6]; };
-    axe = [prolonger(axe[0], axe[1]), ...axe, prolonger(axe.at(-1), axe.at(-2))];
-    axe = simplifierLigne(axe, 0.2);
+        return d;
+      };
+      let d0 = parcours(0), bout = 0;
+      for (let k = 0; k < cel.length; k++) if (d0[k] > d0[bout]) bout = k;
+      const dA = parcours(bout);
+      let dmax = 0;
+      for (let k = 0; k < cel.length; k++) if (dA[k] > dmax) dmax = dA[k];
+      // centres par tranche de 4 m de parcours
+      const tr = Math.max(1, Math.round(4 / c)), nt = Math.floor(dmax / tr) + 1, cx = new Float64Array(nt), cy = new Float64Array(nt), cn = new Int32Array(nt);
+      for (let k = 0; k < cel.length; k++) { if (dA[k] < 0) continue; const q = Math.floor(dA[k] / tr); cx[q] += X[k]; cy[q] += Y[k]; cn[q]++; }
+      axe = [];
+      for (let q = 0; q < nt; q++) if (cn[q]) axe.push([cx[q] / cn[q], cy[q] / cn[q]]);
+      if (axe.length < 2) continue;
+      // lissage (moyenne glissante sur 3) puis prolongement aux deux bouts, et simplification (20 cm)
+      axe = axe.map((v, i) => i === 0 || i === axe.length - 1 ? v : [(axe[i - 1][0] + v[0] + axe[i + 1][0]) / 3, (axe[i - 1][1] + v[1] + axe[i + 1][1]) / 3]);
+      const prolonger = (A, B) => { const dx = A[0] - B[0], dy = A[1] - B[1], l = Math.hypot(dx, dy) || 1; return [A[0] + dx / l * 6, A[1] + dy / l * 6]; };
+      axe = [prolonger(axe[0], axe[1]), ...axe, prolonger(axe.at(-1), axe.at(-2))];
+      axe = simplifierLigne(axe, 0.2);
+    }
     const cum = [0];
     for (let i = 1; i < axe.length; i++) cum.push(cum[i - 1] + Math.hypot(axe[i][0] - axe[i - 1][0], axe[i][1] - axe[i - 1][1]));
     // projection d'un point sur l'axe : [s, t]
@@ -1046,6 +1114,12 @@ export function pontsLegers(G, zRef, nuage = null) {
       }
     }
     if (profils.h.length < 2) continue;
+    // pont court à axe droit : rives droites (largeur constante ou linéaire), ajustées sur les stations en écartant
+    // les cases isolées du bord (trottoirs, quais, bouts de rue classés « pont ») ; sinon des dents de scie
+    if (droit && profils.g.length >= 4) for (const P of [profils.g, profils.d]) {
+      const f = droiteRobuste(P);
+      P.splice(0, P.length, [P[0][0], f(P[0][0])], [P.at(-1)[0], f(P.at(-1)[0])]);
+    }
     // simplification : rives à 25 cm (vers l'extérieur), dessus à 10 cm (jamais sous la chaussée), dessous à 30 cm
     const Pg = simplifierProfil(profils.g, 0.25, -1), Pd = simplifierProfil(profils.d, 0.25, 1);
     const Ph = simplifierProfil(profils.h, 0.1, 1), Pb = simplifierProfil(profils.b, 0.3, -1);

@@ -13,14 +13,26 @@ export function grilleVide(R, c = 0.5) {
 export function depuisPoints(nuage, R, c = 0.5) {
   const G = grilleVide(R, c), { n, sol, bat, veg } = G;
   const { X, Y, Z, C } = nuage, eauZ = new Float32Array(n * n).fill(NaN), pont = G.pont = new Float32Array(n * n).fill(NaN);
+  // tabliers d'abord : le relevé classe parfois « eau » des points juste sous un pont bas (plan synthétique ou reflets,
+  // quelques décimètres sous la chaussée). Ils mettaient la rivière au niveau de la rue et le sol sous le pont à
+  // moins d'un mètre du tablier (pont écarté). Un point d'eau à moins de 1,5 m sous un tablier, à 2 m près, est ignoré
+  for (let k = 0; k < nuage.n; k++) {
+    if (C[k] !== 17) continue;
+    const i = Math.floor((X[k] + R) / c), j = Math.floor((Y[k] + R) / c);
+    if (i < 0 || j < 0 || i >= n || j >= n) continue;
+    const p = j * n + i;
+    if (!(pont[p] >= Z[k])) pont[p] = Z[k];
+  }
+  const pontAutour = maxVoisins(pont, n, Math.round(2 / c));
   for (let k = 0; k < nuage.n; k++) {
     const i = Math.floor((X[k] + R) / c), j = Math.floor((Y[k] + R) / c);
     if (i < 0 || j < 0 || i >= n || j >= n) continue;
     const p = j * n + i, z = Z[k], cl = C[k];
+    if (cl === 9 && z > pontAutour[p] - 1.5) continue;
     if (cl === 2 || cl === 9) { if (!(sol[p] <= z)) sol[p] = z; }
     if (cl === 9 && !(eauZ[p] <= z)) eauZ[p] = z;
     else if (cl === 6) { if (!(bat[p] >= z)) bat[p] = z; }
-    else if (cl === 17) { if (!(pont[p] >= z)) pont[p] = z; } // ponts : un tablier, pas un bâtiment plein jusqu'au sol
+    else if (cl === 17) continue; // ponts (déjà relevés) : un tablier, pas un bâtiment plein jusqu'au sol
     else if (cl === 3 || cl === 4 || cl === 5) { if (!(veg[p] >= z)) veg[p] = z; }
   }
   G.eau = plansEau(eauZ, n, c);
@@ -31,11 +43,19 @@ export function depuisPoints(nuage, R, c = 0.5) {
     for (let p = 0; p < n * n; p++) if (!isNaN(E[p])) file.push(p);
     // cellule gagnée par l'eau : sans aucun point, ou dont le sol mesuré est sous le niveau de l'eau voisine (le laser
     // voit le fond près des rives, par faible profondeur : sans cela, une bande claire longeait la rive)
-    const gagnee = (q, niv) => isNaN(E[q]) && isNaN(bat[q]) && isNaN(pont[q]) && (isNaN(sol[q]) ? isNaN(veg[q]) : sol[q] < niv - 0.03);
+    // Sous un pont (tablier à plus d'un mètre au-dessus de l'eau), l'eau passe aussi : le laser n'y voit ni l'eau ni le
+    // fond, sinon le sol y était interpolé depuis la rue, au niveau du tablier (pont bas écarté, canal coupé). Au plus
+    // 30 m de suite sous un tablier (un viaduc au-dessus d'une vallée non relevée n'est pas inondé)
+    const sousPont = new Float32Array(n * n);
+    const gagnee = (q, niv) => isNaN(E[q]) && isNaN(bat[q]) && (isNaN(pont[q]) || pont[q] > niv + 1) && (isNaN(sol[q]) ? isNaN(veg[q]) : sol[q] < niv - 0.03);
     for (let f = 0; f < file.length; f++) {
       const p = file[f], i = p % n;
-      for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p >= n ? p - n : -1, p + n < n * n ? p + n : -1])
-        if (q >= 0 && gagnee(q, E[p])) { E[q] = E[p]; file.push(q); }
+      for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p >= n ? p - n : -1, p + n < n * n ? p + n : -1]) {
+        if (q < 0 || !gagnee(q, E[p])) continue;
+        const d = isNaN(pont[q]) ? 0 : sousPont[p] + c;
+        if (d > 30) continue;
+        sousPont[q] = d; E[q] = E[p]; file.push(q);
+      }
     }
   }
   remplir(sol, n);
@@ -318,6 +338,22 @@ export function remplir(a, n) {
   if (b.some(isNaN)) remplir(b, m);
   for (let j = 0; j < n; j++) for (let i = 0; i < n; i++)
     if (isNaN(a[j * n + i])) a[j * n + i] = b[(j >> 1) * m + (i >> 1)];
+}
+
+/** Maximum des valeurs (NaN ignorés) dans un carré de côté 2r + 1 autour de chaque cellule (deux passes séparées). */
+function maxVoisins(a, n, r) {
+  const t = new Float32Array(n * n).fill(NaN), b = new Float32Array(n * n).fill(NaN);
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    let m = NaN;
+    for (let k = Math.max(0, i - r); k <= Math.min(n - 1, i + r); k++) { const v = a[j * n + k]; if (!(m >= v)) m = isNaN(v) ? m : v; }
+    t[j * n + i] = m;
+  }
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    let m = NaN;
+    for (let k = Math.max(0, j - r); k <= Math.min(n - 1, j + r); k++) { const v = t[k * n + i]; if (!(m >= v)) m = isNaN(v) ? m : v; }
+    b[j * n + i] = m;
+  }
+  return b;
 }
 
 /** Ferme les petits trous (cellules sans point entourées de cellules pleines). */
