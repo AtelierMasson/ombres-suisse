@@ -53,7 +53,7 @@
    "type": "pile",
    "s": 19.5,
    "forme": "rect",
-   "long": 1.9,
+   "long": 0.9,
    "larg": 8.6,
    "z_bas": 528.3,
    "fruit": 0.0
@@ -62,7 +62,7 @@
    "type": "pile",
    "s": 34.2,
    "forme": "rect",
-   "long": 1.9,
+   "long": 0.9,
    "larg": 8.6,
    "z_bas": 528.3,
    "fruit": 0.0
@@ -82,7 +82,7 @@
  ],
  "photos_vues": 2,
  "confiance": "moyenne",
- "notes": "Pont routier en béton à dalle (poutres) de trois travées sur deux piles-voiles dans la Sarine ; piles et tablier calés sur deux photos (vue de côté et vue depuis le tablier), piles non vues par le laser : positions et section estimées sur la photo (±1 m). Le sol de la maquette dépasse le dessous du tablier côté sud (s 46-54, talus d'accès) ; épaisseur du tablier et gousset estimés sur photo. Nuage filtré à z < 560 m (le pont de la Poya passe 60 m au-dessus).",
+ "notes": "Pont routier en béton à dalle (poutres) de trois travées sur deux piles-voiles dans la Sarine ; piles et tablier calés sur deux photos (vue de côté et vue depuis le tablier), piles non vues par le laser : positions et section estimées sur la photo (±1 m). Le sol de la maquette dépasse le dessous du tablier côté sud (s 46-54, talus d'accès) ; épaisseur du tablier et gousset estimés sur photo. Nuage filtré à z < 560 m (le pont de la Poya passe 60 m au-dessus). Piles amincies à 0,9 m en long d'après la photo (largeur du rendu double de celle de la photo).",
  "remblai": [
   [
    46,
