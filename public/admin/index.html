@@ -72,7 +72,12 @@ function afficher(d) {
     <div class="tuile"><div class="lib">Comptes</div><div class="val">${R.comptes}</div></div>
     <div class="tuile"><div class="lib">Comptes Pro</div><div class="val">${R.pro}</div></div>
     <div class="tuile"><div class="lib">Inscrits (30 jours)</div><div class="val">${R.inscrits30}</div></div>
-    <div class="tuile"><div class="lib">Ventes</div><div class="val">${R.ventes}</div></div>
+    <div class="tuile"><div class="lib">En essai</div><div class="val">${R.essais ?? 0}</div></div>
+    <div class="tuile"><div class="lib">Abonnés payants</div><div class="val">${R.abonnes ?? 0}</div></div>
+    <div class="tuile"><div class="lib">Dont annuels</div><div class="val">${R.annuels ?? 0}</div></div>
+    <div class="tuile"><div class="lib">Résiliés (fin de période)</div><div class="val">${R.resilies ?? 0}</div></div>
+    <div class="tuile"><div class="lib">Pro offerts</div><div class="val">${R.offerts ?? 0}</div></div>
+    <div class="tuile"><div class="lib">Ventes uniques (ancien)</div><div class="val">${R.ventes}</div></div>
     <div class="tuile"><div class="lib">Chiffre d'affaires</div><div class="val">${chf(R.chiffre)}</div></div>
     <div class="tuile"><div class="lib">Chiffre (30 jours)</div><div class="val">${chf(R.chiffre30)}</div></div>
   </div>
@@ -87,11 +92,11 @@ function afficher(d) {
   <section><h2>Comptes</h2>
     <div class="ligne"><input id="filtre" type="search" placeholder="Filtrer (e-mail, nom, société, localité)" style="flex:1;min-width:180px">
       <input id="nouveauPro" type="email" placeholder="email@exemple.ch"><button id="offrir">Offrir le Pro</button></div>
-    <div class="defile"><table id="comptes"><tr><th>E-mail</th><th>Nom</th><th>Société</th><th>Adresse</th><th>Téléphone</th><th>Statut</th><th>Inscrit le</th><th>Pro depuis</th><th></th></tr>
+    <div class="defile"><table id="comptes"><tr><th>E-mail</th><th>Nom</th><th>Société</th><th>Adresse</th><th>Téléphone</th><th>Pro offert</th><th>Abonnement</th><th>Inscrit le</th><th>Pro offert depuis</th><th></th></tr>
     ${d.comptes.map(c => `<tr data-email="${esc(c.email)}" data-texte="${esc([c.email, c.prenom, c.nom, c.societe, c.localite].join(" ").toLowerCase())}"><td>${esc(c.email)}</td><td>${esc([c.prenom, c.nom].filter(Boolean).join(" ")) || "—"}</td><td>${esc(c.societe) || "—"}</td>
       <td>${esc([c.adresse, [c.npa, c.localite].filter(Boolean).join(" "), c.pays].filter(Boolean).join(", ")) || "—"}</td><td>${esc(c.telephone) || "—"}</td>
-      <td><span class="pastille ${+c.pro ? "pro" : ""}">${+c.pro ? "Pro" : "Gratuit"}</span></td><td>${date(c.cree_le)}</td><td>${date(c.achete_le)}</td>
-      <td><button data-pro="${+c.pro ? 0 : 1}">${+c.pro ? "Retirer le Pro" : "Offrir le Pro"}</button></td></tr>`).join("") || `<tr><td colspan="9" style="color:var(--doux)">Aucun compte pour l'instant.</td></tr>`}
+      <td><span class="pastille ${+c.pro ? "pro" : ""}">${+c.pro ? "Pro" : "—"}</span></td><td>${esc(c.abonnement) || "—"}</td><td>${date(c.cree_le)}</td><td>${date(c.achete_le)}</td>
+      <td><button data-pro="${+c.pro ? 0 : 1}">${+c.pro ? "Retirer le Pro" : "Offrir le Pro"}</button></td></tr>`).join("") || `<tr><td colspan="10" style="color:var(--doux)">Aucun compte pour l'instant.</td></tr>`}
     </table></div></section>
   <section><h2>Suggestions (${(d.suggestions || []).length})</h2><div class="defile"><table><tr><th>Date</th><th>Message</th><th>E-mail</th><th>Lieu</th><th>Langue</th></tr>
     ${(d.suggestions || []).map(x => `<tr><td>${esc((x.date || "").slice(0, 16).replace("T", " "))}</td><td style="white-space:pre-wrap">${esc(x.texte)}</td><td>${x.email ? `<a href="mailto:${esc(x.email)}">${esc(x.email)}</a>` : "—"}</td><td style="font-size:11px">${esc(x.lieu)}</td><td>${esc(x.langue)}</td></tr>`).join("") || `<tr><td colspan="5" style="color:var(--doux)">Aucune suggestion pour l'instant.</td></tr>`}

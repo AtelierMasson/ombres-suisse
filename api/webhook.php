@@ -1,7 +1,11 @@
 <?php
-// Webhook Stripe : vérifie la signature (Stripe-Signature, HMAC SHA-256), puis
-// checkout.session.completed (payé) ou checkout.session.async_payment_succeeded → compte pro et e-mail de confirmation
-// (délai de rétractation) ; charge.refunded (remboursement fait aussi depuis Stripe) → Pro retiré. Idempotent.
+// Webhook Stripe de l'abonnement Topograph Pro. Vérifie la signature (Stripe-Signature, HMAC SHA-256), puis :
+//   checkout.session.completed (abonnement)            → lit l'abonnement et l'enregistre (Pro dès le retour de Stripe)
+//   customer.subscription.created / updated / deleted  → état de l'abonnement (essai, actif, impayé, résilié, terminé)
+//   customer.subscription.trial_will_end               → e-mail de rappel 3 jours avant la fin de l'essai
+//   invoice.paid / invoice.payment_failed              → impayé levé, ou noté avec un e-mail (carte à mettre à jour)
+// Le statut Pro se déduit de la table abonnements (SQL_PRO_ABONNEMENT). Idempotent : un événement rejoué ou plus
+// ancien que l'état connu ne change rien, chaque e-mail part une seule fois.
 declare(strict_types=1);
 require __DIR__ . '/_commun.php';
 
@@ -30,66 +34,79 @@ if (STRIPE_SECRET_WEBHOOK === '' || !signature_valide($brut, $_SERVER['HTTP_STRI
     json(400, ['erreur' => 'signature']);
 }
 
-$ev = json_decode($brut, true);
-$type = $ev['type'] ?? '';
-if ($type === 'charge.refunded') {
-    // remboursement (rétractation sur le site, ou fait à la main dans Stripe) : l'achat est marqué, le Pro retiré
-    $ch = $ev['data']['object'] ?? [];
-    $pi = (string) ($ch['payment_intent'] ?? '');
-    if ($pi === '' || empty($ch['refunded'])) json(200, ['ignore' => 'partiel']);
-    $pdo = bd();
-    $q = $pdo->prepare('SELECT id, compte_id FROM achats WHERE payment_intent = ?');
-    $q->execute([$pi]);
-    $a = $q->fetch();
-    if (!$a) json(200, ['ignore' => 'inconnu']);
-    $pdo->prepare("UPDATE achats SET etat = 'rembourse', rembourse_le = COALESCE(rembourse_le, UTC_TIMESTAMP()) WHERE id = ?")->execute([$a['id']]);
-    $n = $pdo->prepare("SELECT COUNT(*) FROM achats WHERE compte_id = ? AND etat = 'paye'");
-    $n->execute([$a['compte_id']]);
-    if ((int) $n->fetchColumn() === 0) $pdo->prepare('UPDATE comptes SET pro = 0 WHERE id = ?')->execute([$a['compte_id']]);
-    json(200, ['ok' => true]);
-}
-if (!in_array($type, ['checkout.session.completed', 'checkout.session.async_payment_succeeded'], true)) {
-    json(200, ['ignore' => $type]);
-}
-$s = $ev['data']['object'] ?? [];
-if (($s['payment_status'] ?? '') !== 'paid') json(200, ['attente' => true]); // TWINT : confirmé plus tard
-
-$compteId = (int) ($s['client_reference_id'] ?? 0);
-$montant = (int) ($s['amount_total'] ?? 0);
-$devise = strtolower((string) ($s['currency'] ?? ''));
-if ($compteId <= 0 || empty($s['id'])) json(200, ['ignore' => 'sans_compte']);
-if ($montant < PRIX_CENTIMES || $devise !== DEVISE) {
-    error_log("Webhook : montant inattendu $montant $devise pour {$s['id']}");
-    json(200, ['ignore' => 'montant']);
+/** Lit l'abonnement chez Stripe (état à jour) et l'enregistre ; 500 si Stripe ne répond pas (l'événement sera rejoué). */
+function relire_abonnement(string $id): ?array
+{
+    if (!str_starts_with($id, 'sub_')) return null;
+    [$code, $s] = stripe('GET', 'subscriptions/' . rawurlencode($id));
+    if ($code !== 200 || !is_array($s)) json(500, ['erreur' => 'stripe']);
+    abonnement_enregistrer($s, time());
+    return ligne($id);
 }
 
-$pdo = bd();
-$avant = $pdo->prepare('SELECT etat FROM achats WHERE id = ?');
-$avant->execute([$s['id']]);
-$dejaPaye = $avant->fetchColumn() === 'paye';
-$l = langue(substr((string) ($s['locale'] ?? ''), 0, 2));
-$pdo->beginTransaction();
-$pdo->prepare("INSERT INTO achats (id, compte_id, montant, devise, etat, payment_intent, paye_le, langue) VALUES (?, ?, ?, ?, 'paye', ?, UTC_TIMESTAMP(), ?)
-               ON DUPLICATE KEY UPDATE etat = IF(etat = 'rembourse', etat, 'paye'), montant = VALUES(montant),
-               payment_intent = COALESCE(payment_intent, VALUES(payment_intent)), paye_le = COALESCE(paye_le, VALUES(paye_le)), langue = VALUES(langue)")
-    ->execute([$s['id'], $compteId, $montant, $devise, (string) ($s['payment_intent'] ?? '') ?: null, $l]);
-// achete_le garde la date du premier paiement : rejouer l'événement ne change rien
-$pdo->prepare('UPDATE comptes SET pro = 1, achete_le = COALESCE(achete_le, UTC_TIMESTAMP()) WHERE id = ?')
-    ->execute([$compteId]);
-$pdo->commit();
+function ligne(string $id): ?array
+{
+    $q = bd()->prepare('SELECT * FROM abonnements WHERE id = ?');
+    $q->execute([$id]);
+    return $q->fetch() ?: null;
+}
 
-// confirmation d'achat avec le délai de rétractation (une seule fois)
-if (!$dejaPaye) {
-    $e = $pdo->prepare('SELECT email FROM comptes WHERE id = ?');
-    $e->execute([$compteId]);
-    $email = (string) $e->fetchColumn();
-    if ($email !== '') {
-        $T = textes_achat($l);
-        $fin = date('d.m.Y', time() + JOURS_RETRACTATION * 86400);
-        $r = ['{montant}' => montant_texte($montant, $devise), '{date}' => $fin];
-        email_sobre($email, $l, $T['achatSujet'], array_map(fn($p) => strtr($p, $r), $T['achat']),
-            [$T['achatBouton'], SITE_URL . '/?lang=' . $l], array_map(fn($p) => strtr($p, $r), $T['achatNotes']));
+/** Pose une date « une seule fois » (bienvenue_le, rappel_essai_le, impaye_depuis) ; true si c'est la première fois. */
+function premiere_fois(string $id, string $colonne, string $condition = '1'): bool
+{
+    $q = bd()->prepare("UPDATE abonnements SET $colonne = UTC_TIMESTAMP() WHERE id = ? AND $colonne IS NULL AND $condition");
+    $q->execute([$id]);
+    return $q->rowCount() === 1;
+}
+
+/** E-mail de bienvenue (essai commencé, ou abonnement actif sans essai), une fois par abonnement. */
+function bienvenue(?array $a): void
+{
+    if ($a && premiere_fois($a['id'], 'bienvenue_le', "statut IN ('trialing', 'active')")) {
+        email_abonnement($a['statut'] === 'trialing' ? 'bienvenue' : 'actif', $a);
     }
 }
 
+$ev = json_decode($brut, true);
+$type = (string) ($ev['type'] ?? '');
+$o = $ev['data']['object'] ?? [];
+$quand = (int) ($ev['created'] ?? time());
+// abonnement d'une facture : API récente (parent.subscription_details) ou ancienne (subscription)
+$abonnementFacture = fn(array $f) => (string) ($f['parent']['subscription_details']['subscription'] ?? $f['subscription'] ?? '');
+
+switch ($type) {
+    case 'checkout.session.completed':
+        if (($o['mode'] ?? '') !== 'subscription') json(200, ['ignore' => 'mode']);
+        $sub = is_array($o['subscription'] ?? null) ? (string) ($o['subscription']['id'] ?? '') : (string) ($o['subscription'] ?? '');
+        bienvenue(relire_abonnement($sub));
+        break;
+
+    case 'customer.subscription.created':
+    case 'customer.subscription.updated':
+    case 'customer.subscription.deleted':
+        if (abonnement_enregistrer($o, $quand) === null) json(200, ['ignore' => 'sans_compte']);
+        bienvenue(ligne((string) $o['id']));
+        break;
+
+    case 'customer.subscription.trial_will_end':
+        abonnement_enregistrer($o, $quand);
+        $a = ligne((string) ($o['id'] ?? ''));
+        // pas de rappel si l'abonnement est déjà résilié : rien ne sera débité
+        if ($a && premiere_fois($a['id'], 'rappel_essai_le', "statut = 'trialing' AND resilie = 0")) email_abonnement('rappel', $a);
+        break;
+
+    case 'invoice.paid':
+        $a = relire_abonnement($abonnementFacture($o));
+        bienvenue($a);
+        break;
+
+    case 'invoice.payment_failed':
+        $a = relire_abonnement($abonnementFacture($o));
+        // seulement un abonnement en retard (un changement de formule refusé, lui, ne change rien à l'abonnement)
+        if ($a && premiere_fois($a['id'], 'impaye_depuis', "statut IN ('past_due', 'unpaid')")) email_abonnement('impaye', $a);
+        break;
+
+    default:
+        json(200, ['ignore' => $type]);
+}
 json(200, ['ok' => true]);

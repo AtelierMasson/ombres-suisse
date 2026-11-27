@@ -114,25 +114,6 @@ function poser_cookie(string $valeur, int $expire): void
     ]);
 }
 
-/** Compte de la session courante, ou null. */
-function compte_courant(): ?array
-{
-    $c = $_COOKIE[COOKIE_NOM] ?? '';
-    if (!is_string($c) || !preg_match('/^[0-9a-f]{64}$/', $c)) return null;
-    $q = bd()->prepare('SELECT c.id, c.email, c.pro FROM sessions s JOIN comptes c ON c.id = s.compte_id
-                        WHERE s.id = ? AND s.expire > UTC_TIMESTAMP()');
-    $q->execute([hache($c)]);
-    $r = $q->fetch();
-    return $r ?: null;
-}
-
-function exiger_compte(): array
-{
-    $c = compte_courant();
-    if ($c === null) json(401, ['erreur' => 'non_connecte']);
-    return $c;
-}
-
 // ---------------------------------------------------------------- e-mail
 
 function entete_utf8(string $s): string
@@ -241,72 +222,248 @@ function email_sobre(string $a, string $l, string $sujet, array $paragraphes, ?a
     return envoyer_email($a, $sujet, $texte, $html);
 }
 
-/** Appel POST à l'API Stripe ; renvoie [code HTTP, réponse décodée ou null]. */
-function stripe_post(string $chemin, array $params): array
+// ---------------------------------------------------------------- Stripe et abonnement Pro
+
+/** Appel à l'API Stripe (GET, POST ou DELETE) ; renvoie [code HTTP, réponse décodée ou null]. */
+function stripe(string $methode, string $chemin, array $params = []): array
 {
-    $ch = curl_init('https://api.stripe.com/v1/' . $chemin);
+    $url = 'https://api.stripe.com/v1/' . $chemin;
+    if ($methode === 'GET' && $params) $url .= '?' . http_build_query($params);
+    $ch = curl_init($url);
     curl_setopt_array($ch, [
-        CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => http_build_query($params),
+        CURLOPT_CUSTOMREQUEST => $methode,
         CURLOPT_USERPWD => STRIPE_CLE_SECRETE . ':',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 20,
     ]);
+    if ($methode !== 'GET') curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
     $rep = curl_exec($ch);
     $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-    if ($code < 200 || $code >= 300) error_log("Stripe $chemin : $code " . (is_string($rep) ? $rep : curl_error($ch)));
+    if ($code < 200 || $code >= 300) error_log("Stripe $methode $chemin : $code " . (is_string($rep) ? $rep : curl_error($ch)));
     return [$code, is_string($rep) ? json_decode($rep, true) : null];
 }
 
-// Rétractation : 14 jours après le paiement, sans motif, même après usage ; remboursement intégral, Pro retiré.
-const JOURS_RETRACTATION = 14;
+function stripe_post(string $chemin, array $params): array
+{
+    return stripe('POST', $chemin, $params);
+}
 
-/** Textes des e-mails d'achat et de rétractation, par langue. {date} = fin du délai, {montant} = « CHF 39.– ». */
-function textes_achat(string $l): array
+// Abonnement : prix en centimes (config.php peut les redéfinir), essai gratuit, grâce après un paiement refusé
+defined('PRIX_MOIS_CENTIMES') || define('PRIX_MOIS_CENTIMES', 900);     // CHF 9.– par mois
+defined('PRIX_ANNEE_CENTIMES') || define('PRIX_ANNEE_CENTIMES', 8400);  // CHF 84.– par an (7.– par mois)
+defined('NOM_ABONNEMENT') || define('NOM_ABONNEMENT', 'Topograph Pro');
+const JOURS_ESSAI = 7;
+const JOURS_GRACE = 7;
+// version des conditions de vente acceptées au moment de l'abonnement
+const VERSION_CGV = '2026-11-27-abo';
+
+/**
+ * Condition SQL « ce compte (alias c) a un abonnement qui donne le Pro » : essai ou actif ; paiement en retard
+ * (past_due) pendant JOURS_GRACE jours. La fin de période sert de garde-fou si un webhook s'était perdu.
+ */
+const SQL_PRO_ABONNEMENT = "EXISTS (SELECT 1 FROM abonnements a WHERE a.compte_id = c.id
+    AND (a.statut IN ('trialing', 'active')
+         OR (a.statut = 'past_due' AND COALESCE(a.impaye_depuis, a.maj_le) > UTC_TIMESTAMP() - INTERVAL " . JOURS_GRACE . " DAY))
+    AND (a.periode_fin IS NULL OR a.periode_fin > UTC_TIMESTAMP() - INTERVAL " . JOURS_GRACE . " DAY))";
+
+/**
+ * Compte de la session courante, ou null. pro = abonnement en cours ou Pro offert par un administrateur
+ * (comptes.pro, admin.php).
+ */
+function compte_courant(): ?array
+{
+    $c = $_COOKIE[COOKIE_NOM] ?? '';
+    if (!is_string($c) || !preg_match('/^[0-9a-f]{64}$/', $c)) return null;
+    $sql = 'SELECT c.id, c.email, c.pro AS pro_offert, c.stripe_customer, ' . SQL_PRO_ABONNEMENT . ' AS pro_abonnement
+            FROM sessions s JOIN comptes c ON c.id = s.compte_id WHERE s.id = ? AND s.expire > UTC_TIMESTAMP()';
+    try {
+        $q = bd()->prepare($sql);
+        $q->execute([hache($c)]);
+    } catch (PDOException $e) {
+        // migration de l'abonnement pas encore appliquée : le site reste utilisable, sans abonnement
+        error_log('compte_courant : ' . $e->getMessage());
+        $q = bd()->prepare('SELECT c.id, c.email, c.pro AS pro_offert, NULL AS stripe_customer, 0 AS pro_abonnement
+                            FROM sessions s JOIN comptes c ON c.id = s.compte_id WHERE s.id = ? AND s.expire > UTC_TIMESTAMP()');
+        $q->execute([hache($c)]);
+    }
+    $r = $q->fetch();
+    if (!$r) return null;
+    $r['pro'] = (int) $r['pro_offert'] === 1 || (int) $r['pro_abonnement'] === 1 ? 1 : 0;
+    return $r;
+}
+
+function exiger_compte(): array
+{
+    $c = compte_courant();
+    if ($c === null) json(401, ['erreur' => 'non_connecte']);
+    return $c;
+}
+
+/** Dernier abonnement du compte (le plus récent), ou null. */
+function abonnement_du_compte(int $compteId): ?array
+{
+    $q = bd()->prepare('SELECT * FROM abonnements WHERE compte_id = ? ORDER BY cree_le DESC LIMIT 1');
+    $q->execute([$compteId]);
+    return $q->fetch() ?: null;
+}
+
+/**
+ * Enregistre l'état d'un objet Subscription de Stripe (webhook ou lecture directe). `$quand` = horodatage de l'état
+ * (created de l'événement, ou time() pour une lecture) : un événement plus ancien que l'état connu est ignoré, et un
+ * abonnement terminé (canceled) ne revient jamais. Renvoie [compte_id, nouveau] ou null (compte introuvable).
+ */
+function abonnement_enregistrer(array $s, int $quand): ?array
+{
+    $id = (string) ($s['id'] ?? '');
+    if (!str_starts_with($id, 'sub_')) return null;
+    $client = is_array($s['customer'] ?? null) ? (string) ($s['customer']['id'] ?? '') : (string) ($s['customer'] ?? '');
+    $pdo = bd();
+    $avant = $pdo->prepare('SELECT compte_id, statut, evenement_le FROM abonnements WHERE id = ?');
+    $avant->execute([$id]);
+    $avant = $avant->fetch() ?: null;
+
+    $compteId = (int) ($s['metadata']['compte_id'] ?? 0) ?: (int) ($avant['compte_id'] ?? 0);
+    if ($compteId <= 0 && $client !== '') {
+        $q = $pdo->prepare('SELECT id FROM comptes WHERE stripe_customer = ?');
+        $q->execute([$client]);
+        $compteId = (int) $q->fetchColumn();
+    }
+    $existe = $pdo->prepare('SELECT COUNT(*) FROM comptes WHERE id = ?');
+    $existe->execute([$compteId]);
+    if ($compteId <= 0 || (int) $existe->fetchColumn() === 0) {
+        error_log("Abonnement $id : compte introuvable ($client)");
+        return null;
+    }
+    $statut = (string) ($s['status'] ?? '');
+    if ($avant && ((int) $avant['evenement_le'] > $quand || ($avant['statut'] === 'canceled' && $statut !== 'canceled'))) {
+        return [$compteId, false];
+    }
+
+    // API Stripe récente : période portée par l'élément de l'abonnement ; ancienne : par l'abonnement
+    $el = $s['items']['data'][0] ?? [];
+    $fin = (int) ($el['current_period_end'] ?? $s['current_period_end'] ?? 0);
+    $intervalle = (string) ($el['price']['recurring']['interval'] ?? $el['plan']['interval'] ?? '');
+    $montant = $el['price']['unit_amount'] ?? $el['plan']['amount'] ?? null;
+    $date = fn($t) => $t ? gmdate('Y-m-d H:i:s', (int) $t) : null;
+    $resilie = !empty($s['cancel_at_period_end']) || !empty($s['cancel_at']) ? 1 : 0;
+    $l = langue($s['metadata']['langue'] ?? null);
+
+    $pdo->prepare('INSERT INTO abonnements (id, compte_id, stripe_customer, statut, intervalle, montant, devise, periode_fin, essai_fin,
+                     resilie, cgv_version, langue, evenement_le)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                   ON DUPLICATE KEY UPDATE stripe_customer = VALUES(stripe_customer), statut = VALUES(statut),
+                     intervalle = VALUES(intervalle), montant = VALUES(montant), devise = VALUES(devise),
+                     periode_fin = VALUES(periode_fin), essai_fin = VALUES(essai_fin), resilie = VALUES(resilie),
+                     impaye_depuis = IF(VALUES(statut) = \'past_due\', impaye_depuis, NULL), evenement_le = VALUES(evenement_le)')
+        ->execute([$id, $compteId, $client, $statut, $intervalle ?: null, $montant, strtolower((string) ($s['currency'] ?? DEVISE)),
+            $date($fin), $date($s['trial_end'] ?? null), $resilie, (string) ($s['metadata']['cgv'] ?? '') ?: null, $l, $quand]);
+    if ($client !== '') $pdo->prepare('UPDATE comptes SET stripe_customer = ? WHERE id = ?')->execute([$client, $compteId]);
+    return [$compteId, $avant === null];
+}
+
+/** « CHF 9.– » à partir de centimes. */
+function montant_texte(int $centimes, string $devise): string
+{
+    return strtoupper($devise) . ' ' . ($centimes % 100 ? number_format($centimes / 100, 2, '.', "'") : intdiv($centimes, 100) . '.–');
+}
+
+/**
+ * Textes des e-mails de l'abonnement, par langue. {prix} = « CHF 9.– par mois », {date} = fin de l'essai (jj.mm.aaaa).
+ */
+function textes_abonnement(string $l): array
 {
     $T = [
         'fr' => [
-            'achatSujet' => 'Votre achat de Topograph Pro',
-            'achat' => ['Bonjour,', 'Merci pour votre achat. Topograph Pro est activé sur votre compte : paiement unique de {montant}, sans abonnement.'],
-            'achatBouton' => 'Ouvrir Topograph',
-            'achatNotes' => ['Le reçu de paiement vous est envoyé séparément par Stripe. Conditions de vente et de remboursement (rétractation possible jusqu\'au {date}) : topograph.ch.'],
-            'retractSujet' => 'Votre rétractation est confirmée',
-            'retract' => ['Bonjour,', 'Nous avons bien reçu votre rétractation pour Topograph Pro.',
-                "Le remboursement de {montant} est lancé sur le moyen de paiement utilisé ; il apparaît en général sous 5 à 10 jours ouvrables. L'accès Pro a été retiré de votre compte ; votre compte gratuit reste ouvert."],
+            'mois' => '{m} par mois', 'annee' => '{m} par an',
+            'bouton' => 'Gérer mon abonnement',
+            'bienvenueSujet' => 'Votre essai de Topograph Pro a commencé',
+            'bienvenue' => ['Bonjour,', 'Topograph Pro est activé sur votre compte. Votre essai gratuit dure jusqu\'au {date}.',
+                'Sans résiliation de votre part, l\'abonnement démarre ensuite automatiquement : {prix}. Vous pouvez résilier à tout moment dans « Mon compte », puis « Gérer mon abonnement ». Pendant l\'essai, rien n\'est débité.'],
+            'actifSujet' => 'Votre abonnement Topograph Pro',
+            'actif' => ['Bonjour,', 'Merci. Votre abonnement Topograph Pro est actif : {prix}.',
+                'Vous pouvez changer de formule, mettre à jour votre carte ou résilier à tout moment dans « Mon compte », puis « Gérer mon abonnement ».'],
+            'rappelSujet' => 'Votre essai de Topograph Pro se termine le {date}',
+            'rappel' => ['Bonjour,', 'Votre essai gratuit de Topograph Pro se termine le {date}. L\'abonnement démarre alors automatiquement : {prix}, débité sur la carte enregistrée.',
+                'Si vous ne souhaitez pas continuer, résiliez avant cette date dans « Mon compte », puis « Gérer mon abonnement ». Rien ne vous sera débité.'],
+            'impayeSujet' => 'Le paiement de votre abonnement n\'a pas abouti',
+            'impaye' => ['Bonjour,', 'Le paiement de votre abonnement Topograph Pro n\'a pas abouti. Nous réessaierons dans les prochains jours.',
+                'Pour garder l\'accès Pro, mettez à jour votre carte dans « Mon compte », puis « Gérer mon abonnement ».'],
+            'note' => 'Les reçus de paiement sont envoyés par Stripe. Conditions de vente : topograph.ch.',
         ],
         'de' => [
-            'achatSujet' => 'Ihr Kauf von Topograph Pro',
-            'achat' => ['Guten Tag', 'Vielen Dank für Ihren Kauf. Topograph Pro ist für Ihr Konto freigeschaltet: einmalige Zahlung von {montant}, kein Abonnement.'],
-            'achatBouton' => 'Topograph öffnen',
-            'achatNotes' => ['Die Zahlungsquittung erhalten Sie separat von Stripe. Verkaufs- und Rückerstattungsbedingungen (Widerruf möglich bis zum {date}): topograph.ch.'],
-            'retractSujet' => 'Ihr Widerruf ist bestätigt',
-            'retract' => ['Guten Tag', 'Wir haben Ihren Widerruf für Topograph Pro erhalten.',
-                'Die Rückerstattung von {montant} auf das verwendete Zahlungsmittel ist veranlasst; sie erscheint in der Regel innert 5 bis 10 Arbeitstagen. Der Pro-Zugang wurde von Ihrem Konto entfernt; Ihr kostenloses Konto bleibt bestehen.'],
+            'mois' => '{m} pro Monat', 'annee' => '{m} pro Jahr',
+            'bouton' => 'Abonnement verwalten',
+            'bienvenueSujet' => 'Ihr Test von Topograph Pro hat begonnen',
+            'bienvenue' => ['Guten Tag', 'Topograph Pro ist für Ihr Konto freigeschaltet. Ihr kostenloser Test dauert bis zum {date}.',
+                'Wenn Sie nicht kündigen, beginnt danach automatisch das Abonnement: {prix}. Sie können jederzeit unter «Mein Konto» und dann «Abonnement verwalten» kündigen. Während des Tests wird nichts belastet.'],
+            'actifSujet' => 'Ihr Abonnement Topograph Pro',
+            'actif' => ['Guten Tag', 'Vielen Dank. Ihr Abonnement Topograph Pro ist aktiv: {prix}.',
+                'Sie können jederzeit unter «Mein Konto» und dann «Abonnement verwalten» die Variante wechseln, Ihre Karte ändern oder kündigen.'],
+            'rappelSujet' => 'Ihr Test von Topograph Pro endet am {date}',
+            'rappel' => ['Guten Tag', 'Ihr kostenloser Test von Topograph Pro endet am {date}. Danach beginnt automatisch das Abonnement: {prix}, belastet auf die hinterlegte Karte.',
+                'Wenn Sie nicht weitermachen möchten, kündigen Sie vor diesem Datum unter «Mein Konto» und dann «Abonnement verwalten». Es wird Ihnen nichts belastet.'],
+            'impayeSujet' => 'Die Zahlung Ihres Abonnements ist fehlgeschlagen',
+            'impaye' => ['Guten Tag', 'Die Zahlung Ihres Abonnements Topograph Pro ist fehlgeschlagen. Wir versuchen es in den nächsten Tagen erneut.',
+                'Um den Pro-Zugang zu behalten, aktualisieren Sie Ihre Karte unter «Mein Konto» und dann «Abonnement verwalten».'],
+            'note' => 'Die Zahlungsquittungen sendet Stripe. Verkaufsbedingungen: topograph.ch.',
         ],
         'it' => [
-            'achatSujet' => 'Il suo acquisto di Topograph Pro',
-            'achat' => ['Buongiorno,', 'Grazie per il suo acquisto. Topograph Pro è attivo sul suo conto: pagamento unico di {montant}, senza abbonamento.'],
-            'achatBouton' => 'Aprire Topograph',
-            'achatNotes' => ['La ricevuta di pagamento le viene inviata separatamente da Stripe. Condizioni di vendita e di rimborso (recesso possibile fino al {date}): topograph.ch.'],
-            'retractSujet' => 'Il suo recesso è confermato',
-            'retract' => ['Buongiorno,', 'Abbiamo ricevuto il suo recesso per Topograph Pro.',
-                'Il rimborso di {montant} sul mezzo di pagamento utilizzato è stato avviato; di solito appare entro 5–10 giorni lavorativi. L’accesso Pro è stato revocato; il suo conto gratuito resta attivo.'],
+            'mois' => '{m} al mese', 'annee' => '{m} all\'anno',
+            'bouton' => 'Gestire l\'abbonamento',
+            'bienvenueSujet' => 'La sua prova di Topograph Pro è iniziata',
+            'bienvenue' => ['Buongiorno,', 'Topograph Pro è attivo sul suo conto. La prova gratuita dura fino al {date}.',
+                'Se non disdice, l\'abbonamento inizia poi automaticamente: {prix}. Può disdire in qualsiasi momento in «Il mio account», poi «Gestire l\'abbonamento». Durante la prova non viene addebitato nulla.'],
+            'actifSujet' => 'Il suo abbonamento Topograph Pro',
+            'actif' => ['Buongiorno,', 'Grazie. Il suo abbonamento Topograph Pro è attivo: {prix}.',
+                'Può cambiare formula, aggiornare la carta o disdire in qualsiasi momento in «Il mio account», poi «Gestire l\'abbonamento».'],
+            'rappelSujet' => 'La sua prova di Topograph Pro termina il {date}',
+            'rappel' => ['Buongiorno,', 'La prova gratuita di Topograph Pro termina il {date}. L\'abbonamento inizia allora automaticamente: {prix}, addebitato sulla carta registrata.',
+                'Se non desidera continuare, disdica prima di questa data in «Il mio account», poi «Gestire l\'abbonamento». Non le sarà addebitato nulla.'],
+            'impayeSujet' => 'Il pagamento del suo abbonamento non è andato a buon fine',
+            'impaye' => ['Buongiorno,', 'Il pagamento del suo abbonamento Topograph Pro non è andato a buon fine. Riproveremo nei prossimi giorni.',
+                'Per mantenere l\'accesso Pro, aggiorni la carta in «Il mio account», poi «Gestire l\'abbonamento».'],
+            'note' => 'Le ricevute di pagamento sono inviate da Stripe. Condizioni di vendita: topograph.ch.',
         ],
         'en' => [
-            'achatSujet' => 'Your Topograph Pro purchase',
-            'achat' => ['Hello,', 'Thank you for your purchase. Topograph Pro is now active on your account: one-time payment of {montant}, no subscription.'],
-            'achatBouton' => 'Open Topograph',
-            'achatNotes' => ['Stripe sends the payment receipt separately. Terms of sale and refund (withdrawal possible until {date}): topograph.ch.'],
-            'retractSujet' => 'Your withdrawal is confirmed',
-            'retract' => ['Hello,', 'We have received your withdrawal for Topograph Pro.',
-                'The refund of {montant} to the payment method used has been initiated; it usually appears within 5 to 10 business days. Pro access has been removed from your account; your free account remains open.'],
+            'mois' => '{m} per month', 'annee' => '{m} per year',
+            'bouton' => 'Manage my subscription',
+            'bienvenueSujet' => 'Your Topograph Pro trial has started',
+            'bienvenue' => ['Hello,', 'Topograph Pro is now active on your account. Your free trial runs until {date}.',
+                'Unless you cancel, the subscription then starts automatically: {prix}. You can cancel at any time under "My account", then "Manage my subscription". Nothing is charged during the trial.'],
+            'actifSujet' => 'Your Topograph Pro subscription',
+            'actif' => ['Hello,', 'Thank you. Your Topograph Pro subscription is active: {prix}.',
+                'You can switch plans, update your card or cancel at any time under "My account", then "Manage my subscription".'],
+            'rappelSujet' => 'Your Topograph Pro trial ends on {date}',
+            'rappel' => ['Hello,', 'Your free Topograph Pro trial ends on {date}. The subscription then starts automatically: {prix}, charged to the card on file.',
+                'If you do not wish to continue, cancel before that date under "My account", then "Manage my subscription". Nothing will be charged.'],
+            'impayeSujet' => 'Your subscription payment did not go through',
+            'impaye' => ['Hello,', 'The payment for your Topograph Pro subscription did not go through. We will try again over the next few days.',
+                'To keep Pro access, update your card under "My account", then "Manage my subscription".'],
+            'note' => 'Stripe sends the payment receipts. Terms of sale: topograph.ch.',
         ],
     ];
     return $T[langue($l)];
 }
 
-/** « CHF 39.– » et date de fin du délai (jj.mm.aaaa) pour un paiement. */
-function montant_texte(int $centimes, string $devise): string
+/**
+ * E-mail d'abonnement ('bienvenue', 'actif', 'rappel', 'impaye') pour une ligne de la table abonnements.
+ * Le bouton ouvre la boîte du compte sur le site (le portail Stripe demande d'être connecté).
+ */
+function email_abonnement(string $quoi, array $abo): bool
 {
-    return strtoupper($devise) . ' ' . ($centimes % 100 ? number_format($centimes / 100, 2, '.', "'") : intdiv($centimes, 100) . '.–');
+    $q = bd()->prepare('SELECT email FROM comptes WHERE id = ?');
+    $q->execute([$abo['compte_id']]);
+    $email = (string) $q->fetchColumn();
+    if ($email === '' || str_ends_with($email, '@invalid')) return false;
+    $l = langue($abo['langue'] ?? null);
+    $T = textes_abonnement($l);
+    $annee = ($abo['intervalle'] ?? '') === 'year';
+    $montant = (int) ($abo['montant'] ?? ($annee ? PRIX_ANNEE_CENTIMES : PRIX_MOIS_CENTIMES));
+    $r = [
+        '{prix}' => strtr($T[$annee ? 'annee' : 'mois'], ['{m}' => montant_texte($montant, (string) ($abo['devise'] ?? DEVISE))]),
+        '{date}' => $abo['essai_fin'] ? date('d.m.Y', strtotime($abo['essai_fin'] . ' UTC')) : '',
+    ];
+    $f = fn(string $s) => strtr($s, $r);
+    return email_sobre($email, $l, $f($T[$quoi . 'Sujet']), array_map($f, $T[$quoi]),
+        [$T['bouton'], SITE_URL . '/?' . http_build_query(['compte' => 'abonnement', 'lang' => $l])], [$T['note']]);
 }
