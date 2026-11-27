@@ -270,3 +270,16 @@ export async function parcellesAutour([e0, n0, e1, n1]) {
   }
   return [...vues.values()];
 }
+
+/** Commune et canton (abréviation) au point MN95 : { nom, canton } ou null. Limites communales actuelles de swisstopo. */
+const communes = new Map();
+export function communeEn(E, N) {
+  const cle = `${Math.round(E / 50)},${Math.round(N / 50)}`;
+  if (!communes.has(cle)) communes.set(cle, fetch(`https://api3.geo.admin.ch/rest/services/api/MapServer/identify?geometryType=esriGeometryPoint&geometry=${Math.round(E)},${Math.round(N)}&layers=all:ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill&sr=2056&tolerance=0&returnGeometry=false&limit=20`)
+    .then(r => r.json()).then(d => {
+      const l = (d.results || []).map(r => r.attributes).filter(a => a?.gemname);
+      const a = l.find(x => x.is_current_jahr) || l.sort((x, y) => (y.jahr || 0) - (x.jahr || 0))[0];
+      return a ? { nom: a.gemname, canton: a.kanton } : null;
+    }).catch(() => null));
+  return communes.get(cle);
+}

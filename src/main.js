@@ -8,7 +8,7 @@ import { brancherLieux } from "./lieux.js";
 import { brancherCalendrier } from "./calendrier.js";
 import { brancherFiche } from "./fiche.js";
 import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
-import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, tuilesAlti05, versWgs, lireCoordonnees, preparerTuiles } from "./geo.js";
+import { communeEn, chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, tuilesAlti05, versWgs, lireCoordonnees, preparerTuiles } from "./geo.js";
 import { chargerNuage, chaufferFils } from "./nuage.js";
 import { LodAnneau } from "./lodAnneau.js";
 import { depuisPoints, depuisRasters, solEn, terrainAutour, garderCercle, majSurface, grilleTerrain, solDepuisTerrain, solAlti05, altitudeTerrain, prechargerAlti } from "./grille.js";
@@ -141,6 +141,17 @@ function aller(r) {
   location.hash = `e=${Math.round(r.E)}&n=${Math.round(r.N)}&l=${encodeURIComponent(r.label)}&t=${r.type}`;
 }
 window.addEventListener("hashchange", depuisAdresse);
+
+/** En-tête de la colonne : « … · Commune VD » (commune et canton abrégé), quel que soit le lieu demandé. */
+function afficherCommune(E, N, id) {
+  communeEn(E, N).then(c => {
+    if (!c || id !== tache) return;
+    const el = $("#lieuType"), sans = el.textContent.replace(/\s*·\s*[A-Z]{2}$/, "").replace(/\s*·\s*[^·]+ [A-Z]{2}$/, "");
+    el.textContent = `${sans ? sans + " · " : ""}${c.nom} ${c.canton}`;
+    const l = $("#lieu").textContent.trim();
+    if (!l || /^[\d.]+, [\d.]+$/.test(l)) $("#lieu").textContent = `${c.nom} ${c.canton}`;
+  });
+}
 
 /* ------------------------------------------------------------------ accueil */
 // accueil : le décor réel de Gruyères, la caméra qui avance lentement vers le château
@@ -437,6 +448,7 @@ async function depuisAdresse(o = null) {
     } else if (!ACC && !voyage) message(t("msg.pasDeParcelle"), 0);
     E0 = Math.round(E0); N0 = Math.round(N0);
     if (!ACC) afficherCoordonnees(E0, N0);
+    if (!ACC) afficherCommune(E, N, id); // commune et canton en tête de colonne, même pour des coordonnées tapées
     // maquette ronde : rayon choisi (curseur), sinon automatique ; relevé laser jusqu'à 300 m, au-delà un anneau
     // carrée : pas d'anneau, le rayon s'arrête au relevé fin
     const Rz = ACC ? ACC.R : Math.min(ronde() ? 1e9 : RAYON_FIN_MAX, rayonChoisi() || Math.min(300, Math.max(150, Math.ceil(demi + 120)))), R = Math.min(Rz, RAYON_FIN_MAX);
