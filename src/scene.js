@@ -1484,7 +1484,7 @@ void main() {
           m.renderOrder = 3; m.add(p);
         }
         // étages : traits sur les façades (hors des clics et du calcul des hauteurs, qui ne voient que les maillages)
-        const e = traitsEtages(v, this.zRef, this.G);
+        const e = v.traits !== false && traitsEtages(v, this.zRef, this.G);
         if (e) {
           const ge = new THREE.BufferGeometry(); ge.setAttribute("position", new THREE.BufferAttribute(e, 3));
           const l = new THREE.LineSegments(ge, this.mat.projets.get("etages"));
@@ -1494,6 +1494,12 @@ void main() {
         g.add(m);
       }
       this.groupe.add(g);
+    }
+    // réglage de la couleur en direct : les matériaux des teintes de passage sont libérés
+    if (this.mat.projets.size > 24) {
+      const servis = new Set();
+      c.volumes?.traverse(o => o.material && servis.add(o.material));
+      for (const [cle, m] of this.mat.projets) if (cle.includes("|") && !servis.has(m)) { m.dispose(); this.mat.projets.delete(cle); }
     }
     if (apercu) {
       const geo = volumeGeometrie(apercu, this.G, this.zRef), g = c.apercuVolume = new THREE.Group();

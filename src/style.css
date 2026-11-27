@@ -423,10 +423,6 @@ body.accueil #fiche { display: none; }
 #listeVolumes .volume select { width: auto; }
 #listeVolumes .volume button { border: 0; background: none; color: var(--doux); padding: 0 4px; }
 #listeVolumes .volume button:hover { color: var(--texte); }
-#listeVolumes .volume .pastille { width: 16px; height: 16px; padding: 0; border-radius: 50%; border: 1px solid var(--bord); }
-#listeVolumes .palette { grid-column: 1 / -1; display: flex; gap: 5px; flex-wrap: wrap; padding: 2px 0 4px 22px; }
-#listeVolumes .palette button { width: 18px; height: 18px; padding: 0; border-radius: 50%; border: 1px solid var(--bord); }
-#listeVolumes .palette button:hover { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* barres de défilement fines (sous Windows, celles par défaut sont épaisses et grises) */
 #colonne .corps, .list-group, #coupe, #fiche { scrollbar-width: thin; scrollbar-color: var(--bord-fort) transparent; }
@@ -511,28 +507,81 @@ body.accueil #fiche { display: none; }
 #fiche.fiche-maj { opacity: .55; }
 
 /* tableau du volume sélectionné (onglet Projet, ficheVolume.js) : dense, aligné, chiffres tabulaires */
-#ficheVolume { margin-top: 8px; padding: 8px; border: 1px solid var(--bord); border-radius: 6px; font-size: 12px; font-variant-numeric: tabular-nums; }
-#ficheVolume .fv-tete { display: flex; flex-direction: column; gap: 1px; margin-bottom: 2px; }
-#ficheVolume .fv-tete .text-secondary { font-size: 11px; }
-#ficheVolume .fv-groupe { margin: 7px 0 3px; font-size: 11px; font-weight: 600; color: var(--doux); }
-#ficheVolume .fv-grille { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
-#ficheVolume .fv-champ { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-#ficheVolume .fv-champ > span:first-child, #ficheVolume .fv-etages span { font-size: 10.5px; color: var(--doux); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#ficheVolume input[type=number], #ficheVolume select { padding: 1px 4px; font-size: 12px; min-width: 0; }
-#ficheVolume .fv-etages { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 4px; margin-top: 4px; }
-#ficheVolume .fv-etages label { display: flex; flex-direction: column; gap: 1px; }
-#ficheVolume .fv-toit { margin-top: 4px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-#ficheVolume .fv-position { grid-template-columns: 1.3fr 1.3fr 1fr; }
-#ficheVolume .fv-opacite { display: grid; grid-template-columns: auto 1fr 40px; gap: 6px; align-items: center; margin-top: 6px; }
-#ficheVolume .fv-opacite span { font-size: 10.5px; color: var(--doux); }
-#ficheVolume .fv-opacite output { text-align: right; }
+/* fenêtre des paramètres du volume : sections, une information par ligne (étiquette à gauche, valeur et unité à droite) */
+#ficheVolume { margin-top: 8px; padding: 0 8px 8px; border: 1px solid var(--bord); border-radius: 6px; font-size: 12px; font-variant-numeric: tabular-nums; }
+#ficheVolume .fv-section { margin: 12px 0 4px; padding-bottom: 3px; border-bottom: 1px solid var(--bord); font-size: 10.5px; font-weight: 650; letter-spacing: .07em; text-transform: uppercase; color: var(--doux); }
+#ficheVolume .fv-section:first-child { margin-top: 8px; }
+#ficheVolume .fv-groupe { margin: 9px 0 1px; font-size: 11.5px; font-weight: 650; color: var(--texte); }
+#ficheVolume [data-mesures] > .fv-groupe:first-child { margin-top: 4px; }
+#ficheVolume .fv-ligne { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px; min-height: 26px; margin: 0; }
+#ficheVolume .fv-ligne[hidden], #ficheVolume .fv-note[hidden] { display: none; }
+#ficheVolume .fv-nom { color: var(--doux); line-height: 1.2; }
+#ficheVolume .fv-sous .fv-nom { padding-left: 10px; }
+#ficheVolume .fv-val { display: grid; grid-template-columns: 86px 20px; align-items: center; column-gap: 4px; }
+#ficheVolume .fv-val > output { justify-self: end; padding-right: 5px; white-space: nowrap; color: var(--texte); }
+#ficheVolume .fv-val input[type=number], #ficheVolume .fv-val input[type=text], #ficheVolume .fv-val select { width: 100%; min-width: 0; height: 22px; min-height: 0; padding: 1px 4px; font-size: 12px; }
+/* nombres alignés à droite, sans flèches (les touches ↑ ↓ règlent toujours la valeur) : ils tombent sous les valeurs lues */
+#ficheVolume .fv-val input[type=number] { text-align: right; padding: 1px 4px; -moz-appearance: textfield; appearance: textfield; }
+#ficheVolume .fv-val input[type=number]::-webkit-inner-spin-button, #ficheVolume .fv-val input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+#ficheVolume .fv-val select { padding: 1px 20px 1px 6px; background-position: right 5px center; }
+#ficheVolume .fv-unite { color: var(--doux); font-size: 11px; }
+#ficheVolume .fv-plein { grid-column: 1 / -1; }
+#ficheVolume :is([data-ligne=nom], [data-ligne=apparence]) .fv-val { grid-template-columns: 148px; }
+#ficheVolume .fv-val:has(select) { grid-template-columns: 128px; }
+#ficheVolume .form-switch.fv-plein { display: flex; justify-content: flex-end; min-height: 0; margin: 0; padding: 0; }
+#ficheVolume .form-switch .form-check-input { float: none; margin: 0; }
+#ficheVolume .fv-apparence { display: flex; align-items: center; gap: 6px; width: 100%; height: 22px; padding: 0 6px 0 3px; border: 1px solid var(--bord-fort); border-radius: 6px; background: var(--carte); color: var(--texte); font-size: 11.5px; }
+#ficheVolume .fv-apparence:hover, #ficheVolume .fv-apparence[aria-expanded=true] { border-color: var(--accent); }
+#ficheVolume .fv-apparence > span:last-child { flex: 1; text-align: right; white-space: nowrap; }
+.fv-pastille, .fc-apercu { flex: none; display: block; width: 16px; height: 16px; border: 1px solid var(--bord-fort); border-radius: 4px; overflow: hidden;
+  background: conic-gradient(#c9ccc6 25%, #fff 0 50%, #c9ccc6 0 75%, #fff 0) 0 0 / 8px 8px; }
+.fv-pastille i, .fc-apercu i { display: block; width: 100%; height: 100%; }
+#ficheVolume button.fv-bascule { width: 22px; height: 22px; padding: 0; border: 1px solid var(--bord-fort); border-radius: 4px; background: var(--carte); color: var(--texte); }
+#ficheVolume button.fv-bascule:hover { border-color: var(--accent); }
+#ficheVolume .fv-cotes summary { min-height: 24px; padding-top: 3px; color: var(--doux); cursor: pointer; }
+#ficheVolume .fv-cotes .fv-ligne, #ficheVolume [data-mesures] .fv-ligne { min-height: 21px; }
+#ficheVolume .fv-note { margin: 2px 0 4px; font-size: 11px; line-height: 1.3; color: var(--doux); }
+#ficheVolume .fv-aide { margin: 12px 0 0; padding-top: 6px; border-top: 1px solid var(--bord); }
+#ficheVolume .fv-alerte output { color: #c4001a; font-weight: 650; }
 #ficheVolume .fv-table { width: 100%; border-collapse: collapse; }
 #ficheVolume .fv-table th { font-weight: normal; color: var(--doux); text-align: left; padding: 1px 4px 1px 0; }
 #ficheVolume .fv-table td { text-align: right; padding: 1px 0 1px 6px; white-space: nowrap; }
+#ficheVolume .fv-coins { width: calc(100% - 24px); }
+#ficheVolume .fv-coins th, #ficheVolume .fv-coins td { padding-right: 5px; }
 #ficheVolume .fv-coins thead th { font-size: 10.5px; text-align: right; }
 #ficheVolume .fv-coins thead th:first-child, #ficheVolume .fv-coins tbody th { text-align: left; }
 #ficheVolume .fv-min { color: #3d6fb6; font-weight: 700; }
 #ficheVolume .fv-max { color: #c8553d; font-weight: 700; }
+
+/* fenêtre de couleur (couleurVolume.js) : flottante, ancrée à la pastille */
+dialog.fenetre-couleur { position: fixed; inset: auto; z-index: 1080; width: 248px; margin: 0; padding: 10px 12px 12px; border: 1px solid var(--bord-fort); border-radius: 10px;
+  background: var(--carte); color: var(--texte); box-shadow: var(--ombre); font-size: 12px; font-variant-numeric: tabular-nums; }
+.fenetre-couleur:focus { outline: none; }
+.fc-tete { display: flex; align-items: center; gap: 8px; }
+.fc-tete b { flex: 1; font-size: 12.5px; }
+.fc-tete .fc-apercu { width: 22px; height: 22px; border-radius: 6px; }
+.fc-apercu i { background: var(--fc-couleur); opacity: var(--fc-opacite); }
+.fc-fermer { font-size: 9px; }
+body[data-theme=nuit] .fc-fermer { filter: invert(1); }
+.fc-titre { margin: 11px 0 5px; font-size: 10.5px; font-weight: 650; letter-spacing: .07em; text-transform: uppercase; color: var(--doux); }
+.fc-palette { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.fc-palette button { aspect-ratio: 1; padding: 0; border: 1px solid var(--bord-fort); border-radius: 6px; }
+.fc-palette button:hover { border-color: var(--texte); }
+.fc-palette button[aria-pressed=true] { outline: 2px solid var(--accent); outline-offset: 1px; }
+.fc-ligne { display: grid; grid-template-columns: 78px minmax(0, 1fr) 38px; align-items: center; gap: 6px; min-height: 24px; margin: 0; }
+.fc-ligne > span { color: var(--doux); }
+.fc-ligne output { text-align: right; white-space: nowrap; }
+.fc-hex { grid-template-columns: 78px minmax(0, 1fr); margin-top: 3px; }
+.fc-hex input { height: 22px; min-height: 0; padding: 1px 6px; font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-transform: uppercase; background-image: none !important; }
+.fenetre-couleur input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 12px; margin: 0; border: 1px solid var(--bord-fort); border-radius: 6px; background: var(--fc-piste); cursor: pointer; }
+.fenetre-couleur input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border: 2px solid #1f2933; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1px #fff; }
+.fenetre-couleur input[type=range]::-moz-range-thumb { width: 10px; height: 10px; border: 2px solid #1f2933; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1px #fff; }
+.fenetre-couleur input[type=range]::-moz-range-track { background: transparent; }
+.fenetre-couleur input[type=range]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fenetre-couleur [data-c=h] { --fc-piste: linear-gradient(to right, hsl(0 60% 60%), hsl(60 60% 60%), hsl(120 60% 60%), hsl(180 60% 60%), hsl(240 60% 60%), hsl(300 60% 60%), hsl(360 60% 60%)); }
+.fenetre-couleur [data-c=s] { --fc-piste: linear-gradient(to right, hsl(var(--fc-h) 0% var(--fc-l)), hsl(var(--fc-h) 100% var(--fc-l))); }
+.fenetre-couleur [data-c=l] { --fc-piste: linear-gradient(to right, #000, hsl(var(--fc-h) var(--fc-s) 50%), #fff); }
+.fenetre-couleur [data-c=o] { --fc-piste: linear-gradient(to right, transparent, var(--fc-couleur)), conic-gradient(#c9ccc6 25%, #fff 0 50%, #c9ccc6 0 75%, #fff 0) 0 0 / 8px 8px; }
 #listeVolumes .volume .nom-volume { cursor: pointer; }
 #listeVolumes .volume .nom-volume:hover { text-decoration: underline; }
 #listeVolumes .volume.choisi .nom-volume { font-weight: 700; color: var(--accent); }
@@ -605,14 +654,12 @@ body.choix-centre #vue canvas { cursor: crosshair !important; }
 .carte-volume.choisi { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); cursor: default; background: var(--carte); }
 .carte-volume.depasse { border-color: #c4001a; }
 .cv-tete { display: flex; align-items: center; gap: 6px; }
-.cv-nom { font-weight: 650; }
+.cv-nom { font-weight: 650; flex: none; max-width: 55%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .carte-volume.choisi .cv-nom { color: var(--accent); }
-.cv-dim { color: var(--doux); flex: 1; font-variant-numeric: tabular-nums; }
+.cv-dim { color: var(--doux); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
 .cv-tete button { border: 0; background: none; color: var(--doux); padding: 0 3px; }
 .cv-tete button:hover { color: var(--texte); }
 .cv-tete .cv-pastille { width: 15px; height: 15px; padding: 0; border-radius: 50%; border: 1px solid var(--bord-fort); }
-.carte-volume .palette { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
-.carte-volume .palette button { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--bord-fort); padding: 0; }
 .cv-chiffres { display: flex; flex-wrap: wrap; gap: 0 8px; color: var(--doux); font-size: 11px; margin-top: 2px; font-variant-numeric: tabular-nums; }
 .cv-distances { margin-top: 3px; font-size: 11.5px; }
 .cv-distances table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
@@ -620,5 +667,9 @@ body.choix-centre #vue canvas { cursor: crosshair !important; }
 .cv-distances td { text-align: right; white-space: nowrap; }
 .cv-distances .cv-limite td { color: var(--parcelle); }
 .cv-distances .cv-zero td, .cv-alerte { color: #c4001a; font-weight: 650; }
-.cv-alerte { background: rgba(196, 0, 26, .08); border-radius: 6px; padding: 2px 6px; margin-bottom: 3px; }
-.carte-volume #ficheVolume { margin: 6px -2px 0; border-width: 1px 0 0; border-radius: 0; padding: 6px 0 0; cursor: default; }
+.cv-alerte { background: rgba(196, 0, 26, .08); border-radius: 6px; padding: 2px 6px; margin-top: 3px; }
+.carte-volume #ficheVolume { margin: 6px 0 0; border-width: 1px 0 0; border-radius: 0; padding: 0; cursor: default; }
+/* volume choisi : sa fenêtre de paramètres remplace le résumé de la carte (mêmes chiffres, section par section) ;
+   la pastille de l'en-tête laisse la place à la ligne « Apparence » */
+.carte-volume.choisi > .cv-chiffres, .carte-volume.choisi > .cv-distances, .carte-volume.choisi .cv-tete .cv-pastille { display: none; }
+.cv-alerte[hidden] { display: none; }

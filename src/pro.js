@@ -16,6 +16,7 @@ import { dxfReference } from "./referenceParcelle.js";
 import { solEn } from "./grille.js";
 import { ICONE } from "./icones.js";
 import { brancherEdition } from "./editionVolumes.js";
+import { COULEURS, ouvrirApparence, fermerApparence } from "./couleurVolume.js";
 // données externes (cadastre, noms de fichiers) insérées dans du HTML : échappées (audit du 27.11.2026)
 const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -48,7 +49,7 @@ export function brancherPro(o) {
   /* ---------------------------------------------------------------- sélection et masquage */
   // Le clic choisit tout seul : un bâtiment s'il touche un toit ou une façade, sinon les bâtiments de la parcelle
   // cliquée. Masquer la sélection l'ajoute à la liste « ajoutés et masqués », où un œil la remontre ou la recache.
-  const couleurs = ["#fbf7ee", "#eadfca", "#d9c09b", "#c99a78", "#b07a62", "#a9b49c", "#7f9083", "#93a2ad", "#b6a9bb", "#8e8379"];
+  const couleurs = COULEURS.map(x => x.c);
   P.caches = [];
   /** Volumes masqués : ceux des entrées de la liste dont l'œil est fermé. */
   const recalculer = () => { P.masques = new Set(P.caches.filter(c => !c.visible).flatMap(c => c.ids)); };
@@ -339,6 +340,7 @@ export function brancherPro(o) {
   }
   function revenir(depuis, vers) {
     if (!depuis.length) return;
+    fermerApparence();
     if (dessin) finDessin();
     vers.push(H.etat);
     H.etat = depuis.pop();
@@ -373,27 +375,33 @@ export function brancherPro(o) {
     modifie();
   }
   /* ---------------------------------------------------------------- cartes des volumes */
-  // Une carte par volume : dimensions, étages, hauteurs, toit, base, surfaces, distances (limites de la parcelle, une par
-  // voisin, et bâtiments les plus proches, au centimètre, en plan) ; dépassement de la limite en évidence. Un clic sur
-  // la carte choisit le volume dans la scène, et inversement. Les cartes sont gardées d'un rendu à l'autre (le tableau
-  // du volume choisi, placé dans sa carte, ne perd pas la saisie en cours).
+  // Une carte par volume. En-tête : œil, nom, dimensions (rectangle : côtés ; emprise libre : nombre de côtés et aire),
+  // pastille de couleur (ouvre la fenêtre de couleur, couleurVolume.js), retrait. Résumé du volume non choisi : étages,
+  // hauteurs, toit, base, surfaces, distances (limites de la parcelle, une par voisin, et bâtiments les plus proches, au
+  // centimètre, en plan). Le volume choisi montre à la place sa fenêtre de paramètres (ficheVolume.js), qui reprend tout
+  // cela section par section ; le dépassement de la limite reste en évidence dans les deux cas. Un clic sur la carte
+  // choisit le volume dans la scène, et inversement. Les cartes sont gardées d'un rendu à l'autre (la fenêtre du volume
+  // choisi, placée dans sa carte, ne perd pas la saisie en cours).
   const cartesV = new Map();
   const m2 = a => `${fr(a, 1)} m²`;
   function majCarteVolume(v) {
     const d = v && cartesV.get(v.id);
     if (!d || !pret()) return;
     const k = P.volumes.indexOf(v), n = v.coins.length, hc = corniche(v), ht = hauteurToit(v), E = v.etages?.length || 1;
+    // rectangle : ses deux côtés ; emprise libre (ou quadrilatère quelconque) : nombre de côtés et aire
+    const rect = !v.libre && pansPossibles(v);
     let dim;
-    if (n === 4) { const [l, p] = dimensions(v); dim = `${fr(l, 2)} × ${fr(p, 2)} m`; }
-    else dim = t("carte.polygone", { n, p: fr(v.coins.reduce((s, q, i) => { const r = v.coins[(i + 1) % n]; return s + Math.hypot(r[0] - q[0], r[1] - q[1]); }, 0), 2) });
-    const toit = { plat: t("projet.plat"), deux: t("projet.deuxPans"), quatre: t("volume.quatrePans") }[v.toit] || v.toit;
-    d.querySelector(".cv-nom").textContent = t("carte.volume", { n: k + 1 });
+    if (rect) { const [l, p] = dimensions(v); dim = `${fr(l, 2)} × ${fr(p, 2)} m`; }
+    else dim = t("carte.libre", { n, a: m2(aire(v.coins)) });
+    // toit à pans : seulement sur un rectangle (sinon le volume est dessiné à toit plat)
+    const toit = { plat: t("projet.plat"), deux: t("projet.deuxPans"), quatre: t("volume.quatrePans") }[pansPossibles(v) ? v.toit : "plat"];
+    d.querySelector(".cv-nom").textContent = v.nom || t("carte.volume", { n: k + 1 });
     d.querySelector(".cv-dim").textContent = dim;
     d.querySelector(".cv-pastille").style.background = v.couleur || couleurs[0];
     d.querySelector(".cv-chiffres").innerHTML = [
       t(E === 1 ? "carte.unEtage" : "carte.etages", { n: E }), t("carte.corniche", { h: fr(hc, 2) }),
       ...(ht > 0 ? [t("carte.faite", { h: fr(hc + ht, 2) })] : []), `${t("volume.toit")} ${toit.toLowerCase()}`,
-      t("carte.base", { z: fr(v.base, 2) }), t("carte.sol", { a: m2(aireEmprise(v.coins)) }), t("carte.plancher", { a: m2(surfacePlancher(v)) }),
+      t("carte.base", { z: fr(v.base, 2) }), ...(rect ? [t("carte.sol", { a: m2(aireEmprise(v.coins)) })] : []), t("carte.plancher", { a: m2(surfacePlancher(v)) }),
     ].map(x => `<span>${esc(x)}</span>`).join("");
     const M = mesures(v), lignes = [];
     // les quatre limites les plus proches (une parcelle de route en a des dizaines)
@@ -403,8 +411,10 @@ export function brancherPro(o) {
     for (const b of M.batiments || []) if (b.d < 80) lignes.push(`<tr><th>${t("carte.batiment")}</th><td>${fr(b.d, 2)} m</td></tr>`);
     const dep = M.depasse;
     d.classList.toggle("depasse", !!dep);
-    d.querySelector(".cv-distances").innerHTML = (dep ? `<div class="cv-alerte" role="status">${esc(dep.d > 0.005 ? t("carte.depasse", { d: fr(dep.d, 2) }) : t("carte.touche"))}</div>` : "")
-      + (lignes.length ? `<table><tbody>${lignes.join("")}</tbody></table>` : `<span class="text-secondary">${t("carte.sansMesure")}</span>`);
+    const alerte = d.querySelector(".cv-alerte");
+    alerte.hidden = !dep;
+    alerte.textContent = dep ? (dep.d > 0.005 ? t("carte.depasse", { d: fr(dep.d, 2) }) : t("carte.touche")) : "";
+    d.querySelector(".cv-distances").innerHTML = (lignes.length ? `<table><tbody>${lignes.join("")}</tbody></table>` : `<span class="text-secondary">${t("carte.sansMesure")}</span>`);
   }
   function carteVolume(v) {
     let d = cartesV.get(v.id);
@@ -412,10 +422,9 @@ export function brancherPro(o) {
     d = document.createElement("article");
     d.className = "carte-volume"; d.dataset.id = v.id; d.tabIndex = 0;
     d.innerHTML = `<div class="cv-tete"><span class="cv-oeil"></span><span class="cv-nom"></span><span class="cv-dim"></span>`
-      + `<button type="button" class="cv-pastille" title="${t("projet.couleur")}" aria-label="${t("projet.couleur")}"></button>`
+      + `<button type="button" class="cv-pastille" title="${t("fv.apparenceTitre")}" aria-label="${t("fv.apparenceTitre")}" aria-haspopup="dialog" aria-expanded="false"></button>`
       + `<button type="button" class="cv-retirer" title="${t("projet.retirer")}" aria-label="${t("projet.retirer")}">${ICONE.fermer}</button></div>`
-      + `<div class="palette" hidden>${couleurs.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join("")}</div>`
-      + `<div class="cv-chiffres"></div><div class="cv-distances"></div>`;
+      + `<div class="cv-alerte" role="status" hidden></div><div class="cv-chiffres"></div><div class="cv-distances"></div>`;
     const i = document.createElement("input");
     Object.assign(i, { type: "checkbox", className: "form-check-input oeil", title: t("projet.voir") });
     i.setAttribute("aria-label", t("projet.voir"));
@@ -424,10 +433,20 @@ export function brancherPro(o) {
       const vol = P.volumes.find(w => w.id === v.id);
       if (!vol) return;
       if (e.target === i) { vol.visible = i.checked; volumesChanges(); return; }
-      if (e.target.closest(".cv-pastille")) { d.querySelector(".palette").hidden = !d.querySelector(".palette").hidden; return; }
-      const c = e.target.closest(".palette [data-c]")?.dataset.c;
-      if (c) { vol.couleur = c; d.querySelector(".palette").hidden = true; volumesChanges(); return; }
-      if (e.target.closest(".cv-retirer")) { P.volumes = P.volumes.filter(w => w !== vol); volumesChanges(); return; }
+      if (e.target.closest(".cv-pastille")) {
+        // fenêtre de couleur : aperçu en direct sur la maquette, étape d'historique une fois le réglage posé
+        const le = () => P.volumes.find(w => w.id === v.id);
+        ouvrirApparence(e.target.closest(".cv-pastille"), {
+          lire: () => { const w = le(); return w ? { couleur: w.couleur, opacite: w.opacite } : null; },
+          changer: (a, final) => {
+            const w = le();
+            w.couleur = a.couleur; w.opacite = a.opacite;
+            if (final) volumesChanges(); else { scene.afficherVolumes(P.volumes); edition?.maj(); majCarteVolume(w); modifie(); }
+          },
+        });
+        return;
+      }
+      if (e.target.closest(".cv-retirer")) { fermerApparence(); P.volumes = P.volumes.filter(w => w !== vol); volumesChanges(); return; }
       if (e.target.closest("#ficheVolume")) return; // saisie dans le tableau
       edition?.choisir(edition.selection === vol.id ? null : vol.id);
     };

@@ -386,6 +386,20 @@ export function aireEmprise(coins) {
 export const surfacePlancher = v => aireEmprise(v.coins) * Math.max(1, v.etages?.length || Math.round((v.hauteur || 3) / 3));
 
 /**
+ * Volume bâti (m³) : emprise × hauteur à la corniche, plus le volume sous le toit à pans (deux pans : moitié du prisme ;
+ * quatre pans : croupes déduites). Du pied des murs (`base`) au toit, sans sous-sol.
+ */
+export function volumeBati(v) {
+  const a = aireEmprise(v.coins), ht = hauteurToit(v);
+  let toit = 0;
+  if (ht > 0) {
+    const { L, P } = cadre(v), { A, B } = faitage(v, L, P);
+    toit = v.toit === "quatre" ? ht * 2 * B * (4 * A + 2 * Math.max(0, A - B)) / 6 : a * ht / 2;
+  }
+  return a * corniche(v) + toit;
+}
+
+/**
  * Limites d'une parcelle, regroupées par voisin : chaque côté de l'anneau va à la parcelle voisine qui le touche (point à
  * 30 cm à l'extérieur du milieu du côté), ou à `null` (voisin inconnu, domaine non cadastré). Renvoie
  * [{ numero, segments: [[a, b], …] }].

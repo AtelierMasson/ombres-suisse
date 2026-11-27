@@ -1,11 +1,14 @@
-// Tableau du volume sélectionné (onglet Projet) : dimensions (emprise libre : aire et périmètre), position MN95, rotation, étages, toit (pente, faîtage),
-// opacité ; altitudes, hauteurs au-dessus du terrain à chaque coin, distances aux bâtiments et à la limite de parcelle.
+// Fenêtre des paramètres du volume sélectionné (onglet Projet), en quatre sections : identité (nom, apparence, traits
+// d'étage), implantation (emprise, rotation, centre MN95, base), gabarit (étages, corniche, toit) et résultats (surfaces,
+// volume bâti, altitudes, hauteurs au-dessus du terrain à chaque coin, distances aux limites et aux bâtiments).
 // Les champs mettent la maquette à jour aussitôt ; la souris (déplacer, tourner, tirer une face) les met à jour en retour.
 import { t, nombre } from "./i18n.js";
 import { solEn } from "./grille.js";
-import { cadre, coinsDe, corniche, hauteurToit, reglerCorniche, reglerEtages, reglerFaite, distanceSegments, dansPolygone, reglerEtage, etageCourant, aire, perimetre, centroide, pansPossibles, limitesParVoisin, distancesLimites, depassementLimite } from "./projet.js";
+import { cadre, coinsDe, corniche, hauteurToit, reglerCorniche, reglerEtages, reglerFaite, distanceSegments, dansPolygone, reglerEtage, etageCourant, aire, perimetre, centroide, pansPossibles, limitesParVoisin, distancesLimites, depassementLimite, surfacePlancher, volumeBati } from "./projet.js";
+import { ouvrirApparence, fermerApparence, COULEUR_DEFAUT } from "./couleurVolume.js";
 
 const fr = (v, d = 1) => nombre(v, d);
+const esc = x => String(x ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const deg = r => ((r * 180 / Math.PI) % 360 + 360) % 360;
 
 /**
@@ -76,118 +79,164 @@ export function cotesVolume(v, M, scene) {
 }
 
 /**
- * Tableau du volume dans `conteneur`. `o` = { S, mesures(v), changer(v, final) } : `changer` applique (final = false
- * pendant la saisie, true à la validation, pour les calculs lourds : coupe, heures de soleil).
+ * Fenêtre des paramètres du volume dans `conteneur`, en quatre sections, une information par ligne (étiquette à gauche,
+ * valeur et unité alignées à droite) :
+ * - Identité : nom, apparence (pastille qui ouvre la fenêtre de couleur : couleurs de base, TSL, transparence), traits d'étage ;
+ * - Implantation : dimensions de l'emprise (rectangle : largeur et profondeur ; emprise libre : coins et cotes des côtés),
+ *   emprise au sol, périmètre, rotation, centre MN95, altitude de la base, terrain sous l'emprise ;
+ * - Gabarit : étages (rez, courants, dernier), hauteur à la corniche, toit (pans seulement sur un rectangle), pente, faîte ;
+ * - Résultats (lecture seule) : surface de plancher brute, volume bâti, altitudes, hauteurs sur le terrain par coin,
+ *   distances aux limites (une par voisin) et aux bâtiments.
+ * `o` = { S, mesures(v), changer(v, final) } : `changer` applique (final = false pendant la saisie, true à la
+ * validation, pour les calculs lourds : coupe, heures de soleil).
  */
 export function ficheVolume(conteneur, o) {
   let v = null, numero = 0;
-  const champ = (cle, titre, attrs = "") => `<label class="fv-champ" title="${titre}"><span>${t(cle)}</span><input type="number" class="form-control form-control-sm" data-k="${cle}" ${attrs}></label>`;
+  const attr = s => String(s).replace(/"/g, "&quot;");
+  /** Ligne : étiquette à gauche, `corps` (valeur et unité) à droite. */
+  const ligne = (cle, corps, { titre = "", sous = false, id = "", balise = "label" } = {}) =>
+    `<${balise} class="fv-ligne${sous ? " fv-sous" : ""}"${id ? ` data-ligne="${id}"` : ""}${titre ? ` title="${attr(t(titre))}"` : ""}><span class="fv-nom">${t(cle)}</span><span class="fv-val">${corps}</span></${balise}>`;
+  const saisie = (k, unite, attrs = "") => `<input type="number" class="form-control form-control-sm" data-k="${k}" ${attrs}><span class="fv-unite">${unite}</span>`;
+  const etage = (quoi, cle, titre) => ligne(cle, `<input type="number" class="form-control form-control-sm" data-etage="${quoi}" min="1" max="20" step="0.1"><span class="fv-unite">m</span>`, { titre, sous: true, id: quoi });
+  const lu = (cle, valeur, unite, { titre = "", classe = "", params = {} } = {}) =>
+    `<div class="fv-ligne${classe ? " " + classe : ""}"${titre ? ` title="${attr(t(titre))}"` : ""}><span class="fv-nom">${t(cle, params)}</span><span class="fv-val"><output>${valeur}</output><span class="fv-unite">${unite}</span></span></div>`;
+  const section = cle => `<h3 class="fv-section">${t(cle)}</h3>`;
+  const groupe = cle => `<h4 class="fv-groupe">${t(cle)}</h4>`;
+
   function construire() {
+    fermerApparence();
     if (!v) { conteneur.hidden = true; conteneur.innerHTML = ""; return; }
     conteneur.hidden = false;
-    const E = v.etages;
     conteneur.innerHTML = `
-      <div class="fv-tete"><b>${t("volume.titre", { n: numero })}</b><span class="text-secondary">${t(v.libre ? "volume.aideLibre" : "volume.aideSouris")}</span></div>
-      <div class="fv-groupe">${t("volume.dimensions")}</div>
-      <div class="fv-grille">
-        ${v.libre ? champ("volume.aire", t("volume.aireTitre"), "readonly") + champ("volume.perimetre", t("volume.perimetreTitre"), "readonly")
-          : champ("volume.largeur", t("volume.largeurTitre"), 'min="1" max="500" step="0.1"') + champ("volume.profondeur", t("volume.profondeurTitre"), 'min="1" max="500" step="0.1"')}
-        ${champ("volume.rotation", t("volume.rotationTitre"), 'step="0.5"')}
-      </div>
-      <div class="fv-groupe">${t("volume.position")}</div>
-      <div class="fv-grille fv-position">
-        ${champ("volume.est", t("volume.centreTitre"), 'step="0.1"')}
-        ${champ("volume.nord", t("volume.centreTitre"), 'step="0.1"')}
-        ${champ("volume.base", t("volume.baseTitre"), 'step="0.1"')}
-      </div>
-      <div class="fv-groupe">${t("volume.hauteurs")}</div>
-      <div class="fv-grille">
-        ${champ("volume.etages", t("volume.etagesTitre"), 'min="1" max="80" step="1"')}
-        ${champ("volume.corniche", t("volume.cornicheTitre"), 'min="1" max="300" step="0.1"')}
-        ${champ("volume.faite", t("volume.faiteTitre"), 'min="1" max="400" step="0.1"')}
-      </div>
-      <div class="fv-etages">
-        <label title="${t("volume.rezTitre")}"><span>${t("volume.rez")}</span><input type="number" class="form-control form-control-sm" data-etage="rez" min="1" max="20" step="0.1"></label>
-        ${E.length > 2 ? `<label title="${t("volume.courantTitre")}"><span>${t("volume.courant")}</span><input type="number" class="form-control form-control-sm" data-etage="courant" min="1" max="20" step="0.1"></label>` : ""}
-        ${E.length > 1 ? `<label title="${t("volume.dernierTitre")}"><span>${t("volume.dernier")}</span><input type="number" class="form-control form-control-sm" data-etage="dernier" min="1" max="20" step="0.1"></label>` : ""}
-      </div>
-      <div class="fv-grille fv-toit">
-        <label class="fv-champ"><span>${t("volume.toit")}</span><select class="form-select form-select-sm" data-k="toit">
-          <option value="plat">${t("projet.plat")}</option><option value="deux" data-pans>${t("projet.deuxPans")}</option><option value="quatre" data-pans>${t("volume.quatrePans")}</option></select></label>
-        <label class="fv-champ" title="${t("volume.sensTitre")}"><span>${t("volume.sens")}</span><select class="form-select form-select-sm" data-k="sensFaite">
-          <option value="long">${t("volume.sensLong")}</option><option value="court">${t("volume.sensCourt")}</option></select></label>
-        <label class="fv-champ" title="${t("volume.penteTitre")}"><span>${t("volume.pente")}</span><input type="number" class="form-control form-control-sm" data-k="pente" min="1" step="1"></label>
-        <label class="fv-champ" title="${t("volume.penteTitre")}"><span>${t("volume.unite")}</span><select class="form-select form-select-sm" data-k="unitePente"><option value="deg">${t("volume.degres")}</option><option value="pct">${t("volume.pourcent")}</option></select></label>
-      </div>
-      <label class="fv-opacite"><span>${t("volume.opacite")}</span><input type="range" class="form-range" data-k="opacite" min="10" max="100" step="5"><output></output></label>
-      <div class="fv-groupe">${t("volume.altitudes")}</div>
-      <div class="fv-mesures" data-mesures></div>`;
+      ${section("fv.identite")}
+      ${ligne("fv.nom", `<input type="text" class="form-control form-control-sm fv-plein" data-k="nom" maxlength="40" autocomplete="off" placeholder="${attr(t("carte.volume", { n: numero }))}">`, { id: "nom" })}
+      ${ligne("fv.apparence", `<button type="button" class="fv-apparence fv-plein" data-apparence aria-haspopup="dialog" aria-expanded="false"><span class="fv-pastille"><i></i></span><span data-r="apparence"></span></button>`, { titre: "fv.apparenceTitre", balise: "div", id: "apparence" })}
+      ${ligne("fv.traits", `<span class="form-check form-switch fv-plein"><input type="checkbox" role="switch" class="form-check-input" data-k="traits"></span>`, { titre: "fv.traitsTitre" })}
+
+      ${section("fv.implantation")}
+      ${v.libre
+        ? ligne("fv.coins", `<output data-r="coins"></output><span class="fv-unite"></span>`, { balise: "div" })
+          + `<details class="fv-cotes"><summary>${t("fv.cotes")}</summary><div data-r="cotes"></div></details>`
+        : ligne("volume.largeur", saisie("volume.largeur", "m", 'min="1" max="500" step="0.1"'), { titre: "volume.largeurTitre" })
+          + ligne("volume.profondeur", saisie("volume.profondeur", "m", 'min="1" max="500" step="0.1"'), { titre: "volume.profondeurTitre" })}
+      ${ligne("fv.emprise", `<output data-r="aire"></output><span class="fv-unite">m²</span>`, { titre: "volume.aireTitre", balise: "div" })}
+      ${ligne("volume.perimetre", `<output data-r="perimetre"></output><span class="fv-unite">m</span>`, { titre: "volume.perimetreTitre", balise: "div" })}
+      ${ligne("fv.rotation", saisie("volume.rotation", "°", 'step="0.5"'), { titre: "volume.rotationTitre" })}
+      ${ligne("fv.est", saisie("volume.est", "m", 'step="0.1"'), { titre: "volume.centreTitre" })}
+      ${ligne("fv.nord", saisie("volume.nord", "m", 'step="0.1"'), { titre: "volume.centreTitre" })}
+      ${ligne("fv.base", saisie("volume.base", "m", 'step="0.1"'), { titre: "volume.baseTitre" })}
+      ${ligne("fv.terrain", `<output data-r="terrain"></output><span class="fv-unite">m</span>`, { titre: "fv.terrainTitre", balise: "div" })}
+
+      ${section("fv.gabarit")}
+      ${ligne("fv.etages", saisie("volume.etages", "", 'min="1" max="80" step="1"'), { titre: "volume.etagesTitre" })}
+      ${etage("rez", "fv.rez", "volume.rezTitre")}
+      ${etage("courant", "fv.courant", "volume.courantTitre")}
+      ${etage("dernier", "fv.dernier", "volume.dernierTitre")}
+      ${ligne("fv.corniche", saisie("volume.corniche", "m", 'min="1" max="300" step="0.1"'), { titre: "volume.cornicheTitre" })}
+      ${ligne("volume.toit", `<select class="form-select form-select-sm fv-plein" data-k="toit">
+          <option value="plat">${t("projet.plat")}</option><option value="deux" data-pans>${t("projet.deuxPans")}</option><option value="quatre" data-pans>${t("volume.quatrePans")}</option></select>`)}
+      <p class="fv-note" data-ligne="sansPans">${t("volume.pansRectangle")}</p>
+      ${ligne("volume.sens", `<select class="form-select form-select-sm fv-plein" data-k="sensFaite">
+          <option value="long">${t("volume.sensLong")}</option><option value="court">${t("volume.sensCourt")}</option></select>`, { titre: "volume.sensTitre", sous: true, id: "sens" })}
+      ${ligne("volume.pente", `<input type="number" class="form-control form-control-sm" data-k="pente" min="1" step="1">
+          <button type="button" class="fv-unite fv-bascule" data-unite title="${attr(t("fv.uniteTitre"))}" aria-label="${attr(t("fv.uniteTitre"))}"></button>`, { titre: "volume.penteTitre", sous: true, id: "pente" })}
+      ${ligne("fv.faite", saisie("volume.faite", "m", 'min="1" max="400" step="0.1"'), { titre: "volume.faiteTitre", sous: true, id: "faite" })}
+
+      ${section("fv.resultats")}
+      <div data-mesures></div>
+      <p class="fv-note fv-aide">${t(v.libre ? "volume.aideLibre" : "volume.aideSouris")}</p>`;
     for (const i of conteneur.querySelectorAll("input, select")) {
       i.addEventListener("input", () => appliquer(i, false));
       i.addEventListener("change", () => appliquer(i, true));
     }
+    conteneur.querySelector("[data-unite]").onclick = () => { v.unitePente = v.unitePente === "pct" ? "deg" : "pct"; o.changer(v, true); rafraichir(); };
+    const pastille = conteneur.querySelector("[data-apparence]");
+    pastille.onclick = () => {
+      const id = v.id;
+      ouvrirApparence(pastille, {
+        lire: () => v && v.id === id ? { couleur: v.couleur, opacite: v.opacite } : null,
+        changer: (a, final) => { v.couleur = a.couleur; v.opacite = a.opacite; o.changer(v, final); rafraichir(); },
+      });
+    };
     rafraichir();
   }
 
-  /** Valeurs du volume dans les champs (sauf celui qu'on est en train de saisir), mesures et distances. */
+  // décimales des champs : centimètre partout, sauf les comptes et les angles
+  const DEC = { "volume.etages": 0, "volume.rotation": 1, pente: 1 };
+  /** Valeurs du volume dans les champs (sauf celui qu'on est en train de saisir), lignes utiles, mesures et distances. */
   function rafraichir() {
     if (!v) return;
-    if (conteneur.querySelectorAll("[data-etage]").length !== Math.min(3, v.etages.length) || !!conteneur.querySelector('[data-k="volume.aire"]') !== !!v.libre) return construire();
-    const F = cadre(v), actif = document.activeElement, hc = corniche(v), ht = hauteurToit(v), [gx, gy] = v.libre ? centroide(v.coins) : [F.cx, F.cy];
-    const pans = pansPossibles(v);
+    const $ = q => conteneur.querySelector(q), F = cadre(v), actif = document.activeElement, hc = corniche(v), ht = hauteurToit(v), [gx, gy] = v.libre ? centroide(v.coins) : [F.cx, F.cy];
+    const pans = pansPossibles(v), plat = v.toit === "plat" || !pans, n = v.coins.length, E = v.etages.length;
     const val = {
       "volume.largeur": F.L, "volume.profondeur": F.P, "volume.rotation": deg(F.angle), "volume.est": o.S.E0 + gx, "volume.nord": o.S.N0 + gy,
-      "volume.aire": aire(v.coins), "volume.perimetre": perimetre(v.coins),
-      "volume.base": v.base, "volume.etages": v.etages.length, "volume.corniche": hc, "volume.faite": hc + ht,
-      toit: pans ? v.toit : "plat", sensFaite: v.sensFaite, unitePente: v.unitePente, opacite: Math.round((v.opacite ?? 1) * 100),
-      pente: v.unitePente === "pct" ? Math.round(Math.tan(v.pente * Math.PI / 180) * 1000) / 10 : v.pente,
+      "volume.base": v.base, "volume.etages": E, "volume.corniche": hc, "volume.faite": hc + ht,
+      toit: pans ? v.toit : "plat", sensFaite: v.sensFaite, nom: v.nom || "",
+      pente: v.unitePente === "pct" ? Math.tan(v.pente * Math.PI / 180) * 100 : v.pente,
     };
     for (const i of conteneur.querySelectorAll("[data-k]")) {
-      if (i === actif && i.type !== "range") continue;
+      if (i.dataset.k === "traits") { i.checked = v.traits !== false; continue; }
+      if (i === actif) continue;
       const x = val[i.dataset.k];
-      if (x == null) continue;
-      i.value = typeof x === "number" ? (i.step === "1" || i.dataset.k === "opacite" ? Math.round(x * 10) / 10 : (Math.round(x * 10) / 10).toFixed(1)) : x;
+      if (x != null) i.value = typeof x === "number" ? x.toFixed(DEC[i.dataset.k] ?? 2) : x;
     }
-    const valEtage = { rez: v.etages[0], courant: etageCourant(v), dernier: v.etages[v.etages.length - 1] };
-    for (const i of conteneur.querySelectorAll("[data-etage]")) if (i !== actif) i.value = (+valEtage[i.dataset.etage]).toFixed(1);
-    conteneur.querySelector(".fv-opacite output").textContent = `${val.opacite} %`;
-    const plat = v.toit === "plat" || !pans;
-    // toits à pans : seulement sur un rectangle
-    for (const op of conteneur.querySelectorAll("[data-pans]")) op.disabled = !pans;
-    conteneur.querySelector('[data-k="toit"]').title = pans ? "" : t("volume.pansRectangle");
-    conteneur.querySelector('[data-k="volume.faite"]').disabled = plat;
-    conteneur.querySelector('[data-k="pente"]').disabled = conteneur.querySelector('[data-k="unitePente"]').disabled = plat;
-    conteneur.querySelector('[data-k="sensFaite"]').disabled = plat || v.toit !== "deux";
-    // altitudes, coins, distances
-    const M = o.mesures(v), m = (x, d = 1) => x == null ? "—" : `${fr(x, d)} m`;
-    const hcs = M.coins.map(c => c.corniche), hfs = M.coins.map(c => c.faite);
+    const valEtage = { rez: v.etages[0], courant: etageCourant(v), dernier: v.etages[E - 1] };
+    for (const i of conteneur.querySelectorAll("[data-etage]")) if (i !== actif) i.value = (+valEtage[i.dataset.etage]).toFixed(2);
+    // apparence : pastille (couleur et opacité sur damier) et rappel chiffré
+    const couleur = v.couleur || COULEUR_DEFAUT, op = Math.round((v.opacite ?? 1) * 100);
+    $(".fv-pastille i").style.cssText = `background:${couleur};opacity:${op / 100}`;
+    $('[data-r="apparence"]').textContent = `${couleur.toUpperCase()} · ${op} %`;
+    // emprise
+    $('[data-r="aire"]').textContent = fr(aire(v.coins), 2);
+    $('[data-r="perimetre"]').textContent = fr(perimetre(v.coins), 2);
+    if (v.libre) {
+      $('[data-r="coins"]').textContent = n;
+      $(".fv-cotes summary").textContent = `${t("fv.cotes")} (${n})`;
+      $('[data-r="cotes"]').innerHTML = v.coins.map((p, k) => { const q = v.coins[(k + 1) % n]; return lu("fv.cote", fr(Math.hypot(q[0] - p[0], q[1] - p[1]), 2), "m", { classe: "fv-sous", params: { a: k + 1, b: (k + 1) % n + 1 } }); }).join("");
+    }
+    // lignes utiles seulement : étages courants et dernier s'il y en a, réglages du toit à pans s'il en porte un
+    const montrer = (id, oui) => { const l = $(`[data-ligne="${id}"]`); if (l) l.hidden = !oui; };
+    montrer("courant", E > 2); montrer("dernier", E > 1);
+    montrer("sansPans", !pans); montrer("sens", !plat && v.toit === "deux"); montrer("pente", !plat); montrer("faite", !plat);
+    for (const op2 of conteneur.querySelectorAll("[data-pans]")) op2.disabled = !pans;
+    $("[data-unite]").textContent = v.unitePente === "pct" ? "%" : "°";
+
+    // résultats : surfaces et volume, altitudes, hauteurs sur le terrain par coin, distances
+    const M = o.mesures(v), m = (x, d = 2) => x == null ? "—" : fr(x, d);
+    const sols = M.coins.map(c => c.sol), hcs = M.coins.map(c => c.corniche), hfs = M.coins.map(c => c.faite);
+    $('[data-r="terrain"]').textContent = `${fr(Math.min(...sols), 2)} – ${fr(Math.max(...sols), 2)}`;
     const marque = (x, liste) => x === Math.min(...liste) ? ` class="fv-min" title="${t("volume.min")}"` : x === Math.max(...liste) ? ` class="fv-max" title="${t("volume.max")}"` : "";
-    conteneur.querySelector("[data-mesures]").innerHTML = `
-      <table class="fv-table"><tbody>
-        <tr><th>${t("volume.altBase")}</th><td>${m(M.base, 2)}</td></tr>
-        <tr><th>${t("volume.altCorniche")}</th><td>${m(M.zc, 2)}</td></tr>
-        ${plat ? "" : `<tr><th>${t("volume.altFaite")}</th><td>${m(M.zf, 2)}</td></tr>`}
-      </tbody></table>
-      <div class="fv-groupe">${t("volume.coins")}</div>
+    const limites = (M.limites?.length ? M.limites : M.limite ? [{ ...M.limite, numero: M.parcelle }] : []).slice(0, 4);
+    const bats = (M.batiments || []).filter(b => b.d < 80);
+    $("[data-mesures]").innerHTML = `
+      ${groupe("fv.surfaces")}
+      ${lu("fv.plancher", fr(surfacePlancher(v), 2), "m²", { titre: "fv.plancherTitre" })}
+      ${lu("fv.volume", fr(volumeBati(v), 1), "m³", { titre: "fv.volumeTitre" })}
+      ${groupe("fv.altitudes")}
+      ${lu("volume.altCorniche", m(M.zc), "m")}
+      ${plat ? "" : lu("volume.altFaite", m(M.zf), "m")}
+      ${groupe("fv.hauteurs")}
       <table class="fv-table fv-coins"><thead><tr><th>${t("volume.coin")}</th><th>${t("volume.terrain")}</th><th>${t("volume.hCorniche")}</th>${plat ? "" : `<th>${t("volume.hFaite")}</th>`}</tr></thead><tbody>
-        ${M.coins.map((c, k) => `<tr><th>${k + 1}</th><td>${fr(c.sol, 2)}</td><td${marque(c.corniche, hcs)}>${fr(c.corniche)}</td>${plat ? "" : `<td${marque(c.faite, hfs)}>${fr(c.faite)}</td>`}</tr>`).join("")}
+        ${M.coins.map((c, k) => `<tr><th>${k + 1}</th><td>${fr(c.sol, 2)}</td><td${marque(c.corniche, hcs)}>${fr(c.corniche, 2)}</td>${plat ? "" : `<td${marque(c.faite, hfs)}>${fr(c.faite, 2)}</td>`}</tr>`).join("")}
       </tbody></table>
-      <div class="fv-groupe">${t("volume.distances")}</div>
-      <table class="fv-table"><tbody>
-        <tr><th>${t("volume.batProche")}</th><td>${M.batiment ? m(M.batiment.d) : t("volume.aucun")}</td></tr>
-        <tr><th>${t("volume.batMoyenne", { n: M.voisins.n })}</th><td>${m(M.voisins.moyenne)}</td></tr>
-        <tr><th>${t("volume.limiteMin", { n: M.parcelle ?? "—" })}</th><td>${M.limite ? m(M.limite.d) : "—"}</td></tr>
-        <tr><th>${t("volume.limiteMoyenne")}</th><td>${m(M.moyenneLimite)}</td></tr>
-      </tbody></table>`;
+      ${groupe("fv.limites")}
+      ${limites.length ? limites.map(l => lu(l.numero != null ? "carte.limite" : "carte.limiteSans", m(l.d), "m", { classe: l.d < 0.005 ? "fv-alerte" : "", params: { n: esc(l.numero) } })).join("")
+          + lu("fv.limiteMoyenne", m(M.moyenneLimite), "m")
+        : `<p class="fv-note">${t("carte.sansMesure")}</p>`}
+      ${groupe("fv.batiments")}
+      ${bats.length ? bats.map((b, k) => lu("fv.batiment", m(b.d), "m", { classe: b.d < 0.005 ? "fv-alerte" : "", params: { n: k + 1 } })).join("")
+          + lu("fv.batMoyenne", m(M.voisins.moyenne), "m", { params: { n: M.voisins.n } })
+        : `<p class="fv-note">${t("fv.aucunBatiment")}</p>`}`;
   }
 
   function appliquer(i, final) {
     if (!v) return;
     const k = i.dataset.k, x = +i.value;
     if (i.dataset.etage != null) { if (x >= 1) reglerEtage(v, i.dataset.etage, x); }
-    else if (k === "toit" || k === "sensFaite" || k === "unitePente") v[k] = i.value;
+    else if (k === "nom") { const nom = i.value.trim(); if (nom) v.nom = nom; else delete v.nom; }
+    else if (k === "traits") { if (i.checked) delete v.traits; else v.traits = false; }
+    else if (k === "toit" || k === "sensFaite") v[k] = i.value;
     else if (i.value === "" || !isFinite(x)) return;
-    else if (k === "opacite") v.opacite = Math.max(0.1, Math.min(1, x / 100));
     else if (k === "pente") v.pente = Math.max(1, Math.min(80, v.unitePente === "pct" ? Math.atan(x / 100) * 180 / Math.PI : x));
     else if (k === "volume.etages") reglerEtages(v, x);
     else if (k === "volume.corniche") reglerCorniche(v, x);
@@ -219,8 +268,8 @@ export function ficheVolume(conteneur, o) {
   }
 
   return {
-    /** Volume affiché (null : tableau caché) et son numéro dans la liste. */
-    montrer(vol, n) { v = vol; numero = n; construire(); },
+    /** Volume affiché (null : fenêtre cachée) et son numéro dans la liste. */
+    montrer(vol, n) { const autre = vol !== v || n !== numero || !conteneur.firstChild; v = vol; numero = n; if (autre) construire(); else rafraichir(); },
     rafraichir() { if (v) rafraichir(); },
     get volume() { return v; },
   };
