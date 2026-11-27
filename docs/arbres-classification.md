@@ -86,11 +86,16 @@ conifères d'ornement) ; la pénétration seule (au Jorat, conifères et feuillu
 
 Proportions obtenues (arbres, après le degré de mélange) :
 
-| Lieu | arbres | conifères | feuillus | mélèzes |
-|---|---|---|---|---|
-| Lutry (parcelle 265) | 759 | 318 (42 %) | 441 (58 %) | 0 |
-| Jorat | 3 005 | 1 571 (52 %) | 1 434 (48 %) | 0 |
-| Sihlwald | 1 906 | 181 (9 %) | 1 725 (91 %) | 0 |
+| Lieu | altitude | arbres | conifères | feuillus | mélèzes |
+|---|---|---|---|---|---|
+| Lutry (parcelle 265) | ~600 m | 759 | 342 (45 %) | 417 (55 %) | 0 |
+| Jorat | ~860 m | 3 005 | 1 572 (52 %) | 1 433 (48 %) | 0 |
+| Sihlwald | ~670 m | 1 906 | 256 (13 %) | 1 650 (87 %) | 0 |
+| Haute-Engadine (Celerina) | ~1 850 m | 3 179 | 2 362 (74 %) | 0 | 817 (26 %) |
+
+Avant le degré de mélange (altitude seule + forme) : Lutry 289 / 470, Jorat 929 / 2 076 : le LFI corrige
+nettement le Jorat (pessière). Le tirage des points affichés (1 sur 2) varie un peu d'un chargement à l'autre :
+±1–2 % sur ces nombres.
 
 ## 4. Teintes
 
@@ -120,21 +125,64 @@ Les ombres et l'ensoleillement ne passent pas par les points (canopée en grille
      (les couronnes sans feuilles sont creuses : une colonne qui enjambe ne suffit pas).
    - Dans le shader : pas dessinés si la caméra est à plus de **40 m** (`MARGE_ENFOUIS`) ; toujours dessinés en coupe
      (plans de coupe actifs) ; case « Essences » sans effet sur ce tri (`DEGRADE.cacherEnfouis`).
-2. **Tuiles** : points rangés par tuiles carrées (≤ 8 × 8, ≥ 40 m de côté), visibles puis enfouis dans chaque tuile.
-   Chaque tuile est un enfant `THREE.Points` qui partage les attributs (un seul tampon sur la carte graphique) et le
-   matériau, avec sa propre sphère englobante : three.js l'écarte hors du champ. Les enfouis d'une tuile ne sont même
-   pas envoyés (`drawRange`) si la tuile entière est à plus de 40 m de la caméra.
-3. Relief / horizon : pas fait (la maquette fine fait 300–600 m ; l'anneau et le paysage ont leur propre chargement).
+2. **Tuiles** : points rangés par tuiles carrées (≤ 8 × 8, ≥ 40 m de côté, ≥ ~80 000 points), visibles puis enfouis
+   dans chaque tuile. Chaque tuile est un enfant `THREE.Points` qui partage les attributs (un seul tampon sur la carte
+   graphique) et le matériau, avec sa propre sphère englobante : three.js l'écarte hors du champ. Les enfouis d'une
+   tuile ne sont même pas envoyés (`drawRange`) si la tuile entière est à plus de 40 m de la caméra.
+3. **Allègement au loin par tuile** : le shader gardait déjà, au loin, une part des points seulement (plus gros), mais
+   chaque point passait quand même dans le shader. Les points visibles de chaque tuile sont maintenant mélangés une
+   fois et numérotés (`aRang`, un octet) : le shader garde ceux de rang < part gardée, et la tuile n'envoie que le
+   début de sa liste (part gardée à son point le plus proche). Même image, beaucoup moins de sommets traités.
+   Sans effet en vue en plan, en élévation (caméra orthographique) et en coupe.
+4. Relief / horizon : pas fait (la maquette fine fait 300–600 m ; l'anneau et le paysage ont leur propre chargement).
    Le terrain n'est pas découpé en tuiles non plus : il est en cours de refonte (`terrainTIN.js`).
 
-Vérification « pas de trou » : image rendue avec et sans tri, pixel par pixel (écart > 24 niveaux sur RVB).
+### Vérification « pas de trou »
 
-| Lieu, vue | points envoyés (avant → après) | pixels qui changent |
+Image rendue avec et sans (même caméra, sans effets), pixel par pixel : part des pixels dont l'écart dépasse 24
+niveaux sur R + V + B. Les écarts restants sont des points isolés d'un pixel, invisibles à l'œil (capture de la
+différence en rouge : rien de lisible à 100 %).
+
+| Lieu, vue | sommets envoyés (avant → après) | pixels qui changent |
 |---|---|---|
-| Sihlwald, vue de départ | 9,13 M → 8,18 M (−10 %) | 0,06 % (points isolés) |
-| Sihlwald, ras du sol | 9,13 M → 5,55 M (−39 %) | 0,05 % |
-| Sihlwald, de haut | 9,13 M → 7,20 M (−21 %) | 0,08 % |
-| Jorat, voir le rapport | | |
+| Lutry, vue de départ | 0,75 M → 0,51 M (−33 %) | 0,02 % |
+| Lutry, de haut | 0,75 M → 0,41 M (−46 %) | 0,01 % |
+| Jorat, vue de départ | 4,56 M → 1,45 M (−68 %) | 0,09 % |
+| Jorat, basse | 4,56 M → 1,75 M (−62 %) | 0,07 % |
+| Jorat, de haut | 4,56 M → 1,27 M (−72 %) | 0,15 % |
+| Jorat, rasante | 4,56 M → 1,66 M (−64 %) | 0,03 % |
+| Jorat, caméra dans la forêt (2 m du sol, 4 directions) | −71 à −82 % | 0 à 0,002 % |
+| Jorat, coupe active | 4,56 M → 3,58 M | 0 % |
+| Sihlwald, vue de départ | 9,14 M → 3,41 M (−63 %) | 0,07 % |
+| Sihlwald, basse | 9,14 M → 3,73 M (−59 %) | 0,04 % |
+| Sihlwald, de haut | 9,14 M → 2,59 M (−72 %) | 0,08 % |
+| Sihlwald, rasante | 9,14 M → 3,53 M (−61 %) | 0 % |
 
-Avec 2 voxels par rayon au lieu d'un, aucun pixel ne change, mais 10 fois moins de points sont enfouis ; avec le seul
-test par colonnes, 0,8 % des pixels changent (taches visibles sous les couronnes en bord de forêt).
+Réglage des points enfouis : avec 2 voxels par rayon au lieu d'un, aucun pixel ne change mais il y a 10 fois moins
+de points enfouis ; avec le seul test par colonnes, 0,8 % des pixels changent (taches visibles sous les couronnes en
+bord de forêt).
+
+### Temps d'image
+
+Rendu complet (`Scene3D.rendre`, effets compris) synchronisé par `readPixels`, médiane de 5 à 9 séries ; « arbres » =
+temps avec arbres − temps sans arbres. Mesures dans un onglet partagé avec d'autres (bruit de ±0,2 ms).
+
+| Lieu, vue | image avant → après | arbres avant → après |
+|---|---|---|
+| Lutry, vue de départ | 3,11 → 3,07 ms | 0,48 → 0,44 ms |
+| Lutry, basse | 2,43 → 2,38 ms | 0,38 → 0,33 ms |
+| Jorat, vue de départ | 5,24 → 4,69 ms (−10 %) | 2,12 → 1,57 ms (−26 %) |
+| Jorat, basse | 4,39 → 3,81 ms (−13 %) | 1,75 → 1,17 ms (−33 %) |
+| Jorat, rasante | 4,29 → 3,72 ms (−13 %) | 2,09 → 1,52 ms (−27 %) |
+| Sihlwald, vue de départ | 6,57 → 5,47 ms (−17 %) | 3,84 → 2,74 ms (−29 %) |
+| Sihlwald, basse | 5,42 → 4,37 ms (−19 %) | 3,20 → 2,15 ms (−33 %) |
+
+Le reste du coût des arbres est surtout celui des pixels (disques qui se recouvrent), pas des sommets. À Lutry les
+arbres coûtent peu ; le gain y est faible (d'où le minimum de ~80 000 points par tuile : chaque tuile est un appel de
+dessin, 50 tuiles coûtaient plus au processeur qu'elles n'épargnaient).
+
+### Coût au chargement
+
+`preparerArbres` (synchrone, dans `nuagePoints`) : ~0,1–0,15 s à Lutry (0,75 M points), ~0,5 s au Jorat (4,6 M), 1 à
+2 s au Sihlwald (9,1 M) selon la charge de la machine ; détail par étape dans `bilan.etapes`. Si c'est trop long sur
+les grands lieux, la suite logique est de le déplacer dans un fil de calcul (il travaille sur des tableaux typés).

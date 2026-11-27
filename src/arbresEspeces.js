@@ -13,7 +13,9 @@
 //    Ils ne sont pas dessinés quand la caméra est à plus de MARGE_ENFOUIS mètres (jamais en coupe). Les ombres et
 //    l'ensoleillement n'utilisent pas ces points (canopée en grille) : ils ne changent pas.
 // 5. Points rangés par tuiles carrées (puis visibles avant enfouis dans chaque tuile) : chaque tuile est un objet
-//    three.js avec sa propre sphère englobante, que three.js écarte quand elle sort du champ de la caméra.
+//    three.js avec sa propre sphère englobante, que three.js écarte quand elle sort du champ de la caméra. Au loin,
+//    une tuile n'envoie que le début de sa liste (points mélangés, rang aRang) : c'est l'allègement du shader, sans
+//    faire passer dans le shader les points qu'il écarterait.
 import * as THREE from "three";
 import { fromUrl } from "geotiff";
 
