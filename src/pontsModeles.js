@@ -30,6 +30,21 @@ export function dansPont(P, E0, N0, x, y) {
   return false;
 }
 
+/** Chaussée du pont fait main au point (x, y) relatif au centre (E0, N0), si le point est dans l'emprise élargie de
+ *  `marge` m de chaque côté ; NaN sinon. Sert à n'effacer que ce qui est à hauteur du tablier (un pont ou un bâtiment
+ *  dessous reste : petit pont au bord de la Sarine sous la Poya). */
+export function chausseeEn(P, E0, N0, x, y, marge = 2) {
+  const a = P.axe;
+  let best = Infinity, z = NaN;
+  for (let i = 0; i < a.length - 1; i++) {
+    const ax = a[i][0] - E0, ay = a[i][1] - N0, bx = a[i + 1][0] - E0, by = a[i + 1][1] - N0, L2 = (bx - ax) ** 2 + (by - ay) ** 2 || 1;
+    const t = Math.max(-0.05, Math.min(1.05, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / L2));
+    const d = Math.hypot(x - ax - t * (bx - ax), y - ay - t * (by - ay));
+    if (d < best) { best = d; const u = Math.max(0, Math.min(1, t)); z = a[i][2] + (a[i + 1][2] - a[i][2]) * u; }
+  }
+  return best < P.largeur / 2 + marge ? z : NaN;
+}
+
 /**
  * Projection d'un point sur la ligne des nœuds { x, y, s } (polyligne) : [s, t], t positif à gauche. Au-delà des bouts,
  * la projection prolonge le premier ou le dernier segment.
@@ -866,7 +881,7 @@ export function creuserSousPonts(G, modeles, E0, N0) {
       if (best > l2 || sb < 3 || sb > L - 3) continue;
       const p = j * G.n + i;
       // pont couvert : le relevé le classe « bâtiment », extrudé plein jusqu'au sol (Bad Säckingen) ; le modèle le remplace
-      if (G.bat && !isNaN(G.bat[p]) && best < demi + 0.5) { G.bat[p] = NaN; n++; }
+      if (G.bat && !isNaN(G.bat[p]) && best < demi + 0.5 && G.bat[p] > chaussee(sb) - 3) { G.bat[p] = NaN; n++; }
       if (!pieds.length || (P.remblai || []).some(([r0, r1]) => sb >= r0 && sb <= r1)) continue;
       const z = G.sol[p], zp = profil(sb);
       if (!(z > chaussee(sb) - ep - 1) || !(z > zp + 0.3)) continue;

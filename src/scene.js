@@ -65,7 +65,7 @@ import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { solEn, majSurface } from "./grille.js";
 import { indexVolumes } from "./volumes.js";
 import { socleRond, materiauPoints, bordEauRond, normalesVersLeHaut } from "./maillages.js";
-import { dansPont, maillagePont, creuserSousPonts } from "./pontsModeles.js";
+import { chausseeEn, maillagePont, creuserSousPonts } from "./pontsModeles.js";
 import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord, decouperCercle, tabliersPonts, pontsLegers } from "./maillages.js";
 import { chargerImage, teinterCadastre, adoucirPhoto } from "./fond.js";
 import { maillageBassins } from "./piscines.js";
@@ -845,10 +845,12 @@ void main() {
       const pont = G.pont.slice();
       // marge élargie (4 m de plus de chaque côté) : les bords du tablier relevé, un peu décalés ou plus larges que le
       // modèle, restaient en petits morceaux de tablier visibles à travers le pont fait main
-      const larges = modeles.map(P => ({ ...P, largeur: P.largeur + 8 }));
+      // seulement à hauteur du tablier (±4 m) : un autre pont dessous reste (petit pont au bord de la Sarine sous la Poya)
       for (let j = 0; j < G.n; j++) for (let i = 0; i < G.n; i++) {
         const p = j * G.n + i;
-        if (!isNaN(pont[p]) && larges.some(P => dansPont(P, Ep, Np, G.x0 + (i + 0.5) * G.c, G.x0 + (j + 0.5) * G.c))) pont[p] = NaN;
+        if (isNaN(pont[p])) continue;
+        const x = G.x0 + (i + 0.5) * G.c, y = G.x0 + (j + 0.5) * G.c;
+        if (modeles.some(P => Math.abs(chausseeEn(P, Ep, Np, x, y, 6) - pont[p]) < 4)) pont[p] = NaN;
       }
       Gp = { ...G, pont };
     }
