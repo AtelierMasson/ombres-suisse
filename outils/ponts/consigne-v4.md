@@ -21,7 +21,7 @@ Référence de précision : `outils/ponts/modeles/poya.json` (pont de la Poya). 
    **au-dessus, en dessous et à côté du tablier**.
 3. **Modèle** dans `outils/ponts/modeles/<id>.json`, au style du pont (voir tableau). **D'abord caler le modèle sur
    le nuage** (axe, altitudes, largeur, place et taille des piles, hauteur du toit ou des pylônes : points classes
-   17, 6 et 1 du couloir ; un pont couvert est souvent classé « bâtiment », 6), **ensuite seulement les photos** pour
+   17, 6, 1, 26 et 27 du couloir (26/27 : piles et dessous d'ouvrage dans les relevés récents) ; un pont couvert est souvent classé « bâtiment », 6), **ensuite seulement les photos** pour
    la forme. Un pont couvert : tablier, parois, toiture à deux pans et dessous **ouvert entre les piles** (jamais un
    bloc plein jusqu'à l'eau). Puis
    `python3 outils/ponts/ajouter.py outils/ponts/modeles/<id>.json`.

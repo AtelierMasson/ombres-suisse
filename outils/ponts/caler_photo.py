@@ -12,7 +12,7 @@ Sortie : { "position": [E, N, Z], "vise": [E, N, Z], "fov_vertical": deg, "rouli
 Modèle : caméra sténopé, centre optique au milieu de l'image, pixels carrés, sans distorsion. Moindres carrés
 (Levenberg-Marquardt) sur 7 inconnues : position (3), orientation (3, vecteur de rotation), focale (1).
 """
-import json, math, sys
+import json, math, os, sys
 import numpy as np
 
 d = json.load(open(sys.argv[1]))
@@ -42,7 +42,10 @@ def residus(q):
     if q[6] <= 1: return np.full(2 * len(P), 1e4)   # focale positive (sinon solution en miroir)
     pr, z = projeter(q)
     r = (pr - u).ravel()
-    return np.where(np.repeat(z, 2) > 0, r, 1e4)
+    r = np.where(np.repeat(z, 2) > 0, r, 1e4)
+    if os.environ.get("ROULIS") is not None:    # roulis imposé (degrés, photo d'aplomb : 0) par un terme de pénalité
+        r = np.r_[r, 300 * (math.degrees(math.asin(max(-1, min(1, rot(q[3:6])[0][2])))) - float(os.environ["ROULIS"]))]
+    return r
 
 
 def depart(C, cible, f):
