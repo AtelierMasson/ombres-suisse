@@ -8,7 +8,7 @@ import { svgSemaines, svgMois, svgTemperature, imageZone } from "./graphiquesPis
 
 const ENCRE = "#26313b", DOUX = "#66727f";
 
-async function base64(url) {
+export async function base64(url) {
   const b = new Uint8Array(await (await fetch(url)).arrayBuffer());
   let s = "";
   for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000));
