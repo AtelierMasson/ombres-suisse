@@ -25,7 +25,9 @@ Référence de précision : `outils/ponts/modeles/poya.json` (pont de la Poya). 
    Cibles : tablier médiane à ±0,2 m ; ≥ 85 % des points d'ouvrage à < 1,5 m du modèle ; **« Terrain de la maquette :
    aucun conflit »** ; **aucune pile au-dessus du sol**. Corrige et relance (3 tours au plus). Un conflit de terrain
    qui reste (sol de la maquette qui traverse le tablier, p. ex. rue ou bâtiment sous un viaduc urbain) : note les `s`
-   dans `notes`, ne le cache pas en déformant le pont.
+   dans `notes`, ne le cache pas en déformant le pont. L'application abaisse le sol sous le tablier jusqu'aux pieds
+   des piles et naissances d'arches ; là où l'ouvrage est réellement rempli (arches murées ou enterrées, vallée
+   remblayée), indique les tronçons dans `"remblai": [[s0, s1], …]` pour que le sol y reste.
 5. **Photo calée (niveau A seulement)** : `calage.json` (6–10 points), `python3 -I outils/ponts/caler_photo.py …`
    (> 15 px de résidu = point à corriger), rendu dans ton onglet
    (`http://localhost:5174/#e=E&n=N&t=Voyage`, puis `await import('/outils/ponts/rendu_cale.js')` et `renduCale(…)` ;
