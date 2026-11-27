@@ -1917,7 +1917,7 @@ void main() {
     this.disque.material.color.copy(couleurSoleil(h + 2)).multiplyScalar(1.1);
     this.disque.position.copy(d.clone().multiplyScalar(1200));
     // derrière une montagne du relief lointain affiché, le disque est caché
-    this.disque.visible = dir[1] > -0.02 && !!this.G && (visible || !this.loin.maille || !this.loin.voir);
+    this.disque.visible = false; // plus de boule du soleil dans la vue (demande du 27.11) ; la lumière et les ombres restent
     // ciel : jour, soleil caché par le relief (plus terne), nuit
     const jour = visible ? 1 : dir[1] > 0 ? 0.72 : Math.max(0, Math.min(0.5, 0.5 + dir[1] * 4));
     // lueur de l'aube et du crépuscule : ciel rose orangé à l'horizon, violacé plus haut, jusqu'à 6° sous l'horizon
