@@ -6,6 +6,7 @@ import { contoursBatiments } from "./contours.js";
 import { pansToits } from "./pans.js";
 import { modeliserPonts, solAffiche } from "./pontsAuto.js";
 import { maillagePont } from "./pontsModeles.js";
+import { preparerArbres, tuilerPoints, MARGE_ENFOUIS } from "./arbresEspeces.js";
 
 /** Suite de nombres dans un tableau typé qui grandit par doublement, quand la taille n'est pas connue d'avance. */
 class Tampon {
@@ -471,6 +472,9 @@ export const DEGRADE = {
   degrade: { value: 0 }, zBas: { value: 0 }, zHaut: { value: 50 },
   // vue en plan (de dessus) et hauteur de l'image en pixels : allègement des arbres en points (SOMMETS)
   vueDessus: { value: 0 }, hauteurEcran: { value: 1000 },
+  // arbres : teintes par essence (conifère, feuillu, mélèze ; arbresEspeces.js) et points enfouis au cœur des forêts
+  // non dessinés de loin (n'agit que sur les points qui ont l'attribut aEsp)
+  especes: { value: 1 }, cacherEnfouis: { value: 1 },
   rampe: { value: ["#3b4cc0", "#4fa3c7", "#79c49a", "#e8d36b", "#f09a52", "#d6504f"].map(c => new THREE.Color(c)) },
 };
 export const RAMPE_GLSL = /* glsl */`
@@ -483,9 +487,9 @@ vec3 rampeHaut(float y) {
 }`;
 
 const SOMMETS = /* glsl */`
-uniform float taille, echelle, allege, vueDessus, hauteurEcran;
+uniform float taille, echelle, allege, vueDessus, hauteurEcran, especes, cacherEnfouis;
 uniform vec3 c1, c2, c3;
-attribute float aRel, aVar, aCache;
+attribute float aRel, aVar, aCache, aEsp, aRang;
 #ifdef PAR_CLASSE
 attribute vec3 aCouleur;
 #endif
@@ -503,11 +507,27 @@ void main() {
     vCouleur = aCouleur;
   #else
     vec3 c = mix(c1, c2, smoothstep(0.1, 0.95, aRel));
-    c = mix(c, c3, smoothstep(0.55, 1.0, aVar) * 0.75);
+    float accent = smoothstep(0.55, 1.0, aVar) * 0.75, e = abs(aEsp);
+    // essence (aEsp = ±(1 + 40 · essence + teinte propre à l'arbre 0..39)) : teintes tirées du thème (c1 ombre, c2 lumière,
+    // c3 accent). Conifère plus sombre et bleuté, feuillu plus clair et jaune, mélèze vert tendre ; chaque arbre un peu
+    // plus clair ou plus sombre, plus ou moins vers l'accent. Les petites taches (aVar) restent par-dessus.
+    if (especes > 0.5 && e > 0.5) {
+      float ess = floor((e - 0.5) / 40.0), r = clamp((e - 1.0 - 40.0 * ess) / 39.0, 0.0, 1.0);
+      if (ess > 1.5) { c = mix(c, c3, 0.42 + 0.2 * r) * vec3(1.06, 1.05, 0.86); accent *= 0.5; }
+      else if (ess > 0.5) { c = mix(c, c1, 0.3 + 0.25 * r) * vec3(0.84, 0.95, 1.1); accent *= 0.3; }
+      else { c = mix(mix(c, c2, 0.2 * r), c3, 0.06 + 0.16 * r) * vec3(1.03, 1.02, 0.93); }
+      c *= 0.9 + 0.2 * fract(r * 5.7);
+    }
+    c = mix(c, c3, accent);
     vCouleur = c * (0.84 + 0.32 * fract(aVar * 7.31));
   #endif
   vec3 transformed = position;
   vec4 monde = modelMatrix * vec4(transformed, 1.0);
+  #if NUM_CLIPPING_PLANES == 0
+  // point enfoui au cœur d'une forêt dense (caché de tous côtés) : pas dessiné, sauf caméra proche (dans la forêt)
+  // ou en coupe (plans de coupe : le cœur se voit)
+  if (aEsp < 0.0 && cacherEnfouis > 0.5 && distance(monde.xyz, cameraPosition) > ${MARGE_ENFOUIS.toFixed(1)}) { gl_Position = vec4(2.0, 2.0, 2.0, 1.0); gl_PointSize = 0.0; return; }
+  #endif
   vHaut = monde.y;
   vZone = grilleZone.z > 0.5 ? texture2D(tZone, (vec2(monde.x, -monde.z) - grilleZone.x) / grilleZone.y).r : 0.0;
   vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
@@ -534,8 +554,10 @@ void main() {
   // loin de la caméra : moins de points, plus gros (même couverture) ; chaque point a un rang fixe, tiré de son numéro
   if (allege > 0.0 && projectionMatrix[2][3] != 0.0) {
     float d = length(mvPosition.xyz), garde = clamp(pow(allege / max(d, 1.0), 0.9), 0.12, 1.0);
-    uint h = uint(gl_VertexID) * 2654435761u; h ^= h >> 15; h *= 2246822519u; h ^= h >> 13;
-    if (float(h & 0xFFFFFFu) / 16777216.0 > garde) { gl_Position = vec4(2.0, 2.0, 2.0, 1.0); gl_PointSize = 0.0; return; }
+    // rang : mélange par tuile (aRang, arbresEspeces.js : la tuile n'envoie que ses premiers rangs) ou tiré du numéro
+    float rang = (aRang * 255.0 - 1.0) / 254.0;
+    if (aRang <= 0.0) { uint h = uint(gl_VertexID) * 2654435761u; h ^= h >> 15; h *= 2246822519u; h ^= h >> 13; rang = float(h & 0xFFFFFFu) / 16777216.0; }
+    if (rang > garde) { gl_Position = vec4(2.0, 2.0, 2.0, 1.0); gl_PointSize = 0.0; return; }
     px *= inversesqrt(garde);
   }
   gl_PointSize = clamp(px, 2.0, 44.0);
@@ -644,6 +666,7 @@ export function nuagePoints(nuage, G, zRef, mode, part, taille) {
   const nb = nv + na;
   if (!nb) return null;
   const pos = new Float32Array(3 * nb), g = new THREE.BufferGeometry();
+  let especes = null;
   if (arbres) {
     const rel = new Float32Array(nb), va = new Float32Array(nb), cache = new Uint8Array(nb), cellule = new Int32Array(nb);
     // point le plus haut de chaque case de la grille (0,5 m) : sert à savoir, vu de dessus, quels points sont cachés
@@ -665,6 +688,9 @@ export function nuagePoints(nuage, G, zRef, mode, part, taille) {
     g.setAttribute("aRel", new THREE.BufferAttribute(rel, 1));
     g.setAttribute("aVar", new THREE.BufferAttribute(va, 1));
     g.setAttribute("aCache", new THREE.BufferAttribute(cache, 1));
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    // essence de chaque arbre, points enfouis, rangement par tuiles (arbresEspeces.js)
+    especes = preparerArbres(g, G, cellule, zRef);
   } else {
     // couleur par classe, sur un octet par composante
     const col = new Uint8Array(3 * nb), palette = new Uint8Array(3 * 256), teinte = new THREE.Color();
@@ -677,13 +703,15 @@ export function nuagePoints(nuage, G, zRef, mode, part, taille) {
     }
     g.setAttribute("aCouleur", new THREE.BufferAttribute(col, 3, true));
     g.userData.autres = na;
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   }
-  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   // nuage brut : positions et couleurs gardées (couleurs réelles calculées après coup, voir Scene3D.couleursPoints)
-  const pts = new THREE.Points(jetable(g, arbres ? [] : ["position", "aCouleur"]), materiauPoints(taille, !arbres));
+  // arbres : aEsp gardé (affiné ensuite par le degré de mélange LFI)
+  const pts = new THREE.Points(jetable(g, arbres ? ["aEsp"] : ["position", "aCouleur"]), materiauPoints(taille, !arbres));
   pts.receiveShadow = true;
   const v = new THREE.Vector2();
   pts.onBeforeRender = (r, s, cam) => { pts.material.uniforms.echelle.value = r.getDrawingBufferSize(v).y / (2 * Math.tan(cam.fov * Math.PI / 360)); };
+  if (arbres) tuilerPoints(pts, especes, pts.onBeforeRender, DEGRADE);
   return pts;
 }
 

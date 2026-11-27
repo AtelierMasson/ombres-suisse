@@ -264,6 +264,8 @@ export default {
   "aff.arbres": "Alberi",
   "aff.arbresVoir": "Mostrare gli alberi",
   "aff.arbresOmbre": "Ombra degli alberi",
+  "aff.essences": "Specie degli alberi",
+  "aff.essencesTitre": "Tinta secondo la specie probabile: conifere più scure, latifoglie più chiare, larici verde tenue (forma della nuvola, altitudine, grado di mescolanza IFN)",
   "aff.couleurs": "colori reali",
   "aff.couleursTitre": "Colore di ogni punto preso dall'ortofoto SWISSIMAGE, in verticale (le facciate prendono il colore del tetto o del suolo vicino)",
   "aff.points": "Nuvola di punti grezza",

@@ -264,6 +264,8 @@ export default {
   "aff.arbres": "Trees",
   "aff.arbresVoir": "Show trees",
   "aff.arbresOmbre": "Tree shadows",
+  "aff.essences": "Tree species",
+  "aff.essencesTitre": "Tint by probable species: darker conifers, lighter broadleaves, soft green larches (point-cloud shape, altitude, NFI mixture rate)",
   "aff.couleurs": "real colours",
   "aff.couleursTitre": "Colour of each point taken from the SWISSIMAGE orthophoto, straight above it (façades take the colour of the roof or ground next to them)",
   "aff.points": "Raw point cloud",
