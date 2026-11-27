@@ -117,7 +117,7 @@ const RAYON_EAU = { value: 1e9 };
 // eau de l'anneau : sa propre limite extérieure, et une limite intérieure (le raccord avec l'eau de la maquette fine)
 const RAYON_EAU_ANNEAU = { value: 1e9 }, RAYON_EAU_INT = { value: 0 };
 function matEau(rayon = RAYON_EAU, rayonInt = null) {
-  const m = new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0.05, transparent: true, opacity: 0.93 }); // le fond (paliers, jointures des tuiles) se voyait trop à travers
+  const m = new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0.05, transparent: true, opacity: 0.88 }); // un peu transparente : on devine le fond près des rives
   m.onBeforeCompile = sh => {
     sh.uniforms.rayonEau = rayon;
     sh.uniforms.rayonEauInt = rayonInt || { value: 0 };
@@ -1526,7 +1526,7 @@ void main() {
     geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     geo.setAttribute("color", new THREE.BufferAttribute(col, 3, true));
     geo.setDrawRange(0, 0);
-    const pts = new THREE.Points(geo, new THREE.PointsMaterial({ size: 1.6, sizeAttenuation: false, vertexColors: true, fog: false }));
+    const pts = new THREE.Points(geo, new THREE.PointsMaterial({ size: 2.4, sizeAttenuation: false, vertexColors: true, fog: false }));
     pts.frustumCulled = false;
     this.chargementPts = { pts, n: 0, z0: null, R };
     this.groupe.visible = false;
