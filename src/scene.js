@@ -492,6 +492,8 @@ void main() {
     // moitié enlevée) ; avec la ligne de coupe seule, le paysage reste
     const coupee = !!this.coupe && this.couperModele !== false;
     if (L.maille) L.maille.visible = L.voir && (!this.modeVue || enPlan) && !coupee;
+    // paysage affiché : il prolonge le lac au-delà du cercle, la bande d'eau du bord n'a plus lieu d'être
+    this.couches.eauAnneau?.children.forEach(o => { o.visible = !(L.maille && L.maille.visible); });
     // plan en tuiles (cadastre, photo ou bruit, comme le sol de la maquette) : sur le paysage, et sur l'anneau du
     // grand cercle même sans paysage
     const couche = this.typeFond, avecAnneau = !!this.couches?.anneau && this.couches.anneau.visible !== false;

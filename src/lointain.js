@@ -11,7 +11,8 @@ const RAYON_TERRE = 6371000, REFRACTION = 0.13;
  * Maillage du relief entre le bord de la maquette (carré de demi-côté R) et `rayonMax`.
  * `hBord(x, y)` : altitude du terrain de la maquette au bord, pour raccorder sans marche.
  */
-export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMax = 50000, rond = false) {
+export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMax = 50000, rond = false, niveauLac = NaN) {
+  // `niveauLac` : niveau connu du lac de la maquette ; les lacs du paysage voisins (à 3 m près) s'y calent
   // anneau intermédiaire : terrain swissALTI3D à 2 m (fin), fondu vers le relief libre sur ses 500 derniers mètres
   const rayonFin = fin ? fin.n * fin.c / 2 - 50 : 0;
   const altFin = (E, N) => {
@@ -82,7 +83,11 @@ export async function reliefLointain(E0, N0, R, zRef, hBord, fin = null, rayonMa
       let niveau = NaN;
       for (let j = Math.max(0, j0 - 1); j <= Math.min(255, j0 + 2) && isNaN(niveau); j++)
         for (let i = Math.max(0, i0 - 1); i <= Math.min(255, i0 + 2); i++) if (T.eau[j * 256 + i]) { niveau = T[j * 256 + i]; break; }
-      if (!isNaN(niveau)) { const u = Math.min(1, Math.max(0, (niveau + 1.2 - alt) / 1.0)); lac = u * u * (3 - 2 * u); }
+      if (!isNaN(niveau)) {
+        const u = Math.min(1, Math.max(0, (niveau + 1.2 - alt) / 1.0)); lac = u * u * (3 - 2 * u);
+        // même lac que celui de la maquette : surface au niveau connu (sinon une marche au bord de l'anneau)
+        if (lac > 0.5 && Math.abs(niveau - niveauLac) < 3) alt = niveauLac;
+      }
     }
     // raccord au bord de la maquette : sur 300 m avec le seul relief libre, sur 30 m avec le terrain à 2 m (même relevé)
     const b = hBord(P.bx, P.by);

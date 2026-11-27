@@ -264,8 +264,10 @@ async function paysageEtAnneau(id, idScene) {
   }
   if (rond) scene.construireAnneau(fin, G.rayonZone, Rz, { E: E0, N: N0 }, lac);
   if (rond && Rz > G.rayonZone + 5) arbresAnneau(id, G.rayonZone, Rz, E0, N0);
-  const bord = rond && Rz > G.rayonZone && scene.altAnneau ? scene.altAnneau : (x, y) => solEn(G, x, y);
-  const g = await reliefLointain(E0, N0, rond ? Math.max(Rz, G.rayonZone) : G.R, scene.zRef, bord, fin, 50000, rond);
+  // raccord du paysage au bord : la surface de l'eau sur le lac (et non le fond), le terrain ailleurs
+  const bordSol = rond && Rz > G.rayonZone && scene.altAnneau ? scene.altAnneau : (x, y) => solEn(G, x, y);
+  const bord = lac ? (x, y) => Math.max(bordSol(x, y), lac.niveau) : bordSol;
+  const g = await reliefLointain(E0, N0, rond ? Math.max(Rz, G.rayonZone) : G.R, scene.zRef, bord, fin, 50000, rond, lac?.niveau ?? NaN);
   if (id !== tache) { g.dispose(); return; }
   if (scene.loin.maille) { scene.scene.remove(scene.loin.maille); scene.loin.maille.geometry.dispose(); scene.loin.maille = null; }
   scene.afficherLointain(g, idScene, { E0, N0 });
