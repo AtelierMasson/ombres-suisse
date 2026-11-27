@@ -43,7 +43,9 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       else if (r.ok) {
         const d = await r.json();
         disponible = true;
-        changer({ connecte: true, email: String(d.email || ""), pro: !!d.pro, admin: !!d.admin, profil: d.profil || {}, retractation: d.retractation || null });
+        // administrateur : le statut Pro peut être simulé (gratuit ou Pro) pour essayer l'application des deux côtés
+        const simule = d.admin ? proSimule() : null;
+        changer({ connecte: true, email: String(d.email || ""), pro: simule ?? !!d.pro, proReel: !!d.pro, admin: !!d.admin, profil: d.profil || {}, retractation: d.retractation || null });
       } else disponible = false;
     } catch { disponible = false; }
     if (bouton) bouton.hidden = !disponible;
@@ -92,6 +94,7 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
         }
         acheter();
       }
+      else if (a === "basculerPro") basculerPro(ev.target.checked);
       else if (a === "deconnecter") deconnecter();
       else if (a === "supprimer") supprimer();
       else if (a === "retracter") retracter();
@@ -184,6 +187,15 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       if (!P.prenom && !P.nom) det.open = true; // pas encore rempli : ouvert
       contenu.push(det);
       if (e.admin) {
+        // essai : voir l'application comme un compte gratuit ou comme un compte Pro
+        const essai = el("div", "form-check form-switch compte-admin-pro mt-2");
+        const c = el("input", "form-check-input");
+        Object.assign(c, { type: "checkbox", id: "compteAdminPro", checked: !!e.pro });
+        c.dataset.action = "basculerPro";
+        const l = el("label", "form-check-label small", t("compte.adminPro"));
+        l.htmlFor = "compteAdminPro";
+        essai.append(c, l, el("div", "form-text", t("compte.adminProNote", { reel: t(e.proReel ? "compte.pro" : "compte.gratuit") })));
+        contenu.push(essai);
         const a = el("a", "btn btn-sm btn-outline-secondary w-100 mt-2", t("compte.administration"));
         a.href = "/admin/";
         contenu.push(a);
@@ -316,6 +328,14 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
   }
 
   const etat = () => ({ ...e });
+  // bascule de test des administrateurs : "1" Pro, "0" gratuit, absent = statut réel
+  const CLE_SIMUL = "ombres.admin.pro";
+  const proSimule = () => { try { const v = localStorage.getItem(CLE_SIMUL); return v === "1" ? true : v === "0" ? false : null; } catch { return null; } };
+  function basculerPro(oui) {
+    if (!e.admin) return;
+    try { localStorage.setItem(CLE_SIMUL, oui ? "1" : "0"); } catch { /* stockage indisponible */ }
+    changer({ ...e, pro: oui });
+  }
   const langueDoc = () => (typeof document !== "undefined" && document.documentElement.lang) || "fr";
   const memoriser = oui => { try { oui ? localStorage.setItem(CLE_INTENTION, "1") : localStorage.removeItem(CLE_INTENTION); } catch { /* stockage indisponible */ } };
   const intention = () => { try { return localStorage.getItem(CLE_INTENTION) === "1"; } catch { return false; } };

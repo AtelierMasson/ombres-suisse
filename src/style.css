@@ -541,3 +541,12 @@ body.accueil #fiche { display: none; }
 /* bulle de parcelle : le nom et, à côté, un petit viseur (recentrer / construire la 3D ici) */
 #ailleurs { flex-direction: row !important; align-items: center !important; gap: 8px !important; }
 #btnAilleurs { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border-radius: 50%; }
+
+/* rapport de bug (administrateurs) : petit bouton rond en bas à droite, boîte avec la capture */
+.rapport-bug-bouton { position: fixed; right: 12px; bottom: 40px; z-index: 1050; width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid var(--bs-border-color); background: var(--bs-body-bg); color: #861f31; display: grid; place-items: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,.15); padding: 0; }
+.rapport-bug-bouton:hover { background: #861f31; color: #fff; }
+.rapport-bug { width: min(560px, calc(100vw - 32px)); border: 1px solid var(--bs-border-color); border-radius: 8px; padding: 16px; }
+.rapport-bug::backdrop { background: rgba(0,0,0,.3); }
+.rapport-bug-image { width: 100%; max-height: 42vh; object-fit: contain; background: #eee; border-radius: 4px; border: 1px solid var(--bs-border-color); }

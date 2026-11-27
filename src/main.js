@@ -32,6 +32,7 @@ brancherSuggestion();
 import { brancherPro } from "./pro.js";
 import { brancherCompte } from "./compte.js";
 import { brancherPub } from "./pub.js";
+import { brancherRapport } from "./rapportBug.js";
 import { brancherInterface } from "./interface.js";
 import { brancherVuePlan } from "./vuePlan.js";
 import "./compte.css";
@@ -57,6 +58,13 @@ const S = { jour: aujourdhui(), minutes: 14 * 60 };
 let T = appliquerTheme(themeInitial());
 const scene = new Scene3D($("#vue"), T);
 if (import.meta.env.DEV) window.__scene = scene; // inspection en développement
+// rapport de bug des administrateurs : capture, commentaire et état (lieu, rayon, onglet, coupes, réglages)
+brancherRapport({ compte, scene, t, etatApp: () => ({
+  lieu: { E: S.E0, N: S.N0, rayon: S.rayonZone, parcelle: S.parcelle?.numero ?? null, egrid: S.parcelle?.egrid ?? null },
+  jour: S.jour, minutes: S.minutes, onglet: $("#colonne")?.dataset.onglet, theme: document.body.dataset.theme || null,
+  coupes: (S.coupes || []).map(c => ({ A: c.A, B: c.B })),
+  interrupteurs: Object.fromEntries($$("#colonne input[type=checkbox][id], #colonne select[id], #colonne input[type=range][id]").map(i => [i.id, i.type === "checkbox" ? i.checked : i.value])),
+}) });
 brancherVuePlan(scene, S); // vue plan dessinée (emprises officielles, sans la maquette 3D)
 
 function aujourdhui() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
