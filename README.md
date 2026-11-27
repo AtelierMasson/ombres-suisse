@@ -73,6 +73,23 @@ l'interface reste celle décrite ci-dessus.
   commentaires de l'OBJ, `asset.extras` du glTF, en-tête du STL) et dans le LISEZ-MOI. DXF en version R12 : calques
   TERRAIN, SOCLE, BATIMENTS, ARBRES, PARCELLE, COURBES et INFO ; surfaces en 3DFACE, lignes en polylignes 3D.
   Le DWG n'est pas écrit directement : AutoCAD ouvre le DXF et l'enregistre en DWG.
+- **Impression 3D…** (sous les exports de la maquette complète ; grisé sans compte Pro) : une fenêtre avec aperçu 3D
+  des solides tels qu'ils seront écrits, calculés dans un fil (avancement, « Annuler »). Fichier STL binaire en
+  **millimètres** :
+  - terrain : un solide fermé (dessus en triangulation adaptative de la grille de 0,5 m, à 0,04, 0,08 ou 0,16 mm près
+    selon la finesse ; paroi verticale au bord ; fond plat), socle de 2 à 8 mm sous le point le plus bas, exagération
+    du relief ×1 à ×3, lacs et rivières à plat, arbres « aucun », « masses » (forêts et haies lissées) ou « isolés »
+    (dômes d'au moins 0,7 mm de rayon) ; maquette carrée ou ronde ;
+  - bâtiments du jeu choisi (Relevé, Swiss3D, Advanced ou aucun ; volumes et modèles importés du projet compris) :
+    un solide fermé par volume de toit, murs exactement verticaux, débords de toit rognés, fond plat enfoncé d'environ
+    1 mm sous le point le plus bas du terrain de toute l'emprise ; les éléments plus étroits que 0,8 mm imprimés
+    (cabanons, cheminées) sont retirés et comptés ; les solides se recouvrent, le trancheur les réunit ;
+  - taille de 100 à 400 mm, ou échelle au choix (1:100 à 1:10 000) ; découpe en 2 × 2 à 4 × 4 tuiles (imposée
+    au-delà de 400 mm par tuile) : un STL par tuile, posé à l'origine, nommé `…_L1C1.stl` (ligne 1 au nord, colonne
+    1 à l'ouest), dans un zip avec un LISEZ-MOI. Les tuiles se posent bord à bord, faces de joint planes ; un bâtiment
+    à cheval sur un joint est coupé en deux solides fermés ;
+  - l'étanchéité de chaque solide est contrôlée et affichée (dimensions, échelle, nombre de triangles, taille du
+    fichier). Les ponts ne sont pas imprimés (tabliers en surplomb).
 - **Points du nuage proches de la coupe** (quand la coupe est active) : points du relevé à moins de 0,25, 0,5, 1, 2
   ou 5 m du plan de coupe, projetés dans le profil et colorés par catégorie (sol, végétation, bâtiment, autre).
   La silhouette des arbres suit alors l'enveloppe de leurs points. Ils sont exportés avec la coupe (calque NUAGE).
@@ -101,7 +118,11 @@ Bâtiments, sol et toits ont la même couleur et la même trame de cases de 0,5 
 npm install
 npm run dev        # http://localhost:5199
 npm run build      # site statique dans dist/, à publier tel quel
+npm test           # contrôles sans navigateur (compte ; impression 3D : solides fermés sur des lieux d'essai)
 ```
+
+`outils/essai-impression3d.html` (avec `npm run dev`) ouvre la fenêtre d'impression 3D sur le hameau d'accueil, sans
+charger de lieu.
 
 ## Fichiers
 
@@ -131,6 +152,10 @@ npm run build      # site statique dans dist/, à publier tel quel
 | `src/pro.js` | Mode pro : sélection et masquage de bâtiments, taille de la maquette, boutons d'export |
 | `src/volumes.js` | Mode pro : volumes numérotés, regroupés en bâtiments, fiche (hauteur, emprise, niveaux) |
 | `src/export.js` | Mode pro : export de la maquette en DXF, OBJ, glTF binaire et STL (zip avec LISEZ-MOI) |
+| `src/impression3d.js` | Mode pro : impression 3D, solides fermés en mm (terrain, bâtiments, tuiles) et STL binaire ; sans DOM |
+| `src/impression3dTerrain.js` | Triangulation adaptative du terrain (insertion gloutonne, Delaunay) |
+| `src/impression3dToits.js` | Lecture des toits à imprimer dans la scène (relevé, swisstopo, Advanced, projet) |
+| `src/impression3dFenetre.js` | Fenêtre d'impression 3D : options, aperçu, calcul dans un fil (`impression3d.worker.js`), téléchargement |
 | `src/exportCoupe.js` | Mode pro : export de la coupe A–B en DXF et en SVG |
 
 ## Limites connues

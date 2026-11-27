@@ -10,6 +10,7 @@ import { TerrainAdaptatif } from "./impression3dTerrain.js";
 
 const ENFONCEMENT = 1;      // mm : profondeur des bâtiments sous le point le plus bas du terrain à leur pied
 const EPS_MUR = 0.02;       // m : tolérance du rognage des toits par les murs
+const EPS_COUPE = 0.002;    // mm imprimés : un sommet plus proche d'une ligne de coupe est considéré dessus
 export const FINESSES = {   // tolérance du terrain (mm imprimés) et plafond de triangles du terrain (par fichier)
   fine: { tol: 0.04, max: 900000 }, normale: { tol: 0.08, max: 600000 }, rapide: { tol: 0.16, max: 300000 },
 };
@@ -161,10 +162,11 @@ function hauteursTerrain(G, o, mm) {
  * `dist(x, y)` : distance signée (m, positive dedans) ; `coupe(xa, ya, xb, yb)` : position (0..1) du passage de la
  * limite entre un point dedans et un point dehors. Les arêtes coupées le sont une seule fois (sommet commun aux deux
  * triangles voisins) : le maillage reste jointif. `arc` = { R, corde, z } : limite circulaire, les longues cordes du
- * bord reçoivent des sommets posés sur le cercle (hauteur lue par `arc.z`).
+ * bord reçoivent des sommets posés sur le cercle (hauteur lue par `arc.z`). Un sommet à moins de `eps` (m) de la
+ * limite compte comme posé dessus : la coupe ne crée pas de sommet presque confondu avec lui (triangle aplati).
  */
-function rogner(M, T, dist, coupe, arc = null) {
-  const { X, Y, Z } = M, nv = X.length, D = new Float64Array(nv), eps = 1e-6;
+function rogner(M, T, dist, coupe, arc = null, eps = 1e-6) {
+  const { X, Y, Z } = M, nv = X.length, D = new Float64Array(nv);
   let dehors = false;
   for (let i = 0; i < T.length; i++) { const v = T[i]; D[v] = dist(X[v], Y[v]); if (D[v] < -eps) dehors = true; }
   if (!dehors) return T;
@@ -216,6 +218,32 @@ function rogner(M, T, dist, coupe, arc = null) {
   return out;
 }
 
+/**
+ * Soude les sommets presque confondus (à moins de `d` m, en 3D) d'un maillage coupé et retire les triangles devenus
+ * plats : les coupes successives (façades, bord de tuile) laissent parfois deux sommets à quelques microns l'un de
+ * l'autre, qui donneraient des murs et des triangles de largeur nulle. Ne modifie pas M ; renvoie les triangles.
+ */
+function souder(M, T, d) {
+  const { X, Y, Z } = M, cases = new Map(), vers = new Map(), out = [];
+  const cle = (i, j, k) => `${i},${j},${k}`;
+  const rep = v => {
+    let r = vers.get(v);
+    if (r !== undefined) return r;
+    const i = Math.floor(X[v] / d), j = Math.floor(Y[v] / d), k = Math.floor(Z[v] / d);
+    r = v;
+    for (let a = -1; a <= 1 && r === v; a++) for (let b = -1; b <= 1 && r === v; b++) for (let c = -1; c <= 1 && r === v; c++)
+      for (const w of cases.get(cle(i + a, j + b, k + c)) || []) if (Math.abs(X[w] - X[v]) <= d && Math.abs(Y[w] - Y[v]) <= d && Math.abs(Z[w] - Z[v]) <= d) { r = w; break; }
+    if (r === v) { const c = cle(i, j, k); let L = cases.get(c); if (!L) cases.set(c, L = []); L.push(v); }
+    vers.set(v, r);
+    return r;
+  };
+  for (let t = 0; t < T.length; t += 3) {
+    const a = rep(T[t]), b = rep(T[t + 1]), c = rep(T[t + 2]);
+    if (a !== b && b !== c && a !== c) out.push(a, b, c);
+  }
+  return out;
+}
+
 const demiPlan = (nx, ny, d0) => [(x, y) => nx * x + ny * y - d0, (xa, ya, xb, yb) => { const da = nx * xa + ny * ya - d0, db = nx * xb + ny * yb - d0; return da / (da - db); }];
 const cercle = R => [(x, y) => R - Math.hypot(x, y), (xa, ya, xb, yb) => {
   const dx = xb - xa, dy = yb - ya, A = dx * dx + dy * dy, B = 2 * (xa * dx + ya * dy), C = xa * xa + ya * ya - R * R;
@@ -252,7 +280,7 @@ function solideTerrain(S, H, G, tu, Rd, rond, versZ, mm, tolM, maxTri) {
   if (rond) {
     // flèche des cordes du bord : au plus 0,03 mm imprimé
     const corde = Math.sqrt(8 * Rd * 0.03 / mm);
-    T = rogner(M, T, ...cercle(Rd), { R: Rd, corde, z: (x, y) => lire(H, G, x, y) });
+    T = rogner(M, T, ...cercle(Rd), { R: Rd, corde, z: (x, y) => lire(H, G, x, y) }, EPS_COUPE / mm);
     if (T.length < 9) return null;
   }
   const m = S.marque(), nv = M.X.length, rang = new Int32Array(nv).fill(-1);
@@ -608,9 +636,10 @@ function toitsReleve(R, tol) {
 /**
  * Solides des bâtiments d'une tuile. Les triangles de toit `T` (maillage M) sont regroupés en nappes continues ;
  * chaque nappe devient un solide fermé : le toit, des murs verticaux sous son bord, un fond plat enfoncé dans le
- * terrain. Les éléments trop fins pour l'impression (largeur < `minM`, en m) sont écartés. Renvoie le décompte.
+ * terrain. Les éléments trop fins pour l'impression (largeur < `minM`, en m) sont écartés. `pas` (m) : maille de la
+ * grille du terrain, pour chercher son point le plus bas sous chaque nappe. Renvoie le décompte.
  */
-function solidesBatiments(S, M, T, sol, versZ, mm, minM) {
+function solidesBatiments(S, M, T, sol, versZ, mm, minM, pas) {
   const { X, Y, Z } = M, nv = X.length, nt = T.length / 3, bilan = { solides: 0, fins: 0, repares: 0, ouverts: 0 };
   if (!nt) return bilan;
   // arêtes : deux triangles de sens opposés sont voisins ; toute autre arête (seule, ou portée par trois faces) est un bord
@@ -639,7 +668,7 @@ function solidesBatiments(S, M, T, sol, versZ, mm, minM) {
     const f = paire[e]; // e : a→b ; f : b→a
     coin[rc(e)] = rc(suiv(f)); coin[rc(suiv(e))] = rc(f);
   }
-  // éléments trop fins : aire et largeur (4 × aire / périmètre) de chaque nappe
+  // éléments trop fins : aire et largeur de chaque nappe
   const mesures = new Map();
   let fines = false;
   for (const [r, L] of nappes) {
@@ -649,7 +678,9 @@ function solidesBatiments(S, M, T, sol, versZ, mm, minM) {
       aire += s; if (s > aGros) { aGros = s; gros = t; }
       for (let k = 0; k < 3; k++) if (paire[3 * t + k] < 0) { const u = T[3 * t + k], v = T[3 * t + (k + 1) % 3]; perim += Math.hypot(X[v] - X[u], Y[v] - Y[u]); }
     }
-    const fine = aire < minM * minM || 4 * aire / (perim || 1) < minM;
+    // largeur du rectangle de même aire et même périmètre (exacte pour un rectangle, une bande ou une aile de cour)
+    const demi = perim / 2, largeur = (demi - Math.sqrt(Math.max(0, demi * demi - 4 * aire))) / 2;
+    const fine = aire < minM * minM || largeur < minM;
     mesures.set(r, { aire, fine, gros });
     if (fine) fines = true;
   }
@@ -684,9 +715,22 @@ function solidesBatiments(S, M, T, sol, versZ, mm, minM) {
   const rang = new Map(), pied = new Map();
   for (const [r, L] of nappes) {
     if (mesures.get(r).retirer) { bilan.fins++; continue; }
-    // pied : ~1 mm sous le point le plus bas du terrain sous la nappe, sans traverser le socle
+    // pied : ~1 mm sous le point le plus bas du terrain sous la nappe (sommets, et cellules de la grille sous chaque
+    // triangle : un creux sous un grand toit plat laisserait un vide entre le bâtiment et le terrain), sans
+    // traverser le socle
     let zSol = Infinity;
-    for (const t of L) for (let k = 0; k < 3; k++) { const v = T[3 * t + k], z = sol(X[v], Y[v]); if (z < zSol) zSol = z; }
+    for (const t of L) {
+      const a = T[3 * t], b = T[3 * t + 1], c = T[3 * t + 2];
+      for (const v of [a, b, c]) { const z = sol(X[v], Y[v]); if (z < zSol) zSol = z; }
+      const aire = (X[b] - X[a]) * (Y[c] - Y[a]) - (X[c] - X[a]) * (Y[b] - Y[a]);
+      if (!(aire > pas * pas)) continue;
+      for (let x = Math.ceil(Math.min(X[a], X[b], X[c]) / pas) * pas; x <= Math.max(X[a], X[b], X[c]); x += pas)
+        for (let y = Math.ceil(Math.min(Y[a], Y[b], Y[c]) / pas) * pas; y <= Math.max(Y[a], Y[b], Y[c]); y += pas) {
+          const wa = (X[b] - x) * (Y[c] - y) - (X[c] - x) * (Y[b] - y), wb = (X[c] - x) * (Y[a] - y) - (X[a] - x) * (Y[c] - y);
+          if (wa < 0 || wb < 0 || wa + wb > aire) continue;
+          const z = sol(x, y); if (z < zSol) zSol = z;
+        }
+    }
     const zb = Math.max(0.5, versZ(zSol) - ENFONCEMENT);
     const m = S.marque();
     rang.clear(); pied.clear();
@@ -705,18 +749,28 @@ function solidesBatiments(S, M, T, sol, versZ, mm, minM) {
       return j;
     };
     const bords = [];
+    let aireToit = 0, aireBord = 0;
     for (const t of L) {
-      const a = haut(3 * t), b = haut(3 * t + 1), c = haut(3 * t + 2);
+      const a = haut(3 * t), b = haut(3 * t + 1), c = haut(3 * t + 2), va = T[3 * t], vb = T[3 * t + 1], vc = T[3 * t + 2];
       S.tri(a, b, c);
+      aireToit += (X[vb] - X[va]) * (Y[vc] - Y[va]) - (X[vc] - X[va]) * (Y[vb] - Y[va]);
       for (let k = 0; k < 3; k++) if (paire[3 * t + k] < 0) {
         const p = k === 0 ? a : k === 1 ? b : c, q = k === 0 ? b : k === 1 ? c : a, p2 = bas(3 * t + k), q2 = bas(3 * t + (k + 1) % 3);
+        const u = T[3 * t + k], w = T[3 * t + (k + 1) % 3];
         S.tri(q, p, p2); S.tri(q, p2, q2); bords.push(p2, q2);
+        aireBord += X[u] * Y[w] - X[w] * Y[u];
       }
     }
-    // fond : cône très plat sous le contour du pied (pointe 0,35 mm plus bas). Ses coupes horizontales sont des
-    // copies réduites du contour : la surface ne se recoupe pas, même sous un contour rentrant ou percé de cours
-    const pointe = S.sommet(sx / pied.size * mm, sy / pied.size * mm, zb - 0.35);
-    for (let k = 0; k < bords.length; k += 2) S.tri(pointe, bords[k + 1], bords[k]);
+    if (Math.abs(aireToit - aireBord) <= 1e-6 * Math.abs(aireToit) + 1e-6) {
+      // fond plat : le toit vu de dessus ne se replie pas (l'aire de ses triangles est celle de son contour) ; sa copie
+      // retournée au pied ferme le solide, cours et contours rentrants compris, sans sommet commun à deux nappes
+      for (const t of L) S.tri(bas(3 * t), bas(3 * t + 2), bas(3 * t + 1));
+    } else {
+      // toit replié (maillage d'origine imparfait) : cône très plat sous le contour du pied (pointe 0,35 mm plus bas).
+      // Ses coupes horizontales sont des copies réduites du contour : la surface ne se recoupe pas
+      const pointe = S.sommet(sx / pied.size * mm, sy / pied.size * mm, zb - 0.35);
+      for (let k = 0; k < bords.length; k += 2) S.tri(pointe, bords[k + 1], bords[k]);
+    }
     let s = S.clore(m, "batiment");
     if (s.ouvertes || s.malOrientees) {
       // repli : un prisme fermé par triangle de toit (toujours étanche), les prismes se touchent par leurs faces
@@ -781,9 +835,10 @@ export function calculerImpression(d, o = {}, progres = () => {}) {
         Tt.push(a, b, c);
       }
       if (!Tt.length) continue;
-      for (const [nx, ny, d0] of [[1, 0, tu.xa + marge], [-1, 0, -(tu.xb - marge)], [0, 1, tu.ya + marge], [0, -1, -(tu.yb - marge)]]) Tt = rogner(M, Tt, ...demiPlan(nx, ny, d0));
-      if (rond) Tt = rogner(M, Tt, ...cercle(Rd - marge));
-      const b = solidesBatiments(S, M, Tt, sol, versZ, mm, (o.min ?? 0.8) / mm);
+      for (const [nx, ny, d0] of [[1, 0, tu.xa + marge], [-1, 0, -(tu.xb - marge)], [0, 1, tu.ya + marge], [0, -1, -(tu.yb - marge)]]) Tt = rogner(M, Tt, ...demiPlan(nx, ny, d0), null, EPS_COUPE / mm);
+      if (rond) Tt = rogner(M, Tt, ...cercle(Rd - marge), null, EPS_COUPE / mm);
+      Tt = souder(M, Tt, EPS_COUPE / mm);
+      const b = solidesBatiments(S, M, Tt, sol, versZ, mm, (o.min ?? 0.8) / mm, G.c);
       for (const k in bilan) bilan[k] += b[k];
     }
     const pos = S.pos.fin(), idx = S.idx.fin();
@@ -822,4 +877,15 @@ export function stlBinaire(pos, idx, entete = "Topograph", origine = [0, 0]) {
     dv.setFloat32(o + 36, cx, true); dv.setFloat32(o + 40, cy, true); dv.setFloat32(o + 44, cz, true);
   }
   return new Uint8Array(buf);
+}
+
+/**
+ * Contenu du zip des tuiles : { nom: [STL, { level }] } et le LISEZ-MOI (ligne 1 au nord, colonne 1 à l'ouest).
+ * `nom(contenu, ext)` : nom de fichier ; `lisezMoi({ n, cote, echelle })` : texte du LISEZ-MOI.
+ */
+export function contenuZip(r, o, { nom, lisezMoi }) {
+  const e = Math.round(r.infos.echelle), base = `impression3d-${Math.round(o.taille)}mm-1-${e}`, contenu = {};
+  for (const tu of r.tuiles) contenu[nom(`${base}_L${tu.ligne}C${tu.colonne}`, "stl")] = [stlBinaire(tu.pos, tu.idx, `Topograph STL mm 1:${e} L${tu.ligne}C${tu.colonne}`, tu.origine), { level: 1 }];
+  contenu["LISEZ-MOI.txt"] = new TextEncoder().encode(lisezMoi({ n: r.infos.decoupe, cote: o.taille / r.infos.decoupe, echelle: e }));
+  return contenu;
 }

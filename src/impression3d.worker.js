@@ -6,5 +6,9 @@ self.onmessage = ({ data: { d, o } }) => {
   try {
     const r = calculerImpression(d, o, (etape, part) => self.postMessage({ etape, part }));
     self.postMessage({ ok: true, r }, r.tuiles.flatMap(t => [t.pos.buffer, t.idx.buffer]));
-  } catch (e) { self.postMessage({ ok: false, erreur: e.message }); }
+  } catch (e) {
+    // mémoire épuisée (très grande maquette en finesse fine) : signalée à part, pour un message clair
+    const memoire = e instanceof RangeError || /memory|allocation|array length/i.test(e?.message || "");
+    self.postMessage({ ok: false, erreur: String(e?.message || e), memoire });
+  }
 };
