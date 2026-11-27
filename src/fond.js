@@ -16,7 +16,26 @@ export const COUCHES = { cadastre: "ch.kantone.cadastralwebmap-farbe", ortho: "c
 
 /** Image du service WMS, avec deux nouvelles tentatives (la dernière hors cache) : un échec ponctuel du réseau
  * ou du service laissait sinon le terrain uni. */
-export async function chargerImage(url, essais = 3) {
+export function chargerImage(url, essais = 3) {
+  // même adresse déjà demandée (préchargement au début du chargement) : on reprend la même attente
+  if (dejaDemandees.has(url)) return dejaDemandees.get(url);
+  const p = telecharger(url, essais);
+  dejaDemandees.set(url, p);
+  p.catch(() => dejaDemandees.delete(url)); // un échec ne reste pas en mémoire : la prochaine demande réessaie
+  while (dejaDemandees.size > 12) dejaDemandees.delete(dejaDemandees.keys().next().value);
+  return p;
+}
+const dejaDemandees = new Map();
+
+/**
+ * Lance tout de suite le téléchargement des fonds de plan d'une zone, pendant que le relevé se charge : l'image
+ * est prête quand la maquette s'affiche, au lieu d'attendre encore le service WMS (≈ 1 à 2 s par image).
+ */
+export function prechargerFonds(urls) {
+  for (const u of urls) chargerImage(u).catch(() => {});
+}
+
+async function telecharger(url, essais) {
   for (let k = 1; ; k++) {
     try {
       return await new Promise((ok, ko) => {
