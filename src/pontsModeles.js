@@ -20,7 +20,7 @@ export function dansPont(P, E0, N0, x, y) {
   for (let i = 0; i < a.length - 1; i++) {
     const ax = a[i][0] - E0, ay = a[i][1] - N0, bx = a[i + 1][0] - E0, by = a[i + 1][1] - N0, L2 = (bx - ax) ** 2 + (by - ay) ** 2 || 1;
     const t = Math.max(-0.05, Math.min(1.05, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / L2));
-    if (Math.hypot(x - ax - t * (bx - ax), y - ay - t * (by - ay)) < P.largeur / 2 + 2) return true;
+    if (Math.hypot(x - ax - t * (bx - ax), y - ay - t * (by - ay)) < Math.max(P.largeur / 2, ...(P.bords || []).map(b => Math.max(-b[1], b[2]))) + 2) return true;
   }
   return false;
 }
@@ -75,6 +75,13 @@ function normaliser(P, E0, N0, sol) {
   const nb = Math.max(2, Math.ceil(L)), l2 = P.largeur / 2, RACCORD = 6;
   // épaisseur : constante, ou renforcée au droit des piles (goussets : `epaisseur_appuis` sur `gousset` m)
   const ep0 = P.epaisseur || 1, epA = P.epaisseur_appuis || ep0, gousset = P.gousset || 0;
+  // rives : `bords` [[s, o_min, o_max], …] (o positif à gauche, interpolé) pour un tablier qui s'élargit ; sinon ± largeur / 2
+  const bords = P.bords?.length ? P.bords : null, bordsEn = s => {
+    if (!bords) return [-l2, l2];
+    if (s <= bords[0][0]) return [bords[0][1], bords[0][2]];
+    for (let i = 1; i < bords.length; i++) if (s <= bords[i][0]) { const u = (s - bords[i - 1][0]) / ((bords[i][0] - bords[i - 1][0]) || 1); return [0, 1].map(k => bords[i - 1][k + 1] + (bords[i][k + 1] - bords[i - 1][k + 1]) * u); }
+    return [bords.at(-1)[1], bords.at(-1)[2]];
+  };
   const piles = (P.appuis || []).filter(p => p.type !== "culee").map(p => p.s);
   const epEn = s => {
     if (!(epA > ep0 && gousset > 0)) return ep0;
@@ -101,9 +108,9 @@ function normaliser(P, E0, N0, sol) {
         z += c0 * w; devers = c1 * w;
       }
     }
-    N.s.push(s); N.x.push(x); N.y.push(y); N.nx.push(nx); N.ny.push(ny); N.g.push(-l2); N.d.push(l2); N.z.push(z); N.devers.push(devers); N.ep.push(epEn(s)); N.w.push(w);
+    N.s.push(s); N.x.push(x); N.y.push(y); N.nx.push(nx); N.ny.push(ny); { const [g0, d0] = bordsEn(s); N.g.push(g0); N.d.push(d0); } N.z.push(z); N.devers.push(devers); N.ep.push(epEn(s)); N.w.push(w);
   }
-  return { noeuds: N, largeur: P.largeur, epaisseur: P.epaisseur || 1, tablier: [0, L], libre: [true, true], appuis: P.appuis || [], arches: P.arches || [], fait: true };
+  return { noeuds: N, largeur: P.largeur, section: P.section, dalle: P.dalle, poutre_larg: P.poutre_larg, traverses: P.traverses, epaisseur: P.epaisseur || 1, tablier: [0, L], libre: [true, true], appuis: P.appuis || [], arches: P.arches || [], fait: true };
 }
 
 /**
@@ -122,7 +129,7 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0], opts =
   const nT = Math.max(2, Math.min(6, Math.round(M.largeur / 3.5)));
   const epM = N.ep.slice().sort((a, b) => a - b)[K >> 1];
   // section en T (poutre sous une dalle en encorbellement) : tablier épais et large ; sinon rectangulaire
-  const enT = epM >= 1.2 && M.largeur >= 7;
+  const enT = epM >= 1.2 && M.largeur >= 7, poutres = M.section === "poutres";
   const haut = [], uv = [], nor = [], bas = [];
   const V = (x, y, z) => [x, z - zRef, -y];
   const quad = (A, B, C, D) => bas.push(...A, ...B, ...C, ...A, ...C, ...D);
@@ -138,10 +145,10 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0], opts =
     }
     S.plein = libreMin < 1.2 || (!M.libre[0] && s < M.tablier[0]) || (!M.libre[1] && s > M.tablier[1]);
     const bo = Math.min(zMin - 0.3, z - ep), bp = Math.min(bo, solMin - 0.6);
-    const l = d - g, a = enT ? Math.max(1.2, Math.min(3.5, 0.22 * l)) : l / 4, eb = Math.max(0.35, Math.min(0.5, 0.3 * ep));
+    const l = d - g, a = poutres ? (M.poutre_larg || 1.6) : enT ? Math.max(1.2, Math.min(3.5, 0.22 * l)) : l / 4, eb = Math.max(0.35, Math.min(0.5, 0.3 * ep));
     const ts = [g, g + a, g + a, d - a, d - a, d];
     S.bt = ts.map(t => [x + nx * t, y + ny * t]);
-    S.ba = enT ? [Math.max(bo, zt(g) - eb), Math.max(bo, zt(g + a) - eb), bo, bo, Math.max(bo, zt(d - a) - eb), Math.max(bo, zt(d) - eb)] : ts.map(() => bo);
+    S.ba = poutres ? [bo, bo, Math.max(bo, z - (M.dalle || 0.8)), Math.max(bo, z - (M.dalle || 0.8)), bo, bo] : enT ? [Math.max(bo, zt(g) - eb), Math.max(bo, zt(g + a) - eb), bo, bo, Math.max(bo, zt(d - a) - eb), Math.max(bo, zt(d) - eb)] : ts.map(() => bo);
     S.bp = ts.map(() => bp);
     S.ts = ts; S.g = g; S.d = d; S.m = m; S.devers = devers; S.zc = z;
     return S;
@@ -289,7 +296,7 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0], opts =
   const GC = P.garde_corps;
   if (GC) {
     const h = GC.hauteur || 1.1, e = GC.epaisseur || (GC.plein ? 0.4 : 0.12), t0 = Math.min(6, L / 4), t1 = L - t0;
-    for (const cote of [-1, 1]) {
+    if (!P.bords?.length) for (const cote of [-1, 1]) {   // largeur constante : un seul balayage
       const o = cote * (M.largeur / 2 - e / 2);
       if (GC.plein) balaye(t0, t1, e, dessus, s2 => dessus(s2) + h, 3, o);
       else {
@@ -297,6 +304,55 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0], opts =
         const pasP = GC.pas || 2.5, nbp = Math.max(1, Math.round((t1 - t0) / pasP));
         for (let k = 0; k <= nbp; k++) { const t = t0 + (t1 - t0) * k / nbp; balaye(t - e / 2, t + e / 2, e, dessus, u => dessus(u) + h, 1, o); }
       }
+    }
+    // tablier qui s'élargit (`bords`) : par tronçons de 10 m, la rive suit le bord du tablier
+    else {
+      const oRive = (cote, t) => { const A = noeudEn(N, t); return cote > 0 ? A.d - e / 2 : A.g + e / 2; };
+      for (const cote of [-1, 1]) {
+        for (let a = t0; a < t1 - 1e-6; a += 10) {
+          const b = Math.min(t1, a + 10), o = oRive(cote, (a + b) / 2);
+          if (GC.plein) balaye(a, b, e, dessus, s2 => dessus(s2) + h, 3, o);
+          else balaye(a, b, e * 1.4, s2 => dessus(s2) + h - 0.12, s2 => dessus(s2) + h, 3, o);
+        }
+        if (!GC.plein) {
+          const pasP = GC.pas || 2.5, nbp = Math.max(1, Math.round((t1 - t0) / pasP));
+          for (let k = 0; k <= nbp; k++) { const t = t0 + (t1 - t0) * k / nbp; balaye(t - e / 2, t + e / 2, e, dessus, u => dessus(u) + h, 1, oRive(cote, t)); }
+        }
+      }
+    }
+  }
+  // parois : cloisons ou séparateurs le long de l'axe, de (s0, o0) à (s1, o1) : { s0, s1, o0, o1, h, ep }
+  for (const W of P.parois || []) {
+    const a0 = Math.max(0, W.s0), a1 = Math.min(L, W.s1);
+    for (let a = a0; a < a1 - 1e-6; a += 10) {
+      const b = Math.min(a1, a + 10), o = W.o0 + (W.o1 - W.o0) * (((a + b) / 2 - W.s0) / ((W.s1 - W.s0) || 1));
+      balaye(a, b, W.ep || 0.3, dessus, s2 => dessus(s2) + (W.h || 1.2), 3, o);
+    }
+  }
+  // lampadaires : mâts de section `ep`, hauteur `h`, tous les `pas` m entre s0 et s1, à l'écart o
+  for (const Lp of P.lampadaires || []) for (let t = Lp.s0; t <= Math.min(L, Lp.s1); t += Lp.pas || 24) balaye(t - (Lp.ep || 0.25) / 2, t + (Lp.ep || 0.25) / 2, Lp.ep || 0.25, dessus, u => dessus(u) + (Lp.h || 8), 1, Lp.o);
+  // traverses : poutres transversales sous la dalle (section « poutres »), tous les `pas` m
+  const TR = M.section === "poutres" && M.traverses;
+  if (TR) {
+    const pas = TR.pas || 4, ept = TR.ep || 0.4, prof = TR.prof || 1.7, a = M.poutre_larg || 1.6;
+    for (let t = TR.s0 ?? 8; t < (TR.s1 ?? L - 8); t += pas) {
+      const A = noeudEn(N, t), bas = A.z - prof;
+      if (sol(A.x, A.y) > bas - 2) continue;   // pas de traverse contre le terrain
+      balaye(t - ept / 2, t + ept / 2, A.d - A.g - 2 * a + 0.1, () => bas, u => noeudEn(N, u).z - (M.dalle || 0.8) + 0.05, 1, (A.g + A.d) / 2);
+    }
+  }
+  // galeries couvertes (antibruit) : toit à `h` m au-dessus de la chaussée ([[s, h], …] interpolé, ou un nombre),
+  // bandeaux de rive et poteaux tous les `pas` m ; le toit fait `ep` m d'épaisseur
+  for (const G of P.galeries || []) {
+    const pts = Array.isArray(G.h) ? G.h : [[G.s0, G.h || 6.5], [G.s1, G.h || 6.5]];
+    const hh = t => { if (t <= pts[0][0]) return pts[0][1]; for (let i = 1; i < pts.length; i++) if (t <= pts[i][0]) return pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * (t - pts[i - 1][0]) / ((pts[i][0] - pts[i - 1][0]) || 1); return pts.at(-1)[1]; };
+    const ep = G.ep || 0.6, bd = G.bandeau || 0.9, pe = G.poteau || 0.5, s0 = Math.max(0, G.s0), s1 = Math.min(L, G.s1);
+    balaye(s0, s1, M.largeur, t => dessus(t) + hh(t) - ep, t => dessus(t) + hh(t), 2);
+    for (const cote of [-1, 1]) {
+      const o = cote * (M.largeur / 2 - pe / 2);
+      balaye(s0, s1, pe, t => dessus(t) + hh(t) - ep - bd, t => dessus(t) + hh(t) - ep, 2, o);
+      const nbp = Math.max(1, Math.round((s1 - s0) / (G.pas || 6)));
+      for (let k = 0; k <= nbp; k++) { const t = s0 + (s1 - s0) * k / nbp; balaye(Math.max(s0, t - pe / 2), Math.min(s1, t + pe / 2), pe, dessus, u => dessus(u) + hh(u) - ep - bd, 1, o); }
     }
   }
   // arches : parabole (par défaut), arc de cercle (`forme: "cintre"`, plein cintre surhaussé si la flèche dépasse la
@@ -340,7 +396,7 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0], opts =
       const dehors = s < L / 2 ? -1 : 1, s0 = s < L / 2 ? s : s - 4, s1 = s0 + 4;
       const zs = sol(A.x + ux * 2 * dehors, A.y + uy * 2 * dehors), naiss = Math.min(...arcs.map(x => x.z_naissance), Infinity);
       const b = Math.min(isNaN(zs) ? naiss : zs, naiss) - 1;
-      if (b < dessous(s) - 0.5) balaye(Math.max(0, s0), Math.min(L, s1), M.largeur, () => b, dessous, 4);
+      if (b < dessous(s) - 0.5) balaye(Math.max(0, s0), Math.min(L, s1), A.d - A.g, () => b, dessous, 4, (A.g + A.d) / 2);
       continue;
     }
     const lo = p.long || 3, la = p.larg || M.largeur * 0.8, t0 = p.t || 0, fr = p.fruit || 0;
@@ -394,6 +450,29 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0], opts =
     const pt = (o, z) => [A.x + px * o, A.y + py * o, z];
     const zA0 = zh - 2, zA1 = Y.z_ancrage_bas ?? zA0, za = (k, n) => zA0 - (zA0 - zA1) * (n > 1 ? k / (n - 1) : 0);
     if (Y.forme === "aucun") { sommets.push({ t, haut: (c, k = 0, n = 1) => pt(0, za(k, n)) }); continue; }
+    if (Y.profil?.length) {
+      // pylône sculpté : UN seul volume lofté, de la semelle au sommet. `profil` : sections horizontales
+      // [[z, oe, oi, l], …] (de bas en haut) : le volume est fait de deux lobes symétriques (gauche et droite), en
+      // travers de oi (bord intérieur) à oe (bord extérieur), de longueur l le long de l'axe. oi = 0 : les deux lobes
+      // n'en font qu'un (fût, mât) ; oi > 0 : fourche (V sous le tablier, A au-dessus). Les angles verticaux sont
+      // abattus de `chanfrein` (m) ; les faces des lobes qui se touchent ne sont pas dessinées.
+      const ch = Y.chanfrein || 0, st = Y.profil, ux = A.ux, uy = A.uy;
+      const anneau = (z, oe, oi, l, sg) => {
+        const h = l / 2, co = Math.min(ch, (oe - oi) / 2, h), ci = Math.min(ch, oi, (oe - oi) / 2, h);
+        return [[oi + ci, -h], [oe - co, -h], [oe, -h + co], [oe, h - co], [oe - co, h], [oi + ci, h], [oi, h - ci], [oi, -h + ci]]
+          .map(([u, w]) => [A.x + px * sg * u + ux * w, A.y + py * sg * u + uy * w, z]);
+      };
+      for (const sg of [-1, 1]) {
+        const R = st.map(([z, oe, oi, l]) => anneau(z, oe, oi, l, sg));
+        for (let k = 0; k + 1 < R.length; k++) for (let f = 0; f < 8; f++) {
+          if (f === 6 && st[k][2] < 0.02 && st[k + 1][2] < 0.02) continue;
+          quadM(R[k + 1][f], R[k + 1][(f + 1) % 8], R[k][(f + 1) % 8], R[k][f]);
+        }
+        for (const r of [R[0], R.at(-1)]) for (let f = 1; f < 7; f++) quadM(r[0], r[f], r[f + 1], r[f + 1]);
+      }
+      sommets.push({ t, haut: (c, k = 0, n = 1) => pt(0, za(k, n)) });
+      continue;
+    }
     if (Y.forme === "H" || Y.forme === "A") {
       const oh = Y.forme === "A" ? 0 : ecart / 2;
       for (const c of [-1, 1]) segment(pt(c * ecart / 2, zb), pt(c * oh, zh), e);
@@ -413,7 +492,7 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0], opts =
       if (t < 0 || t > L) continue;
       const A = surAxe(t), px = -A.uy, py = A.ux;
       for (const c of lat ? [-1, 1] : [0]) {
-        const o = c * (M.largeur / 2 - 0.5);
+        const o = c * (H.o_ancrage ?? (M.largeur / 2 - 0.5));
         segment(S.haut(c, nbh - k, nbh), [A.x + px * o, A.y + py * o, dessus(t) + 0.5], eh);
       }
     }

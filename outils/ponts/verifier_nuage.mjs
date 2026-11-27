@@ -185,6 +185,11 @@ for (const y of P.pylones || []) {
   const l3 = autour(y.s, 3).filter(p => p[2] > zDessus(y.s) + 1.5 && p[2] > zSol(p) + 3 && Math.abs(p[5]) < 13), d3 = l3.map(distModele).sort((a, b) => a - b);
   ecrire(`Écart jambes et mât s ${y.s} (points à moins de 3 m du plan du pylône) : ${l3.length} points, médiane ${quant(d3, 0.5).toFixed(2)} m, 90 % ${quant(d3, 0.9).toFixed(2)} m, ${(100 * d3.filter(v => v < 0.5).length / (d3.length || 1)).toFixed(0)} % à moins de 0,5 m`);
 }
+for (const G of P.galeries || []) {
+  const l = pts.filter(p => p[3] === 17 && p[4] >= G.s0 + 2 && p[4] <= G.s1 - 2 && Math.abs(p[5]) < P.largeur / 2 && p[2] > zDessus(p[4]) + 3), d = l.map(distModele).sort((a, b) => a - b);
+  const dz = l.map(p => p[2] - zDessus(p[4])).sort((a, b) => a - b);
+  ecrire(`Galerie s ${G.s0}-${G.s1} : ${l.length} points de toit (classe 17, à plus de 3 m au-dessus de la chaussée), hauteur du toit mesurée médiane ${quant(dz, 0.5).toFixed(2)} m (modèle ${G.h?.[1]?.[1] ?? G.h} m), distance au modèle médiane ${quant(d, 0.5).toFixed(2)} m, 90 % ${quant(d, 0.9).toFixed(2)} m, ${(100 * d.filter(v => v < 0.5).length / (d.length || 1)).toFixed(0)} % à moins de 0,5 m`);
+}
 // largeur du tablier par tranche de 50 m : points « pont » au niveau de la chaussée
 for (let s0 = 0; s0 < L; s0 += 50) {
   const o = pts.filter(p => p[3] === 17 && p[4] >= s0 && p[4] < s0 + 50 && Math.abs(p[2] - zDessus(p[4])) < 0.8).map(p => p[5]).sort((a, b) => a - b);

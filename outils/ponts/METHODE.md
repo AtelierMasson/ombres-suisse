@@ -26,6 +26,14 @@ fruit, haut différent, chapiteau, arrêt `z_haut`), arches (parabole, cintre, s
 nervures, montants), pylônes (mât, A, H, « aucun ») et haubans (éventail, semi-harpe, nappe axiale ou latérale),
 éléments libres (barres effilées).
 
+Extensions du schéma (pont de la Poya) : `pylones[].profil` = pylône sculpté en UN seul volume, sections horizontales
+`[[z, demi-largeur extérieure, demi-écart intérieur, longueur], …]` (écart intérieur 0 = fût ou mât, > 0 = fourche ; `chanfrein`
+abat les arêtes) ; `section: "poutres"` (+ `dalle`, `poutre_larg`, `traverses {pas, ep, prof}`) = poutres de rive pleines, dalle en
+retrait et traverses sous le tablier ; `bords [[s, o_min, o_max]]` = tablier de largeur variable ; `haubans.o_ancrage` = écart
+des ancrages ; `galeries [{s0, s1, h | [[s, h]…], ep, bandeau, poteau, pas}]` = toit antibruit ; `parois`, `lampadaires`.
+Coupes du nuage au droit d'un pylône : `COUPES=1 node outils/ponts/verifier_nuage.mjs …` ; `CACHE=fichier.json` garde le
+nuage lu pour itérer sans retélécharger.
+
 ## 3. Mise dans la maquette
 `python3 outils/ponts/ajouter.py outils/ponts/modeles/<nom>.json` (copie dans public/ponts et index).
 Voir : `http://localhost:5174/#e=<E>&n=<N>&t=Voyage` — le mode Voyage garde le centre exact (sinon la maquette se
