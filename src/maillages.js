@@ -467,6 +467,8 @@ function toitsPans(G, zRef, C, P) {
  */
 export const DEGRADE = {
   degrade: { value: 0 }, zBas: { value: 0 }, zHaut: { value: 50 },
+  // vue en plan (de dessus) et hauteur de l'image en pixels : allègement des arbres en points (SOMMETS)
+  vueDessus: { value: 0 }, hauteurEcran: { value: 1000 },
   rampe: { value: ["#3b4cc0", "#4fa3c7", "#79c49a", "#e8d36b", "#f09a52", "#d6504f"].map(c => new THREE.Color(c)) },
 };
 export const RAMPE_GLSL = /* glsl */`
@@ -479,9 +481,9 @@ vec3 rampeHaut(float y) {
 }`;
 
 const SOMMETS = /* glsl */`
-uniform float taille, echelle, allege;
+uniform float taille, echelle, allege, vueDessus, hauteurEcran;
 uniform vec3 c1, c2, c3;
-attribute float aRel, aVar;
+attribute float aRel, aVar, aCache;
 #ifdef PAR_CLASSE
 attribute vec3 aCouleur;
 #endif
@@ -512,6 +514,21 @@ void main() {
   #include <shadowmap_vertex>
   // taille en mètres, avec un minimum en pixels pour que les arbres lointains ne disparaissent pas
   float px = taille * echelle / max(0.1, -mvPosition.z);
+  #ifndef PAR_CLASSE
+  // vue en plan : les points cachés par un point plus haut de la même case (aCache, nuagePoints) sont retirés, les points
+  // bas isolés restent ; et quand plusieurs points tombent sur un même pixel, une partie seulement est gardée, en plus
+  // gros (même couverture). Rang fixe par point, tiré de son numéro : pas de scintillement en zoomant. Les ombres ne
+  // viennent pas des points (nappe des couronnes) : elles restent entières.
+  if (vueDessus > 0.5) {
+    if (aCache > 0.5) { gl_Position = vec4(2.0, 2.0, 2.0, 1.0); gl_PointSize = 0.0; return; }
+    // taille réelle à l'écran (pas de minimum gonflé : vus de loin, les points se recouvrent déjà)
+    float ppm = projectionMatrix[2][3] != 0.0 ? echelle / max(0.1, -mvPosition.z) : projectionMatrix[1][1] * hauteurEcran * 0.5;
+    gl_PointSize = clamp(taille * ppm, 1.5, 44.0);
+    #include <clipping_planes_vertex>
+    #include <fog_vertex>
+    return;
+  }
+  #endif
   // loin de la caméra : moins de points, plus gros (même couverture) ; chaque point a un rang fixe, tiré de son numéro
   if (allege > 0.0 && projectionMatrix[2][3] != 0.0) {
     float d = length(mvPosition.xyz), garde = clamp(pow(allege / max(d, 1.0), 0.9), 0.12, 1.0);
@@ -626,19 +643,26 @@ export function nuagePoints(nuage, G, zRef, mode, part, taille) {
   if (!nb) return null;
   const pos = new Float32Array(3 * nb), g = new THREE.BufferGeometry();
   if (arbres) {
-    const rel = new Float32Array(nb), va = new Float32Array(nb);
+    const rel = new Float32Array(nb), va = new Float32Array(nb), cache = new Uint8Array(nb), cellule = new Int32Array(nb);
+    // point le plus haut de chaque case de la grille (0,5 m) : sert à savoir, vu de dessus, quels points sont cachés
+    const haut = new Float32Array(n * n).fill(-Infinity);
     for (let k = 0, q = 0; k < nuage.n; k++) {
       if (!vegetation(C[k]) || k % pas) continue;
       const p = dedans(k);
       if (p < 0) continue;
+      cellule[q] = p; if (Z[k] > haut[p]) haut[p] = Z[k];
       const x = X[k], y = Y[k], z = Z[k], h = G.veg[p] - G.sol[p];
       // hauteur dans la couronne : 0 au pied, 1 au sommet
       rel[q] = h > 1 ? Math.min(1, Math.max(0, (z - G.sol[p]) / h)) : 0.5;
       va[q] = Math.min(0.999, 0.75 * bruit(x / 7, y / 7) + 0.25 * alea(k, 3));
       pos[3 * q] = x; pos[3 * q + 1] = z - zRef; pos[3 * q + 2] = -y; q++;
     }
+    // caché vu de dessus : un autre point est au moins 1 m plus haut dans la même case (sous la couronne). Les points bas
+    // isolés (bord des couronnes, arbustes seuls) restent visibles en vue en plan
+    for (let q = 0; q < nb; q++) cache[q] = pos[3 * q + 1] + zRef < haut[cellule[q]] - 1 ? 1 : 0;
     g.setAttribute("aRel", new THREE.BufferAttribute(rel, 1));
     g.setAttribute("aVar", new THREE.BufferAttribute(va, 1));
+    g.setAttribute("aCache", new THREE.BufferAttribute(cache, 1));
   } else {
     // couleur par classe, sur un octet par composante
     const col = new Uint8Array(3 * nb), palette = new Uint8Array(3 * 256), teinte = new THREE.Color();

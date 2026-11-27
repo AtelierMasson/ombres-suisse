@@ -520,6 +520,7 @@ void main() {
     this.mat.trait.resolution.set(w, h);
     this.mat.trait.jonction.uniforms.taille.value = this.mat.trait.linewidth * this.ratio;
     this.camera.aspect = w / h;
+    DEGRADE.hauteurEcran.value = h * this.ratio;
     // `decalage` pousse le modèle vers la droite (écran d'accueil, à côté du texte)
     if (this.decalage && w > 900) this.camera.setViewOffset(w, h, -this.decalage * w, 0, w, h); else this.camera.clearViewOffset();
     this.camera.updateProjectionMatrix();
@@ -1872,6 +1873,7 @@ void main() {
   }
 
   vueOrtho(mode) {
+    DEGRADE.vueDessus.value = mode === "plan" ? 1 : 0; // arbres en points allégés vus de dessus (maillages.js)
     const cam = this.camera, ctl = this.controls;
     if ((mode || null) === (this.modeVue || null)) return;
     if (mode && !this.modeVue) this.avant3D = { pos: cam.position.clone(), cible: ctl.target.clone(), fov: cam.fov };
