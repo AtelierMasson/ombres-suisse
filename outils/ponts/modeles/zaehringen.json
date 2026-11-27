@@ -50,9 +50,8 @@
     {
      "z": "tablier",
      "forme": "rect",
-     "long": 4.21,
-     "larg": 10.82,
-     "o": 0.0
+     "long": 4.6,
+     "larg": 11.65
     }
    ]
   },
@@ -107,10 +106,25 @@
     },
     {
      "z": "tablier",
-     "forme": "rect",
-     "long": 4.61,
-     "larg": 10.75,
-     "o": -0.15
+     "forme": "poly",
+     "points": [
+      [
+       2.72,
+       5.76
+      ],
+      [
+       -1.96,
+       5.73
+      ],
+      [
+       -2.07,
+       -5.81
+      ],
+      [
+       2.49,
+       -5.87
+      ]
+     ]
     }
    ]
   },
@@ -165,10 +179,25 @@
     },
     {
      "z": "tablier",
-     "forme": "rect",
-     "long": 3.99,
-     "larg": 10.76,
-     "o": -0.07
+     "forme": "poly",
+     "points": [
+      [
+       2.44,
+       5.73
+      ],
+      [
+       -2.09,
+       5.77
+      ],
+      [
+       -1.95,
+       -5.83
+      ],
+      [
+       2.3,
+       -5.84
+      ]
+     ]
     }
    ]
   },
@@ -223,10 +252,25 @@
     },
     {
      "z": "tablier",
-     "forme": "rect",
-     "long": 3.05,
-     "larg": 10.75,
-     "o": 0.04
+     "forme": "poly",
+     "points": [
+      [
+       2.23,
+       5.78
+      ],
+      [
+       -2,
+       5.77
+      ],
+      [
+       -2.05,
+       -5.79
+      ],
+      [
+       1.96,
+       -5.8
+      ]
+     ]
     }
    ]
   },
@@ -250,9 +294,8 @@
     {
      "z": "tablier",
      "forme": "rect",
-     "long": 4.21,
-     "larg": 10.82,
-     "o": 0.0
+     "long": 4.6,
+     "larg": 11.65
     }
    ]
   },
@@ -276,9 +319,8 @@
     {
      "z": "tablier",
      "forme": "rect",
-     "long": 4.21,
-     "larg": 10.82,
-     "o": 0.0
+     "long": 4.6,
+     "larg": 11.65
     }
    ]
   },
@@ -299,7 +341,7 @@
  "arches": [
   {
    "s0": 0.5,
-   "s1": 28.1,
+   "s1": 28.5,
    "z_naissance": 560.0,
    "z_cle": 577.5,
    "epaisseur": 1.2,
@@ -308,8 +350,8 @@
    "forme": "cintre"
   },
   {
-   "s0": 32.7,
-   "s1": 62.1,
+   "s0": 32.3,
+   "s1": 62.5,
    "z_naissance": 560.0,
    "z_cle": 577.5,
    "epaisseur": 1.2,
@@ -318,8 +360,8 @@
    "forme": "cintre"
   },
   {
-   "s0": 66.7,
-   "s1": 96.1,
+   "s0": 66.3,
+   "s1": 96.5,
    "z_naissance": 560.0,
    "z_cle": 577.5,
    "epaisseur": 1.2,
@@ -328,8 +370,8 @@
    "forme": "cintre"
   },
   {
-   "s0": 100.7,
-   "s1": 130.1,
+   "s0": 100.3,
+   "s1": 130.5,
    "z_naissance": 560.0,
    "z_cle": 577.5,
    "epaisseur": 1.2,
@@ -338,8 +380,8 @@
    "forme": "cintre"
   },
   {
-   "s0": 134.7,
-   "s1": 164.1,
+   "s0": 134.3,
+   "s1": 164.5,
    "z_naissance": 560.0,
    "z_cle": 577.5,
    "epaisseur": 1.2,
@@ -348,8 +390,8 @@
    "forme": "cintre"
   },
   {
-   "s0": 168.7,
-   "s1": 198.1,
+   "s0": 168.3,
+   "s1": 198.5,
    "z_naissance": 560.0,
    "z_cle": 577.5,
    "epaisseur": 1.2,
@@ -358,8 +400,8 @@
    "forme": "cintre"
   },
   {
-   "s0": 202.7,
-   "s1": 231.1,
+   "s0": 202.3,
+   "s1": 231.5,
    "z_naissance": 560.0,
    "z_cle": 577.5,
    "epaisseur": 1.2,
@@ -384,7 +426,7 @@
  },
  "photos_vues": 3,
  "confiance": "bonne",
- "notes": "Viaduc de 7 arches pleines en béton (1924), 6 piles ; longueur publiée 235,55 m, largeur 12,2 m, tablier ~49 m au-dessus de la Sarine. Le relevé relancé sur un rayon plus large donne un axe de 245,6 m (le résumé initial, 179,9 m, était tronqué côté Schoenberg) ; piles placées sur les pics de points sous le tablier (entraxe régularisé à 33,6 m, ±1,5 m), altitudes de naissance et de clé estimées sur photo (±1,5 m). Piles recalées sur le nuage (outils/ponts/sections_nuage.mjs, FACES=1, ZMIN=538 ZMAX=559) : 6 piles de 5,0 × 12,5 m au pied (538 m) et 4,6 × 11,7 m sous les naissances (559 m), fruit 1 % en long et 2 % en travers, entraxe 34,0 m (et non 33,6) ; faces des piles s 30,4, 166,4 et 200,4 mal vues (arbres, un côté seulement) : moyenne des autres ; au-dessus des naissances la pile est cachée par les voûtes (prolongée au même fruit). Tablier sculpté (sections_tablier) : corniche à ±6,25 m sur 0,6 m mesurée (mode tablier), tympans à ±5,5 m ; sous-face non vue (épaisseur 1,8 m). Non représenté : arcs en plein cintre (le schéma les trace en parabole), balustrade à balustres, ouvertures voûtées au pied des piles et pont routier inférieur (vers 543,8 m) qui les traverse ; la culée massive côté Schoenberg est approchée par une pile pleine de 14 m (s=238).",
+ "notes": "Viaduc de 7 arches pleines en béton (1924), 6 piles ; longueur publiée 235,55 m, largeur 12,2 m, tablier ~49 m au-dessus de la Sarine. Le relevé relancé sur un rayon plus large donne un axe de 245,6 m (le résumé initial, 179,9 m, était tronqué côté Schoenberg) ; piles placées sur les pics de points sous le tablier (entraxe régularisé à 33,6 m, ±1,5 m), altitudes de naissance et de clé estimées sur photo (±1,5 m). Piles recalées sur le nuage (outils/ponts/sections_nuage.mjs, FACES=1, ZMIN=538 ZMAX=559) : 6 piles de 5,0 × 12,5 m au pied (538 m) et 4,6 × 11,7 m sous les naissances (559 m), fruit 1 % en long et 2 % en travers, entraxe 34,0 m (et non 33,6) ; faces des piles s 30,4, 166,4 et 200,4 mal vues (arbres, un côté seulement) : moyenne des autres ; au-dessus des naissances la pile monte droite jusqu'au tablier en pilastre (0,3 m devant les tympans, photo). Voûtes pleines engagées de 0,4 m dans les piles (faces mesurées à ±2,0-2,7 m de l'axe de la pile aux naissances : sans recouvrement, une fente restait entre tympans et piles). Tablier sculpté (sections_tablier) : corniche à ±6,25 m sur 0,6 m mesurée (mode tablier), tympans à ±5,5 m ; sous-face non vue (épaisseur 1,8 m). Non représenté : arcs en plein cintre (le schéma les trace en parabole), balustrade à balustres, ouvertures voûtées au pied des piles et pont routier inférieur (vers 543,8 m) qui les traverse ; la culée massive côté Schoenberg est approchée par une pile pleine de 14 m (s=238).",
  "sections_tablier": [
   {
    "s": 0,

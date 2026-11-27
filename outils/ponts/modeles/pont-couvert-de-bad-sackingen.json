@@ -388,8 +388,8 @@
    "dz_haut": -0.05,
    "materiau": "bois",
    "soubassement": {
-    "h": 1.5,
-    "saillie": 0.12
+    "h": 2.45,
+    "saillie": 0.22
    },
    "ouvertures": {
     "centres": [
@@ -398,9 +398,12 @@
      78.1,
      107.2
     ],
-    "larg": 4.2,
-    "haut": 1.15,
-    "sous_haut": 0.1
+    "forme": "segment",
+    "larg": 6.0,
+    "haut": 1.5,
+    "fleche": 0.6,
+    "sous_haut": 0.1,
+    "bandeau": 0.12
    }
   },
   {
@@ -467,8 +470,8 @@
    "dz_haut": -0.05,
    "materiau": "bois",
    "soubassement": {
-    "h": 1.5,
-    "saillie": 0.12
+    "h": 2.45,
+    "saillie": 0.22
    },
    "ouvertures": {
     "centres": [
@@ -477,9 +480,12 @@
      78.1,
      107.2
     ],
-    "larg": 4.2,
-    "haut": 1.15,
-    "sous_haut": 0.1
+    "forme": "segment",
+    "larg": 6.0,
+    "haut": 1.5,
+    "fleche": 0.6,
+    "sous_haut": 0.1,
+    "bandeau": 0.12
    }
   },
   {
@@ -546,16 +552,20 @@
    "dz_haut": -0.05,
    "materiau": "bois",
    "soubassement": {
-    "h": 1.5,
-    "saillie": 0.12
+    "h": 2.45,
+    "saillie": 0.22
    },
    "ouvertures": {
     "centres": [
-     133.9
+     130.6,
+     137.4
     ],
-    "larg": 4.2,
-    "haut": 1.15,
-    "sous_haut": 0.1
+    "forme": "segment",
+    "larg": 6.0,
+    "haut": 1.5,
+    "fleche": 0.6,
+    "sous_haut": 0.1,
+    "bandeau": 0.12
    }
   },
   {
@@ -622,16 +632,20 @@
    "dz_haut": -0.05,
    "materiau": "bois",
    "soubassement": {
-    "h": 1.5,
-    "saillie": 0.12
+    "h": 2.45,
+    "saillie": 0.22
    },
    "ouvertures": {
     "centres": [
-     133.9
+     130.6,
+     137.4
     ],
-    "larg": 4.2,
-    "haut": 1.15,
-    "sous_haut": 0.1
+    "forme": "segment",
+    "larg": 6.0,
+    "haut": 1.5,
+    "fleche": 0.6,
+    "sous_haut": 0.1,
+    "bandeau": 0.12
    }
   },
   {
@@ -698,8 +712,8 @@
    "dz_haut": -0.05,
    "materiau": "bois",
    "soubassement": {
-    "h": 1.5,
-    "saillie": 0.12
+    "h": 2.45,
+    "saillie": 0.22
    }
   },
   {
@@ -766,8 +780,8 @@
    "dz_haut": -0.05,
    "materiau": "bois",
    "soubassement": {
-    "h": 1.5,
-    "saillie": 0.12
+    "h": 2.45,
+    "saillie": 0.22
    }
   },
   {
@@ -834,16 +848,20 @@
    "dz_haut": -0.05,
    "materiau": "bois",
    "soubassement": {
-    "h": 1.5,
-    "saillie": 0.12
+    "h": 2.45,
+    "saillie": 0.22
    },
    "ouvertures": {
     "centres": [
-     159.6
+     156.3,
+     163.1
     ],
-    "larg": 4.2,
-    "haut": 1.15,
-    "sous_haut": 0.1
+    "forme": "segment",
+    "larg": 6.0,
+    "haut": 1.5,
+    "fleche": 0.6,
+    "sous_haut": 0.1,
+    "bandeau": 0.12
    }
   },
   {
@@ -910,16 +928,20 @@
    "dz_haut": -0.05,
    "materiau": "bois",
    "soubassement": {
-    "h": 1.5,
-    "saillie": 0.12
+    "h": 2.45,
+    "saillie": 0.22
    },
    "ouvertures": {
     "centres": [
-     159.6
+     156.3,
+     163.1
     ],
-    "larg": 4.2,
-    "haut": 1.15,
-    "sous_haut": 0.1
+    "forme": "segment",
+    "larg": 6.0,
+    "haut": 1.5,
+    "fleche": 0.6,
+    "sous_haut": 0.1,
+    "bandeau": 0.12
    }
   },
   {
@@ -986,16 +1008,19 @@
    "dz_haut": -0.05,
    "materiau": "bois",
    "soubassement": {
-    "h": 1.5,
-    "saillie": 0.12
+    "h": 2.45,
+    "saillie": 0.22
    },
    "ouvertures": {
     "centres": [
      186.0
     ],
-    "larg": 4.2,
-    "haut": 1.15,
-    "sous_haut": 0.1
+    "forme": "segment",
+    "larg": 6.0,
+    "haut": 1.5,
+    "fleche": 0.6,
+    "sous_haut": 0.1,
+    "bandeau": 0.12
    }
   },
   {
@@ -1062,16 +1087,19 @@
    "dz_haut": -0.05,
    "materiau": "bois",
    "soubassement": {
-    "h": 1.5,
-    "saillie": 0.12
+    "h": 2.45,
+    "saillie": 0.22
    },
    "ouvertures": {
     "centres": [
      186.0
     ],
-    "larg": 4.2,
-    "haut": 1.15,
-    "sous_haut": 0.1
+    "forme": "segment",
+    "larg": 6.0,
+    "haut": 1.5,
+    "fleche": 0.6,
+    "sous_haut": 0.1,
+    "bandeau": 0.12
    }
   }
  ],
@@ -1489,5 +1517,5 @@
  "photos_vues": 3,
  "confiance": "moyenne",
  "materiau": "bois",
- "notes": "Pont couvert classé bâtiment (6) et dessous d'ouvrage (26/27) dans swissSURFACE3D, pas de classe 17. Toiture à deux pans sur le profil relevé (faîte 295,05 m à l'ouest, 295,3-295,4 m au milieu, 295,9 m après la frontière s 117, 296,66 m au portail suisse ; égouts 292,0-293,25 m ; demi-largeur aux égouts 3,4 m, 4,75 m dans l'élargissement s 124-168), pignon fermé au portail suisse, pavillons à colombages au-dessus de la pile s 63 (croupes en pyramide, relevé : s 60,7-65,9, ±6,4 m). Piles de pierre à avant-becs pointus des deux côtés (outils/ponts/sections_nuage.mjs : 5,1-5,9 m × 11,2-12,3 m au pied, faces des becs à 45° et fruit ~5 %) ; têtes cachées sous le tablier (non vues par le laser) : prolongées au même fruit, sous-poutres de bois sur ±4 m relevées à 287,5 m. Façades : bardage de bois, soubassement en saillie, une ouverture sous l'avant-toit au milieu de chaque travée (photos). Chaussée non mesurable (dans le bâtiment) : bas des parois mesuré + 1,3 m. Non représenté : colombages, jardinières, coyau du toit (pente plus forte près du faîte, 1,2, que près des égouts, 0,7)."
+ "notes": "Pont couvert classé bâtiment (6) et dessous d'ouvrage (26/27) dans swissSURFACE3D, pas de classe 17. Toiture à deux pans sur le profil relevé (faîte 295,05 m à l'ouest, 295,3-295,4 m au milieu, 295,9 m après la frontière s 117, 296,66 m au portail suisse ; égouts 292,0-293,25 m ; demi-largeur aux égouts 3,4 m, 4,75 m dans l'élargissement s 124-168), pignon fermé au portail suisse, pavillons à colombages au-dessus de la pile s 63 (croupes en pyramide, relevé : s 60,7-65,9, ±6,4 m). Piles de pierre à avant-becs pointus des deux côtés (outils/ponts/sections_nuage.mjs : 5,1-5,9 m × 11,2-12,3 m au pied, faces des becs à 45° et fruit ~5 %) ; têtes cachées sous le tablier (non vues par le laser) : prolongées au même fruit, sous-poutres de bois sur ±4 m relevées à 287,5 m. Façades : bardage de bois, allège en saillie jusqu'à l'appui des baies, une baie en arc surbaissé par travée des deux côtés, deux dans les travées élargies s 121-173 (photos : ~6 m de large, appui ~0,9 m au-dessus de la chaussée, naissances 0,9 m plus haut, clé 1,5 m au-dessus de l'appui, 0,1 m sous l'égout), arc souligné d'un bandeau. Chaussée non mesurable (dans le bâtiment) : bas des parois mesuré + 1,3 m. Non représenté : colombages, jardinières, coyau du toit (pente plus forte près du faîte, 1,2, que près des égouts, 0,7)."
 }

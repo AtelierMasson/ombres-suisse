@@ -530,7 +530,8 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0], opts =
   // Façades (pont couvert) : `dz_bas` (bas de la paroi sous la chaussée, négatif), `z_haut` (haut absolu, nombre,
   // [z0, z1] de s0 à s1 ou [[s, z], …], p. ex. les égouts du toit ; `dz_haut` s'y ajoute), `soubassement` { h, saillie } (partie basse en saillie vers l'extérieur),
   // `ouvertures` { pas, larg, haut, z (bas de l'ouverture au-dessus de la chaussée) ou sous_haut (du haut de l'ouverture
-  // au haut de la paroi), s0, s1 } ou { centres: [s…], … } :
+  // au haut de la paroi), s0, s1 } ou { centres: [s…], … }, `forme` "arc" | "segment" | "cintre" | "anse" (+ `fleche`,
+  // `bandeau`) :
   // fenêtres ou bandeau ajouré, la paroi est coupée en trumeaux, allèges et linteaux.
   for (const W of P.parois || []) {
     choisir(W.materiau);
@@ -550,15 +551,28 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0], opts =
       const centres = O.centres || (() => { const r = [], pas = O.pas || 4; for (let c = O.s0 ?? a0 + pas / 2; c <= (O.s1 ?? a1 - pas / 2) + 1e-6; c += pas) r.push(c); return r; })();
       for (const c of centres) { const t0 = Math.max(a0, c - (O.larg || 1) / 2), t1 = Math.min(a1, c + (O.larg || 1) / 2); if (t1 > t0) trous.push([t0, t1]); }
     }
-    const morceau = (a, b, lo, hi, e = ep, de = 0) => {
-      for (let u = a; u < b - 1e-6; u += 10) { const v = Math.min(b, u + 10), o = oEn((u + v) / 2); balaye(u, v, e, lo, hi, 3, o + Math.sign(o || 1) * de); }
+    const morceau = (a, b, lo, hi, e = ep, de = 0, pas = 3) => {
+      for (let u = a; u < b - 1e-6; u += 10) { const v = Math.min(b, u + 10), o = oEn((u + v) / 2); balaye(u, v, e, lo, hi, pas, o + Math.sign(o || 1) * de); }
     };
+    // ouvertures en arc (`forme` "arc", "segment", "cintre", "anse") : jambages droits de l'appui aux naissances, puis
+    // l'arc (segment de cercle de flèche `fleche`, plein cintre, ou anse de panier = demi-ellipse) jusqu'à la clé ;
+    // le bardage suit l'arc au-dessus ; `bandeau` (m) : moulure en saillie qui souligne l'arc
+    const typeArc = O && ({ arc: O.fleche ? "segment" : "anse", segment: "segment", cintre: "cintre", anse: "anse" })[O.forme];
     let t = a0;
     for (const [t0, t1] of trous) {
       if (t0 > t) morceau(t, t0, bas0, haut0);
-      const zo = u => O.sous_haut != null ? haut0(u) - O.sous_haut - (O.haut || 1) : dessus(u) + (O.z ?? 1), zf = u => Math.min(haut0(u), zo(u) + (O.haut || 1));
+      const zo = u => O.sous_haut != null ? haut0(u) - O.sous_haut - (O.haut || 1) : dessus(u) + (O.z ?? 1);
+      let zf = u => Math.min(haut0(u), zo(u) + (O.haut || 1)), pas = 3;
+      if (typeArc) {
+        const c = (t0 + t1) / 2, a = (t1 - t0) / 2 || 1, H = O.haut || 1;
+        const f = typeArc === "cintre" ? Math.min(a, H) : Math.min(O.fleche ?? Math.min(a, H / 2), H), R = (a * a + f * f) / (2 * f);
+        const monte = d => typeArc === "segment" ? Math.sqrt(Math.max(0, R * R - d * d)) - (R - f) : f * Math.sqrt(Math.max(0, 1 - (d / a) ** 2));
+        zf = u => Math.min(haut0(u), zo(u) + H - f + monte(Math.min(a, Math.abs(u - c))));
+        pas = Math.max(0.2, a / 8);
+      }
       morceau(t0, t1, bas0, zo);
-      if (haut0((t0 + t1) / 2) > zf((t0 + t1) / 2) + 0.02) morceau(t0, t1, zf, haut0);
+      if (haut0((t0 + t1) / 2) > zf((t0 + t1) / 2) + 0.02) morceau(t0, t1, zf, haut0, ep, 0, pas);
+      if (typeArc && O.bandeau) morceau(t0, t1, u => zf(u) - 0.02, u => Math.min(haut0(u), zf(u) + O.bandeau), ep + 0.1, 0.05, pas);
       t = t1;
     }
     if (t < a1) morceau(t, a1, bas0, haut0);

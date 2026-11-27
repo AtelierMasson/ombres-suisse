@@ -49,11 +49,14 @@ Extensions v5 (formes libres ; tout est facultatif, sans ces champs le maillage 
   `larg` : nombre, [début, fin] ou profil `[[s, v], …]` ; croupe `true` (même pente) ou longueur ; élargissement =
   croupe sur tout le pourtour (pavillon, pyramide).
 - **Façades** (`parois[]`) : `dz_bas`, `z_haut` (comme `egout`) + `dz_haut`, `soubassement { h, saillie }`,
-  `ouvertures { pas | centres, larg, haut, z | sous_haut }`.
+  `ouvertures { pas | centres, larg, haut, z | sous_haut, forme: "segment"|"cintre"|"anse" (+ `fleche`, `bandeau`) }`
+  (baies en arc découpées dans le bardage).
 - **Matériaux** `materiau` : "beton" (défaut, plâtre), "acier", "bois", "pierre", "tuile", "verre" ; sur le modèle
   (défaut de toutes les parties), `materiau_tablier`, et sur chaque partie (`garde_corps`, `appuis[]`, `pylones[]`,
   `arches[]`, `elements[]`, `parois[]`, `toits[]`, `volumes[]`, `galeries[]`, `traverses`, `haubans`, `lampadaires[]`).
-  Un maillage par matériau : la ligne de séparation se lit ; couper une partie en deux volumes pour changer de matière.
+  Un maillage par matériau : la ligne de séparation se lit (teintes à peine nuancées) ; couper une partie en deux volumes
+  pour changer de matière.
+- Voûtes pleines : `s0`/`s1` engagés de quelques dm dans les piles (sinon une fente reste entre tympan et pile).
 
 **Faces depuis le nuage** : `CACHE=… node outils/ponts/sections_nuage.mjs <modele.json> pile <s> [t] [pas] [sommets]
 [rayon]` → les `sections` d'une pile (tranches, enveloppes convexes simplifiées) ; `ZMIN/ZMAX` pour garder la pile seule
