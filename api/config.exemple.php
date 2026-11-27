@@ -12,11 +12,10 @@ const STRIPE_CLE_SECRETE = '';
 // Secret de signature du point de terminaison webhook (whsec_…)
 const STRIPE_SECRET_WEBHOOK = '';
 
-// Abonnement Pro (facultatif : ces valeurs sont aussi les valeurs par défaut de _commun.php)
-const PRIX_MOIS_CENTIMES = 900;        // CHF 9.– par mois
-const PRIX_ANNEE_CENTIMES = 8400;      // CHF 84.– par an (7.– par mois)
+// Vente unique
+const PRIX_CENTIMES = 3900;            // CHF 39.–
 const DEVISE = 'chf';
-const NOM_ABONNEMENT = 'Topograph Pro';
+const NOM_PRODUIT = 'Topograph — licence pro';
 
 // Adresse publique du site, sans barre finale (pages de retour, liens de connexion)
 const SITE_URL = 'https://topograph.ch';
