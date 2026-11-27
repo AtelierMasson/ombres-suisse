@@ -435,3 +435,18 @@ Tests : fusion et validation du JSON sont des fonctions pures. Elles se testent 
 10. **Fin du Pro ou suppression du compte.** Pages publiques suspendues immédiatement (proposé), ou délai de grâce ?
 11. **Durée de l'historique.** 90 jours (proposé) ou plus ?
 12. **Ordre des étapes.** Variantes, page publique, organisations (proposé), ou organisations d'abord comme dans la demande ?
+
+## Ajout du propriétaire (27.11.2026) : vue et ombre depuis un point, pour les voisins
+
+« Tester la vue et l'ombre depuis un point précis, avec rapport PDF. Si tu publies online le système pour ton nouveau
+bâtiment, les voisins doivent pouvoir choisir un point, et ils auront la vue avant / après et aussi les graphes
+d'ombre, etc. »
+
+- Page publique du projet : chaque visiteur peut poser un point (viseur, comme dans l'en-tête du lieu) : une fenêtre,
+  un balcon, un jardin (hauteur réglable au-dessus du sol ou du plancher).
+- Depuis ce point : **vue avant / après** (caméra placée au point, regard réglable ; curseur ou bascule entre l'état
+  existant et le projet) et **ensoleillement avant / après** (heures de soleil par jour et par semaine sur l'année,
+  perte d'ensoleillement due au projet, jours et heures concernés, diagramme solaire avec l'horizon et le projet).
+- **Rapport PDF** de ce point : plan de situation, vues avant / après, graphes, hypothèses, date.
+- Pour l'auteur du projet (Pro) : la même analyse sur des points choisis par lui, dans l'onglet Soleil.
+- Réutilise le calcul de l'onglet Soleil (horizon par point, docs/plan-ensoleillement-zones-piscine.md).
