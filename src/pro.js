@@ -4,6 +4,7 @@ import { ficheVolumes, volumesParcelle } from "./volumes.js";
 import { FORMATS, exporterSite, estimer, sansAccent, nomFichier } from "./export.js";
 import { dessinCoupe, coupeDxf, coupeSvg, coupePdf } from "./exportCoupe.js";
 import { ouvrirImpression3D } from "./impression3dFenetre.js";
+import { toitsReleve, toitsObjets, toitsSwiss } from "./impression3dToits.js";
 import { t, nombre, entier, date } from "./i18n.js";
 import { rectangle, dimensions, reglerCorniche, listerProjets, enregistrerProjet, supprimerProjet, normaliserVolume } from "./projet.js";
 import { traceSol } from "./traceVolume.js";
@@ -428,17 +429,22 @@ export function brancherPro(o) {
         if (!pret()) return;
         if (o.compte?.disponible() && !o.compte.etat().pro && !o.compte.exigerPro(t("impr.raison"))) return;
         const lieu = $("#lieu").textContent || "site";
+        const demi = (S.G.rayonZone || S.G.R) + 30;
         ouvrirImpression3D({
           G: S.G,
-          // bâtiments tels qu'affichés (relevé, swisstopo ou Advanced), avec les volumes du projet ; démolitions comprises
-          bat: () => {
-            const j = jeuExport(), base = j === "swiss" || j === "roofer" ? scene.grilleComparaison(j) : S.G.bat, hv = scene.hauteursVolumes?.();
-            if (!hv) return base;
-            const g = new Float32Array(hv.length);
-            for (let p = 0; p < g.length; p++) { const a = base && !isNaN(base[p]) ? base[p] : -Infinity, v = isNaN(hv[p]) ? -Infinity : hv[p]; g[p] = Math.max(a, v); if (g[p] === -Infinity) g[p] = NaN; }
-            return g;
+          jeu: jeu(),
+          // toits à imprimer : ceux du type choisi (relevé tel qu'affiché, démolitions comprises ; swisstopo ; Advanced),
+          // et les volumes et modèles importés du projet. null : bâtiments swisstopo impossibles à charger
+          toits: async type => {
+            const lots = [];
+            if (type === "releve") lots.push(toitsReleve(S.G, scene.contours));
+            else if (type === "swiss") { const l = await toitsSwiss(scene, demi); if (!l) return null; lots.push(l); }
+            else if (type === "roofer") lots.push(toitsObjets([await o.maillageAdvanced()], scene.zRef, { limite: demi }));
+            const projet = [scene.couches.volumes, scene.couches.imports].filter(Boolean);
+            if (type !== "aucun" && projet.length) lots.push(toitsObjets(projet, scene.zRef, { limite: demi, visibles: true }));
+            return lots;
           },
-          nom: taille => nomFichier({ lieu, parcelle: S.parcelle, contenu: `impression3d-${taille}mm`, ext: "stl" }),
+          nom: (contenu, ext) => nomFichier({ lieu, parcelle: S.parcelle, contenu, ext }),
           telecharger: (blob, nom) => { telecharger(blob, nom); o.compter?.("export"); },
         });
       };

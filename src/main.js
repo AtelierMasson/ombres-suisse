@@ -695,6 +695,12 @@ async function comparerRoofer() {
     if (lieu === S.E0 && choixBatiments() === "roofer") scene.afficherRoofer(m);
   } finally { telechargement("roofer", null); }
 }
+/** Maillage « Advanced » du lieu sans l'afficher (impression 3D) : essai roofer hors ligne, sinon reconstruction ici. */
+async function maillageAdvanced() {
+  if (scene.couches.roofer) return scene.couches.roofer;
+  try { return await (S.roofer ? maillageRoofer(S.roofer, [S.E0, S.N0], scene.zRef, matRoofer) : reconstruireAdvanced()); }
+  finally { telechargement("roofer", null); }
+}
 scene.surTuilesSwiss = n => telechargement("swiss", n > 0 && !scene.vol && !document.body.classList.contains("accueil") ? t("etat.swiss", { n }) : null); // le vol et l'accueil chargent sans bandeau
 // bâtiments affichés : un seul jeu à la fois (relevé, swisstopo, roofer là où il a été calculé, ou aucun)
 function choixBatiments() { return $("input[name=batiments]:checked")?.value || "releve"; }
@@ -1116,7 +1122,7 @@ function choisirParcelle(p) {
 
 // mode pro : sélection et masquage de bâtiments, taille de la maquette, exports (pro.js)
 const fiche = brancherFiche(document.body, t);
-const pro = brancherPro({ scene, S, message, etat, fiche, recharger: depuisAdresse, calculerHeures, annulerCalcul, majCoupe, soleilActuel, compte, compter,
+const pro = brancherPro({ scene, S, message, etat, fiche, recharger: depuisAdresse, maillageAdvanced, calculerHeures, annulerCalcul, majCoupe, soleilActuel, compte, compter,
   relancerHeures, ouvrirCoupes, rayonZone: () => S.rayonZone, reglerRayon, parcelleEn: (x, y) => S.toutes?.find(q => dansParcelle(x, y, q.anneauxRel)), changerJour: j => { $("#jour").value = j; $("#jour").dispatchEvent(new Event("change")); } });
 // coupes d'un projet rouvert : toutes recréées, la dernière active
 function ouvrirCoupes(liste) {
