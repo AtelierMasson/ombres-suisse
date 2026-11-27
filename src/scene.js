@@ -838,7 +838,7 @@ void main() {
     this.vueDepart();
     if (this.modeVue) { const m = this.modeVue; this.modeVue = null; this.avant3D = null; this.vueOrtho(m); }
     this.ombres();
-    if (this.modeTerrain === "tin") this.terrainAffiche("tin");
+    if (this.modeTerrain === "tin") this.terrainAffiche("tin").catch(e => console.warn("Terrain TIN :", e.message));
   }
 
   /**
