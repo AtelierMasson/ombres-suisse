@@ -495,10 +495,12 @@ async function depuisAdresse(o = null) {
     releve.catch(() => {}); // l'erreur éventuelle est traitée à l'attente, plus bas
 
     /** Anneau et paysage : lancés une fois, après la première maquette affichée (vue de base ou relevé). */
-    let paysageLance = false;
-    const lancerPaysage = async () => {
-      if (paysageLance) return;
-      paysageLance = true;
+    // (une seule fois : la vue de base ne l'attend pas, la bascule vers le relevé non plus ; voir monter)
+    let attentePaysage = null;
+    const lancerPaysage = () => attentePaysage ||= (async () => {
+      // vue de base : sa première image passe avant le calcul de l'horizon (plusieurs secondes du fil principal)
+      if (base) await Promise.race([new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))), new Promise(r => setTimeout(r, 250))]);
+      if (id !== tache) return;
       donnerAltitude(scene.zRef + 1.7);
       if (horizonFini < 1 && !base) et(0.9 + 0.1 * horizonFini, t("etat.relief"));
       S.horizon = await horizon;
@@ -508,7 +510,11 @@ async function depuisAdresse(o = null) {
       // après le relevé (bande passante) : sur la maquette du relevé quand la vue de base l'a précédée
       const idScene = scene.idScene;
       apresReleve.then(() => id === tache && paysageEtAnneau(id, idScene)).catch(e => console.warn("Relief lointain :", e.message));
-    };
+      if (!base) return;
+      // vue de base montrée sans attendre l'horizon : diagramme du soleil, et heures demandées entre-temps (relevé déjà là)
+      majSoleil();
+      if (S.heuresDemandees && S.G && !S.G.provisoire && !S.resultat) calculerHeures();
+    })();
 
     /** Première maquette du lieu (vue de base `provisoire`, ou directement celle du relevé) : scène, caméra, panneaux. */
     const monter = async (G, nuage, source, provisoire) => {
@@ -579,7 +585,10 @@ async function depuisAdresse(o = null) {
       else appliquerAffichage();
       $("#vArbres").disabled = !nuage && !G.veg.some(v => !isNaN(v)); $("#vPoints").disabled = $("#distPoints").disabled = !nuage;
       $("#noteTerrain").hidden = !provisoire;
-      await lancerPaysage();
+      // l'horizon (calcul de plusieurs secondes) n'est attendu que pour la maquette du relevé : la vue de base, elle,
+      // s'affiche tout de suite et la bascule n'est pas retenue par lui
+      const paysage = lancerPaysage();
+      if (!provisoire) await paysage;
       if (id !== tache) return;
       // piscines de l'onglet Soleil : contours et calcul de la zone choisie, sur la maquette du relevé seulement
       if (!ACC && !provisoire) zones.nouveauLieu();
@@ -651,7 +660,8 @@ async function depuisAdresse(o = null) {
     $("#noteTerrain").hidden = true;
     comparerRoofer();
     telechargement("affinage", null);
-    if (!ACC) zones.nouveauLieu(); // piscines de l'onglet Soleil : contours et calcul sur la maquette du relevé
+    // piscines de l'onglet Soleil : contours et calcul sur la maquette du relevé, une fois l'horizon connu
+    if (!ACC) lancerPaysage().then(() => id === tache && zones.nouveauLieu());
     et(1, "");
     if (ACC) return;
     $("#panneauPro").hidden = $("#panneauExport").hidden = false;

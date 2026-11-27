@@ -1659,14 +1659,6 @@ void main() {
    */
   surligner(parcelle, point) {
     const G = this.G, { n, c, x0, bat } = G, sel = new Float32Array(n * n * 2);
-    const dans = (x, y, anneaux) => {
-      let ok = false;
-      for (const a of anneaux) for (let i = 0, j = a.length - 1; i < a.length; j = i++) {
-        const [xi, yi] = a[i], [xj, yj] = a[j];
-        if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) ok = !ok;
-      }
-      return ok;
-    };
     const anneaux = parcelle?.anneauxRel || [];
     // bâtiments : composante connexe sous le point de l'adresse, sinon cellules « bâtiment » dans la parcelle
     const graines = [];
@@ -1681,9 +1673,23 @@ void main() {
       if (meilleur >= 0) graines.push(meilleur);
     }
     const vu = new Uint8Array(n * n);
-    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
-      const p = j * n + i, x = x0 + (i + 0.5) * c, y = x0 + (j + 0.5) * c;
-      if (anneaux.length && dans(x, y, anneaux)) {
+    // cellules dans la parcelle : par lignes (mêmes croisements que `dans`, calculés une fois par ligne) ; cellule par
+    // cellule, une grande parcelle (rivière, route : des milliers de sommets) bloquait la page plusieurs secondes
+    if (anneaux.length) for (let j = 0; j < n; j++) {
+      const y = x0 + (j + 0.5) * c, xs = [];
+      for (const a of anneaux) for (let i = 0, k = a.length - 1; i < a.length; k = i++) {
+        const [xi, yi] = a[i], [xk, yk] = a[k];
+        if ((yi > y) !== (yk > y)) xs.push((xk - xi) * (y - yi) / (yk - yi) + xi);
+      }
+      if (!xs.length) continue;
+      xs.sort((u, v) => u - v);
+      // cellule dedans : nombre impair de croisements à sa droite (x < croisement)
+      let q = 0;
+      for (let i = 0; i < n; i++) {
+        const x = x0 + (i + 0.5) * c;
+        while (q < xs.length && !(x < xs[q])) q++;
+        if ((xs.length - q) % 2 === 0) continue;
+        const p = j * n + i;
         sel[2 * p] = 1;
         if (!point && !isNaN(bat[p])) graines.push(p);
       }
