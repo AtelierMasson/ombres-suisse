@@ -1,0 +1,1026 @@
+{
+ "nom": "Pont Butin, Genève (Lancy – Vernier)",
+ "axe": [
+  [
+   2497482.6,
+   1117796.7,
+   419.3
+  ],
+  [
+   2497496.7,
+   1117662.9,
+   417.9
+  ],
+  [
+   2497510.9,
+   1117529.2,
+   416.5
+  ]
+ ],
+ "largeur": 23.0,
+ "largeur_dessous": 16.0,
+ "epaisseur": 1.2,
+ "garde_corps": {
+  "hauteur": 2.6,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.12
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 14,
+   "forme": "rect",
+   "long": 4.2,
+   "larg": 17.0,
+   "z_bas": 396,
+   "fruit": 0.012
+  },
+  {
+   "type": "pile",
+   "s": 14,
+   "forme": "rect",
+   "long": 6.0,
+   "larg": 14.9,
+   "z_bas": 381.0,
+   "z_haut": 389.23,
+   "long_haut": 8.27,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 14,
+   "forme": "rect",
+   "long": 8.27,
+   "larg": 14.9,
+   "z_bas": 389.23,
+   "z_haut": 396.2,
+   "long_haut": 17.59,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 14,
+   "forme": "rect",
+   "long": 17.59,
+   "larg": 14.9,
+   "z_bas": 396.2,
+   "z_haut": 400.86,
+   "long_haut": 31.54,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 14,
+   "forme": "rect",
+   "long": 31.54,
+   "larg": 14.9,
+   "z_bas": 400.86,
+   "z_haut": 402.5,
+   "long_haut": 48.0,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 14,
+   "forme": "rect",
+   "long": 5.6,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 62,
+   "forme": "rect",
+   "long": 4.2,
+   "larg": 17.0,
+   "z_bas": 366,
+   "fruit": 0.012
+  },
+  {
+   "type": "pile",
+   "s": 62,
+   "forme": "rect",
+   "long": 7.0,
+   "larg": 16.0,
+   "z_bas": 366,
+   "z_haut": 379.0,
+   "long_haut": 7.0,
+   "larg_haut": 16.0
+  },
+  {
+   "type": "pile",
+   "s": 62,
+   "forme": "rect",
+   "long": 8.0,
+   "larg": 22.0,
+   "z_bas": 366,
+   "z_haut": 372.5,
+   "long_haut": 8.0,
+   "larg_haut": 22.0
+  },
+  {
+   "type": "pile",
+   "s": 62,
+   "forme": "rect",
+   "long": 6.0,
+   "larg": 14.9,
+   "z_bas": 381.0,
+   "z_haut": 389.23,
+   "long_haut": 8.27,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 62,
+   "forme": "rect",
+   "long": 8.27,
+   "larg": 14.9,
+   "z_bas": 389.23,
+   "z_haut": 396.2,
+   "long_haut": 17.59,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 62,
+   "forme": "rect",
+   "long": 17.59,
+   "larg": 14.9,
+   "z_bas": 396.2,
+   "z_haut": 400.86,
+   "long_haut": 31.54,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 62,
+   "forme": "rect",
+   "long": 31.54,
+   "larg": 14.9,
+   "z_bas": 400.86,
+   "z_haut": 402.5,
+   "long_haut": 48.0,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 62,
+   "forme": "rect",
+   "long": 5.6,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 110,
+   "forme": "rect",
+   "long": 4.2,
+   "larg": 17.0,
+   "z_bas": 366,
+   "fruit": 0.012
+  },
+  {
+   "type": "pile",
+   "s": 110,
+   "forme": "rect",
+   "long": 7.0,
+   "larg": 16.0,
+   "z_bas": 366,
+   "z_haut": 379.0,
+   "long_haut": 7.0,
+   "larg_haut": 16.0
+  },
+  {
+   "type": "pile",
+   "s": 110,
+   "forme": "rect",
+   "long": 8.0,
+   "larg": 22.0,
+   "z_bas": 366,
+   "z_haut": 372.5,
+   "long_haut": 8.0,
+   "larg_haut": 22.0
+  },
+  {
+   "type": "pile",
+   "s": 110,
+   "forme": "rect",
+   "long": 6.0,
+   "larg": 14.9,
+   "z_bas": 381.0,
+   "z_haut": 389.23,
+   "long_haut": 8.27,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 110,
+   "forme": "rect",
+   "long": 8.27,
+   "larg": 14.9,
+   "z_bas": 389.23,
+   "z_haut": 396.2,
+   "long_haut": 17.59,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 110,
+   "forme": "rect",
+   "long": 17.59,
+   "larg": 14.9,
+   "z_bas": 396.2,
+   "z_haut": 400.86,
+   "long_haut": 31.54,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 110,
+   "forme": "rect",
+   "long": 31.54,
+   "larg": 14.9,
+   "z_bas": 400.86,
+   "z_haut": 402.5,
+   "long_haut": 48.0,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 110,
+   "forme": "rect",
+   "long": 5.6,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 158,
+   "forme": "rect",
+   "long": 4.2,
+   "larg": 17.0,
+   "z_bas": 369,
+   "fruit": 0.012
+  },
+  {
+   "type": "pile",
+   "s": 158,
+   "forme": "rect",
+   "long": 7.0,
+   "larg": 16.0,
+   "z_bas": 369,
+   "z_haut": 379.0,
+   "long_haut": 7.0,
+   "larg_haut": 16.0
+  },
+  {
+   "type": "pile",
+   "s": 158,
+   "forme": "rect",
+   "long": 8.0,
+   "larg": 22.0,
+   "z_bas": 369,
+   "z_haut": 373.8,
+   "long_haut": 8.0,
+   "larg_haut": 22.0
+  },
+  {
+   "type": "pile",
+   "s": 158,
+   "forme": "rect",
+   "long": 6.0,
+   "larg": 14.9,
+   "z_bas": 381.0,
+   "z_haut": 389.23,
+   "long_haut": 8.27,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 158,
+   "forme": "rect",
+   "long": 8.27,
+   "larg": 14.9,
+   "z_bas": 389.23,
+   "z_haut": 396.2,
+   "long_haut": 17.59,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 158,
+   "forme": "rect",
+   "long": 17.59,
+   "larg": 14.9,
+   "z_bas": 396.2,
+   "z_haut": 400.86,
+   "long_haut": 31.54,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 158,
+   "forme": "rect",
+   "long": 31.54,
+   "larg": 14.9,
+   "z_bas": 400.86,
+   "z_haut": 402.5,
+   "long_haut": 48.0,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 158,
+   "forme": "rect",
+   "long": 5.6,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 206,
+   "forme": "rect",
+   "long": 4.2,
+   "larg": 17.0,
+   "z_bas": 382,
+   "fruit": 0.012
+  },
+  {
+   "type": "pile",
+   "s": 206,
+   "forme": "rect",
+   "long": 7.0,
+   "larg": 16.0,
+   "z_bas": 382,
+   "z_haut": 379.0,
+   "long_haut": 7.0,
+   "larg_haut": 16.0
+  },
+  {
+   "type": "pile",
+   "s": 206,
+   "forme": "rect",
+   "long": 8.0,
+   "larg": 22.0,
+   "z_bas": 382,
+   "z_haut": 386.2,
+   "long_haut": 8.0,
+   "larg_haut": 22.0
+  },
+  {
+   "type": "pile",
+   "s": 206,
+   "forme": "rect",
+   "long": 6.0,
+   "larg": 14.9,
+   "z_bas": 381.0,
+   "z_haut": 389.23,
+   "long_haut": 8.27,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 206,
+   "forme": "rect",
+   "long": 8.27,
+   "larg": 14.9,
+   "z_bas": 389.23,
+   "z_haut": 396.2,
+   "long_haut": 17.59,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 206,
+   "forme": "rect",
+   "long": 17.59,
+   "larg": 14.9,
+   "z_bas": 396.2,
+   "z_haut": 400.86,
+   "long_haut": 31.54,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 206,
+   "forme": "rect",
+   "long": 31.54,
+   "larg": 14.9,
+   "z_bas": 400.86,
+   "z_haut": 402.5,
+   "long_haut": 48.0,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 206,
+   "forme": "rect",
+   "long": 5.6,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 254,
+   "forme": "rect",
+   "long": 4.2,
+   "larg": 17.0,
+   "z_bas": 393,
+   "fruit": 0.012
+  },
+  {
+   "type": "pile",
+   "s": 254,
+   "forme": "rect",
+   "long": 6.0,
+   "larg": 14.9,
+   "z_bas": 381.0,
+   "z_haut": 389.23,
+   "long_haut": 8.27,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 254,
+   "forme": "rect",
+   "long": 8.27,
+   "larg": 14.9,
+   "z_bas": 389.23,
+   "z_haut": 396.2,
+   "long_haut": 17.59,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 254,
+   "forme": "rect",
+   "long": 17.59,
+   "larg": 14.9,
+   "z_bas": 396.2,
+   "z_haut": 400.86,
+   "long_haut": 31.54,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 254,
+   "forme": "rect",
+   "long": 31.54,
+   "larg": 14.9,
+   "z_bas": 400.86,
+   "z_haut": 402.5,
+   "long_haut": 48.0,
+   "larg_haut": 14.9
+  },
+  {
+   "type": "pile",
+   "s": 254,
+   "forme": "rect",
+   "long": 5.6,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 24.35,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 33.45,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 42.55,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 51.65,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 72.35,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 81.45,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 90.55,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 99.65,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 120.35,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 129.45,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 138.55,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 147.65,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 168.35,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 177.45,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 186.55,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 195.65,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 216.35,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 225.45,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 234.55,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 243.65,
+   "forme": "rect",
+   "long": 3.1,
+   "larg": 15.0,
+   "z_bas": 405.0
+  },
+  {
+   "type": "pile",
+   "s": 5.6,
+   "forme": "rect",
+   "long": 11.3,
+   "larg": 15.0,
+   "z_bas": 404.0
+  },
+  {
+   "type": "pile",
+   "s": 262.9,
+   "forme": "rect",
+   "long": 12.3,
+   "larg": 15.0,
+   "z_bas": 404.0
+  },
+  {
+   "type": "culee",
+   "s": 269.0
+  }
+ ],
+ "arches": [
+  {
+   "s0": 17,
+   "s1": 59,
+   "z_naissance": 379.0,
+   "z_cle": 402.0,
+   "epaisseur": 1.5,
+   "larg": 15.0,
+   "plein": false,
+   "forme": "cintre",
+   "montants_pas": 9999
+  },
+  {
+   "s0": 65,
+   "s1": 107,
+   "z_naissance": 379.0,
+   "z_cle": 402.0,
+   "epaisseur": 1.5,
+   "larg": 15.0,
+   "plein": false,
+   "forme": "cintre",
+   "montants_pas": 9999
+  },
+  {
+   "s0": 113,
+   "s1": 155,
+   "z_naissance": 379.0,
+   "z_cle": 402.0,
+   "epaisseur": 1.5,
+   "larg": 15.0,
+   "plein": false,
+   "forme": "cintre",
+   "montants_pas": 9999
+  },
+  {
+   "s0": 161,
+   "s1": 203,
+   "z_naissance": 379.0,
+   "z_cle": 402.0,
+   "epaisseur": 1.5,
+   "larg": 15.0,
+   "plein": false,
+   "forme": "cintre",
+   "montants_pas": 9999
+  },
+  {
+   "s0": 209,
+   "s1": 251,
+   "z_naissance": 379.0,
+   "z_cle": 402.0,
+   "epaisseur": 1.5,
+   "larg": 15.0,
+   "plein": false,
+   "forme": "cintre",
+   "montants_pas": 9999
+  },
+  {
+   "s0": 16.8,
+   "s1": 22.8,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 25.9,
+   "s1": 31.9,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 35.0,
+   "s1": 41.0,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 44.1,
+   "s1": 50.1,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 53.2,
+   "s1": 59.2,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 64.8,
+   "s1": 70.8,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 73.9,
+   "s1": 79.9,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 83.0,
+   "s1": 89.0,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 92.1,
+   "s1": 98.1,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 101.2,
+   "s1": 107.2,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 112.8,
+   "s1": 118.8,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 121.9,
+   "s1": 127.9,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 131.0,
+   "s1": 137.0,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 140.1,
+   "s1": 146.1,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 149.2,
+   "s1": 155.2,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 160.8,
+   "s1": 166.8,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 169.9,
+   "s1": 175.9,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 179.0,
+   "s1": 185.0,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 188.1,
+   "s1": 194.1,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 197.2,
+   "s1": 203.2,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 208.8,
+   "s1": 214.8,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 217.9,
+   "s1": 223.9,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 227.0,
+   "s1": 233.0,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 236.1,
+   "s1": 242.1,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 245.2,
+   "s1": 251.2,
+   "z_naissance": 411.5,
+   "z_cle": 414.5,
+   "epaisseur": 1.0,
+   "larg": 15.0,
+   "plein": true,
+   "forme": "cintre"
+  }
+ ],
+ "pylones": [],
+ "elements": [
+  {
+   "de": [
+    0,
+    0,
+    403.9
+   ],
+   "a": [
+    269.0,
+    0,
+    403.9
+   ],
+   "larg": 14.9,
+   "ep": 2.8
+  },
+  {
+   "de": [
+    0,
+    0,
+    405.1
+   ],
+   "a": [
+    269.0,
+    0,
+    405.1
+   ],
+   "larg": 15.7,
+   "ep": 0.5
+  }
+ ],
+ "sources": [
+  "https://fr.wikipedia.org/wiki/Pont_Butin",
+  "https://commons.wikimedia.org/wiki/Category:Pont_Butin",
+  "https://commons.wikimedia.org/wiki/File:Pont_Butin_depuis_la_plage.JPG",
+  "https://commons.wikimedia.org/wiki/File:Pont_Butin_de_Gen%C3%A8ve.JPG",
+  "https://commons.wikimedia.org/wiki/File:Pont-Butin-aerial.jpg",
+  "https://commons.wikimedia.org/wiki/File:Pont_Butin_depuis_le_Rh%C3%B4ne.jpg",
+  "https://commons.wikimedia.org/wiki/File:Structure_pont_Butin.JPG",
+  "https://commons.wikimedia.org/wiki/File:Pont_Butin_(GE).jpg"
+ ],
+ "photo": {
+  "fichier": "photo.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Pont_Butin_depuis_la_plage.JPG",
+  "auteur": "Dodoïste",
+  "licence": "CC0"
+ },
+ "photos_vues": 7,
+ "confiance": "moyenne",
+ "notes": "Pont à deux étages : 5 grandes arches en plein cintre (48 m d'entraxe, ouverture ~42 m, calées sur le relevé), tympans pleins jusqu'au tablier inférieur (~405 m), puis galerie de 5 arcades de 6 m par travée sous la dalle élargie en 1970 (encorbellements de 4 m). L'ouvrage publié fait 268,94 m : l'axe est coupé à s = 269 m, le reste des 397,7 m mesurés est la route d'accès côté Lancy. Le schéma n'a pas de tympan plein arrêté à mi-hauteur : tympans faits de troncs de pyramide renversés (piles à z_haut) et arcades faites de petites arches pleines ; galerie rendue pleine sur 15 m de large (en vrai une halle à portiques), avant-becs arrondis rendus par un socle rectangulaire, travées de rive et culées cachées par les arbres (non vues), fondations et épaisseur de dalle estimées sur photo."
+}

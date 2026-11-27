@@ -10,7 +10,7 @@ import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n
 import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, versWgs } from "./geo.js";
 import { chargerNuage } from "./nuage.js";
 import { LodAnneau } from "./lodAnneau.js";
-import { depuisPoints, depuisRasters, solEn, terrainAutour, garderCercle } from "./grille.js";
+import { depuisPoints, depuisRasters, solEn, terrainAutour, garderCercle, majSurface } from "./grille.js";
 import { reliefLointain } from "./lointain.js";
 import { Scene3D } from "./scene.js";
 import { essaiRoofer, maillageRoofer, maillagePolygones } from "./roofer.js";
@@ -33,6 +33,7 @@ import { brancherPro } from "./pro.js";
 import { brancherCompte } from "./compte.js";
 import { brancherPub } from "./pub.js";
 import { brancherRapport } from "./rapportBug.js";
+import { bassinsAutour, creuserBassins } from "./piscines.js";
 import { brancherInterface } from "./interface.js";
 import { brancherVuePlan } from "./vuePlan.js";
 import "./compte.css";
@@ -364,6 +365,8 @@ async function depuisAdresse(o = null) {
 
     // fonds de plan (cadastre, photo aérienne) demandés dès maintenant : ils arrivent pendant le relevé
     prechargerFonds([urlFond(COUCHES.cadastre, boite), urlFond(COUCHES.ortho, boite)]);
+    // piscines et bassins de la mensuration officielle : demandés tout de suite, creusés une fois la grille faite
+    const bassins = ACC ? Promise.resolve([]) : bassinsAutour(boite);
 
     et(0.05, t("etat.releve"));
     let G, nuage = null, source;
@@ -392,6 +395,11 @@ async function depuisAdresse(o = null) {
     try { await fondLacs(G, E0, N0); } catch (e) { console.warn("Fond des lacs :", e.message); }
     // sous l'eau, le sol reste sous la surface : des mâts de bateaux (ports) levaient sinon des aiguilles de terrain
     if (G.eau) for (let p = 0; p < G.sol.length; p++) if (!isNaN(G.eau[p]) && !(G.sol[p] < G.eau[p] - 0.1)) G.sol[p] = G.eau[p] - 0.3;
+    // piscines : abords aplanis, fond à −1,60 m, eau à −0,20 m (au plus 4 s d'attente du service cantonal)
+    try {
+      const B = await Promise.race([bassins, new Promise(r => setTimeout(() => r([]), 4000))]);
+      if (B.length && creuserBassins(G, B, E0, N0)) majSurface(G);
+    } catch (e) { console.warn("Piscines :", e.message); }
     if (id !== tache) return;
     if (ACC || ronde()) garderCercle(G, R); // ne montrer que le cercle (sinon : maquette carrée, comme avant)
     S.rayonZone = Rz;
