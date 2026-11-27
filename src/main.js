@@ -152,13 +152,10 @@ function accueil() {
   scene.controls.autoRotate = false;
   scene.animation = null;
   scene.decalage = 0.17; scene.taille();
-  // Gruyères tout de suite, en un seul chargement : un seul cercle (ACCUEIL.R) et une seule caméra, qui suit son trajet
-  // dès la première image ; les points du relevé apparaissent, puis le terrain, les bâtiments et les arbres montent
-  debutAccueil = null; decalageAccueil = 0;
-  volAccueil(ACCUEIL.E, ACCUEIL.N);
+  // Fribourg : la caméra remonte la Sarine, passe sous le pont de la Poya et s'élève vers la cathédrale (vol.js)
   setTimeout(() => {
     if (!document.body.classList.contains("accueil") || location.hash.includes("e=")) return;
-    depuisAdresse({ accueil: ACCUEIL });
+    vol("fribourg");
   }, 0);
 }
 // vol de démonstration (#vol=gruyeres) : plan drone lent, rendu en direct (vol.js) ; à terme, le décor de l'accueil

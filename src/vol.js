@@ -7,6 +7,7 @@ import { tuilesAlti2m } from "./geo.js";
 import { reliefLointain, materiauLointain } from "./lointain.js";
 import { materiauPoints } from "./maillages.js";
 import { Monde } from "./monde.js";
+import { pontsAutour } from "./pontsModeles.js";
 
 /**
  * Lieux et trajectoires. Coordonnées MN95 du centre ; une trajectoire = des clés [x est, y nord, hauteur] (m, depuis le
@@ -20,6 +21,15 @@ export const VOLS = {
     camera: [[230, 560, 95], [190, 360, 78], [160, 170, 70], [120, -30, 72], [40, -210, 90]],
     cible: [[-30, 420, 12], [-45, 250, 15], [-40, 80, 20], [-60, -120, 30], [-500, -1100, 160]],
     soleil: { az: 215, h: 28 }, // azimut depuis le nord, hauteur (degrés)
+  },
+  // Fribourg : on remonte la Sarine depuis le lac de Schiffenen, le pont de la Poya apparaît, la caméra passe dessous,
+  // suit la boucle de la rivière puis s'élève vers la vieille ville et la cathédrale Saint-Nicolas
+  // (centre à 542 m ; rivière vers 531 m, tablier de la Poya vers 600 m, parvis de la cathédrale 588 m)
+  fribourg: {
+    nom: "Fribourg", E: 2579050, N: 1184400, R: 700, duree: 120,
+    camera: [[40, 580, 2], [200, 500, -1], [215, 400, -2], [150, 308, -1], [40, 256, 0], [-150, 234, 2], [-270, 170, 6], [-285, 60, 12], [-200, -70, 30], [-110, -200, 60], [10, -270, 100]],
+    cible: [[219, 480, 40], [150, 310, 50], [130, 300, 40], [40, 256, 5], [-150, 234, 5], [-280, 150, 8], [-280, 30, 10], [-180, -120, 30], [-85, -475, 70], [-85, -470, 75], [-85, -470, 80]],
+    soleil: { az: 235, h: 32 },
   },
 };
 
@@ -44,6 +54,9 @@ export async function lancerVol(scene, cle, o) {
   // caméra : aller-retour lent, adouci aux deux bouts ; la caméra ne s'arrête jamais tout à fait
   const pos = courbe(V.camera), cib = courbe(V.cible), ctl = scene.controls;
   ctl.enabled = false; ctl.autoRotate = false;
+  // la caméra peut regarder vers le haut (sous un pont, vers une tour) : l'angle limite des contrôles est levé pendant le vol
+  const polaireAvant = ctl.maxPolarAngle;
+  ctl.maxPolarAngle = Math.PI;
   let t0 = null, arret = false;
   scene.animation = t => {
     if (arret) return;
@@ -57,7 +70,7 @@ export async function lancerVol(scene, cle, o) {
     if (!temps.image) marque("image");
     if (!temps.tuiles && scene.swiss?.enCours === 0 && scene.swiss.tuiles?.stats.loaded > 0 && scene.swiss.arbres?.stats.loaded > 0) marque("tuiles");
   };
-  return () => { arret = true; scene.vol = false; scene.monde?.cacherTerrain(); scene.reglerLointain({ voir: voirAvant }); scene.calques.jeu = jeuAvant; ctl.enabled = true; scene.animation = null; };
+  return () => { arret = true; scene.vol = false; scene.monde?.cacherTerrain(); scene.reglerLointain({ voir: voirAvant }); scene.calques.jeu = jeuAvant; ctl.enabled = true; ctl.maxPolarAngle = polaireAvant; scene.animation = null; };
 }
 
 /**
@@ -86,6 +99,9 @@ async function decor(scene, V, o, marque) {
   scene.vol = true;
   const voirAvant = scene.loin.voir;
   scene.loin.voir = true; // le vol montre toujours le paysage
+  // ponts modélisés du décor (la caméra peut passer dessous)
+  scene.pontsModeles = await pontsAutour(E, N, V.R).catch(() => []); scene.lieuPonts = { E, N };
+  if (!o.actif()) return null;
   scene.construire(G, null, { anneauxRel: [] }, null);
   const k = scene.couches;
   for (const nom of ["socle", "limite", "canopee", "arbres"]) if (k[nom]) k[nom].visible = false;
