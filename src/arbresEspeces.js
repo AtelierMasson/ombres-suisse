@@ -130,6 +130,9 @@ export function preparerArbres(g, G, cellule, zRef) {
     for (let k = 0; k < ajouts.length; k += 2) lab[ajouts[k]] = ajouts[k + 1];
   }
   etape("couronnes");
+  // surface de chaque couronne (cases de k1 × k1 m) : rayon des symboles de la vue plan (vuePlan.js)
+  const surf = new Uint32Array(nt);
+  for (let q = 0; q < mm; q++) if (lab[q] >= 0) surf[lab[q]]++;
   // ------------------------------------------------------------------ indices par arbre
   const anneauS = new Float32Array(nt), anneauN = new Uint16Array(nt);
   for (let q = 0; q < mm; q++) {
@@ -309,7 +312,7 @@ export function preparerArbres(g, G, cellule, zRef) {
   return {
     tuiles, bilan,
     // pour l'affinage par le degré de mélange LFI (et le débogage)
-    arbres: { n: nt, sx, sy, H, alt, pente, forme, essences, teinte, pConif, nbPts, profonds, m, k1 }, arbreDe: arbreTrie,
+    arbres: { n: nt, sx, sy, H, alt, surf, pente, forme, essences, teinte, pConif, nbPts, profonds, m, k1, R }, arbreDe: arbreTrie,
   };
 }
 
