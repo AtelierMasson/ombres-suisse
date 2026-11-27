@@ -37,6 +37,7 @@ import { bassinsAutour, creuserBassins, baseAuPlanDEau } from "./piscines.js";
 import { brancherInterface } from "./interface.js";
 import { brancherVuePlan } from "./vuePlan.js";
 import { brancherZones } from "./zonesSoleil.js";
+import { brancherSolaire } from "./solaireToits.js";
 import { brancherBrumeCinematique } from "./brumeCinematique.js";
 import "./compte.css";
 
@@ -149,7 +150,7 @@ function accueil() {
   message("");
   Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
   pro.reinitialiser();
-  zones.vider();
+  zones.vider(); solaire.vider();
   scene.controls.autoRotate = false;
   scene.animation = null;
   scene.decalage = 0.17; scene.taille();
@@ -172,7 +173,7 @@ async function vol(cle, monde = 0) {
   message("");
   Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
   pro.reinitialiser();
-  zones.vider();
+  zones.vider(); solaire.vider();
   scene.decalage = 0.17; scene.taille();
   try {
     const arret = await lancerVol(scene, cle, { etat, actif: () => id === tache, monde });
@@ -592,7 +593,7 @@ async function depuisAdresse(o = null) {
       if (!provisoire) await paysage;
       if (id !== tache) return;
       // piscines de l'onglet Soleil : contours et calcul de la zone choisie, sur la maquette du relevé seulement
-      if (!ACC && !provisoire) zones.nouveauLieu();
+      if (!ACC && !provisoire) { zones.nouveauLieu(); solaire.nouveauLieu(); }
       et(1, "");
       if (ACC) { volAccueil(E0, N0); return; }
       $("#commandes").hidden = $("#panneauAffichage").hidden = false; $("#diagramme").hidden = false;
@@ -662,7 +663,7 @@ async function depuisAdresse(o = null) {
     comparerRoofer();
     telechargement("affinage", null);
     // piscines de l'onglet Soleil : contours et calcul sur la maquette du relevé, une fois l'horizon connu
-    if (!ACC) lancerPaysage().then(() => id === tache && zones.nouveauLieu());
+    if (!ACC) lancerPaysage().then(() => id === tache && (zones.nouveauLieu(), solaire.nouveauLieu()));
     et(1, "");
     if (ACC) return;
     $("#panneauPro").hidden = $("#panneauExport").hidden = false;
@@ -1016,7 +1017,7 @@ function appliquerTerrain() {
   majSurface(G);
   remplacerMaquette(G, scene.nuage);
   pro.apresTerrain();
-  zones.nouveauLieu(); // piscines de l'onglet Soleil : recalculées sur le nouveau terrain
+  zones.nouveauLieu(); solaire.nouveauLieu(); // piscines de l'onglet Soleil : recalculées sur le nouveau terrain
 }
 
 // sol : photo aérienne (prioritaire), plan cadastral, ou uni
@@ -1201,7 +1202,7 @@ scene.surCoupe = (A, B) => suivreCoupe(A, B);
 const refaireCoupe = () => { if (S.coupe) majCoupe(S.coupe.A, S.coupe.B); };
 // bâtiments de comparaison arrivés ou changés (tuiles swisstopo, roofer) : la coupe, et la carte des heures si elle est
 // affichée, sont recalculées avec les bâtiments montrés
-scene.surBatiments = () => { refaireCoupe(); relancerHeures(); zones.relancer(); };
+scene.surBatiments = () => { refaireCoupe(); relancerHeures(); zones.relancer(); solaire.relancer(); };
 $("#distPoints").addEventListener("change", refaireCoupe);
 $("#vPro").addEventListener("change", refaireCoupe);
 
@@ -1338,6 +1339,7 @@ marquerTheme();
       if (p && S.E0 != null) allerCentre(S.E0 + p[0], S.N0 + p[1]);
       return;
     }
+    if (solaire.clic(e)) return; // outil de la section Panneaux solaires (onglet Soleil) : choisir un toit
     if (zones.clic(e)) return; // outil de la section Piscine (onglet Soleil) : choisir, dessiner, rectangle
     if (!S.G || !S.toutes?.length || scene.trace || scene.modeVue === "N" || scene.modeVue === "S" || scene.modeVue === "E" || scene.modeVue === "O") return;
     if (pro.dessine()) return; // dessin d'un volume : les clics lui reviennent
@@ -1427,6 +1429,8 @@ const pro = brancherPro({ scene, S, message, etat, fiche, recharger: depuisAdres
 // piscines de l'onglet Soleil : ensoleillement par semaine, température de l'eau, chauffage, PDF (zonesSoleil.js)
 const zones = brancherZones({ scene, S, message, etat, compte, compter, surface: () => jeuHeures().surface,
   cleJeu: () => `${nomJeuHeures()}:${S.versionProjet || 0}` });
+// panneaux solaires de l'onglet Soleil : pans d'un toit, modules, ombres réelles, production, coûts, PDF (solaireToits.js)
+const solaire = brancherSolaire({ scene, S, message, etat, compte, compter, surface: () => jeuHeures().surface });
 // coupes d'un projet rouvert : toutes recréées, la dernière active
 function ouvrirCoupes(liste) {
   if (!$("#vCoupe").checked) { $("#vCoupe").checked = true; $("#outilsCoupe").hidden = $("#coupe").hidden = false; }
@@ -1438,7 +1442,7 @@ function ouvrirCoupes(liste) {
 brancherInterface({ scene, compte });
 majSoleil();
 depuisAdresse();
-if (import.meta.env.DEV) window.ombres = { scene, S, zones }; // pour l'inspection pendant le développement
+if (import.meta.env.DEV) window.ombres = { scene, S, zones, solaire }; // pour l'inspection pendant le développement
 
 // pages légales (mentions, confidentialité, conditions, contact) dans une boîte de dialogue
 {
