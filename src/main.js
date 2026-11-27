@@ -342,8 +342,10 @@ async function depuisAdresse(o = null) {
       // densité : 0 légère, 1 équilibrée, 2 complète ; la parcelle et 40 m autour gardent toujours toute la finesse
       const niv = 1, coeur = parcelle ? [Math.min(...parcelle.anneaux.flat().map(p => p[0])) - 40, Math.min(...parcelle.anneaux.flat().map(p => p[1])) - 40,
         Math.max(...parcelle.anneaux.flat().map(p => p[0])) + 40, Math.max(...parcelle.anneaux.flat().map(p => p[1])) + 40] : [E0 - 60, N0 - 60, E0 + 60, N0 + 60];
+      // chargement visible : les points apparaissent au fil de l'arrivée (pas pour la grande zone de l'accueil, déjà affichée)
+      const apercu = ACC?.suite || voyage ? null : { debut: total => id === tache && scene.debutChargement(total, R), bloc: (...a) => id === tache && scene.ajouterBloc(...a) };
       nuage = await chargerNuage(copc, boite, [E0, N0], 0.5, (f, t) => id === tache && et(0.05 + 0.7 * f, t), (chargement = new AbortController()).signal,
-        { interieur: coeur, niveau: niv === 2 ? 0 : niv === 1 ? 1 : 2 });
+        { interieur: coeur, niveau: niv === 2 ? 0 : niv === 1 ? 1 : 2 }, apercu);
       if (id !== tache) return;
       et(0.78, t("etat.reconstruction"));
       await pause();
@@ -376,7 +378,16 @@ async function depuisAdresse(o = null) {
     scene.pontsModeles = await pontsAutour(E0, N0, R).catch(() => []); scene.lieuPonts = { E: E0, N: N0 };
     if (id !== tache) return;
     const vueAvant = voyage ? { p: scene.camera.position.clone(), c: scene.controls.target.clone(), z: scene.zRef } : null;
+    // vue gardée pendant le chargement visible (la caméra s'est placée sur les points du nouveau lieu)
+    const vuePoints = scene.chargementPts ? { p: scene.camera.position.clone(), c: scene.controls.target.clone(), z0: scene.chargementPts.z0 } : null;
     scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite), bruit: urlFond(COUCHES.bruit, boite) });
+    if (vuePoints && !ACC) {
+      // même cadrage que pendant le chargement (les points étaient posés sur le sol bas du premier bloc)
+      const dz = scene.zRef - vuePoints.z0;
+      vuePoints.p.y -= dz; vuePoints.c.y -= dz;
+      scene.camera.position.copy(vuePoints.p); scene.controls.target.copy(vuePoints.c); scene.controls.update();
+    }
+    scene.finChargement(true);
     if (vueAvant && E0avant != null) {
       // même vue qu'avant le rechargement : la caméra est décalée du déplacement du centre (et de l'altitude de référence)
       const dx = E0 - E0avant, dn = N0 - N0avant, dz = scene.zRef - vueAvant.z;
@@ -430,6 +441,7 @@ async function depuisAdresse(o = null) {
     pro.apresChargement(); // projet rouvert depuis la liste : démolitions, volumes, coupes
     compter("lieu");
   } catch (e) {
+    if (id === tache) scene.finChargement();
     if (id !== tache) return; // lieu changé entre-temps : le chargement abandonné n'affiche rien
     console.error(e);
     telechargement("lieu", null);

@@ -11,7 +11,8 @@ export const CLASSES = { 2: "sol", 3: "végétation", 6: "bâtiment", 9: "eau", 
  * Points de la boîte [e0, n0, e1, n1] (MN95). Retourne des tableaux typés relatifs à (E0, N0).
  * onProgres(fraction, texte) est appelé pendant le chargement. `signal` (AbortSignal) arrête les fils en cours.
  */
-export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, onProgres = () => {}, signal = null, densite = null) {
+export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, onProgres = () => {}, signal = null, densite = null, apercu = null) {
+  // `apercu` (facultatif) = { debut(total), bloc(X, Y, Z, C, n) } : les points arrivent, bloc par bloc (chargement visible)
   const [e0, n0, e1, n1] = boite;
   // densité selon la distance : toute la finesse dans la boîte intérieure (parcelle et ses abords), un niveau de moins
   // au-delà (« équilibrée »), deux niveaux de moins loin de la parcelle (« légère ») ; `densite` = { interieur, niveau }
@@ -44,6 +45,7 @@ export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, on
   }));
   const taches = parTuile.flat();
   const total = taches.reduce((s, t) => s + t.n.pointCount, 0);
+  apercu?.debut(total);
   let X = new Float32Array(total), Y = new Float32Array(total), Z = new Float32Array(total), C = new Uint8Array(total);
   let n = 0, faits = 0;
   // les plus gros blocs d'abord : les fils finissent à peu près ensemble
@@ -65,6 +67,7 @@ export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, on
         w.onerror = e => ko(new Error(t("erreur.nuageDecodage", { m: e.message || t("erreur.filEchec") })));
         w.onmessage = ({ data }) => {
           if (data.erreur) return ko(new Error(data.erreur));
+          apercu?.bloc(data.X, data.Y, data.Z, data.C, data.n);
           X.set(data.X.subarray(0, data.n), n); Y.set(data.Y.subarray(0, data.n), n);
           Z.set(data.Z.subarray(0, data.n), n); C.set(data.C.subarray(0, data.n), n);
           n += data.n;

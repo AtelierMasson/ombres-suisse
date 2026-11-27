@@ -1517,6 +1517,61 @@ void main() {
   }
 
   /**
+   * Chargement visible : les points du relevé apparaissent bloc par bloc pendant le téléchargement (sol beige,
+   * végétation verte, le reste gris), sur le nouveau lieu ; l'ancienne maquette est masquée. `R` : rayon du lieu.
+   */
+  debutChargement(total, R) {
+    this.finChargement();
+    const geo = new THREE.BufferGeometry(), pos = new Float32Array(3 * total), col = new Uint8Array(3 * total);
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute("color", new THREE.BufferAttribute(col, 3, true));
+    geo.setDrawRange(0, 0);
+    const pts = new THREE.Points(geo, new THREE.PointsMaterial({ size: 1.6, sizeAttenuation: false, vertexColors: true, fog: false }));
+    pts.frustumCulled = false;
+    this.chargementPts = { pts, n: 0, z0: null, R };
+    this.groupe.visible = false;
+    if (this.swiss) this.swiss.socle.visible = false;
+    if (this.loin.maille) this.loin.maille.visible = false;
+    this.scene.add(pts);
+    this.demander(2);
+  }
+  ajouterBloc(X, Y, Z, C, n) {
+    const c = this.chargementPts;
+    if (!c || !n) return;
+    const geo = c.pts.geometry, pos = geo.attributes.position.array, col = geo.attributes.color.array, cap = pos.length / 3;
+    if (c.z0 === null) {
+      // altitude de référence provisoire : le sol bas du premier bloc ; la caméra se place sur le lieu
+      let m = Infinity; for (let k = 0; k < n; k++) if (C[k] === 2 && Z[k] < m) m = Z[k];
+      c.z0 = isFinite(m) ? m : Z[0];
+      const R = c.R || 150;
+      this.camera.position.set(-R * 0.9, R * 0.75, R * 1.1); this.controls.target.set(0, 0, 0); this.controls.update();
+    }
+    const COUL = { 2: [205, 190, 160], 3: [110, 150, 80], 4: [100, 145, 75], 5: [90, 135, 70], 6: [170, 165, 160], 9: [120, 170, 185], 17: [150, 150, 150] };
+    const pas = Math.max(1, Math.round(n / 40000)); // au plus ~40 000 points par bloc (le dessin reste léger)
+    for (let k = 0; k < n && c.n < cap; k += pas) {
+      const q = c.n++, cl = COUL[C[k]] || [160, 160, 165];
+      pos[3 * q] = X[k]; pos[3 * q + 1] = Z[k] - c.z0; pos[3 * q + 2] = -Y[k];
+      col[3 * q] = cl[0]; col[3 * q + 1] = cl[1]; col[3 * q + 2] = cl[2];
+    }
+    geo.attributes.position.needsUpdate = geo.attributes.color.needsUpdate = true;
+    geo.setDrawRange(0, c.n);
+    this.demander(2);
+  }
+  /** Fin du chargement visible : les points s'effacent (en douceur) et la maquette reparaît. */
+  finChargement(fondu = false) {
+    const c = this.chargementPts;
+    this.groupe.visible = true;
+    if (!c) return;
+    this.chargementPts = null;
+    const fin = () => { this.scene.remove(c.pts); c.pts.geometry.dispose(); c.pts.material.dispose(); this.demander(2); };
+    if (!fondu) return fin();
+    const m = c.pts.material, t0 = performance.now();
+    m.transparent = true;
+    const pas = () => { const f = (performance.now() - t0) / 700; m.opacity = Math.max(0, 1 - f); this.demander(2); if (f < 1) requestAnimationFrame(pas); else fin(); };
+    requestAnimationFrame(pas);
+  }
+
+  /**
    * Animation de construction d'un lieu qui arrive : les bâtiments montent du sol en vague depuis le centre (~1,4 s),
    * puis les arbres apparaissent (taille des points de 0 à la normale).
    */

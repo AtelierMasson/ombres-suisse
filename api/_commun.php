@@ -140,8 +140,8 @@ function entete_utf8(string $s): string
     return preg_match('/[^\x20-\x7e]/', $s) ? '=?UTF-8?B?' . base64_encode($s) . '?=' : $s;
 }
 
-/** Envoie un e-mail texte (UTF-8). SMTP Infomaniak si configuré, sinon mail(). */
-function envoyer_email(string $a, string $sujet, string $texte): bool
+/** Envoie un e-mail (UTF-8) : texte, et HTML en alternative si `$html` est donné. SMTP Infomaniak si configuré, sinon mail(). */
+function envoyer_email(string $a, string $sujet, string $texte, ?string $html = null): bool
 {
     $de = EXPEDITEUR_EMAIL;
     $domaine = substr(strrchr($de, '@') ?: '@localhost', 1);
@@ -152,11 +152,20 @@ function envoyer_email(string $a, string $sujet, string $texte): bool
         'Subject: ' . entete_utf8($sujet),
         'Message-ID: <' . bin2hex(random_bytes(16)) . "@$domaine>",
         'MIME-Version: 1.0',
-        'Content-Type: text/plain; charset=UTF-8',
-        'Content-Transfer-Encoding: base64',
         'Auto-Submitted: auto-generated',
     ];
-    $corps = chunk_split(base64_encode($texte), 76, "\r\n");
+    if ($html === null) {
+        $entetes[] = 'Content-Type: text/plain; charset=UTF-8';
+        $entetes[] = 'Content-Transfer-Encoding: base64';
+        $corps = chunk_split(base64_encode($texte), 76, "\r\n");
+    } else {
+        // deux versions : texte (lecteurs simples, filtres anti-spam) et HTML (bouton)
+        $b = 'b' . bin2hex(random_bytes(12));
+        $entetes[] = "Content-Type: multipart/alternative; boundary=\"$b\"";
+        $partie = fn(string $type, string $c) => "--$b\r\nContent-Type: $type; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n"
+            . chunk_split(base64_encode($c), 76, "\r\n");
+        $corps = $partie('text/plain', $texte) . $partie('text/html', $html) . "--$b--\r\n";
+    }
 
     if (SMTP_HOTE === '') {
         $sansToSujet = array_filter($entetes, fn($h) => !str_starts_with($h, 'To:') && !str_starts_with($h, 'Subject:'));

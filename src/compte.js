@@ -34,7 +34,12 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
   async function relire() {
     try {
       const r = await appel("/moi.php");
-      if (r.status === 401) { disponible = true; changer({ connecte: false, email: null, pro: false }); }
+      if (r.status === 401) {
+        // session remplacée par une connexion sur un autre appareil (un seul appareil à la fois par compte)
+        const etaitConnecte = e.connecte;
+        disponible = true; changer({ connecte: false, email: null, pro: false });
+        if (etaitConnecte) { message = t("compte.autreAppareil"); ouvrir(); }
+      }
       else if (r.ok) {
         const d = await r.json();
         disponible = true;

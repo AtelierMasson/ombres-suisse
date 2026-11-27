@@ -58,6 +58,8 @@ $q->execute([$email]);
 $compteId = (int) $q->fetchColumn();
 
 $valeur = bin2hex(random_bytes(32));
+// une seule connexion à la fois par compte : la nouvelle remplace les autres (l'appareil précédent est déconnecté)
+$pdo->prepare('DELETE FROM sessions WHERE compte_id = ?')->execute([$compteId]);
 $pdo->prepare('INSERT INTO sessions (id, compte_id, expire) VALUES (?, ?, UTC_TIMESTAMP() + INTERVAL 180 DAY)')
     ->execute([hache($valeur), $compteId]);
 $pdo->commit();

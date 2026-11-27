@@ -38,17 +38,35 @@ $pdo->prepare('INSERT INTO jetons (jeton, email, expire) VALUES (?, ?, UTC_TIMES
     ->execute([hache($jeton), $email]);
 
 $lien = API_URL . '/session.php?' . http_build_query(['jeton' => $jeton, 'langue' => $l]);
+// e-mail sobre : texte et HTML (bouton « Se connecter »), sans nom d'éditeur, juste topograph.ch
 $textes = [
-    'fr' => ['Votre lien de connexion — Topograph',
-        "Bonjour,\n\nPour vous connecter à Topograph, ouvrez ce lien (valable 15 minutes, une seule fois) :\n\n%s\n\nSi vous n'avez rien demandé, ignorez ce message.\n\nAtelier Masson"],
-    'de' => ['Ihr Anmeldelink — Topograph',
-        "Guten Tag\n\nUm sich bei Topograph anzumelden, öffnen Sie diesen Link (15 Minuten gültig, nur einmal verwendbar):\n\n%s\n\nFalls Sie nichts angefordert haben, ignorieren Sie diese Nachricht.\n\nAtelier Masson"],
-    'it' => ['Il suo link di accesso — Topograph',
-        "Buongiorno,\n\nper accedere a Topograph apra questo link (valido 15 minuti, utilizzabile una sola volta):\n\n%s\n\nSe non ha richiesto nulla, ignori questo messaggio.\n\nAtelier Masson"],
-    'en' => ['Your sign-in link — Topograph',
-        "Hello,\n\nTo sign in to Topograph, open this link (valid for 15 minutes, single use):\n\n%s\n\nIf you did not request this, please ignore this message.\n\nAtelier Masson"],
+    'fr' => ['Votre lien de connexion à Topograph', 'Bonjour,', 'Voici votre lien pour vous connecter à Topograph.', 'Se connecter',
+        "Ce lien est valable 15 minutes et ne sert qu'une fois. Si vous n'avez rien demandé, ignorez simplement ce message.",
+        'Le bouton ne fonctionne pas ? Copiez ce lien dans votre navigateur :'],
+    'de' => ['Ihr Anmeldelink für Topograph', 'Guten Tag', 'Hier ist Ihr Link, um sich bei Topograph anzumelden.', 'Anmelden',
+        'Dieser Link ist 15 Minuten gültig und nur einmal verwendbar. Falls Sie nichts angefordert haben, ignorieren Sie diese Nachricht einfach.',
+        'Der Knopf funktioniert nicht? Kopieren Sie diesen Link in Ihren Browser:'],
+    'it' => ['Il suo link di accesso a Topograph', 'Buongiorno,', 'Ecco il suo link per accedere a Topograph.', 'Accedi',
+        'Questo link è valido 15 minuti e si usa una sola volta. Se non ha richiesto nulla, ignori semplicemente questo messaggio.',
+        'Il pulsante non funziona? Copi questo link nel browser:'],
+    'en' => ['Your Topograph sign-in link', 'Hello,', 'Here is your link to sign in to Topograph.', 'Sign in',
+        'This link is valid for 15 minutes and can be used once. If you did not request it, simply ignore this message.',
+        "The button doesn't work? Copy this link into your browser:"],
 ];
-[$sujet, $modele] = $textes[$l];
-if (!envoyer_email($email, $sujet, sprintf($modele, $lien))) json(502, ['erreur' => 'envoi']);
+[$sujet, $salut, $phrase, $bouton, $note, $secours] = $textes[$l];
+$h = fn(string $s) => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
+$texte = "$salut\n\n$phrase\n\n$lien\n\n$note\n\n—\ntopograph.ch";
+$html = '<!doctype html><html lang="' . $l . '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>' . $h($sujet) . '</title></head>'
+    . '<body style="margin:0;padding:32px 12px;background:#f4f2ee;font-family:Helvetica,Arial,sans-serif;color:#1f2933">'
+    . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">'
+    . '<table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background:#ffffff;border:1px solid #e2e5e9;border-radius:10px">'
+    . '<tr><td style="padding:28px 32px 8px;font-size:18px;font-weight:700">Topograph</td></tr>'
+    . '<tr><td style="padding:8px 32px 0;font-size:15px;line-height:1.55">' . $h($salut) . '<br><br>' . $h($phrase) . '</td></tr>'
+    . '<tr><td style="padding:24px 32px"><a href="' . $h($lien) . '" style="display:inline-block;background:#1f3b6b;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;padding:12px 22px;border-radius:7px">' . $h($bouton) . '</a></td></tr>'
+    . '<tr><td style="padding:0 32px 16px;font-size:13px;line-height:1.5;color:#66727f">' . $h($note) . '</td></tr>'
+    . '<tr><td style="padding:0 32px 24px;font-size:12px;line-height:1.5;color:#66727f">' . $h($secours) . '<br><a href="' . $h($lien) . '" style="color:#1f3b6b;word-break:break-all">' . $h($lien) . '</a></td></tr>'
+    . '<tr><td style="padding:16px 32px 24px;border-top:1px solid #e2e5e9;font-size:12px;color:#66727f"><a href="https://topograph.ch" style="color:#66727f">topograph.ch</a></td></tr>'
+    . '</table></td></tr></table></body></html>';
+if (!envoyer_email($email, $sujet, $texte, $html)) json(502, ['erreur' => 'envoi']);
 
 json(200, ['ok' => true]);
