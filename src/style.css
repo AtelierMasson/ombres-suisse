@@ -540,6 +540,9 @@ body.accueil #fiche { display: none; }
 /* bulle de parcelle : le nom et, à côté, un petit viseur (recentrer / construire la 3D ici) */
 #ailleurs { flex-direction: row !important; align-items: center !important; gap: 8px !important; }
 #btnAilleurs { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border-radius: 50%; }
+/* viseur en couleurs inversées, comme l'œil des calques : icône foncée sur fond clair, plein au survol */
+#btnAilleurs.btn-primary { background: var(--carte, #fff); color: var(--texte); border: 1px solid var(--bord-fort, #c9c9c9); }
+#btnAilleurs.btn-primary:hover, #btnAilleurs.btn-primary:focus-visible { background: var(--texte); color: var(--carte, #fff); border-color: var(--texte); }
 
 /* rapport de bug (administrateurs) : petit bouton rond en bas à droite, boîte avec la capture */
 .rapport-bug-bouton { position: fixed; right: 12px; bottom: 40px; z-index: 1050; width: 34px; height: 34px; border-radius: 50%;
