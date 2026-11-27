@@ -28,6 +28,7 @@
   <symbol id="i-bulle" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
   <symbol id="i-coche" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
   <symbol id="i-personne" viewBox="0 0 24 24"><path d="M8 8a4 4 0 1 0 8 0 4 4 0 0 0-8 0M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-export" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
 </defs></svg>
 
 <nav id="haut">
@@ -124,7 +125,8 @@
     <button type="button" role="tab" data-vers="soleil" aria-controls="corpsColonne"><svg class="ico" aria-hidden="true"><use href="#i-soleil"/></svg><span data-i18n="soleil.titre">Soleil</span></button>
     <button type="button" role="tab" data-vers="coupe" aria-controls="corpsColonne"><svg class="ico" aria-hidden="true"><use href="#i-coupe"/></svg><span data-i18n="onglet.coupe">Coupe</span></button>
     <button type="button" role="tab" data-vers="affichage" aria-controls="corpsColonne"><svg class="ico" aria-hidden="true"><use href="#i-couches"/></svg><span data-i18n="onglet.affichage">Affichage</span></button>
-    <button type="button" role="tab" data-vers="pro" class="pro" aria-controls="corpsColonne"><svg class="ico" aria-hidden="true"><use href="#i-cadenas"/></svg><span data-i18n="onglet.pro">Pro</span></button>
+    <button type="button" role="tab" data-vers="projet" aria-controls="corpsColonne"><svg class="ico" aria-hidden="true"><use href="#i-outils"/></svg><span data-i18n="onglet.projet">Projet</span></button>
+    <button type="button" role="tab" data-vers="export" aria-controls="corpsColonne"><svg class="ico" aria-hidden="true"><use href="#i-export"/></svg><span data-i18n="onglet.export">Export</span></button>
   </div>
   <div class="corps" id="corpsColonne" role="tabpanel">
     <div class="vide small text-secondary" id="ongletVide" data-i18n="ui.chargement" hidden>Chargement de la maquette…</div>
@@ -260,7 +262,7 @@
     </aside>
 
     <!-- version pro : offre (compte gratuit), puis le mode pro et ses outils -->
-    <aside id="panneauPro" data-onglet="pro" hidden>
+    <aside id="panneauPro" data-onglet="projet" hidden>
       <div id="offrePro" class="cellule offre-pro" hidden>
         <h3 class="offre-titre" data-i18n="offre.titre">Topograph Pro</h3>
         <p class="small text-secondary mb-2" data-i18n="offre.texte">Projets, volumes, exports et coupes PDF ou DXF. Sans publicité.</p>
@@ -269,13 +271,12 @@
         <button type="button" class="btn btn-sm btn-primary w-100" id="btnOffre"><svg class="ico" aria-hidden="true"><use href="#i-personne"/></svg> <span data-i18n="offre.bouton">Voir mon compte</span></button>
       </div>
       <section id="pro" class="cellule">
-        <h3 class="cellule-titre" data-i18n="onglet.pro">Pro</h3>
+        <h3 class="cellule-titre" data-i18n="onglet.projet">Projet</h3>
         <!-- plus d'interrupteur : le mode pro suit le statut du compte (gardé caché pour le code qui le lit) -->
         <div class="form-check form-switch d-none"><input class="form-check-input" type="checkbox" id="vPro"><label class="form-check-label small" for="vPro" data-i18n-html="pro.mode"><b>Mode pro</b> <span class="text-secondary">(masquer des bâtiments, ajouter des volumes, exporter)</span></label></div>
         <div class="small text-secondary" id="etatPro"></div>
         <div id="outilsPro" hidden>
-          <div class="sous-titre" data-i18n="projet.titre">Projet</div>
-          <div class="d-flex gap-1">
+                    <div class="d-flex gap-1">
             <select class="form-select form-select-sm flex-fill" id="listeProjets" data-i18n-aria-label="projet.liste" aria-label="Projets enregistrés"></select>
             <button type="button" class="btn btn-sm btn-outline-secondary" id="btnEnregistrer" data-i18n="projet.enregistrer">Enregistrer</button>
             <button type="button" class="btn btn-sm btn-outline-secondary" id="btnSupprimerProjet" data-i18n-title="projet.supprimer" title="Supprimer ce projet" aria-label="Supprimer ce projet"><svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="display:block;margin:auto"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
@@ -297,6 +298,21 @@
           <div class="sous-titre" data-i18n="pro.elements">Ajoutés et masqués</div>
           <div id="listeVolumes"></div>
 
+        </div>
+      </section>
+    </aside>
+    <!-- export (maquette, impression 3D, coupe) : fonctions réservées au Pro, grisées pour un compte gratuit -->
+    <aside id="panneauExport" data-onglet="export" hidden>
+      <div data-offre-copie class="cellule offre-pro" hidden>
+        <h3 class="offre-titre" data-i18n="offre.titre">Topograph Pro</h3>
+        <p class="small text-secondary mb-2" data-i18n="offre.texte">Projets, volumes, exports et coupes PDF ou DXF. Sans publicité.</p>
+        <div class="offre-prix" data-i18n="offre.prix">CHF 39.–</div>
+        <p class="small text-secondary mb-2" data-i18n="offre.note">Paiement unique, sans abonnement. L'accès reste actif tant que Topograph est en service.</p>
+        <button type="button" class="btn btn-sm btn-primary w-100" data-btn-offre><svg class="ico" aria-hidden="true"><use href="#i-personne"/></svg> <span data-i18n="offre.bouton">Voir mon compte</span></button>
+      </div>
+      <section class="cellule">
+        <h3 class="cellule-titre" data-i18n="onglet.export">Export</h3>
+        <div id="outilsExport">
           <div class="sous-titre" data-i18n="pro.exporter">Exporter la maquette complète</div>
           <div class="d-flex gap-1">
             <button type="button" class="btn btn-sm btn-outline-primary flex-fill" data-tout="obj" data-i18n-title="pro.objTitre" title="Terrain, socle, bâtiments, arbres et limite de parcelle en un fichier OBJ">OBJ</button>

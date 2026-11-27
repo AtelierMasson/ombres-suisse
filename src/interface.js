@@ -1,11 +1,11 @@
-// Interface autour de la scène : onglets de la colonne (Soleil, Coupe, Affichage, Pro), titre du lieu, puce de
+// Interface autour de la scène : onglets de la colonne (Soleil, Coupe, Affichage, Projet, Export), titre du lieu, puce de
 // chargement (anneau), puce de la vue, zoom et plein écran, feuille du bas sur mobile, offre Pro.
 // Ce module ne fait que présenter : main.js, pro.js et compte.js gardent tout le comportement (mêmes éléments, mêmes
 // identifiants) ; il observe ce qu'ils écrivent dans la page.
 import { t } from "./i18n.js";
 
 const CLE_ONGLET = "ombres.onglet";
-const ONGLETS = ["soleil", "coupe", "affichage", "pro"];
+const ONGLETS = ["soleil", "coupe", "affichage", "projet", "export"];
 const $ = s => document.querySelector(s);
 const lire = cle => { try { return localStorage.getItem(cle); } catch { return null; } };
 const ecrire = (cle, v) => { try { localStorage.setItem(cle, v); } catch { /* stockage indisponible */ } };
@@ -142,13 +142,12 @@ export function brancherInterface({ scene, compte }) {
   /* ---------------------------------------------------------------- offre Pro (compte gratuit) */
   function majOffre() {
     const libre = !compte?.disponible?.() || !!compte.etat().pro; // sans API des comptes, tout est ouvert
+    // plus d'onglet « Pro » : l'offre s'affiche en tête des onglets Projet et Export, dont les outils sont grisés
     $("#offrePro").hidden = libre;
-    const b = col.querySelector('[data-vers="pro"]');
-    b.classList.toggle("verrou", !libre);
-    b.querySelector("use")?.setAttribute("href", libre ? "#i-mallette" : "#i-cadenas"); // cadenas tant que Pro n'est pas acheté
+    for (const c of document.querySelectorAll("[data-offre-copie]")) c.hidden = libre;
   }
   compte?.addEventListener?.("compte", majOffre);
-  $("#btnOffre").addEventListener("click", () => compte?.ouvrir?.());
+  for (const b of document.querySelectorAll("#btnOffre, [data-btn-offre]")) b.addEventListener("click", () => compte?.ouvrir?.());
   majOffre();
 
   choisir(onglet);

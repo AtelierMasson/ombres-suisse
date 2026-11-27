@@ -129,7 +129,7 @@ function accueil() {
   chargement?.abort();
   annulerCalcul();
   document.body.classList.add("accueil");
-  $("#panneau").hidden = $("#panneauPro").hidden = $("#panneauAffichage").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
+  $("#panneau").hidden = $("#panneauPro").hidden = $("#panneauExport").hidden = $("#panneauAffichage").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
   message("");
   Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
   pro.reinitialiser();
@@ -154,7 +154,7 @@ async function vol(cle) {
   arreterVol?.(); arreterVol = null;
   scene.animation = null;
   document.body.classList.add("accueil");
-  $("#panneau").hidden = $("#panneauPro").hidden = $("#panneauAffichage").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
+  $("#panneau").hidden = $("#panneauPro").hidden = $("#panneauExport").hidden = $("#panneauAffichage").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
   message("");
   Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
   pro.reinitialiser();
@@ -308,7 +308,7 @@ async function depuisAdresse(o = null) {
   annulerCalcul();
   if (!ACC) {
     quitterAccueil();
-    $("#panneau").hidden = false; $("#commandes").hidden = $("#panneauPro").hidden = $("#panneauAffichage").hidden = true; $("#heures").hidden = true; $("#diagramme").hidden = $("#coupe").hidden = true;
+    $("#panneau").hidden = false; $("#commandes").hidden = $("#panneauPro").hidden = $("#panneauExport").hidden = $("#panneauAffichage").hidden = true; $("#heures").hidden = true; $("#diagramme").hidden = $("#coupe").hidden = true;
   }
   $("#lieu").textContent = h.get("l") || `${E}, ${N}`;
   $("#lieuType").textContent = nomType(h.get("t") || "");
@@ -446,7 +446,7 @@ async function depuisAdresse(o = null) {
       .catch(e => console.warn("Relief lointain :", e.message));
     et(1, "");
     if (ACC) { volAccueil(E0, N0); return; }
-    $("#commandes").hidden = $("#panneauPro").hidden = $("#panneauAffichage").hidden = false; $("#diagramme").hidden = false;
+    $("#commandes").hidden = $("#panneauPro").hidden = $("#panneauExport").hidden = $("#panneauAffichage").hidden = false; $("#diagramme").hidden = false;
     majSoleil();
     pro.apresChargement(); // projet rouvert depuis la liste : démolitions, volumes, coupes
     compter("lieu");
@@ -1031,7 +1031,8 @@ marquerTheme();
       return;
     }
     $("#ailleurs").hidden = true;
-    if ($("#vPro")?.checked) return; // mode pro : le clic sélectionne un bâtiment, ou ceux de la parcelle (pro.js)
+    // onglet Projet (compte Pro) : le clic sélectionne un bâtiment, ou ceux de la parcelle (pro.js) ; ailleurs, la parcelle
+    if ($("#vPro")?.checked && $("#colonne")?.dataset.onglet === "projet") return;
     const choisie = S.toutes.find(q => dansParcelle(p[0], p[1], q.anneauxRel));
     if (choisie && choisie.numero !== S.parcelle?.numero) choisirParcelle(choisie);
     // loin du centre : on propose aussi d'y recentrer la maquette (comme un clic sur le plan au-delà)

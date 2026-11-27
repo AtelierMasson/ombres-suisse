@@ -68,7 +68,8 @@ export function brancherPro(o) {
   scene.surClic = e => {
     if (dessin) return clicDessin(e);
     if (edition?.consomme()) return; // clic pris par l'édition d'un volume
-    if (!actif() || !pret() || jeu() !== "releve") return;
+    // sélection de bâtiments : seulement dans l'onglet Projet (ailleurs, le clic choisit la parcelle, main.js)
+    if (!actif() || !pret() || jeu() !== "releve" || $("#colonne")?.dataset.onglet !== "projet") return;
     const V = scene.indexer(), s = scene.designer(e);
     let ids = [], nom = null;
     if (s >= 0) ids = V.parBati[V.bati[s]].filter(v => !P.masques.has(v));
@@ -443,15 +444,17 @@ export function brancherPro(o) {
   const basculer = () => {
     const ok = autorise(), avant = $("#vPro").checked;
     $("#vPro").checked = ok;
-    $("#outilsPro").hidden = false;
-    $("#outilsPro").classList.toggle("pro-verrouille", !ok);
-    $("#outilsPro").setAttribute("aria-disabled", String(!ok));
+    for (const id of ["#outilsPro", "#outilsExport"]) {
+      $(id).hidden = false;
+      $(id).classList.toggle("pro-verrouille", !ok);
+      $(id).setAttribute("aria-disabled", String(!ok));
+    }
     document.body.classList.toggle("pro", ok); // les réglages « pro » placés ailleurs dans le panneau (.pro-seul)
     if (ok !== avant) { $("#vPro").dispatchEvent(new Event("change")); if (ok) o.compter?.("pro_ouvert"); }
     maj();
   };
-  $("#outilsPro").addEventListener("click", e => {
-    if (!$("#outilsPro").classList.contains("pro-verrouille")) return;
+  for (const id of ["#outilsPro", "#outilsExport"]) $(id).addEventListener("click", e => {
+    if (!$(id).classList.contains("pro-verrouille")) return;
     e.preventDefault(); e.stopPropagation();
     o.compte?.exigerPro?.(t("compte.raisonPro"));
   }, true);

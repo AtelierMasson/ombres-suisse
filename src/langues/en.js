@@ -119,6 +119,8 @@ export default {
   "impr.pasEtanche": "{n} edges to fix",
   "impr.telecharger": "Download STL",
   "coupe.ajouterPro": "Several sections: part of the Pro offer.",
+  "onglet.projet": "Project",
+  "onglet.export": "Export",
   "compte.supprimer": "Delete my account",
   "compte.supprimerConfirmer": "Permanently delete your account, details and saved places? To confirm, enter your email address again: {email}",
   "compte.supprime": "Your account has been deleted.",
