@@ -1,23 +1,32 @@
 {
- "nom": "Pont routier sur la Reuss (6m Strasse), Lucerne",
+ "nom": "St.-Karli-Brücke, Lucerne",
  "axe": [
   [
-   2664833.4,
-   1211896.7,
-   436.9
+   2664834.0,
+   1211898.7,
+   437.0
   ],
   [
-   2664837.8,
-   1211952.6,
-   439.2
+   2664835.7,
+   1211924.15,
+   438.0
+  ],
+  [
+   2664837.4,
+   1211949.6,
+   439.0
   ]
  ],
- "largeur": 16.0,
- "epaisseur": 1.1,
+ "largeur": 14.4,
+ "largeur_dessous": 10.0,
+ "epaisseur": 1.6,
+ "epaisseur_appuis": 2.2,
+ "gousset": 8,
  "garde_corps": {
   "hauteur": 1.1,
-  "plein": true,
-  "epaisseur": 0.35
+  "plein": false,
+  "epaisseur": 0.15,
+  "pas": 2.0
  },
  "appuis": [
   {
@@ -25,17 +34,30 @@
    "s": 0
   },
   {
+   "type": "pile",
+   "s": 28.5,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 8.0,
+   "larg_colonne": 1.3,
+   "fruit": 0.08,
+   "z_bas": 428.0
+  },
+  {
    "type": "culee",
-   "s": 56.1
+   "s": 51.0
   }
  ],
  "arches": [],
  "pylones": [],
+ "materiau": "beton",
  "sources": [
-  "https://wms.geo.admin.ch (swissimage)",
-  "swissTLM3D"
+  "swissSURFACE3D 2020 (tuile LAS 2664-1211, lue en flux)",
+  "OpenStreetMap way 24980035 (St.-Karli-Brücke)",
+  "https://commons.wikimedia.org/wiki/File:St._Karlibr%C3%BCcke_Reuss_Luzern_LU_20160725-jag9889.jpg (Jag9889, CC BY-SA 4.0)",
+  "Mapillary 908532593344017, kaitu / Mapillary (panorama, rive gauche aval ; CC BY-SA 4.0)"
  ],
- "photos_vues": 0,
- "confiance": "faible",
- "notes": "Non vérifié au laser (pas de nuage COPC ici, seulement des tuiles LAS zippées). Pont urbain de ~16 m (deux voies, trottoirs) sur une travée de 56 m, rive à murs verticaux sur l'orthophoto ; l'épaisseur et l'éventuelle pile centrale ne sont pas vérifiées."
+ "photos_vues": 2,
+ "confiance": "moyenne",
+ "notes": "Vrai nom : St.-Karli-Brücke (OSM way 24980035), poutre continue en béton à deux travées (28,5 + 22,5 m), tablier à consoles et poutre en retrait, garde-corps métallique ajouré ; calé sur la tuile LAS swissSURFACE3D 2020 lue en flux (pas de COPC) : axe, altitudes 437,0→439,0, largeur 14,3–14,4 m, bouts s 0 et 51. La pile de rivière n'est pas vue par le laser : placée à s 28,5 d'après la photo Commons (alignée sur les mâts d'éclairage mesurés à s 28,4) ; c'est un portique transversal de deux jambes inclinées (plus larges en bas) sur une semelle au ras de l'eau, rendu en pile « double » — semelle et traverse de tête non représentées, épaisseurs (1,6 m en travée, 2,2 m à la pile) estimées sur photo. Pct de points 73 % à cause des bâtiments (classe 6) au bout nord ; 94 % sans la classe 6."
 }

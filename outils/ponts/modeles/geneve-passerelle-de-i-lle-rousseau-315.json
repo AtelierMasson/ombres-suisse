@@ -1,0 +1,12 @@
+{"nom":"Passerelle de l'Île Rousseau, Genève",
+"axe":[[2500322.0,1117981.0,374.8],[2500353.7,1117988.5,374.8]],
+"largeur":4.3,"epaisseur":0.45,
+"garde_corps":{"hauteur":1.1,"plein":false,"pas":2.0,"epaisseur":0.05},
+"appuis":[{"type":"culee","s":0},
+{"type":"pile","s":11.0,"forme":"double","long":0.6,"larg":2.8,"larg_colonne":0.6,"z_bas":369.8},
+{"type":"pile","s":21.5,"forme":"double","long":0.6,"larg":2.8,"larg_colonne":0.6,"z_bas":369.9},
+{"type":"culee","s":31.7}],
+"arches":[],"pylones":[],
+"sources":["https://commons.wikimedia.org/wiki/Category:Pont_des_Bergues","https://commons.wikimedia.org/wiki/Category:%C3%8Ele_Rousseau_(Geneva)"],
+"photos_vues":5,"confiance":"faible",
+"notes":"Passerelle piétonne courte (~32 m) entre le pivot du pont des Bergues et l'île Rousseau (le TLM la confondait avec le pont des Bergues, axe refait sur l'orthophoto). Nombre et espacement des piles (deux frames de deux colonnes minces) estimés sur photos, laser muet sous le tablier ; calage photo non fait (aucune vue d'ensemble exploitable)."}

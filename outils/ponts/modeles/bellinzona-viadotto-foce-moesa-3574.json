@@ -1,0 +1,311 @@
+{
+ "nom": "Viadotto Ticino foce Moesa (A13), Castione - Arbedo",
+ "axe": [
+  [
+   2723378.3,
+   1119839.4,
+   248.7
+  ],
+  [
+   2723391.0,
+   1119866.5,
+   248.7
+  ],
+  [
+   2723402.7,
+   1119890.5,
+   248.7
+  ],
+  [
+   2723410.0,
+   1119919.1,
+   248.7
+  ],
+  [
+   2723422.7,
+   1119934.6,
+   248.7
+  ],
+  [
+   2723434.0,
+   1119948.1,
+   248.75
+  ],
+  [
+   2723449.7,
+   1119964.9,
+   248.98
+  ],
+  [
+   2723474.1,
+   1119990.0,
+   249.33
+  ],
+  [
+   2723500.7,
+   1120013.1,
+   249.62
+  ],
+  [
+   2723555.2,
+   1120050.5,
+   249.91
+  ],
+  [
+   2723610.6,
+   1120080.5,
+   250.07
+  ],
+  [
+   2723674.8,
+   1120105.9,
+   249.92
+  ],
+  [
+   2723722.3,
+   1120118.4,
+   249.71
+  ],
+  [
+   2723773.8,
+   1120130.6,
+   249.5
+  ]
+ ],
+ "largeur": 21.0,
+ "bords": [
+  [
+   0.0,
+   -6.05,
+   6.05
+  ],
+  [
+   30.1,
+   -5.82,
+   5.82
+  ],
+  [
+   57.2,
+   -5.62,
+   5.62
+  ],
+  [
+   60.2,
+   -5.6,
+   5.6
+  ],
+  [
+   68.2,
+   -16.45,
+   16.45
+  ],
+  [
+   80.3,
+   -15.1,
+   15.1
+  ],
+  [
+   85.3,
+   -14.68,
+   14.68
+  ],
+  [
+   90.3,
+   -14.25,
+   14.25
+  ],
+  [
+   100.3,
+   -13.55,
+   13.55
+  ],
+  [
+   105.4,
+   -13.3,
+   13.3
+  ],
+  [
+   110.4,
+   -13.05,
+   13.05
+  ],
+  [
+   122.4,
+   -12.15,
+   12.15
+  ],
+  [
+   145.5,
+   -11.69,
+   11.69
+  ],
+  [
+   170.6,
+   -11.2,
+   11.2
+  ],
+  [
+   180.6,
+   -11.05,
+   11.05
+  ],
+  [
+   200.7,
+   -10.75,
+   10.75
+  ],
+  [
+   215.7,
+   -10.73,
+   10.73
+  ],
+  [
+   281.9,
+   -10.63,
+   10.63
+  ],
+  [
+   345.2,
+   -10.53,
+   10.53
+  ],
+  [
+   396.3,
+   -10.45,
+   10.45
+  ],
+  [
+   406.4,
+   -12.25,
+   12.25
+  ],
+  [
+   414.4,
+   -11.99,
+   11.99
+  ],
+  [
+   441.5,
+   -11.1,
+   11.1
+  ],
+  [
+   463.5,
+   -12.38,
+   12.38
+  ],
+  [
+   471.6,
+   -12.85,
+   12.85
+  ],
+  [
+   516.7,
+   -12.75,
+   12.75
+  ]
+ ],
+ "epaisseur": 1.6,
+ "epaisseur_appuis": 3.2,
+ "gousset": 30,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.15
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 51.0,
+   "forme": "double",
+   "long": 2.3,
+   "larg": 6.2,
+   "larg_colonne": 2.3,
+   "z_bas": 236.8
+  },
+  {
+   "type": "pile",
+   "s": 145.5,
+   "forme": "double",
+   "long": 2.3,
+   "larg": 6.2,
+   "larg_colonne": 2.3,
+   "z_bas": 236.3
+  },
+  {
+   "type": "pile",
+   "s": 216,
+   "forme": "double",
+   "long": 2.3,
+   "larg": 20,
+   "larg_colonne": 2.3,
+   "z_bas": 238.8
+  },
+  {
+   "type": "pile",
+   "s": 282,
+   "forme": "double",
+   "long": 2.3,
+   "larg": 20,
+   "larg_colonne": 2.3,
+   "z_bas": 238.8
+  },
+  {
+   "type": "pile",
+   "s": 345.5,
+   "forme": "double",
+   "long": 2.3,
+   "larg": 20,
+   "larg_colonne": 2.3,
+   "z_bas": 238.8
+  },
+  {
+   "type": "pile",
+   "s": 414.5,
+   "forme": "double",
+   "long": 2.3,
+   "larg": 20,
+   "larg_colonne": 2.3,
+   "z_bas": 240.3
+  },
+  {
+   "type": "pile",
+   "s": 463.5,
+   "forme": "double",
+   "long": 2.3,
+   "larg": 20,
+   "larg_colonne": 2.3,
+   "z_bas": 237.5
+  },
+  {
+   "type": "culee",
+   "s": 517.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://commons.wikimedia.org/wiki/File:A13-Br%C3%BCcke_%C3%BCber_den_Tessin,_Castione_TI_%E2%80%93_Gorduno_TI_20250620-jag9889.jpg",
+  "https://structurae.net/en/structures/viadotto-ticino-foce-moesa"
+ ],
+ "photo": {
+  "fichier": "a13.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:A13-Br%C3%BCcke_%C3%BCber_den_Tessin,_Castione_TI_%E2%80%93_Gorduno_TI_20250620-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 2,
+ "confiance": "faible",
+ "notes": "Axe de la maquette recentré sur l'emprise du tablier mesuré (classe 17) : chaussée A13 de 11,5 m seule jusqu'à s≈60, puis jumelée avec la rampe voisine (second tablier, o +8..+24, s 10-120, non modélisé avant s 68 ; la fente est comblée de s 68 à 122) jusqu'à 21-23 m de large ; élargissements aux deux bouts (rampes). Piles : seules deux paires de colonnes rondes (s 51 et 145,5, rives du Tessin) sont vues sur la photo Commons (Jag9889, 2025) ; les piles terrestres (s 216, 282, 345, 414, 463) sont déduites de points d'appui des deux bords du tablier au laser (portées de 63-69 m) et de formes supposées ('double' de 20 m), leurs têtes ne sont pas vues. Épaisseur du tablier (1,6 m en travée, 3,2 m aux piles, goussets de 30 m) estimée sur la photo, non mesurable au laser. Relevé LAS 2020 (pas de COPC au Tessin) : tablier à -0,06 m, 85,7 % des points d'ouvrage à moins de 1,5 m ; 'Terrain de la maquette' : conflit s 4..6 m (culée, rampe, sol de 0,7 m au-dessus du dessous du tablier) non masqué ; et le sol interpolé par l'appli sous le tablier (≈231 m, niveau de l'eau) est à 8 m sous le terrain laser (239 m) pour s>200 : toutes les piles sont signalées 'au-dessus du sol' alors que leurs pieds sont au terrain mesuré. Calage photo : seulement 4 points (sommets des colonnes des deux piles, un pied), caméra imposée par XY/Z (photographe sur la passerelle amont), 8 px de résidu moyen ; le rendu place la pile ouest ~12 m trop au nord-est (déplacée à s 51 d'après le laser), tablier plus bas de ~10 px que sur la photo ; le schéma ne sait pas faire le tablier à hauteur variable en courbe (intrados parabolique) ni le second tablier jumeau.",
+ "remblai": [
+  [
+   0,
+   10
+  ]
+ ]
+}

@@ -54,7 +54,7 @@
    "type": "pile",
    "s": 15.7,
    "forme": "rect",
-   "long": 3.4,
+   "long": 2.3,
    "larg": 4.2,
    "z_bas": 481.6,
    "materiau": "pierre"
@@ -63,7 +63,7 @@
    "type": "pile",
    "s": 26.4,
    "forme": "rect",
-   "long": 3.4,
+   "long": 2.3,
    "larg": 4.2,
    "z_bas": 480.0,
    "materiau": "pierre"
@@ -72,7 +72,7 @@
    "type": "pile",
    "s": 37.1,
    "forme": "rect",
-   "long": 3.4,
+   "long": 2.3,
    "larg": 4.2,
    "z_bas": 480.3,
    "materiau": "pierre"
@@ -81,7 +81,7 @@
    "type": "pile",
    "s": 47.8,
    "forme": "rect",
-   "long": 3.4,
+   "long": 2.3,
    "larg": 4.2,
    "z_bas": 479.4,
    "materiau": "pierre"
@@ -90,7 +90,7 @@
    "type": "pile",
    "s": 58.5,
    "forme": "rect",
-   "long": 3.4,
+   "long": 2.3,
    "larg": 4.2,
    "z_bas": 480.0,
    "materiau": "pierre"
@@ -99,7 +99,7 @@
    "type": "pile",
    "s": 69.2,
    "forme": "rect",
-   "long": 3.4,
+   "long": 2.3,
    "larg": 4.2,
    "z_bas": 480.0,
    "materiau": "pierre"
@@ -108,7 +108,7 @@
    "type": "pile",
    "s": 79.9,
    "forme": "rect",
-   "long": 3.4,
+   "long": 2.3,
    "larg": 4.2,
    "z_bas": 480.0,
    "materiau": "pierre"
@@ -117,7 +117,7 @@
    "type": "pile",
    "s": 90.6,
    "forme": "rect",
-   "long": 3.4,
+   "long": 2.3,
    "larg": 4.2,
    "z_bas": 480.0,
    "materiau": "pierre"
@@ -126,7 +126,7 @@
    "type": "pile",
    "s": 101.3,
    "forme": "rect",
-   "long": 3.4,
+   "long": 2.3,
    "larg": 4.2,
    "z_bas": 478.4,
    "materiau": "pierre"
@@ -135,7 +135,7 @@
    "type": "pile",
    "s": 112.0,
    "forme": "rect",
-   "long": 3.4,
+   "long": 2.3,
    "larg": 4.2,
    "z_bas": 480.0,
    "materiau": "pierre"
@@ -144,7 +144,7 @@
    "type": "pile",
    "s": 122.7,
    "forme": "rect",
-   "long": 3.4,
+   "long": 2.3,
    "larg": 4.2,
    "z_bas": 479.1,
    "materiau": "pierre"
@@ -254,7 +254,7 @@
  "arches": [
   {
    "s0": 0.0,
-   "s1": 14.15,
+   "s1": 14.7,
    "z_naissance": 482.6,
    "z_cle": 485.06,
    "forme": "cintre",
@@ -264,9 +264,9 @@
    "materiau": "pierre"
   },
   {
-   "s0": 17.25,
-   "s1": 24.85,
-   "z_naissance": 481.47,
+   "s0": 16.7,
+   "s1": 25.4,
+   "z_naissance": 480.92,
    "z_cle": 485.27,
    "forme": "cintre",
    "epaisseur": 0.9,
@@ -275,9 +275,9 @@
    "materiau": "pierre"
   },
   {
-   "s0": 27.95,
-   "s1": 35.55,
-   "z_naissance": 481.63,
+   "s0": 27.4,
+   "s1": 36.1,
+   "z_naissance": 481.08,
    "z_cle": 485.43,
    "forme": "cintre",
    "epaisseur": 0.9,
@@ -286,9 +286,9 @@
    "materiau": "pierre"
   },
   {
-   "s0": 38.65,
-   "s1": 46.25,
-   "z_naissance": 481.79,
+   "s0": 38.1,
+   "s1": 46.8,
+   "z_naissance": 481.24,
    "z_cle": 485.59,
    "forme": "cintre",
    "epaisseur": 0.9,
@@ -297,9 +297,9 @@
    "materiau": "pierre"
   },
   {
-   "s0": 49.35,
-   "s1": 56.95,
-   "z_naissance": 481.95,
+   "s0": 48.8,
+   "s1": 57.5,
+   "z_naissance": 481.4,
    "z_cle": 485.75,
    "forme": "cintre",
    "epaisseur": 0.9,
@@ -308,9 +308,9 @@
    "materiau": "pierre"
   },
   {
-   "s0": 60.05,
-   "s1": 67.65,
-   "z_naissance": 482.11,
+   "s0": 59.5,
+   "s1": 68.2,
+   "z_naissance": 481.56,
    "z_cle": 485.91,
    "forme": "cintre",
    "epaisseur": 0.9,
@@ -319,9 +319,9 @@
    "materiau": "pierre"
   },
   {
-   "s0": 70.75,
-   "s1": 78.35,
-   "z_naissance": 482.27,
+   "s0": 70.2,
+   "s1": 78.9,
+   "z_naissance": 481.72,
    "z_cle": 486.07,
    "forme": "cintre",
    "epaisseur": 0.9,
@@ -330,9 +330,9 @@
    "materiau": "pierre"
   },
   {
-   "s0": 81.45,
-   "s1": 89.05,
-   "z_naissance": 482.43,
+   "s0": 80.9,
+   "s1": 89.6,
+   "z_naissance": 481.88,
    "z_cle": 486.23,
    "forme": "cintre",
    "epaisseur": 0.9,
@@ -341,9 +341,9 @@
    "materiau": "pierre"
   },
   {
-   "s0": 92.15,
-   "s1": 99.75,
-   "z_naissance": 482.59,
+   "s0": 91.6,
+   "s1": 100.3,
+   "z_naissance": 482.04,
    "z_cle": 486.39,
    "forme": "cintre",
    "epaisseur": 0.9,
@@ -352,9 +352,9 @@
    "materiau": "pierre"
   },
   {
-   "s0": 102.85,
-   "s1": 110.45,
-   "z_naissance": 482.75,
+   "s0": 102.3,
+   "s1": 111.0,
+   "z_naissance": 482.2,
    "z_cle": 486.55,
    "forme": "cintre",
    "epaisseur": 0.9,
@@ -363,9 +363,9 @@
    "materiau": "pierre"
   },
   {
-   "s0": 113.55,
-   "s1": 121.15,
-   "z_naissance": 482.91,
+   "s0": 113.0,
+   "s1": 121.7,
+   "z_naissance": 482.36,
    "z_cle": 486.71,
    "forme": "cintre",
    "epaisseur": 0.9,
@@ -374,9 +374,9 @@
    "materiau": "pierre"
   },
   {
-   "s0": 124.25,
+   "s0": 123.7,
    "s1": 131.35,
-   "z_naissance": 483.33,
+   "z_naissance": 483.05,
    "z_cle": 486.88,
    "forme": "cintre",
    "epaisseur": 0.9,

@@ -1,28 +1,43 @@
 {
- "nom": "Pont routier et tram sur la Wiese (10m Strasse), Bâle",
+ "nom": "Gärtnerstrassenbrücke (pont de la Gärtnerstrasse sur la Wiese), Bâle",
  "axe": [
   [
-   2611622.5,
-   1270072.1,
+   2611610.2,
+   1270015.1,
+   250.85
+  ],
+  [
+   2611611.05,
+   1270021.04,
+   250.74
+  ],
+  [
+   2611613.03,
+   1270034.9,
+   250.88
+  ],
+  [
+   2611615.01,
+   1270048.76,
+   250.97
+  ],
+  [
+   2611616.71,
+   1270060.64,
+   250.89
+  ],
+  [
+   2611618.5,
+   1270073.2,
    250.8
-  ],
-  [
-   2611618.4,
-   1270055.4,
-   251.1
-  ],
-  [
-   2611609.1,
-   1270022.4,
-   250.7
   ]
  ],
- "largeur": 21.0,
- "epaisseur": 1.3,
+ "largeur": 18.0,
+ "epaisseur": 1.1,
  "garde_corps": {
-  "hauteur": 0.9,
+  "hauteur": 1.1,
   "plein": true,
-  "epaisseur": 0.5
+  "epaisseur": 0.35
  },
  "appuis": [
   {
@@ -31,18 +46,130 @@
   },
   {
    "type": "culee",
-   "s": 51.5
+   "s": 58.7
   }
  ],
  "arches": [],
  "pylones": [],
  "elements": [],
  "sources": [
-  "https://wms.geo.admin.ch/ (swissimage)",
-  "swissTLM3D (axe)",
-  "swissALTI3D (terrain via api3.geo.admin.ch/height)"
+  "https://www.bs.ch/medienmitteilungen/bvd/2010-neue-gaertnerstrassenbruecke-im-2011-projekt-primavera-ausgewaehlt (projet « Primavera », Implenia, 2011 : bouts asymétriques, aucune pile dans la Wiese, mur de rive en pierre prolongé sous le pont)",
+  "https://structurae.net/en/structures/gartnerstrasse-bridge (pont à poutre en béton, route + tram)",
+  "OpenStreetMap (way 25123263 Gärtnerstrasse bridge=yes ; ways 312442310 et 312442314 tram BVB 8, 2014)",
+  "mfa / Mapillary (CC BY-SA 4.0), image 980018648374135 (2026, bout sud, côté amont/est : parapet béton)",
+  "TechniPorter / Mapillary (CC BY-SA 4.0), image 1394877218460855 (2025, depuis le bout nord sur la chaussée vers le sud)",
+  "swissSURFACE3D 2023 (dalle LAS 2611-1270, pas de COPC à Bâle) ; swissimage ; swissTLM3D"
  ],
- "photos_vues": 0,
- "confiance": "faible",
- "notes": "Non vérifié au laser (Bâle sans COPC) : pont urbain large (route + tram, ~21 m d'après l'orthophoto), sans pile visible, épaisseur estimée ; le carrefour sous-jacent et les murs de rive ne sont pas modélisés. Longueur TLM 51,5 m, la rivière en occupe environ 25 m."
+ "photos_vues": 2,
+ "confiance": "moyenne",
+ "notes": "Gärtnerstrassenbrücke (2011, remplace le pont de 1896 pour le tram 8) : dalle/poutre béton d'une seule travée, très biaise sur la Wiese (~45°), sans pile ; calée au nuage swissSURFACE3D 2023 (dalle LAS 2611-1270) : chaussée 250,7-251,0, longueur 58,7 m le long de la rue, tablier en parallélogramme décrit par `bords` (o -14..+17, élargi côté ouest s 16-30), eau 245,1. Épaisseur 1,1 m estimée (aucun point sur les faces ni le dessous) ; parapets pleins en béton ~1,1 m (photos, points de main courante à 252,1). Photos : seulement deux vues Mapillary depuis la chaussée (bout sud côté amont, bout nord) ; AUCUNE vue de l'élévation ni du dessous sur Commons ou Mapillary (rives bordées d'arbres et de murs), forme de la sous-face et des culées biaises non vérifiée. Vérificateur : « Terrain de la maquette » signale s 4..22 et 44..54 (sol ≤ 1,1 m au-dessus du dessous du tablier) : ce sont les coins des culées biaises où le tablier repose sur la rive au niveau de la rue (le contrôle sonde à ±7,2 m de l'axe, hors du parallélogramme) ; conflit réel laissé tel quel. Le schéma ne sait pas faire de culées biaises : les sections dont un bord frôle la rive sont remplies jusqu'au sol, si bien que l'ouverture sur la Wiese peut paraître partiellement bouchée (libre surtout vers s 28–44).",
+ "bords": [
+  [
+   0,
+   -7.8,
+   -4.6
+  ],
+  [
+   2,
+   -8.0,
+   -3.3
+  ],
+  [
+   4,
+   -8.3,
+   -1.3
+  ],
+  [
+   8,
+   -8.6,
+   2.8
+  ],
+  [
+   12,
+   -9.1,
+   6.7
+  ],
+  [
+   16,
+   -9.5,
+   10.5
+  ],
+  [
+   20,
+   -9.8,
+   14.0
+  ],
+  [
+   24,
+   -10.2,
+   16.6
+  ],
+  [
+   28,
+   -10.6,
+   17.0
+  ],
+  [
+   29.5,
+   -10.8,
+   13.0
+  ],
+  [
+   31,
+   -11.0,
+   9.2
+  ],
+  [
+   36,
+   -11.6,
+   8.4
+  ],
+  [
+   42,
+   -12.2,
+   7.8
+  ],
+  [
+   46,
+   -13.6,
+   7.3
+  ],
+  [
+   48,
+   -14.2,
+   7.2
+  ],
+  [
+   50,
+   -11.7,
+   6.9
+  ],
+  [
+   52,
+   -8.3,
+   6.7
+  ],
+  [
+   54,
+   -3.9,
+   6.5
+  ],
+  [
+   56,
+   -1.5,
+   6.3
+  ],
+  [
+   58.7,
+   1.9,
+   6.2
+  ]
+ ],
+ "materiau": "beton",
+ "photo": {
+  "fichier": "a.jpg",
+  "page": "https://www.mapillary.com/app/?pKey=980018648374135",
+  "auteur": "mfa / Mapillary",
+  "licence": "CC BY-SA 4.0"
+ }
 }

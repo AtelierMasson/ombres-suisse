@@ -1,0 +1,553 @@
+{
+ "nom": "Viaduc sur la Suze / Schüssviadukt (A16 Transjurane), Bienne",
+ "axe": [
+  [
+   2586843.4,
+   1223091.6,
+   528.0
+  ],
+  [
+   2586813.4,
+   1223092.3,
+   528.8
+  ],
+  [
+   2586784.2,
+   1223098.2,
+   529.4
+  ],
+  [
+   2586754.2,
+   1223097.8,
+   531.0
+  ],
+  [
+   2586714.4,
+   1223102.2,
+   531.6
+  ],
+  [
+   2586696.4,
+   1223110.7,
+   531.9
+  ],
+  [
+   2586676.7,
+   1223115.5,
+   532.5
+  ],
+  [
+   2586648.0,
+   1223124.2,
+   532.7
+  ],
+  [
+   2586620.6,
+   1223136.6,
+   532.8
+  ],
+  [
+   2586599.2,
+   1223157.9,
+   533.1
+  ],
+  [
+   2586577.6,
+   1223178.7,
+   533.4
+  ],
+  [
+   2586570.4,
+   1223185.7,
+   533.5
+  ]
+ ],
+ "largeur": 23,
+ "epaisseur": 2.2,
+ "bords": [
+  [
+   0,
+   -5.5,
+   5.8
+  ],
+  [
+   37,
+   -5.0,
+   7.0
+  ],
+  [
+   48,
+   -11,
+   11
+  ],
+  [
+   140,
+   -10.2,
+   11.5
+  ],
+  [
+   148,
+   -6,
+   5.5
+  ],
+  [
+   155,
+   -5,
+   5
+  ],
+  [
+   232,
+   -5.2,
+   6.2
+  ],
+  [
+   245,
+   -7,
+   8.4
+  ],
+  [
+   256,
+   -10,
+   9.2
+  ],
+  [
+   300,
+   -10.5,
+   11
+  ]
+ ],
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 104,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17,
+   "larg_colonne": 5.0,
+   "z_bas": 521.5
+  },
+  {
+   "type": "pile",
+   "s": 124,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17,
+   "larg_colonne": 5.0,
+   "z_bas": 522.5
+  },
+  {
+   "type": "pile",
+   "s": 152,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 7,
+   "t": -1.5,
+   "z_bas": 524.5
+  },
+  {
+   "type": "pile",
+   "s": 178,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 7,
+   "t": -1.5,
+   "z_bas": 525.0
+  },
+  {
+   "type": "pile",
+   "s": 204,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 7,
+   "t": -1.5,
+   "z_bas": 525.0
+  },
+  {
+   "type": "pile",
+   "s": 230,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 7,
+   "t": -1.5,
+   "z_bas": 523.0
+  },
+  {
+   "type": "pile",
+   "s": 258,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 11,
+   "t": -1.0,
+   "z_bas": 524.0
+  },
+  {
+   "type": "pile",
+   "s": 282,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 11,
+   "t": -1.0,
+   "z_bas": 523.0
+  },
+  {
+   "type": "culee",
+   "s": 300
+  }
+ ],
+ "arches": [
+  {
+   "s0": 14,
+   "s1": 90,
+   "z_naissance": 500,
+   "z_cle": 520,
+   "epaisseur": 2.4,
+   "larg": 8,
+   "profil": [
+    [
+     14.0,
+     500.0,
+     503.48,
+     8.0,
+     0.0
+    ],
+    [
+     22.4,
+     507.9,
+     510.95,
+     8.0,
+     0.0
+    ],
+    [
+     30.9,
+     513.83,
+     516.56,
+     8.0,
+     0.0
+    ],
+    [
+     39.3,
+     517.78,
+     520.3,
+     8.0,
+     1.19
+    ],
+    [
+     47.8,
+     519.75,
+     522.17,
+     8.0,
+     4.2
+    ],
+    [
+     56.2,
+     519.75,
+     522.17,
+     8.0,
+     5.7
+    ],
+    [
+     64.7,
+     517.78,
+     520.3,
+     8.0,
+     5.7
+    ],
+    [
+     73.1,
+     513.83,
+     516.56,
+     8.0,
+     5.7
+    ],
+    [
+     81.6,
+     507.9,
+     510.95,
+     8.0,
+     5.7
+    ],
+    [
+     90.0,
+     500.0,
+     503.48,
+     8.0,
+     5.7
+    ]
+   ]
+  },
+  {
+   "s0": 44,
+   "s1": 102,
+   "z_naissance": 510,
+   "z_cle": 521,
+   "epaisseur": 2.2,
+   "larg": 8,
+   "profil": [
+    [
+     44.0,
+     510.0,
+     513.19,
+     8.0,
+     -5.7
+    ],
+    [
+     50.4,
+     514.35,
+     517.14,
+     8.0,
+     -5.7
+    ],
+    [
+     56.9,
+     517.6,
+     520.11,
+     8.0,
+     -5.7
+    ],
+    [
+     63.3,
+     519.78,
+     522.09,
+     8.0,
+     -5.7
+    ],
+    [
+     69.8,
+     520.86,
+     523.08,
+     8.0,
+     -5.7
+    ],
+    [
+     76.2,
+     520.86,
+     523.08,
+     8.0,
+     -5.7
+    ],
+    [
+     82.7,
+     519.78,
+     522.09,
+     8.0,
+     -5.7
+    ],
+    [
+     89.1,
+     517.6,
+     520.11,
+     8.0,
+     -5.7
+    ],
+    [
+     95.6,
+     514.35,
+     517.14,
+     8.0,
+     -5.7
+    ],
+    [
+     102.0,
+     510.0,
+     513.19,
+     8.0,
+     -5.7
+    ]
+   ]
+  }
+ ],
+ "elements": [
+  {
+   "de": [
+    23.5,
+    0.0,
+    511.4
+   ],
+   "a": [
+    23.5,
+    0.0,
+    "tablier"
+   ],
+   "larg": 3.6,
+   "ep": 1.6
+  },
+  {
+   "de": [
+    33.0,
+    0.0,
+    517.2
+   ],
+   "a": [
+    33.0,
+    0.0,
+    "tablier"
+   ],
+   "larg": 3.6,
+   "ep": 1.6
+  },
+  {
+   "de": [
+    42.5,
+    2.3,
+    520.7
+   ],
+   "a": [
+    42.5,
+    2.3,
+    "tablier"
+   ],
+   "larg": 3.6,
+   "ep": 1.6
+  },
+  {
+   "de": [
+    52.0,
+    5.7,
+    521.9
+   ],
+   "a": [
+    52.0,
+    5.7,
+    "tablier"
+   ],
+   "larg": 3.6,
+   "ep": 1.6
+  },
+  {
+   "de": [
+    61.5,
+    5.7,
+    520.7
+   ],
+   "a": [
+    61.5,
+    5.7,
+    "tablier"
+   ],
+   "larg": 3.6,
+   "ep": 1.6
+  },
+  {
+   "de": [
+    71.0,
+    5.7,
+    517.2
+   ],
+   "a": [
+    71.0,
+    5.7,
+    "tablier"
+   ],
+   "larg": 3.6,
+   "ep": 1.6
+  },
+  {
+   "de": [
+    80.5,
+    5.7,
+    511.4
+   ],
+   "a": [
+    80.5,
+    5.7,
+    "tablier"
+   ],
+   "larg": 3.6,
+   "ep": 1.6
+  },
+  {
+   "de": [
+    53.7,
+    -5.7,
+    518.3
+   ],
+   "a": [
+    53.7,
+    -5.7,
+    "tablier"
+   ],
+   "larg": 3.6,
+   "ep": 1.6
+  },
+  {
+   "de": [
+    63.3,
+    -5.7,
+    521.8
+   ],
+   "a": [
+    63.3,
+    -5.7,
+    "tablier"
+   ],
+   "larg": 3.6,
+   "ep": 1.6
+  },
+  {
+   "de": [
+    73.0,
+    -5.7,
+    522.8
+   ],
+   "a": [
+    73.0,
+    -5.7,
+    "tablier"
+   ],
+   "larg": 3.6,
+   "ep": 1.6
+  },
+  {
+   "de": [
+    82.7,
+    -5.7,
+    521.8
+   ],
+   "a": [
+    82.7,
+    -5.7,
+    "tablier"
+   ],
+   "larg": 3.6,
+   "ep": 1.6
+  },
+  {
+   "de": [
+    92.3,
+    -5.7,
+    518.3
+   ],
+   "a": [
+    92.3,
+    -5.7,
+    "tablier"
+   ],
+   "larg": 3.6,
+   "ep": 1.6
+  }
+ ],
+ "pylones": [],
+ "sources": [
+  "https://de.wikipedia.org/wiki/Sch%C3%BCssviadukt",
+  "https://commons.wikimedia.org/wiki/Category:Viaduc_sur_la_Suze",
+  "https://commons.wikimedia.org/wiki/File:A16-Br%C3%BCcken_%C3%BCber_die_Sch%C3%BCss,_Biel_BE_20220731-jag9889.jpg"
+ ],
+ "photos_vues": 6,
+ "confiance": "faible",
+ "notes": "Laser swissSURFACE3D 2023 (LAS, pas de COPC) : axe recentré sur les deux tabliers de l'A16 (Talspur et Bergspur, 11 m chacun, fente de 2 m non rendue, un seul tablier de 22 m entre s 48 et 148 via bords) ; arcs de la gorge (s 14-90 et 44-102), montants et piles sous le tablier posés d'après les photos Commons et les rives, non visibles au laser (naissances/clés estimées, confiance faible). Conflits de terrain restants : s 4-34 (le sol de la maquette, talus des portails de tunnel au nord, monte de 12,8 m au-dessus du dessous du tablier hors de l'emprise réelle de 11 m) et s 138-254 (+3 m) ; sous le tablier l'application étend l'eau à 485 m (piles s 152-282 signalées flottantes, vrai terrain 523-525 m : rail et route). Le schéma ne rend pas la fente entre tabliers ni les deux carrefours à rampes ; pas de calage photo numérique convergé (vue d'ensemble prise depuis l'ouest, points non repérables).",
+ "photo": {
+  "fichier": "v01.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Viaduc_sur_la_Suze_01.jpg",
+  "auteur": "Arkelin",
+  "licence": "CC BY-SA"
+ }
+}

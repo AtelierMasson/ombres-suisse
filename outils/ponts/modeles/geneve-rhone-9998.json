@@ -1,24 +1,63 @@
 {
- "nom": "Pont sur le Rhône (large tablier), Genève",
+ "nom": "Pont de l'Île (bras droit), Genève",
  "axe": [
   [
-   2499977.0,
-   1117916.9,
-   374.1
+   2500005.05,
+   1117917.56,
+   374.16
   ],
   [
-   2499997.5,
-   1117936.2,
-   374.1
+   2499996.72,
+   1117935.42,
+   374.17
   ],
   [
-   2500018.1,
-   1117955.5,
-   374.1
+   2499988.4,
+   1117953.27,
+   374.16
   ]
  ],
- "largeur": 42.7,
- "epaisseur": 2.4,
+ "largeur": 45.0,
+ "bords": [
+  [
+   0,
+   -21.0,
+   21.8
+  ],
+  [
+   4,
+   -21.8,
+   21.4
+  ],
+  [
+   12,
+   -22.8,
+   20.6
+  ],
+  [
+   20,
+   -23.8,
+   19.8
+  ],
+  [
+   28,
+   -24.8,
+   20.1
+  ],
+  [
+   36,
+   -25.5,
+   21.3
+  ],
+  [
+   39.4,
+   -25.8,
+   22.0
+  ]
+ ],
+ "epaisseur": 0.8,
+ "epaisseur_appuis": 1.2,
+ "gousset": 10,
  "garde_corps": {
   "hauteur": 1.1,
   "plein": false,
@@ -30,17 +69,55 @@
    "s": 0
   },
   {
+   "type": "pile",
+   "s": 19.7,
+   "t": -1.5,
+   "z_bas": 367.6,
+   "amont": -1,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 39.0,
+     "nez_amont": 0.9,
+     "nez_aval": 0.9
+    },
+    {
+     "z": "tablier",
+     "dz": -0.05,
+     "forme": "rond",
+     "long": 1.6,
+     "larg": 39.0,
+     "nez_amont": 0.8,
+     "nez_aval": 0.8
+    }
+   ]
+  },
+  {
    "type": "culee",
-   "s": 56.4
+   "s": 39.4
   }
  ],
  "arches": [],
  "pylones": [],
- "confiance": "faible",
- "notes": "Tablier tres large (41,8 m) et plat, mesure au laser sur 56 m ; l'axe TLM (33 m, N-S) ne correspond pas au tablier mesure. Piles, elements sous le tablier et nom exact non identifies (aucune photo).",
+ "materiau": "beton",
+ "confiance": "moyenne",
+ "notes": "Bras droit des Ponts de l'Île (Île - Quai des Bergues/Saint-Gervais) : dalle béton biaise très large (~44 m) sur deux travées, une pile-voile longue à becs arrondis au milieu du bras (vue sur photo, non touchée par le laser), garde-corps ajourés ; axe refait perpendiculaire au bras (l'ancien axe était la diagonale du tablier), bords tirés du nuage. Incertains : profondeur du pied de pile (fond de la maquette), épaisseur et gousset de la dalle (estimés sur photo), bout sud réellement biais (~7 m d'écart d'un bord à l'autre, le schéma garde des bouts perpendiculaires) ; le 50 % du vérificateur vient des bâtiments des deux rives dans le couloir, 98 % des points dans l'emprise du tablier sont à < 1,5 m.",
  "sources": [
-  "swissSURFACE3D",
-  "swissTLM3D"
+  "swissSURFACE3D 2025",
+  "swissTLM3D",
+  "swissimage",
+  "https://commons.wikimedia.org/wiki/Category:Ponts_de_l%27%C3%8Ele",
+  "Photo aval : Mike Peel, « At Geneva 2024 329.jpg », Wikimedia Commons, CC BY-SA 4.0",
+  "Photo amont : « Ponts de l'Île @ Genève (50686131468).jpg », Wikimedia Commons (Flickr)",
+  "Photo pile : « Ponts Ile Genève.JPG », Wikimedia Commons"
  ],
- "photos_vues": 0
+ "photos_vues": 3,
+ "photo": {
+  "fichier": "aval-quai-turrettini.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:At_Geneva_2024_329.jpg",
+  "auteur": "Mike Peel",
+  "licence": "CC BY-SA 4.0"
+ }
 }

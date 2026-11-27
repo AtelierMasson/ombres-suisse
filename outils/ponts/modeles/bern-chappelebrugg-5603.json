@@ -1,0 +1,259 @@
+{
+ "nom": "Kappelenbrücke (Chappelebrügg), Bern - Hinterkappelen",
+ "axe": [
+  [
+   2595540.7,
+   1201655.9,
+   496.85
+  ],
+  [
+   2595659.3,
+   1201529.5,
+   490.85
+  ]
+ ],
+ "largeur": 11.7,
+ "largeur_dessous": 8.0,
+ "epaisseur": 0.9,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0,
+  "materiau": "acier"
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 6.6,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 8.0,
+   "z_bas": 479.3,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 18.7,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 8.0,
+   "z_bas": 479.3,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 31.7,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 8.0,
+   "z_bas": 479.3,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 44.4,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 8.0,
+   "z_bas": 479.3,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 46.3,
+   "forme": "rect",
+   "long": 2.6,
+   "larg": 12.0,
+   "z_bas": 479.3,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 95.0,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 12.0,
+   "z_bas": 479.3,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 109.0,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 8.0,
+   "z_bas": 479.3,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 122.8,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 8.0,
+   "z_bas": 479.3,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 136.5,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 8.0,
+   "z_bas": 479.3,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 150.1,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 8.0,
+   "z_bas": 479.3,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 164.4,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 8.0,
+   "z_bas": 479.3,
+   "materiau": "beton"
+  },
+  {
+   "type": "culee",
+   "s": 173.3
+  }
+ ],
+ "arches": [
+  {
+   "s0": 5.6,
+   "s1": 17.8,
+   "z_naissance": 489.6,
+   "z_cle": 494.9,
+   "epaisseur": 0.7,
+   "larg": 8.0,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "beton"
+  },
+  {
+   "s0": 19.6,
+   "s1": 30.8,
+   "z_naissance": 488.4,
+   "z_cle": 492.9,
+   "epaisseur": 0.7,
+   "larg": 8.0,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "beton"
+  },
+  {
+   "s0": 32.6,
+   "s1": 43.6,
+   "z_naissance": 488.4,
+   "z_cle": 492.9,
+   "epaisseur": 0.7,
+   "larg": 8.0,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "beton"
+  },
+  {
+   "s0": 47.6,
+   "s1": 94.0,
+   "z_naissance": 482.8,
+   "z_cle": 491.7,
+   "epaisseur": 1.3,
+   "larg": 8.0,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "beton"
+  },
+  {
+   "s0": 95.9,
+   "s1": 108.1,
+   "z_naissance": 485.5,
+   "z_cle": 491.4,
+   "epaisseur": 0.7,
+   "larg": 8.0,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "beton"
+  },
+  {
+   "s0": 109.9,
+   "s1": 121.9,
+   "z_naissance": 485.5,
+   "z_cle": 491.4,
+   "epaisseur": 0.7,
+   "larg": 8.0,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "beton"
+  },
+  {
+   "s0": 123.7,
+   "s1": 135.6,
+   "z_naissance": 485.5,
+   "z_cle": 491.4,
+   "epaisseur": 0.7,
+   "larg": 8.0,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "beton"
+  },
+  {
+   "s0": 137.4,
+   "s1": 149.3,
+   "z_naissance": 485.5,
+   "z_cle": 491.4,
+   "epaisseur": 0.7,
+   "larg": 8.0,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "beton"
+  },
+  {
+   "s0": 150.9,
+   "s1": 163.5,
+   "z_naissance": 486.0,
+   "z_cle": 491.6,
+   "epaisseur": 0.7,
+   "larg": 8.0,
+   "plein": true,
+   "forme": "cintre",
+   "materiau": "beton"
+  }
+ ],
+ "pylones": [],
+ "remblai": [
+  [
+   0,
+   6
+  ],
+  [
+   164,
+   173.3
+  ]
+ ],
+ "sources": [
+  "https://de.wikipedia.org/wiki/Kappelenbr%C3%BCcke",
+  "https://structurae.net/en/structures/kappelenbrucke",
+  "https://commons.wikimedia.org/wiki/Category:Kappelenbr%C3%BCcke"
+ ],
+ "photo": {
+  "fichier": "p2.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Chappelebr%C3%BCgg02.JPG",
+  "auteur": "Wikimedia Commons (Chappelebrügg02.JPG)",
+  "licence": "CC BY-SA 3.0"
+ },
+ "photos_vues": 5,
+ "confiance": "moyenne",
+ "notes": "Kappelenbrücke (1920, béton, 174 m) : grand arc central de 46 m (naissances au ras de l'eau, flèche 9 m) entre deux pilastres pleine largeur, quatre petits arcs en plein cintre de 12 m côté sud-est plus un cinquième sur la rive, trois arcs de rive côté nord-ouest dont les deux derniers sur piles à naissance haute (z 488) ; arcs de 8 m de large, pilastres et tablier de 11,7 m (trottoirs sur consoles métalliques). Incertain : épaisseur des couronnements, arcs de rive nord-ouest et sud-est (cachés par la rive boisée), consoles non modélisées (le schéma n'a que largeur_dessous) ; relevé 2023 en LAS lu hors ligne ; photo calée sur p2 seulement (position du photographe mal contrainte, résidus 13 px)."
+}

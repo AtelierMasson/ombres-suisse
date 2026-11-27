@@ -1,0 +1,98 @@
+{
+ "nom": "Pont sur le Rhône (route de Bramois / Sion-Est), Sion",
+ "axe": [
+  [
+   2595136.3,
+   1120653.6,
+   494.1
+  ],
+  [
+   2595132.0,
+   1120656.1,
+   494.3
+  ],
+  [
+   2595093.3,
+   1120679.0,
+   496.8
+  ],
+  [
+   2595054.5,
+   1120701.8,
+   499.15
+  ],
+  [
+   2595015.7,
+   1120724.7,
+   500.8
+  ],
+  [
+   2594977.5,
+   1120748.5,
+   501.7
+  ],
+  [
+   2594951.0,
+   1120762.6,
+   501.8
+  ],
+  [
+   2594944.9,
+   1120766.1,
+   501.7
+  ]
+ ],
+ "largeur": 20.0,
+ "largeur_dessous": 10.0,
+ "epaisseur": 1.7,
+ "epaisseur_appuis": 4.2,
+ "gousset": 20,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 92,
+   "forme": "rect",
+   "long": 3.0,
+   "larg": 8.0,
+   "z_bas": 485.0
+  },
+  {
+   "type": "pile",
+   "s": 143,
+   "forme": "rect",
+   "long": 3.0,
+   "larg": 8.0,
+   "z_bas": 485.0
+  },
+  {
+   "type": "culee",
+   "s": 222
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2022 (tuiles 2594-1120 et 2595-1120, LAS lues localement)",
+  "https://wms.geo.admin.ch (swissimage)",
+  "Mapillary (keigan, oeschinen)",
+  "Commons: Rhone Valley from Tourbillon Castle (1).jpg (Tournasol7, CC BY-SA 4.0)"
+ ],
+ "photos_vues": 4,
+ "confiance": "moyenne",
+ "notes": "Calé sur le nuage swissSURFACE3D 2022 (tuiles LAS lues localement, supprimées) : tablier à -0,09 m, 91 % des points d'ouvrage à moins de 1,5 m, aucun conflit de terrain, piles non flottantes ; remblai [0,10] pour la rampe SE. Dalle béton à hauteur variable (gousset aux deux piles de rive, vues Mapillary), piles-voiles posées sur les berges ; le carrefour/bretelles du bout NW (largeur 40 à 80 m, s 170-200), la petite travée sur la voie ferrée près de l'extrémité NW et la forme réelle des fûts (colonnes rondes sur voile) ne sont pas modélisés, la largeur du caisson (10 m) et les épaisseurs sont estimées. Calage photo sur la seule vue d'ensemble (Tourbillon, Commons, 4 points = têtes et pieds de piles, caméra EXIF) : résidu 4,8 px, la superposition place pont et rivière à ~10-20 px près mais le rendu local est trop distant pour juger les épaisseurs.",
+ "remblai": [
+  [
+   0,
+   10
+  ]
+ ]
+}

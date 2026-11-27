@@ -1,0 +1,455 @@
+{
+ "nom": "Pont de la Torretta et giratoire du semi-échangeur A2 de Bellinzone (via Tatti), sur le Tessin",
+ "axe": [
+  [
+   2721005.1,
+   1116782.3,
+   230.4
+  ],
+  [
+   2721045.4,
+   1116767.3,
+   231.85
+  ],
+  [
+   2721092.2,
+   1116749.8,
+   232.72
+  ],
+  [
+   2721132.5,
+   1116734.8,
+   233.0
+  ],
+  [
+   2721185.9,
+   1116714.9,
+   232.7
+  ],
+  [
+   2721223.4,
+   1116701.0,
+   231.95
+  ],
+  [
+   2721247.8,
+   1116691.9,
+   231.35
+  ]
+ ],
+ "largeur": 21.0,
+ "epaisseur": 1.4,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.08
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0.5
+  },
+  {
+   "type": "pile",
+   "s": 24,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 14,
+   "larg_colonne": 2.2,
+   "z_bas": 224.4,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 46,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 14,
+   "larg_colonne": 2.2,
+   "z_bas": 224.4,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 124,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 14,
+   "larg_colonne": 2.2,
+   "z_bas": 217.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 172,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 14,
+   "larg_colonne": 2.2,
+   "z_bas": 217.5,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 200,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 14,
+   "larg_colonne": 2.2,
+   "z_bas": 223.1,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 228,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 14,
+   "larg_colonne": 2.2,
+   "z_bas": 223.2,
+   "materiau": "beton"
+  },
+  {
+   "type": "culee",
+   "s": 258.5
+  },
+  {
+   "type": "pile",
+   "s": 94.21,
+   "t": 19.2,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "z_bas": 225.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 73.79,
+   "t": 19.2,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "z_bas": 225.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 73.79,
+   "t": -19.2,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "z_bas": 225.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 94.21,
+   "t": -19.2,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "z_bas": 225.0,
+   "materiau": "beton"
+  }
+ ],
+ "elements": [
+  {
+   "de": [
+    103.6,
+    9.44,
+    232.2
+   ],
+   "a": [
+    101.0,
+    13.56,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    101.0,
+    13.56,
+    232.2
+   ],
+   "a": [
+    97.56,
+    17.0,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    97.56,
+    17.0,
+    232.2
+   ],
+   "a": [
+    93.44,
+    19.6,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    93.44,
+    19.6,
+    232.2
+   ],
+   "a": [
+    88.84,
+    21.2,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    88.84,
+    21.2,
+    232.2
+   ],
+   "a": [
+    84.0,
+    21.75,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    84.0,
+    21.75,
+    232.2
+   ],
+   "a": [
+    79.16,
+    21.2,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    79.16,
+    21.2,
+    232.2
+   ],
+   "a": [
+    74.56,
+    19.6,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    74.56,
+    19.6,
+    232.2
+   ],
+   "a": [
+    70.44,
+    17.0,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    70.44,
+    17.0,
+    232.2
+   ],
+   "a": [
+    67.0,
+    13.56,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    67.0,
+    13.56,
+    232.2
+   ],
+   "a": [
+    64.4,
+    9.44,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    64.4,
+    -9.44,
+    232.2
+   ],
+   "a": [
+    67.0,
+    -13.56,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    67.0,
+    -13.56,
+    232.2
+   ],
+   "a": [
+    70.44,
+    -17.0,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    70.44,
+    -17.0,
+    232.2
+   ],
+   "a": [
+    74.56,
+    -19.6,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    74.56,
+    -19.6,
+    232.2
+   ],
+   "a": [
+    79.16,
+    -21.2,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    79.16,
+    -21.2,
+    232.2
+   ],
+   "a": [
+    84.0,
+    -21.75,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    84.0,
+    -21.75,
+    232.2
+   ],
+   "a": [
+    88.84,
+    -21.2,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    88.84,
+    -21.2,
+    232.2
+   ],
+   "a": [
+    93.44,
+    -19.6,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    93.44,
+    -19.6,
+    232.2
+   ],
+   "a": [
+    97.56,
+    -17.0,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    97.56,
+    -17.0,
+    232.2
+   ],
+   "a": [
+    101.0,
+    -13.56,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  },
+  {
+   "de": [
+    101.0,
+    -13.56,
+    232.2
+   ],
+   "a": [
+    103.6,
+    -9.44,
+    232.2
+   ],
+   "larg": 8.9,
+   "ep": 1.3
+  }
+ ],
+ "materiau": "beton",
+ "sources": [
+  "https://afry.com/it-ch/projet/a2-semisvincolo-bellinzona-un-ponte-verso-il-futuro",
+  "https://www.rsi.ch/info/ticino-grigioni-e-insubria/Semisvincolo-pienamente-operativo--2565955.html",
+  "Mapillary fcignat 2025"
+ ],
+ "photo": {
+  "fichier": "post1.jpg",
+  "page": "https://afry.com/it-ch/progetto/a2-semisvincolo-bellinzona-un-ponte-verso-il-futuro",
+  "auteur": "AFRY",
+  "licence": "reference de calage seulement"
+ },
+ "photos_vues": 8,
+ "confiance": "faible",
+ "notes": "Pont (Torretta, 260 m, ouvert 2023-2025) construit apres le releve laser 2020 (seul disponible, pas de COPC) : axe, altitudes de chaussee et terrain tires de l ancien tablier de 12 m, largeur 21 m et giratoire pris sur photos (AFRY/ASTRA, Mapillary fcignat 2025) ; piles et leurs positions estimees (non vues par le laser). Le schema ne sait pas faire un tablier annulaire : le tablier droit traverse l ilot du giratoire (trou de 35 m au-dessus de l A2) ; les bretelles du giratoire ne sont pas modelisees ; le sol de la maquette sous le tablier est abaisse a ~215 m (eau etendue sous le pont) alors que le terrain reel est a 224 m."
+}

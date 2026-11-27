@@ -1,78 +1,337 @@
 {
- "nom": "Pont sur l'Aare, Bienne (6m Strasse)",
+ "nom": "Pont de la Hauptstrasse sur l'Aare (canal Nidau-Büren), Brügg–Aegerten",
  "axe": [
   [
-   2588231.0,
-   1219145.0,
-   437.3
+   2588218.6,
+   1219166.1,
+   435.51
   ],
   [
-   2588258.0,
-   1219111.0,
-   437.3
+   2588230.0,
+   1219149.7,
+   436.11
   ],
   [
-   2588271.5,
-   1219089.9,
-   437.3
+   2588241.5,
+   1219133.3,
+   436.71
   ],
   [
-   2588285.0,
-   1219070.6,
-   437.1
+   2588252.9,
+   1219116.9,
+   437.11
   ],
   [
-   2588296.0,
-   1219054.9,
-   436.5
+   2588267.8,
+   1219095.6,
+   437.41
   ],
   [
-   2588307.7,
-   1219038.3,
-   435.4
+   2588281.5,
+   1219075.9,
+   437.21
+  ],
+  [
+   2588293.0,
+   1219059.5,
+   436.61
+  ],
+  [
+   2588304.4,
+   1219043.1,
+   435.81
+  ],
+  [
+   2588314.4,
+   1219028.7,
+   435.11
   ]
  ],
- "largeur": 11.0,
- "epaisseur": 1.3,
+ "largeur": 12.0,
+ "largeur_dessous": 6.6,
+ "epaisseur": 2.4,
  "garde_corps": {
-  "hauteur": 1.0,
-  "plein": true,
-  "epaisseur": 0.3
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.1
  },
  "appuis": [
   {
    "type": "culee",
-   "s": 0
+   "s": 34.0
   },
   {
    "type": "pile",
-   "s": 64,
-   "forme": "rect",
-   "long": 2.5,
-   "larg": 11.0,
-   "z_bas": 424.5
+   "s": 64.0,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 7.2,
+   "larg_colonne": 1.2,
+   "z_bas": 423.0
   },
   {
    "type": "pile",
-   "s": 84,
-   "forme": "rect",
-   "long": 2.5,
-   "larg": 11.0,
-   "z_bas": 424.5
+   "s": 121.0,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 7.2,
+   "larg_colonne": 1.2,
+   "z_bas": 423.0
   },
   {
    "type": "culee",
-   "s": 131.5
+   "s": 152.0
   }
+ ],
+ "remblai": [
+  [
+   0,
+   36
+  ],
+  [
+   150,
+   167.5
+  ]
  ],
  "arches": [],
  "pylones": [],
  "sources": [
+  "swissSURFACE3D 2023, tuile LAS 2588-1219 (data.geo.admin.ch), classes 17/6/1/2",
+  "swissTLM3D (Hauptstrasse / Bielstrasse), swissNAMES3D",
   "https://wms.geo.admin.ch (swissimage)",
-  "swissTLM3D",
-  "api3.geo.admin.ch height (swissALTI3D)"
+  "https://commons.wikimedia.org/wiki/File:Hauptstrasse-Brücke_über_den_Nidau-Büren-Kanal_(Aare),_Brügg_BE_–_Aegerten_BE_20241009-jag9889.jpg (Jag9889, CC BY-SA 4.0)",
+  "https://commons.wikimedia.org/wiki/File:Brücke_Hauptstrasse_Brügg–Aegerten_2024-1.jpg (MHM55, CC BY-SA 4.0)",
+  "https://commons.wikimedia.org/wiki/File:Brücke_Hauptstrasse_Brügg–Aegerten_2024-2.jpg (MHM55, CC BY-SA 4.0)",
+  "https://commons.wikimedia.org/wiki/File:Brücke_Hauptstrasse_Brügg–Aegerten_2024-3.jpg (MHM55, CC BY-SA 4.0)",
+  "Mapillary 773586463346839, 478596966723922, 1097638434058271 (rebootnow, beat / Mapillary, CC BY-SA 4.0)",
+  "Mapillary 470970227347220, 833741260894289, 152981920044531 (beat, rebootnow / Mapillary, CC BY-SA 4.0)"
  ],
- "photos_vues": 0,
- "confiance": "faible",
- "notes": "Non vérifié au laser (pas de COPC). L'axe TLM fourni ne couvrait que la moitié du pont : début prolongé vers le nord-ouest d'après l'orthophoto (±3 m). Eau à 426,4 m sur ~60 m ; deux piles supposées (invisibles), largeur ~11 m."
+ "photos_vues": 10,
+ "confiance": "moyenne",
+ "notes": "Calé sur swissSURFACE3D 2023 (LAS, pas de COPC) : axe droit 167,5 m, largeur 12,0 m, chaussée médiane 0,0 m. Pont mixte : deux poutres d'acier (bleues) ~1,8 m sous une dalle béton à consoles inclinées, travées ~28 + 57 + 29 m entre culées murées au droit des chemins de berge (s≈36 et s≈150) ; au-delà, chaussée sur remblai entre murs (s 0–36 et 150–167,5, section mince). Piles en rivière (s 64 et 121) : portiques de deux colonnes rondes ~1,2 m avec traverse à mi-hauteur, invisibles au laser : place estimée sur les photos (±4 m) et les rives ; traverse non modélisée, colonnes en 'double' rectangulaire. Le vérificateur signale le sol à s 4–20 et 154–162 parce qu'il prend l'épaisseur constante (2,4 m) : ce sont les rampes sur remblai (section 0,75 m, \"remblai\") ; avec 0,75 m il ne trouve aucun conflit. 78,7 % des points d'ouvrage à < 1,5 m ; 96,0 % sans les maisons voisines (classe 6, |o| > 7 m) aux deux bouts ; reste : candélabres.",
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -6,
+     -0.1
+    ],
+    [
+     -6,
+     -0.65
+    ],
+    [
+     -3.4,
+     -0.7
+    ],
+    [
+     -3.4,
+     -0.75
+    ],
+    [
+     3.4,
+     -0.75
+    ],
+    [
+     3.4,
+     -0.7
+    ],
+    [
+     6,
+     -0.65
+    ],
+    [
+     6,
+     -0.1
+    ]
+   ]
+  },
+  {
+   "s": 34,
+   "points": [
+    [
+     -6,
+     -0.1
+    ],
+    [
+     -6,
+     -0.65
+    ],
+    [
+     -3.4,
+     -0.7
+    ],
+    [
+     -3.4,
+     -0.75
+    ],
+    [
+     3.4,
+     -0.75
+    ],
+    [
+     3.4,
+     -0.7
+    ],
+    [
+     6,
+     -0.65
+    ],
+    [
+     6,
+     -0.1
+    ]
+   ]
+  },
+  {
+   "s": 36,
+   "points": [
+    [
+     -6,
+     -0.1
+    ],
+    [
+     -6,
+     -0.65
+    ],
+    [
+     -3.4,
+     -0.9
+    ],
+    [
+     -3.4,
+     -2.4
+    ],
+    [
+     3.4,
+     -2.4
+    ],
+    [
+     3.4,
+     -0.9
+    ],
+    [
+     6,
+     -0.65
+    ],
+    [
+     6,
+     -0.1
+    ]
+   ]
+  },
+  {
+   "s": 150,
+   "points": [
+    [
+     -6,
+     -0.1
+    ],
+    [
+     -6,
+     -0.65
+    ],
+    [
+     -3.4,
+     -0.9
+    ],
+    [
+     -3.4,
+     -2.4
+    ],
+    [
+     3.4,
+     -2.4
+    ],
+    [
+     3.4,
+     -0.9
+    ],
+    [
+     6,
+     -0.65
+    ],
+    [
+     6,
+     -0.1
+    ]
+   ]
+  },
+  {
+   "s": 152,
+   "points": [
+    [
+     -6,
+     -0.1
+    ],
+    [
+     -6,
+     -0.65
+    ],
+    [
+     -3.4,
+     -0.7
+    ],
+    [
+     -3.4,
+     -0.75
+    ],
+    [
+     3.4,
+     -0.75
+    ],
+    [
+     3.4,
+     -0.7
+    ],
+    [
+     6,
+     -0.65
+    ],
+    [
+     6,
+     -0.1
+    ]
+   ]
+  },
+  {
+   "s": 167.5,
+   "points": [
+    [
+     -6,
+     -0.1
+    ],
+    [
+     -6,
+     -0.65
+    ],
+    [
+     -3.4,
+     -0.7
+    ],
+    [
+     -3.4,
+     -0.75
+    ],
+    [
+     3.4,
+     -0.75
+    ],
+    [
+     3.4,
+     -0.7
+    ],
+    [
+     6,
+     -0.65
+    ],
+    [
+     6,
+     -0.1
+    ]
+   ]
+  }
+ ]
 }

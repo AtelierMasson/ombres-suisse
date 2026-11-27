@@ -1,0 +1,273 @@
+{
+ "nom": "Sitterviadukt (A1), St. Gallen",
+ "axe": [
+  [
+   2743183.1,
+   1253954.2,
+   631.45
+  ],
+  [
+   2743240.8,
+   1253971.0,
+   631.2
+  ],
+  [
+   2743298.2,
+   1253988.5,
+   630.96
+  ],
+  [
+   2743355.7,
+   1254005.9,
+   630.71
+  ],
+  [
+   2743413.2,
+   1254023.0,
+   630.47
+  ],
+  [
+   2743470.9,
+   1254039.9,
+   630.28
+  ],
+  [
+   2743528.4,
+   1254057.2,
+   630.11
+  ],
+  [
+   2743585.5,
+   1254075.4,
+   629.93
+  ],
+  [
+   2743642.1,
+   1254095.3,
+   629.75
+  ],
+  [
+   2743697.9,
+   1254117.5,
+   629.65
+  ],
+  [
+   2743752.7,
+   1254142.7,
+   629.55
+  ],
+  [
+   2743806.5,
+   1254171.0,
+   629.72
+  ],
+  [
+   2743849.5,
+   1254196.5,
+   629.85
+  ]
+ ],
+ "largeur": 25.3,
+ "epaisseur": 5.85,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 97.3,
+   "forme": "double",
+   "long": 3.2,
+   "larg": 20.5,
+   "larg_colonne": 6.3,
+   "z_bas": 608.0
+  },
+  {
+   "type": "pile",
+   "s": 173.3,
+   "forme": "double",
+   "long": 3.2,
+   "larg": 20.5,
+   "larg_colonne": 6.3,
+   "z_bas": 588.0
+  },
+  {
+   "type": "pile",
+   "s": 247.3,
+   "forme": "double",
+   "long": 3.2,
+   "larg": 20.5,
+   "larg_colonne": 6.3,
+   "z_bas": 573.3
+  },
+  {
+   "type": "pile",
+   "s": 327.3,
+   "forme": "double",
+   "long": 3.2,
+   "larg": 20.5,
+   "larg_colonne": 6.3,
+   "z_bas": 570.0
+  },
+  {
+   "type": "pile",
+   "s": 407.3,
+   "forme": "double",
+   "long": 3.2,
+   "larg": 20.5,
+   "larg_colonne": 6.3,
+   "z_bas": 569.5
+  },
+  {
+   "type": "pile",
+   "s": 487.3,
+   "forme": "double",
+   "long": 3.2,
+   "larg": 20.5,
+   "larg_colonne": 6.3,
+   "z_bas": 580.0
+  },
+  {
+   "type": "pile",
+   "s": 565.3,
+   "forme": "double",
+   "long": 3.2,
+   "larg": 20.5,
+   "larg_colonne": 6.3,
+   "z_bas": 605.0
+  },
+  {
+   "type": "pile",
+   "s": 640.3,
+   "forme": "double",
+   "long": 3.2,
+   "larg": 20.5,
+   "larg_colonne": 6.3,
+   "z_bas": 615.0
+  },
+  {
+   "type": "culee",
+   "s": 711
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://de.wikipedia.org/wiki/Sitterviadukt_(Autobahn)",
+  "https://www.bp-ing.ch/projekte-sammlung/sitterviadukt-stgallen",
+  "https://commons.wikimedia.org/wiki/Category:Sitterviadukt_A1",
+  "swissSURFACE3D 2024 (COPC)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "brouillon",
+ "largeur_dessous": 25.3,
+ "remblai": [
+  [
+   0,
+   12
+  ],
+  [
+   678,
+   712
+  ]
+ ],
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -12.65,
+     0
+    ],
+    [
+     -12.65,
+     -3.4
+    ],
+    [
+     -11.9,
+     -3.6
+    ],
+    [
+     -11.9,
+     -5.85
+    ],
+    [
+     -0.4,
+     -5.85
+    ],
+    [
+     0.4,
+     -5.85
+    ],
+    [
+     11.9,
+     -5.85
+    ],
+    [
+     11.9,
+     -3.6
+    ],
+    [
+     12.65,
+     -3.4
+    ],
+    [
+     12.65,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 711,
+   "points": [
+    [
+     -12.65,
+     0
+    ],
+    [
+     -12.65,
+     -3.4
+    ],
+    [
+     -11.9,
+     -3.6
+    ],
+    [
+     -11.9,
+     -5.85
+    ],
+    [
+     -0.4,
+     -5.85
+    ],
+    [
+     0.4,
+     -5.85
+    ],
+    [
+     11.9,
+     -5.85
+    ],
+    [
+     11.9,
+     -3.6
+    ],
+    [
+     12.65,
+     -3.4
+    ],
+    [
+     12.65,
+     0
+    ]
+   ]
+  }
+ ]
+}

@@ -1,0 +1,125 @@
+{
+ "nom": "Pont de Felsberg (Rheinbrücke Felsberg–Domat/Ems), Felsberg",
+ "axe": [
+  [
+   2755568.8,
+   1190131.6,
+   571.0
+  ],
+  [
+   2755580.2,
+   1190099.5,
+   572.7
+  ],
+  [
+   2755590.3,
+   1190064.9,
+   574.4
+  ],
+  [
+   2755600.5,
+   1190030.3,
+   575.95
+  ],
+  [
+   2755612.5,
+   1189996.4,
+   577.0
+  ],
+  [
+   2755622.2,
+   1189961.6,
+   577.25
+  ],
+  [
+   2755632.8,
+   1189927.2,
+   576.8
+  ],
+  [
+   2755636.3,
+   1189915.7,
+   576.6
+  ]
+ ],
+ "largeur": 10.8,
+ "largeur_dessous": 8.6,
+ "epaisseur": 1.7,
+ "epaisseur_appuis": 2.5,
+ "gousset": 16,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 99,
+   "forme": "rond",
+   "long": 2.0,
+   "larg": 2.0,
+   "z_bas": 567.7,
+   "chapiteau": {
+    "hauteur": 1.2,
+    "larg": 4.5,
+    "larg_bas": 2.0,
+    "long": 2.2
+   }
+  },
+  {
+   "type": "pile",
+   "s": 138,
+   "forme": "rond",
+   "long": 2.0,
+   "larg": 2.0,
+   "z_bas": 569.3,
+   "chapiteau": {
+    "hauteur": 1.2,
+    "larg": 4.5,
+    "larg_bas": 2.0,
+    "long": 2.2
+   }
+  },
+  {
+   "type": "pile",
+   "s": 182,
+   "forme": "rond",
+   "long": 2.0,
+   "larg": 2.0,
+   "z_bas": 569.2,
+   "chapiteau": {
+    "hauteur": 1.2,
+    "larg": 4.5,
+    "larg_bas": 2.0,
+    "long": 2.2
+   }
+  },
+  {
+   "type": "culee",
+   "s": 226
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "haubans": null,
+ "remblai": [],
+ "sources": [
+  "https://commons.wikimedia.org/wiki/File:Felsberg-Br%C3%BCcke_%C3%BCber_den_Rhein,_Felsberg_GR_%E2%80%93_Domat_Ems_GR_20170728-jag9889.jpg",
+  "https://de.wikipedia.org/wiki/Felsberg_GR",
+  "Mapillary fcignat (2025-05-24, 2025-08-16), oeschinen/soulcover (A13 sous l'ouvrage), CC BY-SA 4.0"
+ ],
+ "photo": {
+  "fichier": "commons1.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Felsberg-Br%C3%BCcke_%C3%BCber_den_Rhein,_Felsberg_GR_%E2%80%93_Domat_Ems_GR_20170728-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 5,
+ "confiance": "moyenne",
+ "notes": "Pont de Felsberg (poutre béton, 2 voies, ~226 m, fin des années 1970) : tablier, axe, altitudes et largeur calés sur le laser (swissSURFACE3D 2020, écart -0,04 m), mais les piles ne se voient pas au laser (aucune classe 26/27, rien dans l'eau sur l'orthophoto) : leurs positions (s=99, 138, 182 m, fûts ronds ~2 m, tête évasée) sont estimées d'après 3 vues Mapillary prises sous l'ouvrage sur l'A13 et l'orthophoto (pile de rive nord vers s≈96) ; la portée de 99 m sur le Rhin sans pile en rivière est déduite de l'orthophoto, non confirmée par une source écrite. Calage photo non résolu au solveur (aucun point 3D indépendant sur la maquette) : deux rendus à caméra estimée seulement, piles à ±10 m. Non modélisé : la rampe courbe est (s≈132-150, o jusqu'à +37 m, branche vers l'A13) et le talus/remblai sud. Conflit maquette : sol sous tablier à 559,7 m (eau étendue) au lieu du terrain réel 569 m aux piles A13 : piles marquées « au-dessus du sol » par le vérificateur, pieds posés sur le terrain mesuré."
+}

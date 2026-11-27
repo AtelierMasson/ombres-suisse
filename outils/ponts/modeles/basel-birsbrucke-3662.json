@@ -116,156 +116,156 @@
   },
   {
    "type": "pile",
-   "s": 28.4,
+   "s": 27.5,
    "forme": "double",
-   "long": 3.2,
+   "long": 3.0,
    "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.2
-  },
-  {
-   "type": "pile",
-   "s": 56.9,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.3
-  },
-  {
-   "type": "pile",
-   "s": 85.3,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.3
-  },
-  {
-   "type": "pile",
-   "s": 113.8,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.4
-  },
-  {
-   "type": "pile",
-   "s": 142.2,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.5
-  },
-  {
-   "type": "pile",
-   "s": 170.7,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.6
-  },
-  {
-   "type": "pile",
-   "s": 199.1,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.6
-  },
-  {
-   "type": "pile",
-   "s": 227.6,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.6
-  },
-  {
-   "type": "pile",
-   "s": 256.0,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.6
-  },
-  {
-   "type": "pile",
-   "s": 284.4,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.5
-  },
-  {
-   "type": "pile",
-   "s": 312.9,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.5
-  },
-  {
-   "type": "pile",
-   "s": 341.3,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.5
-  },
-  {
-   "type": "pile",
-   "s": 369.8,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.6
-  },
-  {
-   "type": "pile",
-   "s": 398.2,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.4
-  },
-  {
-   "type": "pile",
-   "s": 426.7,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 250.3
-  },
-  {
-   "type": "pile",
-   "s": 455.1,
-   "forme": "double",
-   "long": 3.2,
-   "larg": 17.0,
-   "larg_colonne": 4.5,
+   "larg_colonne": 3.4,
    "z_bas": 250.0
   },
   {
    "type": "pile",
-   "s": 483.6,
+   "s": 55.0,
    "forme": "double",
-   "long": 3.2,
+   "long": 3.0,
    "larg": 17.0,
-   "larg_colonne": 4.5,
-   "z_bas": 251.3
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 82.5,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 110.0,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 137.5,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 165.0,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 192.5,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 220.0,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 247.5,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 275.0,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 302.5,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 330.0,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 357.5,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 385.0,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 412.5,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 440.0,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
+  },
+  {
+   "type": "pile",
+   "s": 484.0,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 17.0,
+   "larg_colonne": 3.4,
+   "z_bas": 250.0
   },
   {
    "type": "culee",
@@ -402,12 +402,176 @@
    "ep": 0.9,
    "larg_fin": 12.0,
    "ep_fin": 0.9
+  },
+  {
+   "de": [
+    380,
+    13.6,
+    263.1
+   ],
+   "a": [
+    414,
+    14.0,
+    263.1
+   ],
+   "larg": 4.5,
+   "ep": 0.9
+  },
+  {
+   "de": [
+    226,
+    15.5,
+    261.4
+   ],
+   "a": [
+    278,
+    15.0,
+    261.9
+   ],
+   "larg": 4.5,
+   "ep": 0.9
+  },
+  {
+   "de": [
+    416,
+    -24.5,
+    268.55
+   ],
+   "a": [
+    512,
+    -36.5,
+    269.2
+   ],
+   "larg": 13.0,
+   "ep": 0.9
+  },
+  {
+   "de": [
+    380,
+    -11.0,
+    263.2
+   ],
+   "a": [
+    408,
+    -12.5,
+    263.2
+   ],
+   "larg": 3.0,
+   "ep": 0.9
+  },
+  {
+   "de": [
+    2,
+    21.7,
+    279.0
+   ],
+   "a": [
+    32,
+    18.8,
+    278.9
+   ],
+   "larg": 6.5,
+   "ep": 0.6,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    55,
+    -14.7,
+    279.0
+   ],
+   "a": [
+    55,
+    20,
+    279.0
+   ],
+   "larg": 1.2,
+   "ep": 1.3,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    109,
+    -1,
+    280.8
+   ],
+   "a": [
+    109,
+    18.7,
+    280.8
+   ],
+   "larg": 1.0,
+   "ep": 3.0,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    207,
+    -12.2,
+    281.2
+   ],
+   "a": [
+    207,
+    2,
+    281.2
+   ],
+   "larg": 1.0,
+   "ep": 4.0,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    219,
+    1.3,
+    280.9
+   ],
+   "a": [
+    219,
+    15.2,
+    280.9
+   ],
+   "larg": 1.0,
+   "ep": 3.6,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    349,
+    0.3,
+    279.1
+   ],
+   "a": [
+    349,
+    14.1,
+    279.1
+   ],
+   "larg": 1.0,
+   "ep": 1.8,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    371,
+    -24.5,
+    280.5
+   ],
+   "a": [
+    371,
+    0.8,
+    280.5
+   ],
+   "larg": 1.0,
+   "ep": 4.2,
+   "materiau": "acier"
   }
  ],
  "sources": [
-  "https://commons.wikimedia.org/wiki/Category:Bridges_over_the_Birs_River",
   "https://www.astra.admin.ch/astra/de/home/themen/nationalstrassen/baustellen/zentral-nordwestschweiz/a2-osttangente.html",
-  "swissSURFACE3D 2023 (dalle 2613-1265, LAS) ; swissTLM3D"
+  "swissSURFACE3D 2023 (dalle 2613-1265, LAS) ; swissTLM3D",
+  "https://commons.wikimedia.org/wiki/File:A2_A3_Autobahn-Br%C3%BCcken_%C3%BCber_die_Birs,_Birsfelden_BL_%E2%80%93_Basel_BS_20190406-jag9889.jpg (a.jpg, Jag9889, CC BY-SA 4.0, rive de la Birs sous l ouvrage)",
+  "b.jpg : vue depuis la route au sud, le long du viaduc (Commons)",
+  "c.jpg : kto / Mapillary, image 834153283850425, CC BY-SA 4.0 (sous le tablier, côté Birs)",
+  "swissSURFACE3D 2023 (dalle LAS 2613-1265, relue le 27.11.2026)"
  ],
  "photo": {
   "fichier": "a.jpg",
@@ -415,15 +579,42 @@
   "auteur": "Jag9889",
   "licence": "CC BY-SA 4.0"
  },
- "photos_vues": 2,
- "confiance": "faible",
- "notes": "Dalle swissSURFACE3D 2023 lue en LAS (pas de COPC à Bâle) ; tablier calé au nuage (médiane 0,01 m), bords relevés tous les ~50 m (deux tabliers séparés au nord-ouest s 0-90, dalle nord par éléments), rampes sous l'ouvrage par éléments, écran antibruit nord. PILES NON VUES AU LASER (tablier fermé de 25 m) : 17 appuis doubles équidistants (28,4 m) INVENTÉS faute de plan, z_bas = sol de la maquette (250 m, artefact de la grille : plan d'eau de la Birs à 253 étendu sous le tablier, alors que le terrain réel est à 256-267 m) ; 80 % des points d'ouvrage à moins de 1,5 m (le reste : toits de bâtiments classe 6 et véhicules), pas de calage photo (2 photos de détail, aucun point 3D identifiable, aucune vue d'ensemble trouvée).",
+ "photos_vues": 4,
+ "confiance": "moyenne",
+ "notes": "Tablier calé au nuage swissSURFACE3D 2023 (LAS, pas de COPC à Bâle) : médiane 0,01 m, 85,4 % des points d ouvrage à moins de 1,5 m ; le reste est surtout des bâtiments (classe 6, entrepôt sous le bord nord s 290-400), des camions sur la chaussée et des voitures dans la rue sous la chaussée nord. Ajoutés d après le nuage : écran antibruit nord recalé (o 23,3 → 15,3 → 14,9), portiques de signalisation (s 55, 109, 207, 219, 349, 371), auvent nord s 2-32, rampes basses (263,5 m, s 380-516 au nord et au sud ; 262 m s 226-278 au nord) et rampe sud à 269 m (s 416-512, autre ouvrage qui se détache). PILES NON VUES AU LASER (tablier fermé) : 16 travées de 27,5 m jusqu à s 440 puis travée de 44 m au-dessus de la Birs (lit s 444-477, piles sur les berges comme sur la photo a), colonnes doubles ~3 x 3,4 m d après les photos a, b, c ; nombre et pas exacts inconnus. z_bas = 250 m : sol de la maquette sous tout le viaduc (eau de la Birs propagée par l espace vide entre les deux chaussées, puis fond descendu), alors que le terrain réel est à 264-268 m (257 m près de la Birs) ; les piles paraissent donc ~15 m trop longues dans l application, artefact de grille.js non corrigé ici.",
  "parois": [
   {
-   "s0": 90,
+   "s0": 0,
+   "s1": 60,
+   "o0": 23.3,
+   "o1": 17.9,
+   "h": 4.0,
+   "ep": 0.15,
+   "materiau": "verre"
+  },
+  {
+   "s0": 60,
+   "s1": 140,
+   "o0": 17.9,
+   "o1": 15.3,
+   "h": 4.0,
+   "ep": 0.15,
+   "materiau": "verre"
+  },
+  {
+   "s0": 140,
+   "s1": 400,
+   "o0": 15.3,
+   "o1": 15.3,
+   "h": 4.0,
+   "ep": 0.15,
+   "materiau": "verre"
+  },
+  {
+   "s0": 400,
    "s1": 512,
-   "o0": 13.6,
-   "o1": 14.0,
+   "o0": 14.7,
+   "o1": 14.9,
    "h": 4.0,
    "ep": 0.15,
    "materiau": "verre"

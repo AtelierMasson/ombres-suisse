@@ -349,6 +349,6 @@
   "licence": "CC BY-SA 3.0"
  },
  "photos_vues": 5,
- "confiance": "moyenne",
- "notes": "Pont Maillart a arc a trois articulations en caisson, modele depuis le nuage swissSURFACE3D 2023 (LAS lu a la main, pas de COPC)."
+ "confiance": "bonne",
+ "notes": "Pont Maillart (1932) en arc a trois articulations, caisson evase aux naissances modele par `profil` (intrados ajuste au nuage swissSURFACE3D 2023, lu a la main : pas de COPC pour Berne 2023), 6 voiles transversaux en `elements`. Calage photo r05_09 (Chriusha, CC BY-SA 3.0) 6,4 px par superposition 2D faite hors application (l'app n'a pas de releve COPC ici) ; incertain : epaisseur du caisson (estimee sur photo), pied des naissances enterre dans la falaise, articulation de cle et corniches non representees."
 }

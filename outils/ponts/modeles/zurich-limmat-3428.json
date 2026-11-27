@@ -1,43 +1,196 @@
 {
- "nom": "Quaibrücke, Zurich (sortie du lac sur la Limmat)",
+ "nom": "Quaibrücke, Zurich",
  "axe": [
   [
-   2683368.3,
-   1246798.7,
+   2683368.5,
+   1246798.0,
    409.65
   ],
   [
-   2683392.0,
-   1246804.8,
+   2683392.2,
+   1246804.1,
    410.35
   ],
   [
-   2683423.0,
-   1246812.8,
+   2683423.2,
+   1246812.1,
    410.75
   ],
   [
-   2683450.0,
-   1246819.7,
+   2683450.2,
+   1246819.0,
    410.75
   ],
   [
-   2683493.3,
-   1246830.8,
+   2683493.5,
+   1246830.1,
    409.55
   ]
  ],
- "largeur": 28.0,
+ "largeur": 30.5,
  "epaisseur": 1.5,
  "garde_corps": {
-  "hauteur": 1.0,
-  "plein": true,
-  "epaisseur": 0.4
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 0.15,
+  "epaisseur": 0.1
  },
  "appuis": [
   {
    "type": "culee",
    "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 26.53,
+   "forme": "rect",
+   "long": 4.5,
+   "larg": 27.0,
+   "materiau": "beton",
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "rond",
+     "long": 4.6,
+     "larg": 22.4,
+     "nez_amont": 2.3,
+     "nez_aval": 2.3
+    },
+    {
+     "z": 406.9,
+     "forme": "rond",
+     "long": 4.4,
+     "larg": 22.6,
+     "nez_amont": 2.2,
+     "nez_aval": 2.2
+    },
+    {
+     "z": 406.95,
+     "forme": "rect",
+     "long": 1.2,
+     "larg": 24.0
+    },
+    {
+     "z": "tablier",
+     "forme": "rect",
+     "long": 1.2,
+     "larg": 24.0
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 51.29,
+   "forme": "rect",
+   "long": 4.5,
+   "larg": 27.0,
+   "materiau": "beton",
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "rond",
+     "long": 4.6,
+     "larg": 22.4,
+     "nez_amont": 2.3,
+     "nez_aval": 2.3
+    },
+    {
+     "z": 406.9,
+     "forme": "rond",
+     "long": 4.4,
+     "larg": 22.6,
+     "nez_amont": 2.2,
+     "nez_aval": 2.2
+    },
+    {
+     "z": 406.95,
+     "forme": "rect",
+     "long": 1.2,
+     "larg": 24.0
+    },
+    {
+     "z": "tablier",
+     "forme": "rect",
+     "long": 1.2,
+     "larg": 24.0
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 77.81,
+   "forme": "rect",
+   "long": 4.5,
+   "larg": 27.0,
+   "materiau": "beton",
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "rond",
+     "long": 4.6,
+     "larg": 22.4,
+     "nez_amont": 2.3,
+     "nez_aval": 2.3
+    },
+    {
+     "z": 406.9,
+     "forme": "rond",
+     "long": 4.4,
+     "larg": 22.6,
+     "nez_amont": 2.2,
+     "nez_aval": 2.2
+    },
+    {
+     "z": 406.95,
+     "forme": "rect",
+     "long": 1.2,
+     "larg": 24.0
+    },
+    {
+     "z": "tablier",
+     "forme": "rect",
+     "long": 1.2,
+     "larg": 24.0
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 102.57,
+   "forme": "rect",
+   "long": 4.5,
+   "larg": 27.0,
+   "materiau": "beton",
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "rond",
+     "long": 4.6,
+     "larg": 22.4,
+     "nez_amont": 2.3,
+     "nez_aval": 2.3
+    },
+    {
+     "z": 406.9,
+     "forme": "rond",
+     "long": 4.4,
+     "larg": 22.6,
+     "nez_amont": 2.2,
+     "nez_aval": 2.2
+    },
+    {
+     "z": 406.95,
+     "forme": "rect",
+     "long": 1.2,
+     "larg": 24.0
+    },
+    {
+     "z": "tablier",
+     "forme": "rect",
+     "long": 1.2,
+     "larg": 24.0
+    }
+   ]
   },
   {
    "type": "culee",
@@ -47,11 +200,26 @@
  "arches": [],
  "pylones": [],
  "sources": [
-  "relevé swissSURFACE3D 2024",
-  "orthophoto swissimage",
-  "TLM swisstopo"
+  "relevé swissSURFACE3D 2024 (classes 17, 27 : tablier, garde-corps ; lampadaires au droit des piles)",
+  "https://de.wikipedia.org/wiki/Quaibrücke (5 ouvertures 22,625 / 24,76 / 26,52 / 24,76 / 22,625 m = 121,29 m ; 4 poutres acier courbes 3 m sur piles, 1,1 m en travée ; largeur 30,5 m ; piles murs en béton ~26 × 2 m sur pieux bois ; tablier remplacé 1984)",
+  "photo Diego Delso, CC BY-SA 4.0 : https://commons.wikimedia.org/wiki/File:Puente_Quai,_Zúrich,_Suiza,_2023-03-05,_DD_37.jpg (rive gauche, face amont ; calée)",
+  "photo -wuppertaler, CC BY 4.0 : https://commons.wikimedia.org/wiki/File:CH_Zürich,_Quaibrücke_001.jpg (rive gauche, face amont)",
+  "photo Jag9889, CC BY-SA 4.0 : https://commons.wikimedia.org/wiki/File:Quaibrücke_über_die_Limmat,_Bellevue_-_Bürkliplatz,_Stadt_Zürich-Altstadt_ZH_20180908-jag9889.jpg (rive droite, culée est)",
+  "photo Roland zh, CC BY-SA 3.0 : https://commons.wikimedia.org/wiki/File:Quaibrücke_-_Stadthausquai_-_Utoquai_2012-05-06_16-56-08_(P7000).jpg (rive droite)",
+  "photo Roland zh, CC BY-SA 3.0 : https://commons.wikimedia.org/wiki/File:Zürich_-_Quaibrücke_IMG_1042.JPG (depuis le lac)",
+  "photo Oleksandr Dede, CC BY-SA 4.0 : https://commons.wikimedia.org/wiki/File:Zürich_-_Quaibrücke.jpg (depuis le lac)"
  ],
- "photos_vues": 0,
- "confiance": "faible",
- "notes": "Le laser ne montre aucun point sous le tablier et l'orthophoto ne laisse voir ni pile ni arche (ombre portée) : modélisé en tablier plat, pile éventuelles non placées. Dos d'âne (410,9 m au milieu, 409,7 aux culées) suivi par des points d'axe ; épaisseur de 1,5 m supposée."
+ "photos_vues": 5,
+ "confiance": "moyenne",
+ "notes": "Pont-poutre mixte acier-béton (1984) à 5 travées : piles placées d'après les portées publiées, centrées sur la longueur relevée, et confirmées par les lampadaires du relevé (s 24,7 / 50,1 / 75,7 / 100,9) ; le laser ne voit ni piles ni sous-face. Poutres courbes rendues par goussets (3,3 m sur piles, 1,5 m en travée) sous un dessous de 26 m (le bandeau de rive plat de ~1,2 m devant les poutres n'est pas modélisé à part) ; piles = semelle-mur en béton à bouts arrondis (~4,5 × 27 m, dessus ~406,9) et appareils d'appui figurés par un voile mince, longueur des semelles et fond du lac non mesurés. Photo calée (Delso, 7 points, 8,7 px) mais le rendu calé est inexploitable : la maquette montre un sol à la place du lac devant la caméra, qui masque les travées.",
+ "largeur_dessous": 26.0,
+ "epaisseur_appuis": 3.3,
+ "gousset": 13.0,
+ "materiau": "acier",
+ "photo": {
+  "fichier": "delso37.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Puente_Quai,_Zúrich,_Suiza,_2023-03-05,_DD_37.jpg",
+  "auteur": "Diego Delso",
+  "licence": "CC BY-SA 4.0"
+ }
 }

@@ -1,0 +1,150 @@
+{
+ "nom": "Rampe en boucle de Lugano Nord (bretelle A2 au-dessus du Vedeggio), Lugano",
+ "axe": [
+  [
+   2714967.9,
+   1098642.8,
+   302.17
+  ],
+  [
+   2714978.8,
+   1098650.0,
+   302.17
+  ],
+  [
+   2714995.7,
+   1098657.5,
+   302.16
+  ],
+  [
+   2715009.4,
+   1098659.9,
+   302.16
+  ],
+  [
+   2715020.0,
+   1098660.0,
+   302.16
+  ],
+  [
+   2715032.6,
+   1098658.0,
+   302.16
+  ],
+  [
+   2715046.4,
+   1098652.8,
+   302.15
+  ],
+  [
+   2715058.6,
+   1098645.5,
+   302.11
+  ],
+  [
+   2715070.7,
+   1098633.5,
+   301.84
+  ],
+  [
+   2715078.3,
+   1098622.3,
+   301.46
+  ],
+  [
+   2715084.7,
+   1098605.4,
+   300.71
+  ],
+  [
+   2715085.9,
+   1098600.0,
+   300.45
+  ]
+ ],
+ "largeur": 7.8,
+ "largeur_dessous": 5.0,
+ "epaisseur": 1.3,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.15
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 22,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 296.5
+  },
+  {
+   "type": "pile",
+   "s": 44,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 296.7
+  },
+  {
+   "type": "pile",
+   "s": 66,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 297.5
+  },
+  {
+   "type": "pile",
+   "s": 86,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 296.1
+  },
+  {
+   "type": "pile",
+   "s": 106,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 298.0
+  },
+  {
+   "type": "pile",
+   "s": 128,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 295.1
+  },
+  {
+   "type": "culee",
+   "s": 152.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "swissSURFACE3D 2020 (LAS 2714-1098, 2715-1098)",
+  "swissTLM3D (axe)",
+  "swissIMAGE (orthophoto)",
+  "Mapillary (vues sur le tablier)"
+ ],
+ "photos_vues": 6,
+ "confiance": "faible",
+ "notes": "Ouvrage vérifié au laser (swissSURFACE3D 2020, tuiles LAS lues en local) : tablier 7,8 m, médiane +0,04 m, 94,9 % des points à moins de 1,5 m ; conflit de terrain résiduel à s 4 (talus du remblai de la culée de départ, sol 0,4 m au-dessus du dessous du tablier). Les six piles (s 22, 44, 66, 86, 106, 128, rondes Ø1,8) sont supposées : le laser ne les voit pas (sol continu sous le tablier, forêt) et aucune vue extérieure n'existe ; section en caisson et garde-corps ajouré estimés d'après des vues Mapillary prises depuis la chaussée, pas de calage photo. Le schéma ne sait pas faire les rampes en boucle sur plusieurs tours : seule l'arche TLM (s 0-152) est modélisée, la suite de la boucle (classée hors classe 17) ne l'est pas.",
+ "remblai": [
+  [
+   0,
+   7
+  ]
+ ]
+}

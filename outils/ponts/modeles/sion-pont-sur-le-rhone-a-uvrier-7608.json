@@ -1,0 +1,85 @@
+{
+ "nom": "Pont sur le Rhône à Uvrier (A9), Sion",
+ "axe": [
+  [
+   2597524.0,
+   1121307.8,
+   500.2
+  ],
+  [
+   2597602.7,
+   1121326.9,
+   500.36
+  ],
+  [
+   2597680.5,
+   1121345.7,
+   500.3
+  ]
+ ],
+ "largeur": 32.3,
+ "epaisseur": 1.3,
+ "epaisseur_appuis": 2.2,
+ "gousset": 15,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 19,
+   "o": 11,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 4.0,
+   "z_bas": 490.0
+  },
+  {
+   "type": "pile",
+   "s": 43,
+   "o": -11,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 4.0,
+   "z_bas": 490.0
+  },
+  {
+   "type": "pile",
+   "s": 86,
+   "o": 11,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 4.0,
+   "z_bas": 490.0
+  },
+  {
+   "type": "pile",
+   "s": 116,
+   "o": -11,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 4.0,
+   "z_bas": 490.0
+  },
+  {
+   "type": "culee",
+   "s": 161.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2022 (tuile 2597-1121)",
+  "https://wms.geo.admin.ch (swissimage)",
+  "swissTLM3D"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Calé sur le nuage swissSURFACE3D 2022 (tuile LAS zippée lue localement) : tablier à +0,03 m, 94 % des points d'ouvrage à moins de 1,5 m, aucun conflit de terrain ; deux tabliers jointifs d'autoroute A9 modélisés en un seul de 32,3 m (joint central et élargissement côté ouest non représentés). Piles invisibles au laser (cachées sous le tablier) : quatre colonnes placées sur les berges d'après l'obliquité du Rhône (≈35° du travers), section et épaisseur du dessous supposées, aucune photo de l'ouvrage trouvée sur Commons ni Mapillary (jeton refusé), donc pas de calage photo."
+}

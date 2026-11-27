@@ -45,7 +45,7 @@
  "largeur": 21.6,
  "epaisseur": 3.4,
  "epaisseur_appuis": 7.2,
- "gousset": 42,
+ "gousset": 30,
  "garde_corps": {
   "hauteur": 1.1,
   "plein": false,
@@ -113,5 +113,21 @@
  ],
  "photos_vues": 4,
  "confiance": "moyenne",
- "notes": "provisoire"
+ "notes": "Tablier, piles (s 61,5 et 198,8, sommet à 250,2) et largeur mesurés au nuage 2023 (LAS, pas de COPC); la hauteur des fascias (3,4 m) et des goussets (7,2 m aux piles, 30 m) vient de la photo calée (2 px de résidu), la sous-face et la forme exacte des piles (ovale allongé 5,6 x 19 m) restent estimées; seule une vue d'ensemble de côté existe (pas de vue de dessous). Conflits de terrain aux deux culées (s 4-10 et 258-270: rampes et bâtiments au-dessus du dessous du tablier), traités en remblai; 81 % des points d'ouvrage à moins de 1,5 m (le reste: bâtiments voisins aux bouts).",
+ "remblai": [
+  [
+   0,
+   12
+  ],
+  [
+   256,
+   276
+  ]
+ ],
+ "photo": {
+  "fichier": "p1.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Basel,_de_Johanniterbr%C3%BCcke_vanaf_de_Mittlere_Rheinbr%C3%BCcke_IMG_1522_2022-05-15_09.43.jpg",
+  "auteur": "Michielverbeek",
+  "licence": "CC BY-SA 4.0"
+ }
 }

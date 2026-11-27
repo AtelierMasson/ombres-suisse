@@ -1,0 +1,422 @@
+{
+ "nom": "Pont du Mont-Blanc, Genève",
+ "axe": [
+  [
+   2500513.4,
+   1117872.2,
+   375.2
+  ],
+  [
+   2500511.2,
+   1117875.6,
+   375.35
+  ],
+  [
+   2500497.2,
+   1117897.5,
+   375.4
+  ],
+  [
+   2500386.6,
+   1118070.2,
+   375.4
+  ],
+  [
+   2500375.3,
+   1118087.9,
+   375.35
+  ],
+  [
+   2500370.3,
+   1118095.6,
+   375.2
+  ]
+ ],
+ "largeur": 26.8,
+ "epaisseur": 0.95,
+ "epaisseur_appuis": 1.95,
+ "gousset": 9,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 25,
+   "sections": [
+    {
+     "z": 363.0,
+     "forme": "rect",
+     "long": 3.8,
+     "larg": 17.5,
+     "nez_amont": 1.8,
+     "nez_aval": 1.8
+    },
+    {
+     "z": 372.4,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    },
+    {
+     "z": 373.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    }
+   ],
+   "z_bas": 363.0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 46,
+   "sections": [
+    {
+     "z": 363.0,
+     "forme": "rect",
+     "long": 3.8,
+     "larg": 17.5,
+     "nez_amont": 1.8,
+     "nez_aval": 1.8
+    },
+    {
+     "z": 372.4,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    },
+    {
+     "z": 373.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    }
+   ],
+   "z_bas": 363.0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 67,
+   "sections": [
+    {
+     "z": 363.0,
+     "forme": "rect",
+     "long": 3.8,
+     "larg": 17.5,
+     "nez_amont": 1.8,
+     "nez_aval": 1.8
+    },
+    {
+     "z": 372.4,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    },
+    {
+     "z": 373.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    }
+   ],
+   "z_bas": 363.0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 88,
+   "sections": [
+    {
+     "z": 363.0,
+     "forme": "rect",
+     "long": 3.8,
+     "larg": 17.5,
+     "nez_amont": 1.8,
+     "nez_aval": 1.8
+    },
+    {
+     "z": 372.4,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    },
+    {
+     "z": 373.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    }
+   ],
+   "z_bas": 363.0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 109,
+   "sections": [
+    {
+     "z": 363.0,
+     "forme": "rect",
+     "long": 3.8,
+     "larg": 17.5,
+     "nez_amont": 1.8,
+     "nez_aval": 1.8
+    },
+    {
+     "z": 372.4,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    },
+    {
+     "z": 373.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    }
+   ],
+   "z_bas": 363.0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 130,
+   "sections": [
+    {
+     "z": 363.0,
+     "forme": "rect",
+     "long": 3.8,
+     "larg": 17.5,
+     "nez_amont": 1.8,
+     "nez_aval": 1.8
+    },
+    {
+     "z": 372.4,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    },
+    {
+     "z": 373.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    }
+   ],
+   "z_bas": 363.0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 151,
+   "sections": [
+    {
+     "z": 363.0,
+     "forme": "rect",
+     "long": 3.8,
+     "larg": 17.5,
+     "nez_amont": 1.8,
+     "nez_aval": 1.8
+    },
+    {
+     "z": 372.4,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    },
+    {
+     "z": 373.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    }
+   ],
+   "z_bas": 363.0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 172,
+   "sections": [
+    {
+     "z": 363.0,
+     "forme": "rect",
+     "long": 3.8,
+     "larg": 17.5,
+     "nez_amont": 1.8,
+     "nez_aval": 1.8
+    },
+    {
+     "z": 372.4,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    },
+    {
+     "z": 373.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    }
+   ],
+   "z_bas": 363.0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 193,
+   "sections": [
+    {
+     "z": 363.0,
+     "forme": "rect",
+     "long": 3.8,
+     "larg": 17.5,
+     "nez_amont": 1.8,
+     "nez_aval": 1.8
+    },
+    {
+     "z": 372.4,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    },
+    {
+     "z": 373.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    }
+   ],
+   "z_bas": 363.0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 214,
+   "sections": [
+    {
+     "z": 363.0,
+     "forme": "rect",
+     "long": 3.8,
+     "larg": 17.5,
+     "nez_amont": 1.8,
+     "nez_aval": 1.8
+    },
+    {
+     "z": 372.4,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    },
+    {
+     "z": 373.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    }
+   ],
+   "z_bas": 363.0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "pile",
+   "s": 235,
+   "sections": [
+    {
+     "z": 363.0,
+     "forme": "rect",
+     "long": 3.8,
+     "larg": 17.5,
+     "nez_amont": 1.8,
+     "nez_aval": 1.8
+    },
+    {
+     "z": 372.4,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    },
+    {
+     "z": 373.9,
+     "forme": "rect",
+     "long": 3.2,
+     "larg": 17.0,
+     "nez_amont": 1.6,
+     "nez_aval": 1.6
+    }
+   ],
+   "z_bas": 363.0,
+   "materiau": "pierre"
+  },
+  {
+   "type": "culee",
+   "s": 265.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://www.geneve.ch/pont-mont-blanc",
+  "https://fr.wikipedia.org/wiki/Pont_du_Mont-Blanc",
+  "https://commons.wikimedia.org/wiki/Category:Pont_du_Mont-Blanc"
+ ],
+ "photo": {
+  "fichier": "in_geneva.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Pont_du_Mont_Blanc_in_Geneva.jpg",
+  "auteur": "Keep (Commons)",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 3,
+ "confiance": "moyenne",
+ "notes": "Pont à sept poutres métalliques en tôle (1903, élargi en 1965 à 26,8 m), 12 travées de 21 m environ entre les quais (s 4 à 256), tablier d'épaisseur variable (0,95 m en travée, 1,95 m sur les piles, d'après la hauteur de poutre 0,65 à 1,7 m) ; tablier calé au nuage (médiane -0,07 m, 93 % des points d'ouvrage à moins de 1,5 m, aucun conflit de terrain). Piles NON vues par le laser (sous un tablier de 27 m) : nombre et place (s = 4 + 21 k, k = 1..11) déduits de la photo calée (6 px), dimensions (3,2 x 17 m, avant-becs) et fond (363 m) estimés ; le schéma ne sait pas dessiner l'intrados en arc surbaissé des poutres (approché par gousset)."
+}

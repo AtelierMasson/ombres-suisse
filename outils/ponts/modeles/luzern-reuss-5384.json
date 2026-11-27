@@ -1,0 +1,15 @@
+{
+  "nom": "Quai de la Reuss (St. Karli Quai / Geissmattbrücke, rive gauche), Luzern",
+  "axe": [[2665358.1,1211688.2,435.3],[2665360.0,1211673.0,435.2],[2665373.5,1211662.5,434.85],[2665387.1,1211649.6,434.5],[2665402.2,1211636.1,434.15],[2665416.2,1211624.2,434.02],[2665436.8,1211609.2,434.15]],
+  "largeur": 15.0,
+  "epaisseur": 0.8,
+  "garde_corps": {"hauteur": 1.1, "plein": false, "pas": 2.5},
+  "appuis": [{"type": "culee", "s": 0}, {"type": "culee", "s": 115.3}],
+  "arches": [],
+  "pylones": [],
+  "remblai": [[0, 115.3]],
+  "sources": ["https://commons.wikimedia.org/wiki/File:Geissmattbr%C3%BCcke_Reuss_Luzern_LU_20180418-jag9889.jpg", "https://commons.wikimedia.org/wiki/File:Lucerne_St._Karli_Quai_across_the_Reuss.jpg", "https://commons.wikimedia.org/wiki/File:Lucerne_N%C3%B6lliturm.jpg", "swisssurface3d 2020 (LAS 2665-1211)", "swissTLM3D"],
+  "photos_vues": 3,
+  "confiance": "moyenne",
+  "notes": "Ouvrage = voie sur mur de quai plein (sol remblayé, eau ~431,2 m, chaussée 434-435,3 m) classée pont par le nuage ; la traversée Geissmattbrücke au nord et les bretelles de carrefour ne sont pas modélisées, largeur moyenne 15 m (12 m au nord, 19 m au sud-est avec voies de présélection). Vérifié au laser par tuile LAS 2020 (pas de COPC), non par verifier_nuage."
+}
