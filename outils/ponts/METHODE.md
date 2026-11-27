@@ -44,6 +44,7 @@ Extensions v5 (formes libres ; tout est facultatif, sans ces champs le maillage 
 - **Tablier sculpté** `sections_tablier: [{ s, points: [[o, dz], …] }]` : section en travers de la rive o min à la rive
   o max par le dessous (dz < 0 sous la chaussée : caisson, corniches, consoles, sous-face courbe), interpolée entre les
   stations (même nombre de points : arêtes gardées). Remplace `epaisseur`/`section` pour le dessous.
+- **Arche à section variable** `arches[].profil: [[s, z_bas, z_haut, larg, o], …]` : un seul volume lofté station par station (intrados, extrados, largeur en plan, décalage `o` facultatif) ; plusieurs arches sur la même portée donnent dalle d'arc + âmes latérales (Salginatobel : `pont-de-salginatobel.json`).
 - **Toits** `toits: [{ s0, s1, faite, egout, larg, avant_toit, ep, croupe, pignons: ["ouvert"|"ferme", …],
   elargissements: [{ s0, s1, larg, egout, faite | pente }] }]` : deux pans en quelques triangles ; `faite`, `egout`,
   `larg` : nombre, [début, fin] ou profil `[[s, v], …]` ; croupe `true` (même pente) ou longueur ; élargissement =

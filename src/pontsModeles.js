@@ -5,7 +5,8 @@
 // Formes libres (facultatives) : `sections` des piles, pylônes et `volumes` (contourSection : rect, chanfrein, rond,
 // ogive, poly, avant-becs), `sections_tablier` (section en travers du tablier), `toits` (deux pans, pignons, croupes,
 // élargissements), façades (`parois` : ouvertures, soubassement, z_haut), `materiau` par partie (un maillage par
-// matériau : `materiaux` du résultat). Détail : outils/ponts/METHODE.md.
+// matériau : `materiaux` du résultat). Arche à section variable : `arches[].profil` [[s, z_bas, z_haut, larg, o], …].
+// Détail : outils/ponts/METHODE.md.
 import * as THREE from "three";
 
 const BASE = `${import.meta.env?.BASE_URL ?? "/"}ponts/`;
@@ -627,6 +628,23 @@ export function maillagePont(P, E0, N0, zRef, sol, uvPlan = () => [0, 0], opts =
         return A.z_cle - (A.z_cle - zn) * u * u;
       }
       : t => { const u = (2 * (t - A.s0) / c) - 1; return A.z_naissance + f * (1 - u * u); };
+    // arc en un seul volume à section variable : `profil` [[s, z_bas, z_haut, larg, o], …] (intrados, extrados, largeur
+    // en plan, décalage en travers facultatif), relié station par station (caisson de Maillart : croissant, évasé aux naissances)
+    if (A.profil?.length > 1) {
+      const coupeP = ([s, zb, zh, l, o = 0]) => {
+        const B = noeudEn(N, s), cx = B.x + B.nx * o, cy = B.y + B.ny * o, lx = B.nx * l / 2, ly = B.ny * l / 2;
+        return [V(cx + lx, cy + ly, zb), V(cx - lx, cy - ly, zb), V(cx - lx, cy - ly, zh), V(cx + lx, cy + ly, zh)];
+      };
+      let avant = coupeP(A.profil[0]);
+      quad(...avant);
+      for (let k = 1; k < A.profil.length; k++) {
+        const c = coupeP(A.profil[k]);
+        for (let f = 0; f < 4; f++) quad(avant[f], c[f], c[(f + 1) % 4], avant[(f + 1) % 4]);
+        avant = c;
+      }
+      quad(...avant);
+      continue;
+    }
     const e = A.epaisseur || 1, l = A.larg || M.largeur * 0.85;
     if (A.plein) balaye(A.s0, A.s1, l, zA, dessous, 0.75);
     else {
