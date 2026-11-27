@@ -3,7 +3,8 @@
 //  - heures de soleil par semaine (masques d'horizon par point, départ au plan d'eau ; gratuit) ;
 //  - ensoleillement réel par mois (heures de soleil mesurées par MétéoSuisse ; gratuit) ;
 //  - température de l'eau sans chauffage : au-dessus / en dessous de 25 °C par semaine (gratuit), graphique exact
-//    (médiane et P10–P90, Pro) ; coût du chauffage (Pro) ; export PDF (Pro).
+//    (médiane et P10–P90, Pro) ; coût du chauffage (Pro) ; chauffage solaire depuis un toit, capteurs thermiques ou
+//    photovoltaïque + pompe à chaleur (Pro, solairePiscine.js) ; export PDF (Pro).
 // Les géométries sont gardées en MN95 absolues (localStorage « ombres.piscines »), indépendantes du centre de la maquette.
 import * as THREE from "three";
 import { Line2 } from "three/addons/lines/Line2.js";
@@ -18,7 +19,8 @@ import { t, nombre, entier, date } from "./i18n.js";
 import { pointsZone, masquesDegres, facteurCiel, heuresParSemaine, partHoraire, aireEtPerimetre, dansPoly, NB_AZ } from "./semaines.js";
 import { stationsProches, seriesStation } from "./climat.js";
 import { DEFAUTS, analyser, soleilReelParMois } from "./piscine.js";
-import { svgSemaines, svgMois, svgTemperature, imageZone, DEGRADE } from "./graphiquesPiscine.js";
+import { svgSemaines, svgMois, svgTemperature, svgSolaireMois, svgSolaireTemp, imageZone, DEGRADE } from "./graphiquesPiscine.js";
+import { bilanSolaire, panDeToit } from "./solairePiscine.js";
 
 const CLE = "ombres.piscines";
 const $ = s => document.querySelector(s);
@@ -38,7 +40,12 @@ export function brancherZones(o) {
   const groupe = new THREE.Group();
   scene.scene.add(groupe);
   (scene.horsAO ||= []).push(groupe);
-  const reglages = { ...DEFAUTS, energie: "pac", cop: 4, prix: 0.3, ...lirePrefs() };
+  const SOLAIRE = { type: "aucun", capteur: "nonvitre", surface: null, kwc: 5, copPac: 5, pac: null, pente: 30, orientation: 0, source: "saisie", surplus: 2 };
+  const prefs = lirePrefs();
+  const reglages = { ...DEFAUTS, energie: "pac", cop: 4, prix: 0.3, ...prefs, solaire: { ...SOLAIRE, ...prefs.solaire } };
+  const groupeToit = new THREE.Group();
+  scene.scene.add(groupeToit);
+  scene.horsAO.push(groupeToit);
 
   const autorise = () => !forcerGratuit && (!o.compte?.disponible() || o.compte.etat().pro);
   const rel = a => a.map(([e, n]) => [e - S.E0, n - S.N0]);
@@ -80,6 +87,12 @@ export function brancherZones(o) {
     if (!outil || !S.G) return false;
     const p = scene.pointSol(e);
     if (!p) return true;
+    if (outil === "toit") {
+      activer(null);
+      const z = zoneChoisie(), r = z && calculs.get(z.id)?.r;
+      if (z && r) choisirToit(z, r, p);
+      return true;
+    }
     if (outil === "choisir") {
       const B = (S.G.bassins || []).find(b => dansPoly(p[0], p[1], [b.anneau, ...(b.trous || [])]));
       if (!B) { o.message(t("piscine.aucuneIci")); return true; }
@@ -324,12 +337,14 @@ export function brancherZones(o) {
       + `<label>${t("piscine.prix")}<input type="number" class="form-control form-control-sm" id="pscPrix" min="0" max="2" step="0.01" value="${reglages.prix}"></label></div>`;
     const C = r.temp.chauffage ||= chauffage(r);
     h += tableauChauffage(C);
+    h += blocSolaire(z, r);
     el.innerHTML = h;
+    brancherSolaire(z, r);
     for (const [id, k] of [["#pscConsigne", "consigne"], ["#pscEnergie", "energie"], ["#pscCop", "cop"], ["#pscPrix", "prix"]])
       $(id).addEventListener("change", e => {
         reglages[k] = k === "energie" ? e.target.value : Math.max(0, +e.target.value || DEFAUTS[k] || 0);
         garderPrefs();
-        if (k === "consigne") r.temp.chauffage = null;
+        if (k === "consigne") { r.temp.chauffage = null; r.temp.solaire = null; }
         afficherPro(z, r);
       });
   }
@@ -351,13 +366,167 @@ export function brancherZones(o) {
     h += `<p class="text-secondary note-piscine mb-0">${t("piscine.noteChauffage", { consigne: C.consigne, mise: entier(C.sans.miseEnTemp.med), cop: nombre(cop, 1), prix: nombre(reglages.prix, 2) })}</p>`;
     return h;
   }
+
+  /* ---------------------------------------------------------------- chauffage solaire (Pro) */
+  // Toit : orientation et pente saisies (ombre de l'horizon lointain seulement), ou pan de toit de la maquette choisi
+  // d'un clic (plan ajusté, ombres réelles par les mêmes masques que la piscine). Calcul : solairePiscine.js.
+  const nomMoisCourt = m => date(new Date(Date.UTC(2025, m, 15)), { month: "short" });
+  const surfaceDefaut = r => Math.max(2, Math.round(r.aire * 0.6));
+  const pacDefaut = r => Math.max(4, Math.round(r.aire * reglages.profondeur / 6));
+  /** Système solaire décrit pour le calcul, ou null (aucun, ou pan de la maquette pas encore calculé). */
+  function systeme(z, r) {
+    const R = reglages.solaire;
+    if (R.type === "aucun") return null;
+    let plan;
+    if (R.source === "maquette") {
+      if (!r.toit) return null;
+      plan = { pente: R.pente, orientation: R.orientation, f: r.toit.f, svf: Math.min(r.toit.svf, (1 + Math.cos(R.pente * Math.PI / 180)) / 2) };
+    } else plan = { pente: R.pente, orientation: R.orientation, f: r.horaire.libre, svf: (1 + Math.cos(R.pente * Math.PI / 180)) / 2 };
+    return {
+      type: R.type === "pv" ? "pv" : "thermique", capteur: R.capteur, surface: R.surface || surfaceDefaut(r), kwc: R.kwc, cop: R.copPac,
+      pac: R.pac || pacDefaut(r), surplus: R.surplus, plan, lat: S.lat, lon: S.lon,
+    };
+  }
+  /** Bilan solaire de la zone (gardé tant que les réglages ne changent pas). */
+  function solaire(z, r) {
+    const sys = systeme(z, r);
+    if (!sys || !r.temp?.series) return null;
+    const cle = JSON.stringify([reglages.solaire, reglages.consigne, reglages.bache, reglages.profondeur, reglages.fond, reglages.vent, r.toit?.cle]);
+    if (r.temp.solaire?.cle !== cle) {
+      const o2 = { ...reglages, correctionT: r.temp.correctionT };
+      r.temp.solaire = { cle, sys, res: bilanSolaire(r.temp.series, zonePourModele(r), o2, sys) };
+    }
+    return r.temp.solaire;
+  }
+  const num = (id, v, min, max, pas, dis = false) => `<input type="number" class="form-control form-control-sm" id="${id}" min="${min}" max="${max}" step="${pas}" value="${v}"${dis ? " disabled" : ""}>`;
+  function blocSolaire(z, r) {
+    const R = reglages.solaire;
+    let h = `<div class="sous-titre">${t("piscine.sol.titre")}</div><div class="reglages-piscine">`
+      + `<label>${t("piscine.sol.systeme")}${sel("solType", [["aucun", t("piscine.sol.aucun")], ["thermique", t("piscine.sol.thermique")], ["pv", t("piscine.sol.pv")]], R.type)}</label>`;
+    if (R.type === "aucun") return h + `</div><p class="text-secondary note-piscine mt-1 mb-0">${t("piscine.sol.intro")}</p>`;
+    h += `<label>${t("piscine.sol.toit")}${sel("solSource", [["saisie", t("piscine.sol.saisie")], ["maquette", t("piscine.sol.maquette")]], R.source)}</label>`
+      + `<label>${t("piscine.sol.pente")}${num("solPente", R.pente, 0, 90, 1)}</label>`
+      + `<label>${t("piscine.sol.orientation")}${num("solOrientation", R.orientation, -180, 180, 5)}</label>`;
+    if (R.type === "thermique")
+      h += `<label>${t("piscine.sol.capteur")}${sel("solCapteur", [["nonvitre", t("piscine.sol.nonvitre")], ["plan", t("piscine.sol.plan")], ["tubes", t("piscine.sol.tubes")]], R.capteur)}</label>`
+        + `<label>${t("piscine.sol.surface")}${num("solSurface", R.surface || surfaceDefaut(r), 1, 500, 1)}</label>`;
+    else
+      h += `<label>${t("piscine.sol.kwc")}${num("solKwc", R.kwc, 0.5, 100, 0.5)}</label>`
+        + `<label>${t("piscine.sol.copPac")}${num("solCop", R.copPac, 2, 10, 0.1)}</label>`
+        + `<label>${t("piscine.sol.pac")}${num("solPac", R.pac || pacDefaut(r), 1, 50, 0.5)}</label>`;
+    h += `<label>${t("piscine.sol.surplus")}${num("solSurplus", R.surplus, 0, 6, 0.5)}</label></div>`;
+    if (R.source === "maquette") {
+      h += `<button type="button" class="btn btn-sm btn-outline-secondary w-100 mt-2" id="btnSolToit" aria-pressed="${outil === "toit"}">${t("piscine.sol.choisirToit")}</button>`;
+      if (r.toit) h += `<div class="text-secondary mt-1">${t("piscine.sol.panChoisi", { aire: entier(r.toit.aire), pente: entier(r.toit.pente), orientation: entier(r.toit.orientation), soleil: nombre(r.toit.part * 100, 0) })}</div>`;
+      else return h + `<p class="text-secondary note-piscine mt-1 mb-0">${t("piscine.sol.aideToit")}</p>`;
+    }
+    if (R.type === "thermique") {
+      const a = Math.round(r.aire * 0.5), b = Math.round(r.aire * 0.8), sf = R.surface || surfaceDefaut(r);
+      h += `<div class="text-secondary note-piscine mt-1">${t("piscine.sol.regleSurface", { a, b, p: entier(sf / r.aire * 100) })}</div>`;
+      if (r.toit && R.source === "maquette" && sf > r.toit.aire) h += `<div class="text-warning-emphasis">${t("piscine.sol.tropGrand", { aire: entier(r.toit.aire) })}</div>`;
+    } else if (r.toit && R.source === "maquette" && R.kwc * 5 > r.toit.aire) h += `<div class="text-warning-emphasis">${t("piscine.sol.tropGrandPV", { aire: entier(r.toit.aire), kwc: nombre(r.toit.aire / 5, 1) })}</div>`;
+    const B = solaire(z, r);
+    if (!B) return h;
+    return h + tableauSolaire(B, r);
+  }
+  /** Tableau mensuel, graphiques, résumé et hypothèses du bilan solaire. */
+  function tableauSolaire({ sys, res }, r) {
+    const pv = sys.type === "pv", copA = reglages.energie === "direct" ? 1 : Math.max(1, reglages.cop), S2 = res.saison;
+    const gain = pv ? S2.elec.med * reglages.prix : S2.solaire.med / copA * reglages.prix;
+    let h = `<div class="graphique-piscine mt-2">${svgSolaireMois(res.mois)}</div>`
+      + `<table class="table table-sm small mb-1 tableau-chauffage"><thead><tr><th></th><th>${t("piscine.sol.colBesoin")}</th><th>${t("piscine.sol.colSolaire")}</th><th>${t("piscine.sol.colAppoint")}</th><th>${t("piscine.sol.colPart")}</th></tr></thead><tbody>`;
+    for (const m of res.mois) h += `<tr><td>${nomMoisCourt(m.m)}</td><td>${entier(m.besoin)}</td><td>${entier(m.solaire)}</td><td>${entier(m.appoint)}</td><td>${nombre(m.part * 100, 0)} %</td></tr>`;
+    h += `<tr class="total"><td>${t("piscine.saisonTotal")}</td><td>${entier(S2.besoin.med)}</td><td>${entier(S2.solaire.med)}</td><td>${entier(S2.appoint.med)}</td><td>${nombre(S2.part.med * 100, 0)} %</td></tr></tbody></table>`;
+    h += `<div class="text-secondary note-piscine">${t("piscine.sol.unites")}</div>`;
+    h += `<dl class="mesures mt-1"><div><dt>${t("piscine.sol.gain")}</dt><dd class="principale">CHF ${entier(gain)}</dd></div>`
+      + `<div><dt>${t("piscine.sol.part")}</dt><dd>${nombre(S2.part.p10 * 100, 0)}–${nombre(S2.part.p90 * 100, 0)} %</dd></div>`
+      + (pv ? `<div><dt>${t("piscine.sol.pvAn")}</dt><dd>${entier(res.pvAnnuel.med)}</dd></div>` : `<div><dt>${t("piscine.sol.parM2")}</dt><dd>${entier(S2.prod.med / sys.surface)}</dd></div>`) + `</dl>`;
+    h += `<p class="text-secondary note-piscine mt-1">${pv
+      ? t("piscine.sol.notePV", { prod: entier(S2.prod.med), plan: entier(S2.plan.med), utilise: entier(S2.elecPV.med), evite: entier(S2.elec.med), an: entier(res.pvAnnuel.med), prix: nombre(reglages.prix, 2) })
+      : t("piscine.sol.noteThermique", { pot: entier(S2.prod.med / sys.surface), plan: entier(S2.plan.med), utile: entier(S2.solaire.med / sys.surface), cop: nombre(copA, 1), prix: nombre(reglages.prix, 2) })}</p>`;
+    // sans appoint : le solaire seul
+    const base = r.temp.analyse;
+    h += `<div class="sous-titre">${t("piscine.sol.seulTitre")}</div><div class="graphique-piscine">${svgSolaireTemp(res.semaines, base.semaines, reglages.seuil)}</div>`
+      + `<div>${t("piscine.sol.seulResume", { seuil: reglages.seuil, avec: nombre(res.jours.med, 0), sans: nombre(base.jours.med, 0), max: nombre(reglages.consigne + sys.surplus, 1) })}</div>`;
+    h += `<details class="mt-1"><summary class="text-secondary">${t("piscine.sol.hypTitre")}</summary><p class="text-secondary note-piscine mb-0">${t(pv ? "piscine.sol.hypPV" : "piscine.sol.hypThermique")} ${t("piscine.sol.limites")}</p></details>`;
+    return h;
+  }
+  function brancherSolaire(z, r) {
+    const R = reglages.solaire;
+    const champs = [["#solType", "type"], ["#solSource", "source"], ["#solCapteur", "capteur"], ["#solPente", "pente", 0, 90], ["#solOrientation", "orientation", -180, 180],
+      ["#solSurface", "surface", 1, 500], ["#solKwc", "kwc", 0.5, 100], ["#solCop", "copPac", 2, 10], ["#solPac", "pac", 1, 50], ["#solSurplus", "surplus", 0, 6]];
+    for (const [id, k, min, max] of champs) $(id)?.addEventListener("change", e => {
+      R[k] = min == null ? e.target.value : Math.max(min, Math.min(max, +e.target.value || 0));
+      garderPrefs();
+      if (k === "source" && R.source === "maquette" && !r.toit && z.toit) choisirToit(z, r, [z.toit.E - S.E0, z.toit.N - S.N0]);
+      montrerToit(R.type !== "aucun" && R.source === "maquette" ? r.toit : null);
+      afficherPro(z, r);
+    });
+    $("#btnSolToit")?.addEventListener("click", () => { if (S.G) activer("toit"); $("#btnSolToit").setAttribute("aria-pressed", String(outil === "toit")); });
+    // pan gardé d'une session précédente : recalculé à l'ouverture
+    if (R.type !== "aucun" && R.source === "maquette" && !r.toit && z.toit && !r.toitEnCours) choisirToit(z, r, [z.toit.E - S.E0, z.toit.N - S.N0]);
+    montrerToit(R.type !== "aucun" && R.source === "maquette" ? r.toit : null);
+  }
+
+  /** Pan de toit cliqué : plan ajusté, masques d'horizon de ses points (sur 150 au plus), part au soleil heure par heure. */
+  async function choisirToit(z, r, p) {
+    const pan = panDeToit(S.G, p[0], p[1]);
+    if (!pan) { o.message(t("piscine.sol.pasDeToit")); return; }
+    r.toitEnCours = true;
+    const { n, c, x0 } = S.G, pas = Math.max(1, Math.ceil(pan.cellules.length / 150)), cel = pan.cellules.filter((_, k) => k % pas === 0), N = cel.length;
+    const pts = new Float32Array(5 * N);
+    cel.forEach((q, k) => { const i = q % n, j = Math.floor(q / n), X = x0 + (i + 0.5) * c, Y = x0 + (j + 0.5) * c; pts.set([i + 0.5, j + 0.5, pan.hauteur(X, Y) + 0.3, 1.0, 0.5], 5 * k); });
+    try {
+      o.etat(0.1, t("piscine.sol.etatToit"));
+      const masques = await masquesPoints(pts, N);
+      const m = masquesDegres(masques, N, S.horizon), hor = partHoraire(m, N, S.lat, S.lon, S.horizon);
+      let fs = 0, ls = 0;
+      for (let k = 0; k < hor.f.length; k++) { fs += hor.f[k]; ls += hor.libre[k]; }
+      r.toit = { aire: pan.aire, pente: pan.pente, orientation: pan.orientation, f: hor.f, svf: facteurCiel(m, N), part: ls ? fs / ls : 0, cellules: pan.cellules, hauteur: pan.hauteur, cle: `${Math.round(p[0] * 2)}|${Math.round(p[1] * 2)}|${N}` };
+      z.toit = { E: Math.round((S.E0 + p[0]) * 100) / 100, N: Math.round((S.N0 + p[1]) * 100) / 100 };
+      garderStock(zones);
+      Object.assign(reglages.solaire, { source: "maquette", pente: Math.round(pan.pente), orientation: Math.round(pan.orientation / 5) * 5 });
+      garderPrefs();
+    } catch (e) { console.error(e); o.message(e.message); }
+    finally { r.toitEnCours = false; o.etat(1, ""); }
+    if (zoneChoisie() === z) afficherPro(z, r);
+  }
+  function masquesPoints(pts, N) {
+    const surface = o.surface(), nb = Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1, Math.ceil(N / 40))), parLot = Math.ceil(N / nb);
+    const masques = new Uint8Array(N * NB_AZ);
+    return Promise.all(Array.from({ length: nb }, (_, k) => new Promise((fini, echec) => {
+      const w = new Worker(new URL("./masques.worker.js", import.meta.url), { type: "module" });
+      w.onmessage = ({ data }) => { w.terminate(); masques.set(data.masques, data.debut * NB_AZ); fini(); };
+      w.onerror = e => { w.terminate(); echec(new Error(e.message || "worker")); };
+      w.postMessage({ surface, n: S.G.n, c: S.G.c, pts: pts.slice(5 * k * parLot, 5 * Math.min(N, (k + 1) * parLot)), debut: k * parLot });
+    }))).then(() => masques);
+  }
+  /** Pan choisi en surbrillance sur la maquette (cellules de 0,5 m, au niveau du plan ajusté). */
+  let matToit = null;
+  function montrerToit(toit) {
+    for (const x of [...groupeToit.children]) { groupeToit.remove(x); x.geometry.dispose(); }
+    if (toit && S.G) {
+      const { n, c, x0 } = S.G, pos = new Float32Array(toit.cellules.length * 18);
+      toit.cellules.forEach((q, k) => {
+        const X = x0 + (q % n) * c, Y = x0 + Math.floor(q / n) * c, zz = [[X, Y], [X + c, Y], [X + c, Y + c], [X, Y], [X + c, Y + c], [X, Y + c]];
+        zz.forEach(([x, y], v) => pos.set([x, toit.hauteur(x, y) + 0.15 - scene.zRef, -y], 18 * k + 3 * v));
+      });
+      const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+      matToit ||= new THREE.MeshBasicMaterial({ color: 0xe8a317, transparent: true, opacity: 0.55, side: THREE.DoubleSide, depthWrite: false, fog: false });
+      const m = new THREE.Mesh(g, matToit); m.renderOrder = 36;
+      groupeToit.add(m);
+    }
+    scene.demander();
+  }
+
   $("#exportPiscine").addEventListener("click", async () => {
     const z = zoneChoisie(), r = z && calculs.get(z.id)?.r;
     if (!r?.temp?.analyse || !autorise()) return;
     try {
       o.etat(0.3, t("piscine.etatPdf"));
       const { pdfPiscine } = await import("./exportZones.js");
-      const blob = await pdfPiscine({ z, r, reglages, S, lieu: $("#lieu").textContent || "", G: S.G, chauffage: r.temp.chauffage || (r.temp.chauffage = chauffage(r)) });
+      const blob = await pdfPiscine({ z, r, reglages, S, lieu: $("#lieu").textContent || "", G: S.G, chauffage: r.temp.chauffage || (r.temp.chauffage = chauffage(r)),
+        solaire: reglages.solaire.type !== "aucun" ? solaire(z, r) : null });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = `Topograph_${(z.nom || "piscine").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]+/g, "-")}_${new Date().toISOString().slice(0, 10)}.pdf`;
@@ -397,8 +566,8 @@ export function brancherZones(o) {
 
   function lirePrefs() { try { return JSON.parse(localStorage.getItem("ombres.piscineReglages") || "{}"); } catch { return {}; } }
   function garderPrefs() {
-    const { profondeur, fond, bache, vent, consigne, energie, cop, prix } = reglages;
-    try { localStorage.setItem("ombres.piscineReglages", JSON.stringify({ profondeur, fond, bache, vent, consigne, energie, cop, prix })); } catch { /* stockage indisponible */ }
+    const { profondeur, fond, bache, vent, consigne, energie, cop, prix, solaire } = reglages;
+    try { localStorage.setItem("ombres.piscineReglages", JSON.stringify({ profondeur, fond, bache, vent, consigne, energie, cop, prix, solaire })); } catch { /* stockage indisponible */ }
   }
 
   o.compte?.addEventListener?.("compte", () => { const z = zoneChoisie(), r = z && calculs.get(z.id)?.r; if (r) afficherPro(z, r); });
@@ -409,13 +578,14 @@ export function brancherZones(o) {
     /** Nouveau lieu chargé (horizon compris) : zones du lieu, contours 3D, calcul de la zone choisie. */
     nouveauLieu() {
       calculs.clear();
+      montrerToit(null);
       if (outil) activer(outil);
       if (!zoneChoisie()) choisie = visibles()[0]?.id || null;
       majListe(); dessiner3D(); calculer();
     },
     /** Bâtiments affichés ou année changés : la zone choisie est recalculée si sa clé a changé. */
     relancer() { calculer(); },
-    vider() { if (outil) activer(outil); for (const x of [...groupe.children]) { groupe.remove(x); x.geometry.dispose(); } $("#resultatPiscine").hidden = true; },
+    vider() { if (outil) activer(outil); for (const x of [...groupe.children]) { groupe.remove(x); x.geometry.dispose(); } montrerToit(null); $("#resultatPiscine").hidden = true; },
   };
   if (import.meta.env.DEV) { api.gratuit = v => { forcerGratuit = v; afficher(); }; api.resultat = () => calculs.get(choisie)?.r; }
   return api;

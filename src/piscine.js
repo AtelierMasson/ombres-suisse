@@ -6,7 +6,8 @@
 //  - évaporation : McMillan (repris par Woolley) ; convection par le rapport de Bowen ;
 //  - sol et parois (U = 0,5 W/m²K), eau d'appoint au réseau (12 °C) ;
 //  - bâche à bulles (option, la nuit 20 h – 9 h) : évaporation × 0,3, convection et infrarouge × 0,7 ;
-//  - chauffage (option) : puissance illimitée, juste assez pour tenir la consigne chaque heure.
+//  - chauffage (option) : puissance illimitée, juste assez pour tenir la consigne chaque heure ;
+//  - apport solaire (option) : fonction horaire fournie par solairePiscine.js, coupée à un plafond de température.
 // Sans three.js ni DOM : testable dans Node. Méthode et limites : docs/piscine-methode.md.
 
 export const DEFAUTS = {
@@ -29,7 +30,8 @@ const es = T => 610.94 * Math.exp(17.625 * T / (T + 243.04)); // pression de vap
  * @param A série horaire d'une année (climat.js seriesStation)
  * @param z { aire, perim, f (Float32 365×24, part au soleil), svf, hauteur (Float32 365×24, soleil au milieu de l'heure) }
  * @param o réglages (DEFAUTS), plus { chauffage: bool, sansOmbre: bool, correctionT (°C, altitude) }
- * @returns {{ debut (ms), Tw: Float32Array (température en fin d'heure), chauffe: Float32Array (W), ouverture (indice) }}
+ *   et, en option, { capteur: (heure) => W fournis à l'eau, plafond: °C } (solairePiscine.js)
+ * @returns {{ debut (ms), Tw: Float32Array (température en fin d'heure), chauffe, solaire: Float32Array (W), ouverture (indice) }}
  */
 export function simulerSaison(A, z, o) {
   const an = new Date(A.debut).getUTCFullYear();
@@ -37,7 +39,7 @@ export function simulerSaison(A, z, o) {
   const hDeb = h0 - 15 * 24, n = h1 - hDeb;
   const V = z.aire * o.profondeur, C = RHOC * V, contact = z.aire + z.perim * o.profondeur;
   const alpha = o.fond === "fonce" ? 0.9 : 0.85, abri = ABRI[o.vent] ?? 0.5, svf = o.sansOmbre ? 1 : z.svf;
-  const Tw = new Float32Array(n), chauffe = new Float32Array(n);
+  const Tw = new Float32Array(n), chauffe = new Float32Array(n), solaire = new Float32Array(n);
   let T = o.reseau, clf = 0.5;
   // sol autour du bassin : moyenne de l'air sur les 60 jours précédents (inertie de la terre)
   let somme = 0, nb = 0;
@@ -75,11 +77,18 @@ export function simulerSaison(A, z, o) {
     const Qsolp = -0.5 * contact * (T - Tsol);
     const Qapp = Qevap < 0 ? (-Qevap / LV) * 4186 * (o.reseau - T) : 0;
     let Tn = T + (Qsol + Qir + Qevap + Qconv + Qsolp + Qapp) * 3600 / C;
+    // apport solaire (capteurs thermiques ou photovoltaïque + pompe à chaleur, solairePiscine.js) : W fournis à l'eau,
+    // coupé quand l'eau atteint `plafond` (régulation)
+    if (o.capteur) {
+      let q = o.capteur({ k, h, i, T, Ta, V: A.V[h] || 0, G, Gb, D, L, sinh });
+      if (q > 0 && o.plafond != null) q = Math.min(q, Math.max(0, (o.plafond - Tn) * C / 3600));
+      if (q > 0) { Tn += q * 3600 / C; solaire[k] = q; }
+    }
     if (o.chauffage && h >= h0 && Tn < o.consigne) { chauffe[k] = (o.consigne - Tn) * C / 3600; Tn = o.consigne; }
     T = Tn;
     Tw[k] = T;
   }
-  return { debut: A.debut + hDeb * 3600000, Tw, chauffe, ouverture: h0 - hDeb, an };
+  return { debut: A.debut + hDeb * 3600000, Tw, chauffe, solaire, ouverture: h0 - hDeb, an };
 }
 
 /** Indice (jour de l'année type × 24 + heure UTC) ; 29 février ramené au 28. */

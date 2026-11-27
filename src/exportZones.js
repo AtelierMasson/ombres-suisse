@@ -1,10 +1,11 @@
 // Export PDF A4 (Pro) de la zone piscine : vue de dessus avec la carte des heures de soleil, mesures, heures par
-// semaine, ensoleillement par mois (ciel clair contre réel), température de l'eau, chauffage, hypothèses et sources.
+// semaine, ensoleillement par mois (ciel clair contre réel), température de l'eau, chauffage, chauffage solaire (option,
+// page 3), hypothèses et sources.
 // jsPDF et svg2pdf sont chargés à la demande (comme coupePdf) ; police Inter (licence OFL, public/polices, sous-ensemble
 // latin de ~23 Ko par graisse) pour garder les accents en français, allemand et italien.
 import { t, nombre, entier, date } from "./i18n.js";
 import { versWgs } from "./geo.js";
-import { svgSemaines, svgMois, svgTemperature, imageZone } from "./graphiquesPiscine.js";
+import { svgSemaines, svgMois, svgTemperature, svgSolaireMois, svgSolaireTemp, imageZone } from "./graphiquesPiscine.js";
 
 const ENCRE = "#26313b", DOUX = "#66727f";
 
@@ -15,7 +16,7 @@ async function base64(url) {
   return btoa(s);
 }
 
-export async function pdfPiscine({ z, r, reglages, S, lieu, G, chauffage }) {
+export async function pdfPiscine({ z, r, reglages, S, lieu, G, chauffage, solaire }) {
   const [{ jsPDF }, { svg2pdf }] = await Promise.all([import("jspdf"), import("svg2pdf.js")]);
   const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
   const [reg, gras] = await Promise.all([base64("/polices/Inter-Regular.ttf"), base64("/polices/Inter-Bold.ttf")]);
@@ -123,6 +124,45 @@ export async function pdfPiscine({ z, r, reglages, S, lieu, G, chauffage }) {
   y += 2;
   police(8, "bold"); y = texte(t("piscine.pdfLimitesTitre"), M, y);
   police(7.5, "normal", DOUX); y = texte(t("piscine.pdfLimites"), M, y, { interligne: 3.4 });
+  // ---------------------------------------------------------------- page 3 : chauffage solaire (si une installation est choisie)
+  if (solaire?.res) {
+    const { sys, res } = solaire, R = reglages.solaire, pv = sys.type === "pv", S2 = res.saison;
+    pdf.addPage();
+    y = M;
+    police(12, "bold"); pdf.text(t("piscine.sol.pdfTitre"), M, y + 4);
+    police(8.5); y = texte(t("piscine.sol.pdfReglages", { systeme: t(pv ? "piscine.sol.pv" : "piscine.sol.thermique"), pente: Math.round(R.pente), orientation: Math.round(R.orientation), source: t(R.source === "maquette" ? "piscine.sol.maquette" : "piscine.sol.saisie") })
+      + " " + (pv ? t("piscine.sol.pdfPV", { kwc: nombre(sys.kwc, 1), pac: nombre(sys.pac, 1), cop: nombre(sys.cop, 1) })
+        : t("piscine.sol.pdfThermique", { capteur: t("piscine.sol." + sys.capteur), surface: entier(sys.surface), p: entier(sys.surface / r.aire * 100) })), M, y + 10);
+    if (r.toit && R.source === "maquette") { police(8, "normal", DOUX); y = texte(t("piscine.sol.panChoisi", { aire: entier(r.toit.aire), pente: entier(r.toit.pente), orientation: entier(r.toit.orientation), soleil: nombre(r.toit.part * 100, 0) }), M, y); }
+    y = await svg(svgSolaireMois(res.mois, opts), M, y + 2, 150);
+    const c4 = [M, M + 35, M + 70, M + 105, M + 140];
+    police(8, "bold", DOUX);
+    [t("piscine.pdfMois"), t("piscine.sol.colBesoin"), t("piscine.sol.colSolaire"), t("piscine.sol.colAppoint"), t("piscine.sol.colPart")].forEach((x, k) => pdf.text(x, c4[k], y + 4));
+    y += 9; police(9);
+    for (const m of res.mois) {
+      [date(new Date(Date.UTC(2025, m.m, 15)), { month: "long" }), `${entier(m.besoin)} kWh`, `${entier(m.solaire)} kWh`, `${entier(m.appoint)} kWh`, `${nombre(m.part * 100, 0)} %`].forEach((x, k) => pdf.text(x, c4[k], y));
+      y += 5;
+    }
+    pdf.setDrawColor(200); pdf.line(M, y - 3, 210 - M, y - 3);
+    police(9, "bold");
+    [t("piscine.saisonTotal"), `${entier(S2.besoin.med)} kWh`, `${entier(S2.solaire.med)} kWh`, `${entier(S2.appoint.med)} kWh`, `${nombre(S2.part.med * 100, 0)} %`].forEach((x, k) => pdf.text(x, c4[k], y + 1));
+    y += 6;
+    const copA = reglages.energie === "direct" ? 1 : Math.max(1, reglages.cop), gain = pv ? S2.elec.med * reglages.prix : S2.solaire.med / copA * reglages.prix;
+    pdf.text(`${t("piscine.sol.gain")} : CHF ${entier(gain)}`, M, y);
+    y += 4;
+    police(7.5, "normal", DOUX);
+    y = texte(t("piscine.sol.unites") + " " + (pv
+      ? t("piscine.sol.notePV", { prod: entier(S2.prod.med), plan: entier(S2.plan.med), utilise: entier(S2.elecPV.med), evite: entier(S2.elec.med), an: entier(res.pvAnnuel.med), prix: nombre(reglages.prix, 2) })
+      : t("piscine.sol.noteThermique", { pot: entier(S2.prod.med / sys.surface), plan: entier(S2.plan.med), utile: entier(S2.solaire.med / sys.surface), cop: nombre(copA, 1), prix: nombre(reglages.prix, 2) })), M, y + 1, { interligne: 3.4 });
+    y += 3;
+    police(10, "bold"); pdf.text(t("piscine.sol.seulTitre"), M, y + 2);
+    y = await svg(svgSolaireTemp(res.semaines, a.semaines, reglages.seuil, opts), M, y + 4, 150);
+    police(8.5); y = texte(t("piscine.sol.seulResume", { seuil: reglages.seuil, avec: nombre(res.jours.med, 0), sans: nombre(a.jours.med, 0), max: nombre(reglages.consigne + sys.surplus, 1) }), M, y + 2);
+    y += 2;
+    police(8, "bold"); y = texte(t("piscine.sol.hypTitre"), M, y);
+    police(7.5, "normal", DOUX); y = texte(`${t(pv ? "piscine.sol.hypPV" : "piscine.sol.hypThermique")} ${t("piscine.sol.limites")}`, M, y, { interligne: 3.4 });
+    y = texte(t("piscine.sol.pdfSources"), M, y + 1, { interligne: 3.4 });
+  }
   // pied de page
   const n = pdf.getNumberOfPages();
   for (let p = 1; p <= n; p++) {

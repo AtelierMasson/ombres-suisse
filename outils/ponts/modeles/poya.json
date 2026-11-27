@@ -46,7 +46,7 @@
  "largeur_dessous": 15.0,
  "epaisseur": 2.0,
  "garde_corps": {
-  "hauteur": 2.5,
+  "hauteur": 1.5,
   "plein": false,
   "pas": 2.0
  },
@@ -177,48 +177,6 @@
      9.0,
      4.0,
      5.5
-    ]
-   ]
-  },
-  {
-   "type": "pile",
-   "s": 338.6,
-   "forme": "rect",
-   "long": 5.0,
-   "larg": 6.0,
-   "z_bas": 548.3,
-   "z_haut": 574.5,
-   "profil": [
-    [
-     0,
-     5.0,
-     7.0
-    ],
-    [
-     3.0,
-     5.0,
-     6.0
-    ]
-   ]
-  },
-  {
-   "type": "pile",
-   "s": 534.6,
-   "forme": "rect",
-   "long": 5.0,
-   "larg": 6.0,
-   "z_bas": 533.0,
-   "z_haut": 578.4,
-   "profil": [
-    [
-     0,
-     5.0,
-     7.0
-    ],
-    [
-     3.0,
-     5.0,
-     6.0
     ]
    ]
   },
@@ -355,20 +313,146 @@
  "arches": [],
  "pylones": [
   {
-   "s": 338.6,
-   "forme": "A",
-   "z_bas": 596.5,
+   "s": 339.25,
+   "forme": "sculpte",
+   "z_bas": 548.3,
    "z_haut": 636.5,
    "epaisseur": 3.0,
-   "ecart": 19.0
+   "ecart": 19.0,
+   "chanfrein": 0.4,
+   "profil": [
+    [
+     548.3,
+     5.2,
+     0,
+     5.0
+    ],
+    [
+     584.0,
+     4.75,
+     0,
+     4.5
+    ],
+    [
+     590.0,
+     4.75,
+     0,
+     4.5
+    ],
+    [
+     596.5,
+     12.7,
+     9.7,
+     5.0
+    ],
+    [
+     610.5,
+     6.5,
+     3.5,
+     4.8
+    ],
+    [
+     618.5,
+     3.5,
+     0.6,
+     4.6
+    ],
+    [
+     622.5,
+     2.6,
+     0,
+     4.5
+    ],
+    [
+     626.5,
+     2.5,
+     0,
+     4.5
+    ],
+    [
+     632.5,
+     2.2,
+     0,
+     4.5
+    ],
+    [
+     636.5,
+     2.1,
+     0,
+     4.5
+    ]
+   ]
   },
   {
-   "s": 534.6,
-   "forme": "A",
-   "z_bas": 600.4,
+   "s": 535.25,
+   "forme": "sculpte",
+   "z_bas": 533.0,
    "z_haut": 640.3,
    "epaisseur": 3.0,
-   "ecart": 19.0
+   "ecart": 19.0,
+   "chanfrein": 0.4,
+   "profil": [
+    [
+     533.0,
+     5.2,
+     0,
+     5.0
+    ],
+    [
+     587.9,
+     4.75,
+     0,
+     4.5
+    ],
+    [
+     593.9,
+     4.75,
+     0,
+     4.5
+    ],
+    [
+     600.4,
+     12.7,
+     9.7,
+     5.0
+    ],
+    [
+     614.4,
+     6.5,
+     3.5,
+     4.8
+    ],
+    [
+     622.4,
+     3.5,
+     0.6,
+     4.6
+    ],
+    [
+     626.4,
+     2.6,
+     0,
+     4.5
+    ],
+    [
+     630.4,
+     2.5,
+     0,
+     4.5
+    ],
+    [
+     636.3,
+     2.2,
+     0,
+     4.5
+    ],
+    [
+     640.3,
+     2.1,
+     0,
+     4.5
+    ]
+   ]
   }
  ],
  "haubans": {
@@ -376,7 +460,8 @@
   "nombre": 7,
   "pas": 11.5,
   "depart": 17,
-  "epaisseur": 0.25
+  "epaisseur": 0.25,
+  "o_ancrage": 7.3
  },
  "sources": [
   "https://fr.wikipedia.org/wiki/Pont_de_la_Poya",
@@ -392,73 +477,154 @@
   "auteur": "Jag9889",
   "licence": "CC BY-SA 4.0"
  },
- "photos_vues": 4,
+ "photos_vues": 5,
  "confiance": "bonne",
- "notes": "Axe refait sur le nuage : l'ouvrage est courbe aux deux bouts (le résumé droit de 760 m en coupait 90 m côté Schoenberg) ; longueur modélisée 851.6 m pour 851,6 m publiés, pente constante 2 %. Pylônes (s 338,6 et 534,6, portée 196 m), sommets laser 636,3 et 640,1 m, 7 haubans par côté et par nappe (56 au total) comptés dans le nuage : sûrs. Portées du viaduc Palatinat publiées (39,6 + 51 + 3 x 54) ; celles du viaduc Schoenberg (231 m, 5 travées) supposées 54 + 54 + 48 + 40 + 35, piles non vues par le laser ; section des piles et épaisseur du tablier (mixte acier-béton, 2 m) estimées sur photos. Non représentable : pylône en losange (fût unique 9,5 x 4,5 m sous le tablier, fourche en Y, puis V renversé coiffé d'un mât : rendu par une pile + un pylône A posé au niveau du tablier) ; têtes de piles évasées en marteau ; galerie antibruit couverte sur les 160 premiers mètres côté tunnel (toit à 599-602 m, soit 6-7 m au-dessus de la chaussée : c'est lui que donne la colonne chaussee du résumé pour s < 170) ; élargissement du tablier à 22 m vers la culée est. Calage photo (v3.1) : fourche en Y sous les pylônes (fût jusqu'à 22 m sous le tablier, deux jambes vers les bords du caisson), têtes de piles évasées en V (9 m, 5,5 -> 12 m).",
- "elements": [
+ "notes": "Axe refait sur le nuage (851,6 m, pente 2 %). PYLÔNES SCULPTÉS (v4) : chaque pylône est UN seul volume lofté (pylones[].profil = sections [z, demi-largeur extérieure, demi-écart intérieur, longueur] ; deux lobes qui se fondent en fût et en mât) : fût 9,5 x 4,5 m, V sous le tablier (fourche de 6,5 m de haut, d'après la photo), jambes qui sortent à ±12,7 m du tablier et se rejoignent à 26 m au-dessus, mât de 4,4 x 4,5 m, arêtes abattues de 0,4 m. Profil au-dessus du tablier relevé sur des coupes du nuage (tranches de 2 m, médiane d'écart 0,23 m aux jambes et au mât, 88 % à moins de 0,5 m) ; sous le tablier (fût, fourche) non vu par le laser, d'après les photos (calage à 4 points, 8,8 px). Tablier : section à poutres de rive pleines (1,6 m) et dalle en retrait (0,8 m) avec traverses tous les 4,25 m ; largeur variable (bords : 19,2 m jusqu'à s 640, puis 23 m vers l'est) ; haubans ancrés à ±7,3 m (nuage), parois à ±7,4 m, lampadaires ; galerie couverte s 0-170 (toit à 7,4 puis 6,4 m au-dessus de la chaussée, écart médian 0,16 m au nuage). Incertain : section réelle sous la dalle (mixte acier-béton, épaisseur 2 m estimée), hauteur du garde-corps (1,5 m, photo), piles du viaduc Schoenberg (portées supposées).",
+ "elements": [],
+ "galeries": [
   {
-   "de": [
-    338.6,
-    -1.9,
-    574.5
+   "s0": 0,
+   "s1": 170,
+   "h": [
+    [
+     0,
+     7.6
+    ],
+    [
+     12,
+     7.4
+    ],
+    [
+     170,
+     6.4
+    ]
    ],
-   "a": [
-    338.6,
-    -9.5,
-    "tablier"
-   ],
-   "larg": 3.2,
-   "ep": 5.0,
-   "larg_fin": 3.0,
-   "ep_fin": 4.5
+   "ep": 0.6,
+   "bandeau": 0.9,
+   "poteau": 0.5,
+   "pas": 6
+  }
+ ],
+ "section": "poutres",
+ "dalle": 0.8,
+ "poutre_larg": 1.6,
+ "traverses": {
+  "pas": 4.25,
+  "ep": 0.4,
+  "prof": 1.7,
+  "s0": 6
+ },
+ "bords": [
+  [
+   0,
+   -9.6,
+   9.6
+  ],
+  [
+   640,
+   -9.6,
+   9.6
+  ],
+  [
+   690,
+   -11.4,
+   9.6
+  ],
+  [
+   750,
+   -11.9,
+   10.0
+  ],
+  [
+   790,
+   -11.9,
+   10.0
+  ],
+  [
+   830,
+   -11.0,
+   11.2
+  ],
+  [
+   851.6,
+   -11.0,
+   11.6
+  ]
+ ],
+ "parois": [
+  {
+   "s0": 160,
+   "s1": 640,
+   "o0": -7.4,
+   "o1": -7.4,
+   "h": 1.2,
+   "ep": 0.3
   },
   {
-   "de": [
-    338.6,
-    1.9,
-    574.5
-   ],
-   "a": [
-    338.6,
-    9.5,
-    "tablier"
-   ],
-   "larg": 3.2,
-   "ep": 5.0,
-   "larg_fin": 3.0,
-   "ep_fin": 4.5
+   "s0": 160,
+   "s1": 640,
+   "o0": 7.4,
+   "o1": 7.4,
+   "h": 1.2,
+   "ep": 0.3
   },
   {
-   "de": [
-    534.6,
-    -1.9,
-    578.4
-   ],
-   "a": [
-    534.6,
-    -9.5,
-    "tablier"
-   ],
-   "larg": 3.2,
-   "ep": 5.0,
-   "larg_fin": 3.0,
-   "ep_fin": 4.5
+   "s0": 640,
+   "s1": 675,
+   "o0": -7.4,
+   "o1": -9.9,
+   "h": 1.2,
+   "ep": 0.3
   },
   {
-   "de": [
-    534.6,
-    1.9,
-    578.4
-   ],
-   "a": [
-    534.6,
-    9.5,
-    "tablier"
-   ],
-   "larg": 3.2,
-   "ep": 5.0,
-   "larg_fin": 3.0,
-   "ep_fin": 4.5
+   "s0": 675,
+   "s1": 780,
+   "o0": -9.9,
+   "o1": -10.2,
+   "h": 1.2,
+   "ep": 0.3
+  },
+  {
+   "s0": 780,
+   "s1": 830,
+   "o0": -10.2,
+   "o1": -9.3,
+   "h": 1.2,
+   "ep": 0.3
+  },
+  {
+   "s0": 640,
+   "s1": 700,
+   "o0": 7.4,
+   "o1": 8.2,
+   "h": 1.2,
+   "ep": 0.3
+  },
+  {
+   "s0": 700,
+   "s1": 780,
+   "o0": 8.2,
+   "o1": 8.7,
+   "h": 1.2,
+   "ep": 0.3
+  },
+  {
+   "s0": 780,
+   "s1": 840,
+   "o0": 8.7,
+   "o1": 9.3,
+   "h": 1.2,
+   "ep": 0.3
+  }
+ ],
+ "lampadaires": [
+  {
+   "s0": 175,
+   "s1": 845,
+   "pas": 24,
+   "o": 5.0,
+   "h": 8.2,
+   "ep": 0.3
   }
  ]
 }

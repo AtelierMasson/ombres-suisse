@@ -7,7 +7,7 @@
 // 3. Appuis : points du nuage à moins de 2 m de chaque pile, pylône ou élément (vu ou non par le laser), et sommet mesuré
 //    des pylônes.
 // 4. Image : élévation (s, altitude) des points du couloir et de la silhouette du modèle, plus une vue en plan.
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { deflateSync } from "node:zlib";
 import { Copc } from "copc";
 import { createLazPerf } from "laz-perf/lib/node/index.js";
@@ -37,9 +37,12 @@ const versWgs = (e, n) => {
   return [(2.6779094 + 4.728982 * y + 0.791484 * y * x + 0.1306 * y * x * x - 0.0436 * y ** 3) * 100 / 36,
     (16.9023892 + 3.238272 * x - 0.270978 * y * y - 0.002528 * x * x - 0.0447 * y * y * x - 0.014 * x ** 3) * 100 / 36];
 };
+const CACHE = process.env.CACHE, enCache = CACHE && existsSync(CACHE);
+const tuiles = new Map(), pts = []; // pts : [x, y, z, classe, s, o]
+if (enCache) { const c = JSON.parse(readFileSync(CACHE, "utf8")); for (const q of c.pts) pts.push(q); for (const [k, v] of c.tuiles) tuiles.set(k, v); }
+else {
 const [lo0, la0] = versWgs(boite[0], boite[1]), [lo1, la1] = versWgs(boite[2], boite[3]);
 const stac = await (await fetch(`https://data.geo.admin.ch/api/stac/v1/collections/ch.swisstopo.swisssurface3d/items?limit=100&bbox=${lo0},${la0},${lo1},${la1}`)).json();
-const tuiles = new Map();
 for (const f of stac.features || []) {
   const a = Object.values(f.assets).find(a => /copc/.test(a.href)); if (!a) continue;
   const k = f.id.split("_").pop(), an = +f.id.split("_")[1];
@@ -47,7 +50,8 @@ for (const f of stac.features || []) {
 }
 if (!tuiles.size) { console.error("pas de nuage COPC ici"); process.exit(2); }
 const lazPerf = await createLazPerf();
-const pts = []; // [x, y, z, classe, s, o]
+const CACHE = process.env.CACHE;
+const enCache = CACHE && existsSync(CACHE);
 const coupe = (b, a) => b[0] < a[2] && b[2] > a[0] && b[1] < a[3] && b[3] > a[1];
 for (const { url } of tuiles.values()) {
   const copc = await Copc.create(url), cube = copc.info.cube, cote = cube[3] - cube[0];
@@ -70,6 +74,8 @@ for (const { url } of tuiles.values()) {
       pts.push([x, y, gz(i), gc(i), s, o]);
     }
   }
+}
+if (CACHE) writeFileSync(CACHE, JSON.stringify({ pts, tuiles: [...tuiles] }));
 }
 // terrain mesuré (classe 2) en cases de 2 m, pour les pieds de piles sans z_bas
 const solG = new Map();
@@ -156,6 +162,40 @@ for (const y of P.pylones || []) {
   ecrire(`Pylône s ${y.s} : sommet mesuré ${l.length ? Math.max(...l.map(p => p[2])).toFixed(1) : "—"} m, modèle ${y.z_haut} m (${l.length} points au-dessus du tablier)`);
 }
 
+// écart des pylônes au nuage : points d'ouvrage (hors sol, végétation) à moins de 12 m du pylône, de la fourche au sommet
+const quant = (a, f) => a.length ? a[Math.min(a.length - 1, Math.floor(a.length * f))] : NaN;
+for (const y of P.pylones || []) {
+  for (const [nom, f] of [["au-dessus du tablier", p => p[2] > zDessus(y.s) + 1.5], ["sous le tablier (13 m)", p => p[2] < zDessus(y.s) - (P.epaisseur || 1) - 0.5 && p[2] > zDessus(y.s) - 13]]) {
+    const l2 = autour(y.s, 12).filter(p => f(p) && p[2] > zSol(p) + 3 && Math.abs(p[5]) < 14);
+    const d = l2.map(distModele).sort((a, b) => a - b);
+    ecrire(`Écart pylône s ${y.s}, ${nom} : ${l2.length} points, distance au modèle médiane ${quant(d, 0.5).toFixed(2)} m, 90 % ${quant(d, 0.9).toFixed(2)} m, ${(100 * d.filter(v => v < 1).length / (d.length || 1)).toFixed(0)} % à moins de 1 m`);
+  }
+}
+// coupes horizontales des pylônes (tranches de 4 m) : intervalles en travers (o) et en long (s) occupés par le nuage
+if (process.env.COUPES) for (const y of P.pylones || []) {
+  const zh = y.z_haut, z0 = Math.floor(zDessus(y.s) - 14);
+  for (let z = z0; z < zh; z += 4) {
+    const l = pts.filter(p => Math.abs(p[4] - y.s) < 8 && Math.abs(p[5]) < 13 && p[2] >= z && p[2] < z + 4 && ouvrage(p) && p[3] !== 17);
+    const iv = (cle, pas, mini) => { const h = new Map(); for (const p of l) { const k = Math.floor(p[cle] / pas); h.set(k, (h.get(k) || 0) + 1); } const ks = [...h].filter(([, n]) => n >= mini).map(([k]) => k).sort((a, b) => a - b); const r = []; for (const k of ks) { if (r.length && k - r.at(-1)[1] <= 1) r.at(-1)[1] = k; else r.push([k, k]); } return r.map(([a, b]) => `${(a * pas).toFixed(1)}..${((b + 1) * pas).toFixed(1)}`).join(" ; "); };
+    const dd = l.filter(p => Math.abs(p[4] - y.s - 0.65) < 2.4).map(distModele).sort((a, b) => a - b);
+    ecrire(`Coupe pylône s ${y.s} z ${z}-${z + 4} (${l.length} pts, écart médian du fût/mât ${dd.length ? quant(dd, 0.5).toFixed(2) : '-'} m sur ${dd.length}) : o ${iv(5, 0.5, 6)} | s-s0 ${iv(4, 0.5, 6).split(" ; ").map(t => t.replace(/-?\d+\.\d/g, v => (parseFloat(v) - y.s).toFixed(1))).join(" ; ")}`);
+  }
+}
+for (const y of P.pylones || []) {
+  const l3 = autour(y.s, 3).filter(p => p[2] > zDessus(y.s) + 1.5 && p[2] > zSol(p) + 3 && Math.abs(p[5]) < 13), d3 = l3.map(distModele).sort((a, b) => a - b);
+  ecrire(`Écart jambes et mât s ${y.s} (points à moins de 3 m du plan du pylône) : ${l3.length} points, médiane ${quant(d3, 0.5).toFixed(2)} m, 90 % ${quant(d3, 0.9).toFixed(2)} m, ${(100 * d3.filter(v => v < 0.5).length / (d3.length || 1)).toFixed(0)} % à moins de 0,5 m`);
+}
+for (const G of P.galeries || []) {
+  const l = pts.filter(p => p[3] === 17 && p[4] >= G.s0 + 2 && p[4] <= G.s1 - 2 && Math.abs(p[5]) < P.largeur / 2 && p[2] > zDessus(p[4]) + 3), d = l.map(distModele).sort((a, b) => a - b);
+  const dz = l.map(p => p[2] - zDessus(p[4])).sort((a, b) => a - b);
+  ecrire(`Galerie s ${G.s0}-${G.s1} : ${l.length} points de toit (classe 17, à plus de 3 m au-dessus de la chaussée), hauteur du toit mesurée médiane ${quant(dz, 0.5).toFixed(2)} m (modèle ${G.h?.[1]?.[1] ?? G.h} m), distance au modèle médiane ${quant(d, 0.5).toFixed(2)} m, 90 % ${quant(d, 0.9).toFixed(2)} m, ${(100 * d.filter(v => v < 0.5).length / (d.length || 1)).toFixed(0)} % à moins de 0,5 m`);
+}
+// largeur du tablier par tranche de 50 m : points « pont » au niveau de la chaussée
+for (let s0 = 0; s0 < L; s0 += 50) {
+  const o = pts.filter(p => p[3] === 17 && p[4] >= s0 && p[4] < s0 + 50 && Math.abs(p[2] - zDessus(p[4])) < 0.8).map(p => p[5]).sort((a, b) => a - b);
+  if (o.length > 30) ecrire(`Largeur chaussée s ${s0}-${s0 + 50} : o ${quant(o, 0.01).toFixed(1)}..${quant(o, 0.99).toFixed(1)} (${o.length} points)`);
+}
+
 // ------------------------------------------------------------------ 4. image : élévation et plan
 const zs = pts.filter(p => p[4] >= -10 && p[4] <= L + 10).map(p => p[2]).sort((a, b) => a - b);
 const zmin = q(zs, 0.005) - 2, zmax = Math.max(q(zs, 0.999), ...(P.pylones || []).map(y => y.z_haut)) + 3;
@@ -195,3 +235,37 @@ const bloc = (type, data) => { const l = Buffer.alloc(4); l.writeUInt32BE(data.l
 const ihdr = Buffer.alloc(13); ihdr.writeUInt32BE(Wd, 0); ihdr.writeUInt32BE(Ht, 4); ihdr[8] = 8; ihdr[9] = 2;
 writeFileSync(sortie, Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), bloc("IHDR", ihdr), bloc("IDAT", deflateSync(lignesPng)), bloc("IEND", Buffer.alloc(0))]));
 ecrire(`Image : ${sortie} (haut : élévation le long de l'axe ; bas : plan ; bleu = modèle, gris = points « pont », orange = autres points d'ouvrage, rouge = non expliqués, brun = sol, vert = végétation)`);
+
+// ------------------------------------------------------------------ 5. terrain de la maquette contre le pont
+// Le sol de l'application (grille.js : depuisPoints, sol interpolé sous les tabliers, eau étendue sous les ponts) est
+// recalculé ici avec les mêmes points : il ne doit ni traverser le tablier, ni boucher l'ouvrage, ni laisser une pile
+// flotter. Conflit = sol au-dessus du dessous du tablier (moins 0,3 m) hors des 4 premiers / derniers mètres.
+{
+  const { depuisPoints, solEn } = await import("../../src/grille.js");
+  const cx = (boite[0] + boite[2]) / 2, cy = (boite[1] + boite[3]) / 2, Rg = Math.ceil(Math.max(boite[2] - boite[0], boite[3] - boite[1]) / 2) + 2;
+  const n = pts.length, nuageG = { n, X: new Float32Array(n), Y: new Float32Array(n), Z: new Float32Array(n), C: new Uint8Array(n) };
+  pts.forEach((p, k) => { nuageG.X[k] = p[0] - cx; nuageG.Y[k] = p[1] - cy; nuageG.Z[k] = p[2]; nuageG.C[k] = p[3]; });
+  const G = depuisPoints(nuageG, Rg);
+  const sol = (x, y) => solEn(G, x - cx, y - cy);
+  const ep = P.epaisseur || 1, conflits = [];
+  for (let s = 4; s <= L - 4; s += 2) {
+    let i = 0; while (i < sA.length - 2 && sA[i + 1] < s) i++;
+    const t = (s - sA[i]) / ((sA[i + 1] - sA[i]) || 1), ax = axe[i], bx = axe[i + 1];
+    const x = ax[0] + t * (bx[0] - ax[0]), y = ax[1] + t * (bx[1] - ax[1]), z = ax[2] + t * (bx[2] - ax[2]);
+    const lx = -(bx[1] - ax[1]), ly = bx[0] - ax[0], ll = Math.hypot(lx, ly) || 1;
+    let pire = -Infinity;
+    for (const o of [-0.4, 0, 0.4]) pire = Math.max(pire, sol(x + o * P.largeur * lx / ll, y + o * P.largeur * ly / ll) - (z - ep));
+    if (pire > -0.3) conflits.push([s, pire]);
+  }
+  const tr = conflits.reduce((r, [s, d]) => { if (r.length && s - r.at(-1)[1] <= 2) { r.at(-1)[1] = s; r.at(-1)[2] = Math.max(r.at(-1)[2], d); } else r.push([s, s, d]); return r; }, []);
+  ecrire(`Terrain de la maquette : ${tr.length ? tr.map(([a, b, d]) => `s ${a}..${b} m (sol jusqu'à ${d.toFixed(1)} m au-dessus du dessous du tablier)`).join(" ; ") : "aucun conflit sous le tablier"}`);
+  const flottent = [];
+  for (const a of P.appuis || []) {
+    if (a.type !== "pile" || a.z_bas == null) continue;
+    let i = 0; while (i < sA.length - 2 && sA[i + 1] < a.s) i++;
+    const t = (a.s - sA[i]) / ((sA[i + 1] - sA[i]) || 1), ax = axe[i], bx = axe[i + 1];
+    const zs = sol(ax[0] + t * (bx[0] - ax[0]), ax[1] + t * (bx[1] - ax[1]));
+    if (a.z_bas > zs + 0.5) flottent.push(`s ${a.s} : pied ${a.z_bas} m, sol ${zs.toFixed(1)} m`);
+  }
+  ecrire(`Piles au-dessus du sol de la maquette : ${flottent.length ? flottent.join(" ; ") : "aucune"}`);
+}

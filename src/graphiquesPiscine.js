@@ -116,3 +116,49 @@ export function couleur(v) {
   return `rgb(${E[i].map((c, k) => Math.round(c + (E[i + 1][k] - c) * u)).join(",")})`;
 }
 export const DEGRADE = "linear-gradient(90deg, rgb(38,77,191), rgb(120,160,200), rgb(242,229,51), rgb(242,120,26))";
+
+/** Chauffage solaire par mois : besoin de chaleur (gris) et part fournie par le solaire (orange), en kWh. */
+export function svgSolaireMois(mois, { encre = "currentColor", police = "inherit", taille = 8 } = {}) {
+  const W = 320, H = 120, g = 34, d = 4, h = 18, b = 16, n = mois.length;
+  const brut = Math.max(10, ...mois.map(m => Math.max(m.besoin, m.solaire)));
+  const pasV = [10, 20, 50, 100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000].find(p => brut / p <= 5) || 20000, max = Math.ceil(brut / pasV) * pasV;
+  const bw = (W - g - d) / n, Y = v => H - b - Math.max(0, v) / max * (H - h - b);
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" font-family="${police}" font-size="${taille}">`;
+  for (let v = 0; v <= max; v += pasV)
+    s += `<line x1="${g}" x2="${W - d}" y1="${Y(v)}" y2="${Y(v)}" stroke="${encre}" stroke-opacity="0.15" stroke-width="0.5"/><text x="${g - 3}" y="${Y(v) + 3}" text-anchor="end" fill="${encre}">${xml(nombre(v, 0))}</text>`;
+  const noms = initialesMois();
+  mois.forEach((m, k) => {
+    const x = g + k * bw, l = Math.min(26, bw / 2 - 3), x0 = x + bw / 2 - l - 1;
+    s += `<rect x="${x0.toFixed(1)}" y="${Y(m.besoin).toFixed(1)}" width="${l.toFixed(1)}" height="${(Y(0) - Y(m.besoin)).toFixed(1)}" fill="${POSSIBLE}" fill-opacity="0.55"/>`;
+    s += `<rect x="${(x0 + l + 2).toFixed(1)}" y="${Y(m.solaire).toFixed(1)}" width="${l.toFixed(1)}" height="${(Y(0) - Y(m.solaire)).toFixed(1)}" fill="${SOLEIL}"/>`;
+    s += `<text x="${(x + bw / 2).toFixed(1)}" y="${H - 4}" text-anchor="middle" fill="${encre}">${xml(noms[m.m])}</text>`;
+  });
+  s += `<text x="${g - 3}" y="${h - 9}" text-anchor="end" fill="${encre}">kWh</text>`;
+  s += `<rect x="${g + 4}" y="${h - 14}" width="7" height="6" fill="${POSSIBLE}" fill-opacity="0.55"/><text x="${g + 14}" y="${h - 8.5}" fill="${encre}">${xml(t("piscine.sol.legBesoin"))}</text>`;
+  s += `<rect x="${g + 130}" y="${h - 14}" width="7" height="6" fill="${SOLEIL}"/><text x="${g + 140}" y="${h - 8.5}" fill="${encre}">${xml(t("piscine.sol.legSolaire"))}</text>`;
+  return s + "</svg>";
+}
+
+/** Température de l'eau sans appoint : avec le solaire seul (orange, bande P10–P90) et sans rien (bleu pointillé). */
+export function svgSolaireTemp(avec, sans, seuil, { encre = "currentColor", police = "inherit", taille = 8 } = {}) {
+  const W = 320, H = 140, g = 26, d = 6, h = 8, b = 16, n = avec.length;
+  const parW = new Map(sans.map(x => [x.w, x.med]));
+  const vals = [...avec.flatMap(s => [s.p10, s.p90]), ...sans.map(s => s.med)].filter(Number.isFinite);
+  const t0 = Math.floor(Math.min(14, ...vals) / 2) * 2, t1 = Math.ceil(Math.max(30, ...vals) / 2) * 2;
+  const X = k => g + (k + 0.5) * (W - g - d) / n, Y = v => H - b - (v - t0) / (t1 - t0) * (H - h - b);
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" font-family="${police}" font-size="${taille}">`;
+  for (let v = t0; v <= t1; v += 4)
+    s += `<line x1="${g}" x2="${W - d}" y1="${Y(v)}" y2="${Y(v)}" stroke="${encre}" stroke-opacity="0.15" stroke-width="0.5"/><text x="${g - 3}" y="${Y(v) + 3}" text-anchor="end" fill="${encre}">${v}°</text>`;
+  s += `<line x1="${g}" x2="${W - d}" y1="${Y(seuil)}" y2="${Y(seuil)}" stroke="${CHAUD}" stroke-width="0.8" stroke-dasharray="3 2"/><text x="${W - d}" y="${Y(seuil) - 2}" text-anchor="end" fill="${CHAUD}">${seuil} °C</text>`;
+  const bande = avec.map((x, k) => `${k ? "L" : "M"}${X(k).toFixed(1)},${Y(x.p90).toFixed(1)}`).join("") + [...avec].reverse().map((x, k) => `L${X(n - 1 - k).toFixed(1)},${Y(x.p10).toFixed(1)}`).join("") + "Z";
+  s += `<path d="${bande}" fill="${SOLEIL}" fill-opacity="0.18"/>`;
+  const base = avec.map((x, k) => [k, parW.get(x.w)]).filter(([, v]) => Number.isFinite(v));
+  if (base.length) s += `<path d="${base.map(([k, v], j) => `${j ? "L" : "M"}${X(k).toFixed(1)},${Y(v).toFixed(1)}`).join("")}" fill="none" stroke="${EAU}" stroke-width="1.2" stroke-dasharray="3 2"/>`;
+  s += `<path d="${avec.map((x, k) => `${k ? "L" : "M"}${X(k).toFixed(1)},${Y(x.med).toFixed(1)}`).join("")}" fill="none" stroke="${SOLEIL}" stroke-width="1.6"/>`;
+  const im = initialesMois();
+  let mAvant = -1;
+  avec.forEach((x, k) => { const m = new Date(Date.UTC(2025, 0, 1 + x.w * 7 + 3)).getUTCMonth(); if (m !== mAvant) { s += `<text x="${X(k).toFixed(1)}" y="${H - 4}" fill="${encre}">${xml(im[m])}</text>`; mAvant = m; } });
+  s += `<line x1="${g + 4}" x2="${g + 14}" y1="${h + 3}" y2="${h + 3}" stroke="${SOLEIL}" stroke-width="1.6"/><text x="${g + 17}" y="${h + 6}" fill="${encre}">${xml(t("piscine.sol.legAvec"))}</text>`;
+  s += `<line x1="${g + 130}" x2="${g + 140}" y1="${h + 3}" y2="${h + 3}" stroke="${EAU}" stroke-width="1.2" stroke-dasharray="3 2"/><text x="${g + 143}" y="${h + 6}" fill="${encre}">${xml(t("piscine.sol.legSans"))}</text>`;
+  return s + "</svg>";
+}
