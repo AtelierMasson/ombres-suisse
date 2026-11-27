@@ -80,6 +80,9 @@ export function brancherPro(o) {
     }
     // fiche du lieu (bas à droite) : bâtiment cliqué, ou parcelle ; point exact du clic (toit, façade ou sol)
     const pc = scene.pointSol(e);
+    // la parcelle choisie et ses bâtiments s'éclairent, comme la parcelle de l'adresse au chargement
+    const qSel = pc && o.parcelleEn?.(pc[0], pc[1]);
+    if (qSel && !e.shiftKey) scene.surligner(qSel, s >= 0 ? pc : null);
     if (pc && o.fiche) {
       const q2 = o.parcelleEn?.(pc[0], pc[1]), aire = q2 ? Math.abs(q2.anneauxRel[0].reduce((a, [x, y], i, A) => { const [x2, y2] = A[(i + 1) % A.length]; return a + x * y2 - x2 * y; }, 0) / 2) : null;
       o.fiche.montrer(S.E0 + pc[0], S.N0 + pc[1], { batiment: s >= 0, surface: aire, numero: q2?.numero });

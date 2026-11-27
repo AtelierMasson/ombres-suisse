@@ -455,9 +455,9 @@ scene.surVoyage = cible => {
 const ACCUEIL = { E: 2572640, N: 1159220, R: 450, chateau: [2572790, 1159320] };
 let debutAccueil = null; // début du mouvement de la caméra (gardé quand la grande zone remplace le bourg)
 function volAccueil(E0, N0) {
-  // départ bas, au-dessus des prés à l'ouest du bourg, assez loin du château ; la caméra s'en approche d'un quart,
-  // puis revient
-  const C = [ACCUEIL.chateau[0] - E0 - 60, 5, -(ACCUEIL.chateau[1] - N0) + 40], A = [-390, 55, 270], B = A.map((v, k) => v + (C[k] - v) * 0.25);
+  // départ bas, au-dessus des prés à l'ouest du bourg, assez loin du château ; la caméra passe à droite du bourg
+  // (par le sud), le regard tourné vers le château, puis revient
+  const C = [ACCUEIL.chateau[0] - E0 - 60, 5, -(ACCUEIL.chateau[1] - N0) + 40], A = [-390, 55, 270], B = [-40, 40, 250];
   const t0 = debutAccueil ??= performance.now(), duree = 70000;
   scene.controls.autoRotate = false;
   // lumière de fin d'après-midi, de l'ouest-sud-ouest : les façades vues de la caméra sont au soleil
