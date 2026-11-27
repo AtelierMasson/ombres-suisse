@@ -265,6 +265,8 @@ export default {
   "aff.arbres": "Arbres",
   "aff.arbresVoir": "Voir les arbres",
   "aff.arbresOmbre": "Ombre des arbres",
+  "aff.essences": "Essences des arbres",
+  "aff.essencesTitre": "Teinte selon l'essence probable : conifères plus sombres, feuillus plus clairs, mélèzes vert tendre (forme du nuage, altitude, degré de mélange LFI)",
   "aff.couleurs": "couleurs réelles",
   "aff.couleursTitre": "Couleur de chaque point prise sur l'orthophoto SWISSIMAGE, à la verticale (les façades prennent la couleur du toit ou du sol voisin)",
   "aff.points": "Nuage de points brut",

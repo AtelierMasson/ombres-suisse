@@ -71,6 +71,7 @@ import { chargerImage, teinterCadastre, adoucirPhoto } from "./fond.js";
 import { maillageBassins } from "./piscines.js";
 import { trancheCoupe } from "./coupe.js";
 import { calculerTerrainTIN, maillageTIN, hauteurTIN } from "./terrainTIN.js";
+import { affinerParMelange } from "./arbresEspeces.js";
 
 /**
  * Trait de coupe « 2D » : épaisseur constante en pixels, dessiné par-dessus tout (sans test de profondeur), avec des
@@ -860,6 +861,8 @@ void main() {
     const nouvelles = { terrain: sol, socle: base, bati, canopee, arbres, limite, eau, ponts, piscines };
     if (remplacer) Object.assign(this.couches, nouvelles); else this.couches = nouvelles;
     for (const o of Object.values(nouvelles)) if (o) this.groupe.add(o);
+    // essences des arbres : le degré de mélange LFI (forêt) affine l'a priori par l'altitude, dès qu'il est lu
+    if (arbres && this.lieuPonts) affinerParMelange(arbres, this.lieuPonts, G.R, () => this.demander());
     // la canopée qui porte l'ombre des points est un peu abaissée : le haut des couronnes reste au soleil,
     // l'intérieur et le bas s'assombrissent
     canopee.position.y = -0.8;
@@ -995,6 +998,12 @@ void main() {
     if (this.coupe && this.tranche?.userData.arbres) this.tranche.userData.arbres.visible = visibles;
     this.appliquerCalques();
     this.ombres();
+  }
+
+  /** Arbres teintés selon leur essence probable (conifère, feuillu, mélèze ; arbresEspeces.js) ou tous pareils. */
+  essencesArbres(actif) {
+    DEGRADE.especes.value = actif ? 1 : 0;
+    this.demander(3);
   }
 
   /** Dégradé de couleur selon la hauteur, sur tout le modèle. */

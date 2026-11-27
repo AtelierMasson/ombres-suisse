@@ -1058,6 +1058,7 @@ $("#vLointain").addEventListener("change", e => {
   if (e.target.checked && S.G && !scene.loin.maille && !document.body.classList.contains("accueil")) paysageEtAnneau(tache, scene.idScene).catch(e => console.warn("Relief lointain :", e.message));
 });
 $("#vDegrade").addEventListener("change", e => scene.degradeHauteur(e.target.checked));
+$("#vEssences").addEventListener("change", e => scene.essencesArbres(e.target.checked));
 scene.surQualite = q => {
   if (q < 2) return;
   $("#qualite").value = 0; curseurs();
