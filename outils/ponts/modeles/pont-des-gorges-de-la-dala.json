@@ -1,0 +1,113 @@
+{
+ "nom": "Pont des Gorges de la Dala, Loèche - Varen",
+ "axe": [
+  [
+   2614142.35,
+   1129787.4,
+   736.17
+  ],
+  [
+   2614251.93,
+   1129772.02,
+   730.15
+  ],
+  [
+   2614360.58,
+   1129756.76,
+   724.27
+  ]
+ ],
+ "largeur": 13.0,
+ "largeur_dessous": 7.0,
+ "epaisseur": 2.4,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 220.4
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [
+  {
+   "de": [
+    22.0,
+    -3.5,
+    705.752
+   ],
+   "a": [
+    61.6,
+    -3.5,
+    "tablier"
+   ],
+   "larg": 1.8,
+   "ep": 1.5
+  },
+  {
+   "de": [
+    189.0,
+    -3.5,
+    695.8320000000001
+   ],
+   "a": [
+    150.3,
+    -3.5,
+    "tablier"
+   ],
+   "larg": 1.8,
+   "ep": 1.5
+  },
+  {
+   "de": [
+    22.0,
+    3.5,
+    705.752
+   ],
+   "a": [
+    61.6,
+    3.5,
+    "tablier"
+   ],
+   "larg": 1.8,
+   "ep": 1.5
+  },
+  {
+   "de": [
+    189.0,
+    3.5,
+    695.8320000000001
+   ],
+   "a": [
+    150.3,
+    3.5,
+    "tablier"
+   ],
+   "larg": 1.8,
+   "ep": 1.5
+  }
+ ],
+ "sources": [
+  "https://fr.wikipedia.org/wiki/Pont_des_Gorges_de_la_Dala",
+  "https://commons.wikimedia.org/wiki/Category:Pont_des_Gorges_du_Dala",
+  "https://commons.wikimedia.org/wiki/File:Varnerbriggu.jpg",
+  "swissSURFACE3D 2022 (tuile LAS 2614-1129 lue en entier, pas de COPC pour cette tuile)"
+ ],
+ "photo": {
+  "fichier": "p1.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Pont_des_Gorges_du_Dala_220_12_2014_01.jpg",
+  "auteur": "Björn Sothmann",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 4,
+ "confiance": "bonne",
+ "notes": "Axe, altitudes et largeur (13 m, pente 5,4 %, droit) tirés du nuage 2022 (tuile LAS, pas de COPC) : tablier à 0,01 m de médiane, 98 % des points d'ouvrage à moins de 1,5 m. Quatre béquilles en acier d'après le nuage (traces à o = ±3,5 m, section 1,8 x 1,5 m) : ouest inclinée de 31 degrés, du pied (s 22, z 706) au tablier (s 61), est de 36 degrés, du pied (s 189, z 696) au tablier (s 150) ; calage photo sur 2 vues du sud (7,4 px et 5,3 px de résidu), qui a ramené l'épaisseur du tablier à 2,4 m (largeur du dessous 7 m). Incertain : section réelle des poutres (le schéma ne sait pas faire de poutres maîtresses à ±3,5 m sous des encorbellements, le dessous est un caisson de 7 m), section et nœuds des béquilles (barres droites), culées (le tablier entre dans le rocher). Conflit de terrain résiduel : s 4 et s 216 (sol de la maquette de 0,5 m au-dessus du dessous du tablier, remblai d'accès aux culées), laissé tel quel. Béquilles reliées au dessous du tablier (z \"tablier\")."
+}

@@ -1,0 +1,431 @@
+{
+ "nom": "Rheinbrücke N4 (A4), Schaffhausen–Flurlingen",
+ "axe": [
+  [
+   2689084.9,
+   1283104.1,
+   393.66
+  ],
+  [
+   2689086.1,
+   1283099.7,
+   393.68
+  ],
+  [
+   2689090.8,
+   1283082.2,
+   393.78
+  ],
+  [
+   2689096.7,
+   1283065.2,
+   393.88
+  ],
+  [
+   2689106.3,
+   1283043.2,
+   394.01
+  ],
+  [
+   2689117.6,
+   1283021.9,
+   394.14
+  ],
+  [
+   2689130.7,
+   1283001.2,
+   394.28
+  ],
+  [
+   2689145.3,
+   1282981.2,
+   394.41
+  ],
+  [
+   2689153.2,
+   1282969.6,
+   394.49
+  ]
+ ],
+ "largeur": 20.3,
+ "bords": [
+  [
+   0,
+   -10.1,
+   10.0
+  ],
+  [
+   44,
+   -10.1,
+   9.7
+  ],
+  [
+   104,
+   -10.6,
+   10.2
+  ],
+  [
+   134,
+   -10.8,
+   10.9
+  ],
+  [
+   146,
+   -10.2,
+   11.4
+  ],
+  [
+   152.0,
+   -10.3,
+   11.4
+  ]
+ ],
+ "epaisseur": 1.55,
+ "section": "poutres",
+ "dalle": 0.28,
+ "poutre_larg": 1.5,
+ "traverses": {
+  "pas": 5.5,
+  "ep": 0.5,
+  "prof": 1.45,
+  "s0": 4,
+  "s1": 148.0
+ },
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 152.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [
+  {
+   "de": [
+    161.6,
+    -12.5,
+    391.5
+   ],
+   "a": [
+    111.6,
+    -10.5,
+    433.5
+   ],
+   "larg": 1.9,
+   "ep": 2.2,
+   "larg_fin": 1.9,
+   "ep_fin": 2.1,
+   "materiau": "beton_clair"
+  },
+  {
+   "de": [
+    160.5,
+    12.5,
+    391.5
+   ],
+   "a": [
+    110.5,
+    4.9,
+    433.5
+   ],
+   "larg": 1.9,
+   "ep": 2.2,
+   "larg_fin": 1.9,
+   "ep_fin": 2.1,
+   "materiau": "beton_clair"
+  },
+  {
+   "de": [
+    111.0,
+    -10.5,
+    434.0
+   ],
+   "a": [
+    111.0,
+    4.9,
+    434.0
+   ],
+   "larg": 2.6,
+   "ep": 3.0,
+   "materiau": "beton_clair"
+  },
+  {
+   "de": [
+    120.5,
+    -10.9,
+    426.0
+   ],
+   "a": [
+    119.4,
+    6.3,
+    426.0
+   ],
+   "larg": 0.7,
+   "ep": 0.7,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    122.9,
+    -11.0,
+    424.0
+   ],
+   "a": [
+    150.4,
+    11.0,
+    400.0
+   ],
+   "larg": 0.6,
+   "ep": 0.6,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    152.7,
+    -12.1,
+    399.0
+   ],
+   "a": [
+    151.6,
+    11.1,
+    399.0
+   ],
+   "larg": 0.7,
+   "ep": 0.7,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    112.8,
+    -9.6,
+    432.5
+   ],
+   "a": [
+    26.0,
+    -9.4,
+    "chaussee"
+   ],
+   "larg": 0.28,
+   "ep": 0.28,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    115.2,
+    -9.7,
+    430.5
+   ],
+   "a": [
+    40.0,
+    -9.4,
+    "chaussee"
+   ],
+   "larg": 0.28,
+   "ep": 0.28,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    117.6,
+    -9.8,
+    428.5
+   ],
+   "a": [
+    56.0,
+    -9.4,
+    "chaussee"
+   ],
+   "larg": 0.28,
+   "ep": 0.28,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    119.9,
+    -9.9,
+    426.5
+   ],
+   "a": [
+    72.0,
+    -9.4,
+    "chaussee"
+   ],
+   "larg": 0.28,
+   "ep": 0.28,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    122.3,
+    -10.0,
+    424.5
+   ],
+   "a": [
+    87.0,
+    -9.4,
+    "chaussee"
+   ],
+   "larg": 0.28,
+   "ep": 0.28,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    124.7,
+    -10.1,
+    422.5
+   ],
+   "a": [
+    100.0,
+    -9.4,
+    "chaussee"
+   ],
+   "larg": 0.28,
+   "ep": 0.28,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    114.6,
+    -9.7,
+    431
+   ],
+   "a": [
+    126.8,
+    -11.6,
+    393.3
+   ],
+   "larg": 1.0,
+   "ep": 1.0,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    111.7,
+    4.2,
+    432.5
+   ],
+   "a": [
+    26.0,
+    9.4,
+    "chaussee"
+   ],
+   "larg": 0.28,
+   "ep": 0.28,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    114.1,
+    4.5,
+    430.5
+   ],
+   "a": [
+    40.0,
+    9.4,
+    "chaussee"
+   ],
+   "larg": 0.28,
+   "ep": 0.28,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    116.5,
+    4.9,
+    428.5
+   ],
+   "a": [
+    56.0,
+    9.4,
+    "chaussee"
+   ],
+   "larg": 0.28,
+   "ep": 0.28,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    118.8,
+    5.3,
+    426.5
+   ],
+   "a": [
+    72.0,
+    9.4,
+    "chaussee"
+   ],
+   "larg": 0.28,
+   "ep": 0.28,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    121.2,
+    5.6,
+    424.5
+   ],
+   "a": [
+    87.0,
+    9.4,
+    "chaussee"
+   ],
+   "larg": 0.28,
+   "ep": 0.28,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    123.6,
+    6.0,
+    422.5
+   ],
+   "a": [
+    100.0,
+    9.4,
+    "chaussee"
+   ],
+   "larg": 0.28,
+   "ep": 0.28,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    113.5,
+    4.5,
+    431
+   ],
+   "a": [
+    126.8,
+    10.4,
+    393.3
+   ],
+   "larg": 1.0,
+   "ep": 1.0,
+   "materiau": "acier"
+  }
+ ],
+ "sources": [
+  "https://de.wikipedia.org/wiki/Rheinbr%C3%BCcke_N4",
+  "https://structurae.net/de/bauwerke/rheinbruecke-der-n4-in-schaffhausen"
+ ],
+ "photo": {
+  "fichier": "p1.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:A4_Schr%C3%A4gseilbr%C3%BCcke_Schaffhausen_-_Flurlingen_ZH_(2021).jpg",
+  "auteur": "JoachimKohler-HB",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 3,
+ "confiance": "moyenne",
+ "notes": "Axe, altitudes (+0,55 %), largeur variable 20-22 m, jambes inclinées (A convergent, ~40° sur l'horizontale, 2 x 2,2 m, sommet 435,6 m), traverse de tête, haubans principaux (6 par nappe, ancrages s = 26 à 100 m) et faisceaux arrière raides vers le caisson d'ancrage (s ~ 127 m) mesurés sur le nuage ; entretoises en Z d'après les photos. Non vérifié : faisceaux arrière en plan (position transversale approchée), pas de pile ni de caisson d'ancrage dessiné sous le tablier (non vu au laser), pieds des jambes dans le talus. Le schéma ne sait pas faire les faisceaux de 8 câbles ni les jambes à section variable.",
+ "materiau_tablier": "beton"
+}
