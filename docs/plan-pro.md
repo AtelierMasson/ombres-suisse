@@ -56,6 +56,22 @@ Un **projet** est un lieu sur lequel on ajoute ou retire des bâtiments, pour vo
      - le toit : plat, deux pans (faîte et hauteur), quatre pans ou un pan ;
      - la base : posée sur le terrain (point le plus bas ou le plus haut) ou à une altitude donnée.
    - Des poignées permettent de déplacer, tourner et étirer le volume. Les cotes s'affichent pendant le dessin.
+   - **Fait (emprise libre)** : bouton « Emprise libre », un clic par coin ; on ferme par un clic sur le premier point,
+     un double-clic ou Entrée ; Retour arrière retire le dernier point, Échap annule. Chaque côté s'accroche (à 4° près)
+     à l'angle droit sur le premier côté et à l'orientation de la parcelle, des bâtiments voisins et des autres volumes ;
+     sa longueur s'arrondit à 10 cm (au mètre avec Maj). Les longueurs sont cotées pendant le dessin (« ⊥ » quand le
+     côté est accroché) et un côté qui recoupe le tracé est refusé. Le tracé reste drapé sur le terrain.
+   - Les volumes à emprise libre ont les mêmes réglages que les rectangles (étages, corniche, base, opacité, couleur) et
+     vont partout (ombres, heures de soleil, coupe, vue plan, exports, impression 3D, projet enregistré). Toit plat
+     seulement : les toits à pans restent réservés aux rectangles (options grisées sinon). Format enregistré : mêmes
+     `coins` (sens trigonométrique), plus `libre: true` ; les anciens projets s'ouvrent sans changement.
+   - **Fait (pousser-tirer)** : sur le volume choisi, tirer un mur le déplace le long de sa normale (les murs voisins
+     s'allongent ou se raccourcissent, l'emprise ne peut pas se retourner) ; tirer le toit change la corniche. Pour une
+     emprise libre, les coins se tirent (accrochés aux angles droits du volume), le « + » au milieu d'un côté ajoute un
+     coin, un double-clic ou Alt + clic sur un coin le retire. Pas de 10 cm (1 m avec Maj, 15° pour la rotation) ; la
+     cote du geste s'affiche, et une valeur tapée puis Entrée refait le dernier geste à la cote exacte (distance du mur,
+     hauteur de corniche, angle, déplacement). Annuler / rétablir : Ctrl+Z, Ctrl+Maj+Z (ou Ctrl+Y) et boutons ↶ ↷ ; chaque
+     changement validé des volumes est une étape.
 2. **Importer un modèle**
    - **Formats** : glTF/GLB, OBJ, STL, DXF (faces 3D) et, plus tard, IFC.
    - **Écran d'import, une seule boîte** :

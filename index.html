@@ -296,7 +296,12 @@
           </div>
           <div class="d-flex gap-1 mt-1">
             <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnVolume" data-i18n="projet.dessiner" data-i18n-title="projet.dessinerTitre" title="Trois clics sur la maquette : deux pour un côté, un pour la profondeur">Dessiner un volume</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnEmprise" data-i18n="projet.emprise" data-i18n-title="projet.empriseTitre" title="Un clic par coin ; fermer sur le premier point, par un double-clic ou Entrée">Emprise libre</button>
+          </div>
+          <div class="d-flex gap-1 mt-1">
             <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnImporter" data-i18n="import.bouton" data-i18n-title="import.boutonTitre" title="glTF/GLB, OBJ, STL ou DXF ; avec la limite de parcelle dedans, il se place tout seul">Importer un modèle</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnAnnulerVolume" disabled data-i18n-title="projet.annulerVolume" data-i18n-aria-label="projet.annulerVolume" title="Annuler (Ctrl+Z)" aria-label="Annuler (Ctrl+Z)">↶</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnRetablirVolume" disabled data-i18n-title="projet.retablirVolume" data-i18n-aria-label="projet.retablirVolume" title="Rétablir (Ctrl+Maj+Z)" aria-label="Rétablir (Ctrl+Maj+Z)">↷</button>
           </div>
           <input type="file" id="fichierModele" accept=".glb,.gltf,.obj,.stl,.dxf,.dwg" hidden>
           <button type="button" class="btn btn-sm btn-link px-0" id="btnRefParcelle" data-i18n="import.refBouton">Télécharger la parcelle de référence (DXF)</button>

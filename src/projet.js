@@ -1,5 +1,5 @@
-// Projet (mode pro) : volumes dessinés sur la maquette (rectangle en trois clics ; toit plat, à deux pans ou à quatre
-// pans ; étages) et projets enregistrés dans le navigateur (lieu, date, bâtiments démolis, volumes ajoutés, coupes).
+// Projet (mode pro) : volumes dessinés sur la maquette (rectangle en trois clics, ou emprise libre coin par coin ; toit
+// plat, à deux pans ou à quatre pans pour un rectangle ; étages) et projets enregistrés dans le navigateur (lieu, date, bâtiments démolis, volumes ajoutés, coupes).
 import * as THREE from "three";
 import { solEn } from "./grille.js";
 
@@ -118,14 +118,14 @@ function faitage(v, L, P) {
 
 /** Hauteur du faîte au-dessus de la corniche (m) : 0 pour un toit plat. */
 export function hauteurToit(v) {
-  if (v.toit === "plat" || !(v.pente > 0)) return 0;
+  if (v.toit === "plat" || !(v.pente > 0) || !pansPossibles(v)) return 0;
   const { L, P } = cadre(v), { B } = faitage(v, L, P);
   return r2(Math.tan(Math.min(80, v.pente) * Math.PI / 180) * B);
 }
 
 /** Règle la pente pour que le faîte soit à `h` m au-dessus de la corniche. */
 export function reglerFaite(v, h) {
-  if (v.toit === "plat") return;
+  if (v.toit === "plat" || !pansPossibles(v)) return;
   const { L, P } = cadre(v), { B } = faitage(v, L, P);
   v.pente = Math.round(Math.max(1, Math.min(80, Math.atan(Math.max(0.05, h) / B) * 180 / Math.PI)) * 10) / 10;
 }
@@ -145,8 +145,8 @@ export function volumeGeometrie(v, G, zRef) {
   const quad = (a, b, c, d) => { tri(a, b, c); tri(a, c, d); };
   for (let k = 0; k < C.length; k++) { face = k; quad(S(C[k], bas), S(C[(k + 1) % C.length], bas), S(C[(k + 1) % C.length], h), S(C[k], h)); }
   face = -1;
-  const pans = (v.toit === "deux" || v.toit === "quatre") && C.length === 4 && v.pente > 0;
-  if (!pans) for (let k = 1; k + 1 < C.length; k++) tri(S(C[0], h), S(C[k], h), S(C[k + 1], h));
+  const pans = (v.toit === "deux" || v.toit === "quatre") && pansPossibles(v) && v.pente > 0;
+  if (!pans) for (const [a, b, c] of trianguler(C)) tri(S(C[a], h), S(C[b], h), S(C[c], h));
   else {
     const { cx, cy, L, P, u, n } = cadre(v), { axe, A, B } = faitage(v, L, P);
     const a = axe === "u" ? u : n, b = axe === "u" ? n : [-u[0], -u[1]];
@@ -171,16 +171,165 @@ export function volumeGeometrie(v, G, zRef) {
 /** Traits des étages sur les façades (segments, repère de la scène), à 4 cm devant les murs. */
 export function traitsEtages(v, zRef, G = null) {
   if (!v.etages || !(v.base > -1000) || (v.etages.length < 2 && !(G && v.base > solMinimum(v, G) + 0.1))) return null;
-  const { cx, cy, L, P, u, n } = cadre(v), e = 0.04, pos = [];
-  const coins = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([s, t]) => [cx + s * (L / 2 + e) * u[0] + t * (P / 2 + e) * n[0], cy + s * (L / 2 + e) * u[1] + t * (P / 2 + e) * n[1]]);
+  const coins = decaler(v.coins, 0.04), n = coins.length, pos = [];
+  const tour = z => { for (let i = 0; i < n; i++) { const a = coins[i], b = coins[(i + 1) % n]; pos.push(a[0], z, -a[1], b[0], z, -b[1]); } };
   let z = v.base - zRef;
   // base au-dessus du terrain : un trait marque le pied du rez (les murs descendent plus bas, jusqu'au terrain)
-  if (G && v.base > solMinimum(v, G) + 0.1) for (let i = 0; i < 4; i++) { const a = coins[i], b = coins[(i + 1) % 4]; pos.push(a[0], z, -a[1], b[0], z, -b[1]); }
-  for (let k = 0; k + 1 < v.etages.length; k++) {
-    z += v.etages[k];
-    for (let i = 0; i < 4; i++) { const a = coins[i], b = coins[(i + 1) % 4]; pos.push(a[0], z, -a[1], b[0], z, -b[1]); }
-  }
+  if (G && v.base > solMinimum(v, G) + 0.1) tour(z);
+  for (let k = 0; k + 1 < v.etages.length; k++) { z += v.etages[k]; tour(z); }
   return new Float32Array(pos);
+}
+
+/* ------------------------------------------------------------------ emprises libres (polygones) */
+// Une emprise est une liste de coins [x est, y nord] dans le sens trigonométrique, sans côtés qui se recoupent. Un
+// volume dessiné coin par coin porte `libre: true` (ses coins se déplacent, s'ajoutent et se retirent) ; un rectangle
+// en trois clics n'a pas ce drapeau et garde son comportement (les anciens projets s'ouvrent sans changement).
+
+/** Aire signée (m², positive dans le sens trigonométrique). */
+export function aireSignee(C) {
+  let a = 0;
+  for (let i = 0, n = C.length; i < n; i++) { const p = C[i], q = C[(i + 1) % n]; a += p[0] * q[1] - q[0] * p[1]; }
+  return a / 2;
+}
+export const aire = C => Math.abs(aireSignee(C));
+export const perimetre = C => C.reduce((s, p, i) => s + Math.hypot(C[(i + 1) % C.length][0] - p[0], C[(i + 1) % C.length][1] - p[1]), 0);
+/** Coins remis dans le sens trigonométrique. */
+export const sensDirect = C => aireSignee(C) < 0 ? [...C].reverse() : C;
+/** Centre de gravité de la surface (repli : moyenne des coins). */
+export function centroide(C) {
+  let a = 0, x = 0, y = 0;
+  for (let i = 0, n = C.length; i < n; i++) {
+    const p = C[i], q = C[(i + 1) % n], c = p[0] * q[1] - q[0] * p[1];
+    a += c; x += (p[0] + q[0]) * c; y += (p[1] + q[1]) * c;
+  }
+  if (Math.abs(a) < 1e-9) return [C.reduce((s, p) => s + p[0], 0) / C.length, C.reduce((s, p) => s + p[1], 0) / C.length];
+  return [x / (3 * a), y / (3 * a)];
+}
+
+const vect = (p, q, r) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+/** Vrai si les segments [a, b] et [c, d] se coupent (contact franc, pas aux extrémités partagées). */
+export function segmentsSeCoupent(a, b, c, d) {
+  const s1 = vect(a, b, c), s2 = vect(a, b, d), s3 = vect(c, d, a), s4 = vect(c, d, b), e = 1e-9;
+  if (((s1 > e && s2 < -e) || (s1 < -e && s2 > e)) && ((s3 > e && s4 < -e) || (s3 < -e && s4 > e))) return true;
+  // colinéaires qui se chevauchent
+  const sur = (p, q, r) => Math.abs(vect(p, q, r)) <= e && Math.min(p[0], q[0]) - e <= r[0] && r[0] <= Math.max(p[0], q[0]) + e && Math.min(p[1], q[1]) - e <= r[1] && r[1] <= Math.max(p[1], q[1]) + e;
+  const pareil = (p, q) => Math.abs(p[0] - q[0]) < 1e-9 && Math.abs(p[1] - q[1]) < 1e-9;
+  return (sur(a, b, c) && !pareil(c, a) && !pareil(c, b)) || (sur(a, b, d) && !pareil(d, a) && !pareil(d, b))
+    || (sur(c, d, a) && !pareil(a, c) && !pareil(a, d)) || (sur(c, d, b) && !pareil(b, c) && !pareil(b, d));
+}
+
+/** Vrai si la ligne brisée (ou le polygone, `ferme`) se recoupe. */
+export function seRecoupe(C, ferme = true) {
+  const n = C.length, m = ferme ? n : n - 1;
+  for (let i = 0; i < m; i++) for (let j = i + 1; j < m; j++) {
+    const voisins = j === i + 1 || (ferme && i === 0 && j === n - 1);
+    const a = C[i], b = C[(i + 1) % n], c = C[j], d = C[(j + 1) % n];
+    if (voisins) {
+      // côtés consécutifs : repli sur soi (le second revient sur le premier)
+      const p = j === i + 1 ? [a, b, d] : [c, a, b];
+      if (Math.abs(vect(...p)) < 1e-9 && ((p[1][0] - p[0][0]) * (p[2][0] - p[1][0]) + (p[1][1] - p[0][1]) * (p[2][1] - p[1][1])) < 0) return true;
+      continue;
+    }
+    if (segmentsSeCoupent(a, b, c, d)) return true;
+  }
+  return false;
+}
+
+/** Emprise utilisable : au moins 3 coins, côtés d'au moins 20 cm, 1 m² au moins, sans recoupement. */
+export function empriseValide(C) {
+  if (!C || C.length < 3 || aire(C) < 1) return false;
+  for (let i = 0; i < C.length; i++) { const p = C[i], q = C[(i + 1) % C.length]; if (Math.hypot(q[0] - p[0], q[1] - p[1]) < 0.2) return false; }
+  return !seRecoupe(C, true);
+}
+
+/** Triangles (indices des coins) d'une emprise, concave comprise. */
+export function trianguler(C) {
+  if (C.length === 3) return [[0, 1, 2]];
+  const t = THREE.ShapeUtils.triangulateShape(C.map(([x, y]) => new THREE.Vector2(x, y)), []);
+  if (t.length) return t;
+  const r = []; for (let k = 1; k + 1 < C.length; k++) r.push([0, k, k + 1]);
+  return r;
+}
+
+/** Rectangle (quatre coins à angle droit, à 0,5° près) : seuls ces volumes peuvent porter un toit à pans. */
+export function estRectangle(C) {
+  if (!C || C.length !== 4) return false;
+  for (let i = 0; i < 4; i++) {
+    const p = C[(i + 3) % 4], q = C[i], r = C[(i + 1) % 4];
+    const ux = q[0] - p[0], uy = q[1] - p[1], vx = r[0] - q[0], vy = r[1] - q[1], l = Math.hypot(ux, uy) * Math.hypot(vx, vy);
+    if (!l || Math.abs(ux * vx + uy * vy) / l > 0.009) return false;
+  }
+  return true;
+}
+export const pansPossibles = v => estRectangle(v.coins);
+
+/** Intersection des droites (p + s u) et (q + t w), ou null si elles font moins de 3° entre elles. */
+function croisement(p, u, q, w) {
+  const d = u[0] * w[1] - u[1] * w[0];
+  if (Math.abs(d) < 0.05 * Math.hypot(...u) * Math.hypot(...w)) return null;
+  const s = ((q[0] - p[0]) * w[1] - (q[1] - p[1]) * w[0]) / d;
+  return [p[0] + s * u[0], p[1] + s * u[1]];
+}
+
+/**
+ * Pousser-tirer : le côté k (coins k → k+1) avance de `d` m le long de sa normale extérieure ; les côtés voisins
+ * s'allongent ou se raccourcissent dans leur direction. Un voisin dans le prolongement du côté (presque plat) ne peut
+ * pas garder sa direction : le coin avance alors droit et ce voisin pivote.
+ */
+export function tirerCote(C, k, d) {
+  const n = C.length, A = C[k], B = C[(k + 1) % n], L = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1;
+  const u = [(B[0] - A[0]) / L, (B[1] - A[1]) / L], N = [u[1], -u[0]]; // normale extérieure (sens trigonométrique)
+  const A2 = [A[0] + N[0] * d, A[1] + N[1] * d], B2 = [B[0] + N[0] * d, B[1] + N[1] * d];
+  const P = C[(k - 1 + n) % n], Q = C[(k + 2) % n];
+  const R = C.map(p => [...p]);
+  R[k] = croisement(P, [A[0] - P[0], A[1] - P[1]], A2, u) || A2;
+  R[(k + 1) % n] = croisement(Q, [B[0] - Q[0], B[1] - Q[1]], B2, u) || B2;
+  return R;
+}
+
+/** Plus grand déplacement entre 0 et `d` qui garde une emprise valide (recherche par dichotomie). */
+export function tirerCoteBorne(C, k, d) {
+  let R = tirerCote(C, k, d);
+  if (empriseValide(R) && croisementsSainsDe(C, R)) return { coins: R, d };
+  let a = 0, b = d;
+  for (let i = 0; i < 24; i++) { const m = (a + b) / 2, S = tirerCote(C, k, m); if (empriseValide(S) && croisementsSainsDe(C, S)) a = m; else b = m; }
+  return { coins: tirerCote(C, k, a), d: a };
+}
+// les côtés voisins ne doivent pas se retourner (un coin qui dépasse l'autre bout de son côté voisin)
+function croisementsSainsDe(C, R) {
+  for (let i = 0; i < C.length; i++) {
+    const j = (i + 1) % C.length, a = [C[j][0] - C[i][0], C[j][1] - C[i][1]], b = [R[j][0] - R[i][0], R[j][1] - R[i][1]];
+    if (a[0] * b[0] + a[1] * b[1] <= 0) return false;
+  }
+  return true;
+}
+
+/** Coins décalés de `e` m vers l'extérieur (côtés parallèles, coins à l'onglet, limités à 4 e dans les angles aigus). */
+export function decaler(C, e) {
+  const n = C.length, sens = aireSignee(C) < 0 ? -1 : 1, out = [];
+  for (let i = 0; i < n; i++) {
+    const p = C[(i - 1 + n) % n], q = C[i], r = C[(i + 1) % n];
+    const l1 = Math.hypot(q[0] - p[0], q[1] - p[1]) || 1, l2 = Math.hypot(r[0] - q[0], r[1] - q[1]) || 1;
+    const n1 = [sens * (q[1] - p[1]) / l1, -sens * (q[0] - p[0]) / l1], n2 = [sens * (r[1] - q[1]) / l2, -sens * (r[0] - q[0]) / l2];
+    const c = 1 + n1[0] * n2[0] + n1[1] * n2[1]; // m = n1 + n2, |m|² = 2c, m·n1 = c : point = q + e m / c
+    let m = c > 1e-6 ? [e * (n1[0] + n2[0]) / c, e * (n1[1] + n2[1]) / c] : [e * n1[0], e * n1[1]];
+    const l = Math.hypot(...m), lim = 4 * Math.abs(e);
+    if (l > lim) m = [m[0] * lim / l, m[1] * lim / l];
+    out.push([q[0] + m[0], q[1] + m[1]]);
+  }
+  return out;
+}
+
+/** Orientation (radians, modulo π/2) qui range le mieux une liste de segments pondérés par leur longueur. */
+export function orientationDominante(segs) {
+  let sx = 0, sy = 0;
+  for (const [a, b] of segs) {
+    const dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy);
+    if (l < 0.5) continue;
+    const t = 4 * Math.atan2(dy, dx); // période π/2 : un côté et sa perpendiculaire votent ensemble
+    sx += l * Math.cos(t); sy += l * Math.sin(t);
+  }
+  return sx || sy ? Math.atan2(sy, sx) / 4 : null;
 }
 
 /* ------------------------------------------------------------------ distances (emprises, en plan) */

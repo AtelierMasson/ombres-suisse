@@ -1,9 +1,9 @@
-// Tableau du volume sélectionné (onglet Projet) : dimensions, position MN95, rotation, étages, toit (pente, faîtage),
+// Tableau du volume sélectionné (onglet Projet) : dimensions (emprise libre : aire et périmètre), position MN95, rotation, étages, toit (pente, faîtage),
 // opacité ; altitudes, hauteurs au-dessus du terrain à chaque coin, distances aux bâtiments et à la limite de parcelle.
 // Les champs mettent la maquette à jour aussitôt ; la souris (déplacer, tourner, tirer une face) les met à jour en retour.
 import { t, nombre } from "./i18n.js";
 import { solEn } from "./grille.js";
-import { cadre, coinsDe, corniche, hauteurToit, reglerCorniche, reglerEtages, reglerFaite, distanceSegments, dansPolygone, reglerEtage, etageCourant } from "./projet.js";
+import { cadre, coinsDe, corniche, hauteurToit, reglerCorniche, reglerEtages, reglerFaite, distanceSegments, dansPolygone, reglerEtage, etageCourant, aire, perimetre, centroide, pansPossibles } from "./projet.js";
 
 const fr = (v, d = 1) => nombre(v, d);
 const deg = r => ((r * 180 / Math.PI) % 360 + 360) % 360;
@@ -72,11 +72,11 @@ export function ficheVolume(conteneur, o) {
     conteneur.hidden = false;
     const E = v.etages;
     conteneur.innerHTML = `
-      <div class="fv-tete"><b>${t("volume.titre", { n: numero })}</b><span class="text-secondary">${t("volume.aideSouris")}</span></div>
+      <div class="fv-tete"><b>${t("volume.titre", { n: numero })}</b><span class="text-secondary">${t(v.libre ? "volume.aideLibre" : "volume.aideSouris")}</span></div>
       <div class="fv-groupe">${t("volume.dimensions")}</div>
       <div class="fv-grille">
-        ${champ("volume.largeur", t("volume.largeurTitre"), 'min="1" max="500" step="0.1"')}
-        ${champ("volume.profondeur", t("volume.profondeurTitre"), 'min="1" max="500" step="0.1"')}
+        ${v.libre ? champ("volume.aire", t("volume.aireTitre"), "readonly") + champ("volume.perimetre", t("volume.perimetreTitre"), "readonly")
+          : champ("volume.largeur", t("volume.largeurTitre"), 'min="1" max="500" step="0.1"') + champ("volume.profondeur", t("volume.profondeurTitre"), 'min="1" max="500" step="0.1"')}
         ${champ("volume.rotation", t("volume.rotationTitre"), 'step="0.5"')}
       </div>
       <div class="fv-groupe">${t("volume.position")}</div>
@@ -98,7 +98,7 @@ export function ficheVolume(conteneur, o) {
       </div>
       <div class="fv-grille fv-toit">
         <label class="fv-champ"><span>${t("volume.toit")}</span><select class="form-select form-select-sm" data-k="toit">
-          <option value="plat">${t("projet.plat")}</option><option value="deux">${t("projet.deuxPans")}</option><option value="quatre">${t("volume.quatrePans")}</option></select></label>
+          <option value="plat">${t("projet.plat")}</option><option value="deux" data-pans>${t("projet.deuxPans")}</option><option value="quatre" data-pans>${t("volume.quatrePans")}</option></select></label>
         <label class="fv-champ" title="${t("volume.sensTitre")}"><span>${t("volume.sens")}</span><select class="form-select form-select-sm" data-k="sensFaite">
           <option value="long">${t("volume.sensLong")}</option><option value="court">${t("volume.sensCourt")}</option></select></label>
         <label class="fv-champ" title="${t("volume.penteTitre")}"><span>${t("volume.pente")}</span><input type="number" class="form-control form-control-sm" data-k="pente" min="1" step="1"></label>
@@ -117,12 +117,14 @@ export function ficheVolume(conteneur, o) {
   /** Valeurs du volume dans les champs (sauf celui qu'on est en train de saisir), mesures et distances. */
   function rafraichir() {
     if (!v) return;
-    if (conteneur.querySelectorAll("[data-etage]").length !== Math.min(3, v.etages.length)) return construire();
-    const F = cadre(v), actif = document.activeElement, hc = corniche(v), ht = hauteurToit(v);
+    if (conteneur.querySelectorAll("[data-etage]").length !== Math.min(3, v.etages.length) || !!conteneur.querySelector('[data-k="volume.aire"]') !== !!v.libre) return construire();
+    const F = cadre(v), actif = document.activeElement, hc = corniche(v), ht = hauteurToit(v), [gx, gy] = v.libre ? centroide(v.coins) : [F.cx, F.cy];
+    const pans = pansPossibles(v);
     const val = {
-      "volume.largeur": F.L, "volume.profondeur": F.P, "volume.rotation": deg(F.angle), "volume.est": o.S.E0 + F.cx, "volume.nord": o.S.N0 + F.cy,
+      "volume.largeur": F.L, "volume.profondeur": F.P, "volume.rotation": deg(F.angle), "volume.est": o.S.E0 + gx, "volume.nord": o.S.N0 + gy,
+      "volume.aire": aire(v.coins), "volume.perimetre": perimetre(v.coins),
       "volume.base": v.base, "volume.etages": v.etages.length, "volume.corniche": hc, "volume.faite": hc + ht,
-      toit: v.toit, sensFaite: v.sensFaite, unitePente: v.unitePente, opacite: Math.round((v.opacite ?? 1) * 100),
+      toit: pans ? v.toit : "plat", sensFaite: v.sensFaite, unitePente: v.unitePente, opacite: Math.round((v.opacite ?? 1) * 100),
       pente: v.unitePente === "pct" ? Math.round(Math.tan(v.pente * Math.PI / 180) * 1000) / 10 : v.pente,
     };
     for (const i of conteneur.querySelectorAll("[data-k]")) {
@@ -134,10 +136,13 @@ export function ficheVolume(conteneur, o) {
     const valEtage = { rez: v.etages[0], courant: etageCourant(v), dernier: v.etages[v.etages.length - 1] };
     for (const i of conteneur.querySelectorAll("[data-etage]")) if (i !== actif) i.value = (+valEtage[i.dataset.etage]).toFixed(1);
     conteneur.querySelector(".fv-opacite output").textContent = `${val.opacite} %`;
-    const plat = v.toit === "plat";
+    const plat = v.toit === "plat" || !pans;
+    // toits à pans : seulement sur un rectangle
+    for (const op of conteneur.querySelectorAll("[data-pans]")) op.disabled = !pans;
+    conteneur.querySelector('[data-k="toit"]').title = pans ? "" : t("volume.pansRectangle");
     conteneur.querySelector('[data-k="volume.faite"]').disabled = plat;
     conteneur.querySelector('[data-k="pente"]').disabled = conteneur.querySelector('[data-k="unitePente"]').disabled = plat;
-    conteneur.querySelector('[data-k="sensFaite"]').disabled = v.toit !== "deux";
+    conteneur.querySelector('[data-k="sensFaite"]').disabled = plat || v.toit !== "deux";
     // altitudes, coins, distances
     const M = o.mesures(v), m = (x, d = 1) => x == null ? "—" : `${fr(x, d)} m`;
     const hcs = M.coins.map(c => c.corniche), hfs = M.coins.map(c => c.faite);
@@ -173,6 +178,17 @@ export function ficheVolume(conteneur, o) {
     else if (k === "volume.corniche") reglerCorniche(v, x);
     else if (k === "volume.faite") reglerFaite(v, x - corniche(v));
     else if (k === "volume.base") v.base = Math.round(x * 100) / 100;
+    else if (v.libre) {
+      // emprise libre : rotation autour du centre de gravité (angle du côté 1–2), position du centre de gravité
+      const [gx, gy] = centroide(v.coins);
+      if (k === "volume.rotation") {
+        const a = x * Math.PI / 180 - cadre(v).angle, co = Math.cos(a), si = Math.sin(a);
+        v.coins = v.coins.map(([px, py]) => [gx + (px - gx) * co - (py - gy) * si, gy + (px - gx) * si + (py - gy) * co]);
+      } else if (k === "volume.est" || k === "volume.nord") {
+        const dx = k === "volume.est" ? x - o.S.E0 - gx : 0, dy = k === "volume.nord" ? x - o.S.N0 - gy : 0;
+        v.coins = v.coins.map(([px, py]) => [px + dx, py + dy]);
+      } else return;
+    }
     else {
       const F = cadre(v);
       if (k === "volume.largeur" && x >= 1) F.L = x;
