@@ -111,3 +111,106 @@ Part des cases du tablier couvertes par une face du dessus visible ; écart méd
   swissTLM3D comme a priori.
 - Hors ponts, vu aux viaducs de la Lutrive : le ruisseau s'étale en une grande nappe d'eau inclinée (présente avant
   ces changements).
+
+## 5. Session du 27 novembre (suite) : diagnostic mesuré et banc d'essai — code des ponts inchangé
+
+Session interrompue (arrêt de la machine) après le diagnostic : **aucune ligne de `src/` n'a été modifiée**. Ce qui
+est livré : un banc de mesure hors navigateur, les mesures de référence sur 15 sites, les causes identifiées et le
+plan détaillé des étapes 4 à 6. Version de référence (« avant ») : commit `ff2efd5` (code des ponts identique à
+`a1f178d`).
+
+### Banc de mesure (`outils/ponts/banc/`)
+Depuis ce dossier (Node ≥ 22 ; les modules de `src/` sont importés tels quels, `env.mjs` remplace `import.meta.env`) :
+- `node charger.mjs <site…>` : nuage du site téléchargé comme le fait l'application (parcelle → centre, densité,
+  disque de 303 m), gardé en cache (`$BANC_PONTS/cache`, par défaut le dossier temporaire ; 15 s par site).
+- `node --import ./env.mjs banc.mjs <étiquette> [--src <dossier src>] [site[@rayon]…]` : grille + ponts comme
+  `scene.construire`, mesures par pont dans `$BANC_PONTS/mesures/<étiquette>-<site>-<R>.json`. Si `maillages.js`
+  exporte `modeliserPonts` / `maillagesPonts` (étape 4), le banc les appelle ; sinon l'ancien chemin (`pontsLegers`).
+- `vue.mjs` (vue de dessus PNG : cases du tablier bleues = couvertes, noires = non couvertes, orange / violet =
+  chaussée trop basse / haute de plus de 15 cm, arêtes du modèle en rouge), `photo.mjs` (SWISSIMAGE, WMS public),
+  `profil.mjs` (surface visible le long d'un raccord), `coupe.mjs` (coupe en travers des points bruts),
+  `dessous.mjs` (points sous le tablier par station et par classe).
+- `node captures.mjs <étiquette> [site[@rayon]…]` : captures dans le navigateur (serveur de dev sur 5174, Chromium
+  sans interface) aux mêmes points de vue pour toutes les étiquettes : biais, long, dessus, dessous, raccords A / B,
+  et pour le premier pont les modes uni, photo, couleur selon la hauteur ; modèles faits main et passages du cercle.
+- `reference/` : mesures « avant » et zones de mesure des raccords (`avant-*.ref.json` : axes et bouts des ponts de
+  référence, pour mesurer toutes les versions aux mêmes endroits). Pour refaire la version « avant » :
+  `git archive ff2efd5 src | tar -x -C <dossier>` puis `patch -p1 < reference/instrumentation-avant.patch`.
+
+Mesures ajoutées à celles de la section 4 : `marche` (plus grand saut de la surface visible — terrain affiché ou
+chaussée — entre deux points à 25 cm, sur trois lignes parallèles à l'axe, de 8 m dans le tablier à 8 m après le
+joint), `bosse` (écart à la moyenne glissante sur 3 m), `pli` (angle entre deux faces voisines du dessus), `bords
+ouverts` (longueur des arêtes libres du solide dessus + côtés), `trous` (cases intérieures du tablier sans face du
+dessus), `piles` (blocs posés par le modèle).
+
+### Mesures de référence (version « avant »)
+| Pont | Couvert | Écart méd. | Marche aux raccords | Pli max | Piles posées | Remarque |
+|---|---|---|---|---|---|---|
+| Lutry, pont courbe 172 m | 97,1 % | 6 cm | 25 et 11 cm | 71,7° | 0 | bouts en pointe (largeur ajustée 8,2 m et 1,4 m) |
+| Lutry, pont coupé par le cercle | 97,1 % | 5 cm | 36 cm | — | 0 | bout libre au cercle |
+| A9 Lutrive, viaduc haut 429 × 27 m | 98,4 % | 4 cm | 37 et 14 cm | 71,7° (site) | 2 | deux tabliers soudés |
+| A9 Lutrive, viaduc bas 439 × 20,5 m | 99,7 % | 3 cm | 10 et 14 cm | | 0 | deux tabliers soudés |
+| Zurich, Dreikönigstrasse | 99,9 % | 7 cm | 34 et 63 cm | 72,2° (site) | 0 | |
+| Zurich, Bleicherweg | 99,4 % | 4 cm | 26 et 18 cm | | 0 | IoU 0,75 |
+| Zurich, Münsterbrücke | 98,1 % | 2 cm | 29 cm | 49,4° | 0 | bout libre au cercle |
+| Lausanne, Chauderon | 99,0 % | 6 cm | 25 et 18 cm | 40,3° | 7 (5 réelles) | poutre droite, pas d'arches |
+| Lausanne, Grand-Pont (fait main) | — | — | — | 76,2° (restes) | — | 835 m² de restes du tablier en repli, 6524 triangles |
+| Chillon (faits main) | 99,8 % | 2 cm | — | 53,8° | — | deux rubans automatiques de 610 × 4 m le long des modèles |
+| Fribourg, Poya (haubané) | 99,3 % | 3 cm | bouts libres | 25,4° | 2 | pylônes et haubans dans le relevé |
+| Fribourg, Pérolles | 98,8 % | 5 cm | 67 cm | 2,9° | 3 | arches non rendues |
+| Échangeur A1 (site « courbe ») | 98,5 % | 1 cm | — | 87,6° | — | repli (IoU 0,69) : 120 628 triangles case par case |
+| Passage supérieur A1 | 99,1 % | 5 cm | 15 et 7 cm | 21,6° | 0 | |
+| Genève, Peney (Rhône) | 99,8 % | 4 cm | 17 et 20 cm | 22,9° | 3 | |
+| Genève, Mont-Blanc | 95,5 % | 5 cm | 27 et 30 cm | 65,1° | 0 | 707 cases intérieures non couvertes |
+| Genève, passerelles (Bergues, île Rousseau) | 78 à 91 % | 2 cm | 7 à 23 cm | | 0 | trous (151 à 536 cases) |
+| Genève, Butin | 98,7 % | 5 cm | 20 cm | 34,2° | 3 | arches non rendues |
+
+Bords ouverts : 80 à 870 m par site (les solides ne sont pas fermés : piles sans dessus ni dessous, raccords plein /
+ajouré) ; aucune face du dessus tournée vers le bas (sauf 28 et 346 dans les replis).
+
+### Causes identifiées
+1. **Ressaut au raccord** (10 à 60 cm) : la chaussée « glisse » vers le terrain non modifié ; sur une ligne à 30 % de
+   la largeur, à Lutry (bout est), elle descend de 1,2 m en 1 m parce que le terrain y est un talus (`profil.mjs`).
+2. **Pli** (jusqu'à 72°) : même cause, plus les **bouts en biais** : les rives sont ajustées sur la pointe de
+   l'emprise (culée oblique), le tablier ajusté se termine en pointe et l'éventail de triangles converge vers le joint.
+3. **Tabliers jumeaux** (Lutrive) : la coupe en travers montre deux plans de même dévers décalés de 17 cm au milieu
+   (t ≈ 0,5 m) et une fente d'un demi-mètre que `fermer(pont, n, 2)` bouche.
+4. **Piles** : le relevé ne classe « pont » (17) que le dessus ; les piles sont en classe 27. Chauderon : 5 piles
+   vraies sur 7 blocs ; Lutrive : 2 blocs pour une dizaine de piles.
+5. **Arches** : à Chauderon, la classe 27 donne les piles (du sol à 2,1 m sous la chaussée) et les reins des arcs
+   près des piles (5,3 m sous la chaussée à 3 m de la pile, 3,1 m à 6 m, 2,2 m à 9 m : parabole de flèche ≈ 7,4 m) ;
+   rien à la clé. À Pérolles, les piles ne sont vues qu'à partir de 19 m sous la chaussée : les arcs sont cachés par
+   le tablier (à déduire : sommet des piles très en dessous du tablier = naissance des arcs).
+6. **Modèles faits main** : `dansPont` n'efface que largeur / 2 + 2 m ; les bords du vrai tablier restent et sont
+   modélisés à part (rubans, repli). À écarter : toute composante couverte à plus de 50 % par un modèle.
+7. **Nappe d'eau de la Lutrive** : `gagnee` (grille.js) étend le niveau d'une case d'eau à toute voisine dont le sol
+   est plus bas ; pour un ruisseau en pente, le niveau d'amont se propage vers l'aval et inonde tout le versant
+   (quartier entier sous les viaducs). À limiter aux plans d'eau plats, ou à 1 m de profondeur et quelques mètres.
+8. **Couleurs** (exigence ajoutée) : le dessus (matière du terrain) suit déjà cadastre, photo, uni et couleur selon la
+   hauteur ; les côtés (matière « mur ») suivent la couleur selon la hauteur mais restent en plâtre clair en mode
+   photo ; les ponts de l'anneau (`mat.pontsAnneau`, MeshStandardMaterial gris sans `grainPlatre`) ne suivent aucun
+   mode ; en mode photo, le sol sous un viaduc porte la photo du tablier (orthophoto drapée).
+
+### Plan retenu pour la suite (rien de fait)
+- **Étape 4, raccord** : la chaussée reste partout la surface ajustée (profil + dévers), jamais tirée vers le
+  terrain ; un **ruban de pleine largeur** va d'un joint à l'autre (rives ajustées sans les pointes des bouts en
+  biais, prolongées) ; c'est le **terrain qui est gravé** : dans l'emprise du ruban, tout sol à moins de ~0,5 m sous
+  la surface (ou au-dessus) est ramené à surface − 2 cm (fondu latéral de 2 m, fondu de 3 m après le joint), le sol
+  loin dessous (vide, talus) n'est pas touché et le corps du pont y montre sa rive ; après le joint la chaussée
+  plonge sous le terrain (extrémité toujours enterrée, sinon face droite). Gravure avant `terrain(G, zRef)`, donc au
+  début de `scene.construire` (`modeliserPonts(G, nuage, modèles, lieu)` → `G.ponts`, idempotent, puis `majSurface`).
+- **Mailleur unique** : `maillagePont(P, …)` de pontsModeles.js étendu au schéma commun — en plus de `axe`,
+  `largeur`, `epaisseur`, `appuis`, `arches` : par nœud `rives` [t min, t max], `devers`, `epaisseurs`, `plein`, et
+  `bouts` (libre, joint) ; normales lisses, uv du plan, faces du dessus vers le haut (une seule face), paroi au
+  cercle pour tous les ponts (intervalles de hauteur par partie : tablier, arche, pile) ; le raccord « glissé » des
+  modèles faits main est gardé tel quel. Repli `tabliersPonts` inchangé.
+- **Étape 5** : piles = stations où les points de classe 27 vont du sol au dessous du tablier, regroupées en (s, t),
+  espacement régularisé ; arches = parabole par travée ajustée sur les reins (classe 27), ou déduite du sommet des
+  piles quand il est à plus de ~8 m sous la chaussée, émise dans `arches` (le mailleur les dessine déjà).
+- **Étape 6** : tabliers jumeaux scindés (fente persistante dans les points bruts ou deux plans décalés), échangeurs
+  (composante qui se ramifie) découpés en branches avant le repli.
+- **Cercle** : mesurer d'abord la marche avec le pont swissTLM3D de l'anneau (Lutry, rayon 725) ; piste : décaler
+  en hauteur les sommets de la tuile swissTLM3D près du passage pour rejoindre notre profil.
+- **Couleurs** : matière des côtés des ponts = plâtre + teinte du plan du sol floutée (niveau de mipmap élevé) à la
+  verticale, un peu assombrie (photo et cadastre) ; `mat.pontsAnneau` avec `grainPlatre` (couleur selon la hauteur)
+  et la même teinte tirée des tuiles du plan (`tPlanP` / `tPlanL` du paysage).

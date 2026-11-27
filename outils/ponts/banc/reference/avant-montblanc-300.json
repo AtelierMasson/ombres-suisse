@@ -1,0 +1,635 @@
+{
+ "site": "montblanc",
+ "R": 300,
+ "centre": [
+  2500333,
+  1117967
+ ],
+ "ms": [
+  830,
+  157
+ ],
+ "triDessus": 1558,
+ "triVersLeBas": 0,
+ "triCotes": 1510,
+ "triModeles": 0,
+ "pliMax": 65.1,
+ "plis3": 185,
+ "pliOu": [
+  [
+   61.2,
+   136,
+   65.1
+  ],
+  [
+   -56.1,
+   -89.8,
+   60.8
+  ],
+  [
+   59.9,
+   136.5,
+   55.3
+  ]
+ ],
+ "pliMaxModeles": 0,
+ "ouverts": 429.9,
+ "ouvertsModeles": 0,
+ "ponts": [
+  {
+   "x": 108.7,
+   "y": 17.3,
+   "aire": 7274,
+   "hMed": 7.07,
+   "z": 4.73,
+   "az": 147.4,
+   "ext": 272,
+   "cases": 29097,
+   "couvert": 95.5,
+   "couvertInt": 97.3,
+   "trous": 707,
+   "creux": 876,
+   "ecartMed": 5,
+   "ecart95": 14,
+   "dz05": -13,
+   "dz95": 10,
+   "terrainDessus": 0,
+   "iou": 0.94,
+   "ecartModele": 0.05,
+   "repli": false,
+   "joints": [
+    1,
+    1
+   ],
+   "libre": [
+    false,
+    false
+   ],
+   "sections": 63,
+   "longueur": 276.2,
+   "largeur": 25.8,
+   "piles": null,
+   "type": null
+  },
+  {
+   "x": -32.7,
+   "y": 4.7,
+   "aire": 2504,
+   "hMed": 4.54,
+   "z": 4.12,
+   "az": 2.1,
+   "ext": 194,
+   "cases": 10014,
+   "couvert": 89.5,
+   "couvertInt": 92.9,
+   "trous": 536,
+   "creux": 49,
+   "ecartMed": 2,
+   "ecart95": 10,
+   "dz05": -10,
+   "dz95": 5,
+   "terrainDessus": 0,
+   "iou": 0.86,
+   "ecartModele": 0.03,
+   "repli": false,
+   "joints": [
+    2,
+    2
+   ],
+   "libre": [
+    false,
+    false
+   ],
+   "sections": 40,
+   "longueur": 201.7,
+   "largeur": 11.8,
+   "piles": null,
+   "type": null
+  },
+  {
+   "x": -180.8,
+   "y": -28.3,
+   "aire": 914,
+   "hMed": 3.85,
+   "z": 3.8,
+   "az": 170.7,
+   "ext": 156,
+   "cases": 3657,
+   "couvert": 78,
+   "couvertInt": 90,
+   "trous": 151,
+   "creux": 54,
+   "ecartMed": 2,
+   "ecart95": 35,
+   "dz05": -15,
+   "dz95": 16,
+   "terrainDessus": 0,
+   "iou": 0.72,
+   "ecartModele": 0.02,
+   "repli": false,
+   "joints": [
+    2,
+    2
+   ],
+   "libre": [
+    false,
+    false
+   ],
+   "sections": 70,
+   "longueur": 193.8,
+   "largeur": 4.4,
+   "piles": null,
+   "type": null
+  },
+  {
+   "x": -160.8,
+   "y": -20.3,
+   "aire": 605,
+   "hMed": 2.37,
+   "z": 2.44,
+   "az": 169.2,
+   "ext": 53,
+   "cases": 2421,
+   "couvert": 91.2,
+   "couvertInt": 97.3,
+   "trous": 42,
+   "creux": 47,
+   "ecartMed": 1,
+   "ecart95": 5,
+   "dz05": -4,
+   "dz95": 2,
+   "terrainDessus": 0,
+   "iou": 0.81,
+   "ecartModele": 0.01,
+   "repli": false,
+   "joints": [
+    0,
+    0
+   ],
+   "libre": [
+    true,
+    true
+   ],
+   "sections": 20,
+   "longueur": 46.4,
+   "largeur": 13.6,
+   "piles": null,
+   "type": null
+  },
+  {
+   "x": 229.9,
+   "y": -69.7,
+   "aire": 110,
+   "hMed": 4.24,
+   "z": 3.37,
+   "az": 175.2,
+   "ext": 25,
+   "cases": 439,
+   "couvert": 90,
+   "couvertInt": 100,
+   "trous": 0,
+   "creux": 1,
+   "ecartMed": 5,
+   "ecart95": 16,
+   "dz05": -15,
+   "dz95": 8,
+   "terrainDessus": 0,
+   "iou": 0.83,
+   "ecartModele": 0.05,
+   "repli": false,
+   "joints": [
+    0,
+    3
+   ],
+   "libre": [
+    true,
+    false
+   ],
+   "sections": 11,
+   "longueur": 20.8,
+   "largeur": 5.5,
+   "piles": null,
+   "type": null
+  },
+  {
+   "x": 286,
+   "y": -87.5,
+   "aire": 60,
+   "hMed": 3.31,
+   "z": 3.56,
+   "az": 19.9,
+   "ext": 12,
+   "cases": 115,
+   "couvert": 97.4,
+   "couvertInt": 100,
+   "trous": 0,
+   "creux": 2,
+   "ecartMed": 3,
+   "ecart95": 16,
+   "dz05": -15,
+   "dz95": 4,
+   "terrainDessus": 0,
+   "iou": 0.87,
+   "ecartModele": 0.03,
+   "repli": false,
+   "joints": [
+    0,
+    3
+   ],
+   "libre": [
+    true,
+    false
+   ],
+   "sections": 7,
+   "longueur": 11.5,
+   "largeur": 5.5,
+   "piles": null,
+   "type": null
+  },
+  {
+   "x": 70.8,
+   "y": 144.6,
+   "aire": 29,
+   "hMed": 1.61,
+   "z": 2.3,
+   "az": 28.4,
+   "ext": 21,
+   "cases": 116,
+   "couvert": 74.1,
+   "couvertInt": null,
+   "trous": 0,
+   "creux": 0,
+   "ecartMed": 2,
+   "ecart95": 11,
+   "dz05": -11,
+   "dz95": 2,
+   "terrainDessus": 0,
+   "iou": 0.7,
+   "ecartModele": 0.02,
+   "repli": false,
+   "joints": [
+    2,
+    12
+   ],
+   "libre": [
+    false,
+    false
+   ],
+   "sections": 19,
+   "longueur": 17.7,
+   "largeur": 1.7,
+   "piles": null,
+   "type": null
+  }
+ ],
+ "raccords": [
+  {
+   "pont": [
+    -180.8,
+    -28.3
+   ],
+   "bout": 0,
+   "marche": 7,
+   "bosse": 8,
+   "depasse": 36,
+   "partTerrain": 26,
+   "ou": [
+    0.25,
+    0
+   ]
+  },
+  {
+   "pont": [
+    -180.8,
+    -28.3
+   ],
+   "bout": 1,
+   "marche": 23,
+   "bosse": 19,
+   "depasse": 44,
+   "partTerrain": 24,
+   "ou": [
+    0.5,
+    0.3
+   ]
+  },
+  {
+   "pont": [
+    108.7,
+    17.3
+   ],
+   "bout": 0,
+   "marche": 27,
+   "bosse": 53,
+   "depasse": 56,
+   "partTerrain": 23,
+   "ou": [
+    -0.25,
+    0.3
+   ]
+  },
+  {
+   "pont": [
+    108.7,
+    17.3
+   ],
+   "bout": 1,
+   "marche": 30,
+   "bosse": 34,
+   "depasse": 46,
+   "partTerrain": 33,
+   "ou": [
+    -0.25,
+    -0.3
+   ]
+  },
+  {
+   "pont": [
+    286,
+    -87.5
+   ],
+   "bout": 1,
+   "marche": 5,
+   "bosse": 5,
+   "depasse": 37,
+   "partTerrain": 25,
+   "ou": [
+    1.75,
+    -0.3
+   ]
+  },
+  {
+   "pont": [
+    -32.7,
+    4.7
+   ],
+   "bout": 0,
+   "marche": 14,
+   "bosse": 10,
+   "depasse": 37,
+   "partTerrain": 29,
+   "ou": [
+    0.5,
+    0.3
+   ]
+  },
+  {
+   "pont": [
+    -32.7,
+    4.7
+   ],
+   "bout": 1,
+   "marche": 11,
+   "bosse": 9,
+   "depasse": 87,
+   "partTerrain": 21,
+   "ou": [
+    1,
+    0
+   ]
+  },
+  {
+   "pont": [
+    229.9,
+    -69.7
+   ],
+   "bout": 1,
+   "marche": 13,
+   "bosse": 12,
+   "depasse": 36,
+   "partTerrain": 23,
+   "ou": [
+    2,
+    0
+   ]
+  },
+  {
+   "pont": [
+    70.8,
+    144.6
+   ],
+   "bout": 0,
+   "marche": 11,
+   "bosse": 17,
+   "depasse": 32,
+   "partTerrain": 22,
+   "ou": [
+    0.5,
+    0.3
+   ]
+  },
+  {
+   "pont": [
+    70.8,
+    144.6
+   ],
+   "bout": 1,
+   "marche": 431,
+   "bosse": 203,
+   "depasse": 38,
+   "partTerrain": 9,
+   "ou": [
+    17.75,
+    0.3
+   ]
+  }
+ ],
+ "infos": [
+  {
+   "x": -180.8,
+   "y": -28.3,
+   "longueur": 193.8,
+   "largeur": 4.4,
+   "droit": false,
+   "iou": 0.72,
+   "ecart": 0.02,
+   "libre": [
+    false,
+    false
+   ],
+   "joints": [
+    2,
+    2
+   ],
+   "bouts": [
+    [
+     -186.1,
+     51.7
+    ],
+    [
+     -162.5,
+     -101.9
+    ]
+   ],
+   "sections": 70
+  },
+  {
+   "x": 108.7,
+   "y": 17.3,
+   "longueur": 276.2,
+   "largeur": 25.8,
+   "droit": false,
+   "iou": 0.94,
+   "ecart": 0.05,
+   "libre": [
+    false,
+    false
+   ],
+   "joints": [
+    1,
+    1
+   ],
+   "bouts": [
+    [
+     58.2,
+     138.2
+    ],
+    [
+     176.8,
+     -99.6
+    ]
+   ],
+   "sections": 63
+  },
+  {
+   "x": 286,
+   "y": -87.5,
+   "longueur": 11.5,
+   "largeur": 5.5,
+   "droit": true,
+   "iou": 0.87,
+   "ecart": 0.03,
+   "libre": [
+    true,
+    false
+   ],
+   "joints": [
+    0,
+    3
+   ],
+   "bouts": [
+    [
+     288.1,
+     -82.1
+    ],
+    [
+     283.2,
+     -95.8
+    ]
+   ],
+   "sections": 7
+  },
+  {
+   "x": -32.7,
+   "y": 4.7,
+   "longueur": 201.7,
+   "largeur": 11.8,
+   "droit": false,
+   "iou": 0.86,
+   "ecart": 0.03,
+   "libre": [
+    false,
+    false
+   ],
+   "joints": [
+    2,
+    2
+   ],
+   "bouts": [
+    [
+     -50.6,
+     99.3
+    ],
+    [
+     -52.7,
+     -91.9
+    ]
+   ],
+   "sections": 40
+  },
+  {
+   "x": 229.9,
+   "y": -69.7,
+   "longueur": 20.8,
+   "largeur": 5.5,
+   "droit": false,
+   "iou": 0.83,
+   "ecart": 0.05,
+   "libre": [
+    true,
+    false
+   ],
+   "joints": [
+    0,
+    3
+   ],
+   "bouts": [
+    [
+     229.6,
+     -61.1
+    ],
+    [
+     231.3,
+     -84.8
+    ]
+   ],
+   "sections": 11
+  },
+  {
+   "x": -160.8,
+   "y": -20.3,
+   "longueur": 46.4,
+   "largeur": 13.6,
+   "droit": false,
+   "iou": 0.81,
+   "ecart": 0.01,
+   "libre": [
+    true,
+    true
+   ],
+   "joints": [
+    0,
+    0
+   ],
+   "bouts": [
+    [
+     -162.1,
+     2.9
+    ],
+    [
+     -156.1,
+     -42.5
+    ]
+   ],
+   "sections": 20
+  },
+  {
+   "x": 70.8,
+   "y": 144.6,
+   "longueur": 17.7,
+   "largeur": 1.7,
+   "droit": false,
+   "iou": 0.7,
+   "ecart": 0.02,
+   "libre": [
+    false,
+    false
+   ],
+   "joints": [
+    2,
+    12
+   ],
+   "bouts": [
+    [
+     77.3,
+     155.2
+    ],
+    [
+     62.3,
+     127.3
+    ]
+   ],
+   "sections": 19
+  }
+ ]
+}

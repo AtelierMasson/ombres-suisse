@@ -1,0 +1,435 @@
+{
+ "site": "chillon",
+ "R": 300,
+ "centre": [
+  2561034,
+  1140160
+ ],
+ "ms": [
+  1435,
+  232
+ ],
+ "triDessus": 438,
+ "triVersLeBas": 0,
+ "triCotes": 762,
+ "triModeles": 73588,
+ "pliMax": 53.8,
+ "plis3": 36,
+ "pliOu": [
+  [
+   -208.1,
+   130.3,
+   53.8
+  ],
+  [
+   -208.3,
+   129.9,
+   52
+  ],
+  [
+   -208.5,
+   129.5,
+   33.1
+  ]
+ ],
+ "pliMaxModeles": 1.1,
+ "ouverts": 271.2,
+ "ouvertsModeles": 0,
+ "ponts": [
+  {
+   "x": 16,
+   "y": -9.4,
+   "aire": 2342,
+   "hMed": 27.3,
+   "z": 52.53,
+   "az": 154.8,
+   "ext": 637,
+   "cases": 9247,
+   "couvert": 99.8,
+   "couvertInt": 100,
+   "trous": 0,
+   "creux": 0,
+   "ecartMed": 2,
+   "ecart95": 8,
+   "dz05": -6,
+   "dz95": 5,
+   "terrainDessus": 0,
+   "iou": 0.94,
+   "ecartModele": 0.02,
+   "repli": false,
+   "joints": [
+    0,
+    0
+   ],
+   "libre": [
+    true,
+    true
+   ],
+   "sections": 44,
+   "longueur": 610.6,
+   "largeur": 4.1,
+   "piles": null,
+   "type": null
+  },
+  {
+   "x": -21.4,
+   "y": 10.4,
+   "aire": 2102,
+   "hMed": 38.14,
+   "z": 46.44,
+   "az": 154.4,
+   "ext": 640,
+   "cases": 8293,
+   "couvert": 99.9,
+   "couvertInt": 100,
+   "trous": 0,
+   "creux": 0,
+   "ecartMed": 2,
+   "ecart95": 7,
+   "dz05": -5,
+   "dz95": 5,
+   "terrainDessus": 0,
+   "iou": 0.94,
+   "ecartModele": 0.02,
+   "repli": false,
+   "joints": [
+    0,
+    0
+   ],
+   "libre": [
+    true,
+    true
+   ],
+   "sections": 44,
+   "longueur": 607.3,
+   "largeur": 3.7,
+   "piles": [
+    [
+     20,
+     1,
+     1.2
+    ],
+    [
+     27.5,
+     2,
+     2.6
+    ]
+   ],
+   "type": null
+  },
+  {
+   "x": -92.2,
+   "y": -213.8,
+   "aire": 81,
+   "hMed": 4.81,
+   "z": -32.65,
+   "az": 67,
+   "ext": 16,
+   "cases": 324,
+   "couvert": 99.7,
+   "couvertInt": 100,
+   "trous": 0,
+   "creux": 0,
+   "ecartMed": 2,
+   "ecart95": 6,
+   "dz05": -5,
+   "dz95": 4,
+   "terrainDessus": 0,
+   "iou": 0.88,
+   "ecartModele": 0.02,
+   "repli": false,
+   "joints": [
+    2,
+    0
+   ],
+   "libre": [
+    false,
+    true
+   ],
+   "sections": 6,
+   "longueur": 15.3,
+   "largeur": 5.6,
+   "piles": [
+    [
+     9.5,
+     2,
+     5.6
+    ],
+    [
+     14,
+     3,
+     5.7
+    ]
+   ],
+   "type": null
+  },
+  {
+   "x": -212.4,
+   "y": 123.7,
+   "aire": 59,
+   "hMed": 2.43,
+   "z": -35.02,
+   "az": 62.9,
+   "ext": 11,
+   "cases": 235,
+   "couvert": 98.3,
+   "couvertInt": 100,
+   "trous": 0,
+   "creux": 0,
+   "ecartMed": 2,
+   "ecart95": 11,
+   "dz05": -10,
+   "dz95": 5,
+   "terrainDessus": 0,
+   "iou": 0.71,
+   "ecartModele": 0.02,
+   "repli": false,
+   "joints": [
+    3,
+    0
+   ],
+   "libre": [
+    false,
+    true
+   ],
+   "sections": 10,
+   "longueur": 9.8,
+   "largeur": 7.6,
+   "piles": null,
+   "type": null
+  },
+  {
+   "x": -71.1,
+   "y": -146.2,
+   "aire": 33,
+   "hMed": 3.12,
+   "z": -31.68,
+   "az": 84.5,
+   "ext": 11,
+   "cases": 133,
+   "couvert": 99.2,
+   "couvertInt": 100,
+   "trous": 0,
+   "creux": 0,
+   "ecartMed": 8,
+   "ecart95": 25,
+   "dz05": -12,
+   "dz95": 24,
+   "terrainDessus": 0,
+   "iou": 0.9,
+   "ecartModele": 0.08,
+   "repli": false,
+   "joints": [
+    0,
+    0
+   ],
+   "libre": [
+    true,
+    true
+   ],
+   "sections": 6,
+   "longueur": 10.5,
+   "largeur": 3.2,
+   "piles": null,
+   "type": null
+  }
+ ],
+ "raccords": [
+  {
+   "pont": [
+    -92.2,
+    -213.8
+   ],
+   "bout": 0,
+   "marche": 8,
+   "bosse": 9,
+   "depasse": 38,
+   "partTerrain": 26,
+   "ou": [
+    0.25,
+    0.3
+   ]
+  },
+  {
+   "pont": [
+    -212.4,
+    123.7
+   ],
+   "bout": 0,
+   "marche": 230,
+   "bosse": 111,
+   "depasse": 37,
+   "partTerrain": 22,
+   "ou": [
+    -6,
+    0
+   ]
+  }
+ ],
+ "infos": [
+  {
+   "x": -21.4,
+   "y": 10.4,
+   "longueur": 607.3,
+   "largeur": 3.7,
+   "droit": false,
+   "iou": 0.94,
+   "ecart": 0.02,
+   "libre": [
+    true,
+    true
+   ],
+   "joints": [
+    0,
+    0
+   ],
+   "bouts": [
+    [
+     -152.8,
+     261.7
+    ],
+    [
+     92.8,
+     -288.6
+    ]
+   ],
+   "sections": 44,
+   "piles": [
+    [
+     20,
+     1,
+     1.2
+    ],
+    [
+     27.5,
+     2,
+     2.6
+    ]
+   ]
+  },
+  {
+   "x": 16,
+   "y": -9.4,
+   "longueur": 610.6,
+   "largeur": 4.1,
+   "droit": false,
+   "iou": 0.94,
+   "ecart": 0.02,
+   "libre": [
+    true,
+    true
+   ],
+   "joints": [
+    0,
+    0
+   ],
+   "bouts": [
+    [
+     -131.5,
+     272.9
+    ],
+    [
+     115.8,
+     -280.3
+    ]
+   ],
+   "sections": 44
+  },
+  {
+   "x": -92.2,
+   "y": -213.8,
+   "longueur": 15.3,
+   "largeur": 5.6,
+   "droit": true,
+   "iou": 0.88,
+   "ecart": 0.02,
+   "libre": [
+    false,
+    true
+   ],
+   "joints": [
+    2,
+    0
+   ],
+   "bouts": [
+    [
+     -83.1,
+     -210
+    ],
+    [
+     -99.1,
+     -216.7
+    ]
+   ],
+   "sections": 6,
+   "piles": [
+    [
+     9.5,
+     2,
+     5.6
+    ],
+    [
+     14,
+     3,
+     5.7
+    ]
+   ]
+  },
+  {
+   "x": -71.1,
+   "y": -146.2,
+   "longueur": 10.5,
+   "largeur": 3.2,
+   "droit": true,
+   "iou": 0.9,
+   "ecart": 0.08,
+   "libre": [
+    true,
+    true
+   ],
+   "joints": [
+    0,
+    0
+   ],
+   "bouts": [
+    [
+     -65.8,
+     -145.8
+    ],
+    [
+     -76.3,
+     -146.7
+    ]
+   ],
+   "sections": 6
+  },
+  {
+   "x": -212.4,
+   "y": 123.7,
+   "longueur": 9.8,
+   "largeur": 7.6,
+   "droit": true,
+   "iou": 0.71,
+   "ecart": 0.02,
+   "libre": [
+    false,
+    true
+   ],
+   "joints": [
+    3,
+    0
+   ],
+   "bouts": [
+    [
+     -206.2,
+     129.4
+    ],
+    [
+     -217.2,
+     120.4
+    ]
+   ],
+   "sections": 10
+  }
+ ]
+}

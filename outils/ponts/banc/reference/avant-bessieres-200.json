@@ -1,0 +1,41 @@
+{
+ "site": "bessieres",
+ "R": 200,
+ "centre": [
+  2538313,
+  1152517
+ ],
+ "ms": [
+  411,
+  59
+ ],
+ "triDessus": 6,
+ "triVersLeBas": 0,
+ "triCotes": 30,
+ "triModeles": 1888,
+ "pliMax": 7.3,
+ "plis3": 2,
+ "pliOu": [
+  [
+   156.3,
+   -33.8,
+   7.3
+  ],
+  [
+   156.8,
+   -34.3,
+   6.5
+  ],
+  [
+   155.8,
+   -33.3,
+   0.8
+  ]
+ ],
+ "pliMaxModeles": 4.8,
+ "ouverts": 0,
+ "ouvertsModeles": 0,
+ "ponts": [],
+ "raccords": [],
+ "infos": []
+}

@@ -1,0 +1,155 @@
+{
+ "site": "perolles",
+ "R": 300,
+ "centre": [
+  2578172,
+  1181972
+ ],
+ "ms": [
+  916,
+  151
+ ],
+ "triDessus": 719,
+ "triVersLeBas": 0,
+ "triCotes": 574,
+ "triModeles": 0,
+ "pliMax": 2.9,
+ "plis3": 0,
+ "pliOu": [
+  [
+   -82.5,
+   -261,
+   2.9
+  ],
+  [
+   -82.7,
+   -260.5,
+   2.9
+  ],
+  [
+   -82.9,
+   -260,
+   2.8
+  ]
+ ],
+ "pliMaxModeles": 0,
+ "ouverts": 207,
+ "ouvertsModeles": 0,
+ "ponts": [
+  {
+   "x": 128.3,
+   "y": -107.2,
+   "aire": 8727,
+   "hMed": 27.08,
+   "z": 70.4,
+   "az": 46.2,
+   "ext": 535,
+   "cases": 34571,
+   "couvert": 98.8,
+   "couvertInt": 99.7,
+   "trous": 78,
+   "creux": 3,
+   "ecartMed": 5,
+   "ecart95": 13,
+   "dz05": -8,
+   "dz95": 12,
+   "terrainDessus": 0,
+   "iou": 0.97,
+   "ecartModele": 0.05,
+   "repli": false,
+   "joints": [
+    0,
+    6
+   ],
+   "libre": [
+    true,
+    false
+   ],
+   "sections": 76,
+   "longueur": 523,
+   "largeur": 16.8,
+   "piles": [
+    [
+     177.5,
+     8,
+     12.7
+    ],
+    [
+     237,
+     1,
+     4.2
+    ],
+    [
+     246,
+     1,
+     4.2
+    ]
+   ],
+   "type": null
+  }
+ ],
+ "raccords": [
+  {
+   "pont": [
+    128.3,
+    -107.2
+   ],
+   "bout": 1,
+   "marche": 67,
+   "bosse": 37,
+   "depasse": 0,
+   "partTerrain": 0,
+   "ou": [
+    0.5,
+    0.3
+   ]
+  }
+ ],
+ "infos": [
+  {
+   "x": 128.3,
+   "y": -107.2,
+   "longueur": 523,
+   "largeur": 16.8,
+   "droit": false,
+   "iou": 0.97,
+   "ecart": 0.05,
+   "libre": [
+    true,
+    false
+   ],
+   "joints": [
+    0,
+    6
+   ],
+   "bouts": [
+    [
+     296.5,
+     76.2
+    ],
+    [
+     -90.6,
+     -262
+    ]
+   ],
+   "sections": 76,
+   "piles": [
+    [
+     177.5,
+     8,
+     12.7
+    ],
+    [
+     237,
+     1,
+     4.2
+    ],
+    [
+     246,
+     1,
+     4.2
+    ]
+   ]
+  }
+ ]
+}

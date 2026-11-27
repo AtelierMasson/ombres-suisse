@@ -1,0 +1,155 @@
+{
+ "site": "butin",
+ "R": 300,
+ "centre": [
+  2497523,
+  1117382
+ ],
+ "ms": [
+  759,
+  142
+ ],
+ "triDessus": 673,
+ "triVersLeBas": 0,
+ "triCotes": 448,
+ "triModeles": 0,
+ "pliMax": 34.2,
+ "plis3": 37,
+ "pliOu": [
+  [
+   -3.2,
+   -39.9,
+   34.2
+  ],
+  [
+   -3.1,
+   -40.9,
+   26.5
+  ],
+  [
+   -3.3,
+   -39.4,
+   18.8
+  ]
+ ],
+ "pliMaxModeles": 0,
+ "ouverts": 385.6,
+ "ouvertsModeles": 0,
+ "ponts": [
+  {
+   "x": -11.8,
+   "y": 139.5,
+   "aire": 7774,
+   "hMed": 3.4,
+   "z": 3.25,
+   "az": 174.5,
+   "ext": 358,
+   "cases": 30864,
+   "couvert": 98.7,
+   "couvertInt": 99.4,
+   "trous": 163,
+   "creux": 1150,
+   "ecartMed": 5,
+   "ecart95": 16,
+   "dz05": -16,
+   "dz95": 9,
+   "terrainDessus": 0,
+   "iou": 0.97,
+   "ecartModele": 0.05,
+   "repli": false,
+   "joints": [
+    0,
+    2
+   ],
+   "libre": [
+    true,
+    false
+   ],
+   "sections": 56,
+   "longueur": 343.9,
+   "largeur": 22.6,
+   "piles": [
+    [
+     13.5,
+     2,
+     0.8
+    ],
+    [
+     47.5,
+     8,
+     24.4
+    ],
+    [
+     95,
+     9,
+     22.1
+    ]
+   ],
+   "type": null
+  }
+ ],
+ "raccords": [
+  {
+   "pont": [
+    -11.8,
+    139.5
+   ],
+   "bout": 1,
+   "marche": 20,
+   "bosse": 14,
+   "depasse": 37,
+   "partTerrain": 29,
+   "ou": [
+    0.5,
+    -0.3
+   ]
+  }
+ ],
+ "infos": [
+  {
+   "x": -11.8,
+   "y": 139.5,
+   "longueur": 343.9,
+   "largeur": 22.6,
+   "droit": false,
+   "iou": 0.97,
+   "ecart": 0.05,
+   "libre": [
+    true,
+    false
+   ],
+   "joints": [
+    0,
+    2
+   ],
+   "bouts": [
+    [
+     -21.1,
+     301.8
+    ],
+    [
+     3.8,
+     -40.8
+    ]
+   ],
+   "sections": 56,
+   "piles": [
+    [
+     13.5,
+     2,
+     0.8
+    ],
+    [
+     47.5,
+     8,
+     24.4
+    ],
+    [
+     95,
+     9,
+     22.1
+    ]
+   ]
+  }
+ ]
+}

@@ -1,0 +1,137 @@
+{
+ "site": "passage",
+ "R": 300,
+ "centre": [
+  2511184,
+  1143775
+ ],
+ "ms": [
+  534,
+  59
+ ],
+ "triDessus": 138,
+ "triVersLeBas": 0,
+ "triCotes": 154,
+ "triModeles": 0,
+ "pliMax": 21.6,
+ "plis3": 43,
+ "pliOu": [
+  [
+   72.8,
+   111.7,
+   21.6
+  ],
+  [
+   73.3,
+   111.4,
+   20.9
+  ],
+  [
+   72,
+   112.3,
+   19.8
+  ]
+ ],
+ "pliMaxModeles": 0,
+ "ouverts": 67.5,
+ "ouvertsModeles": 0,
+ "ponts": [
+  {
+   "x": 111,
+   "y": 87.7,
+   "aire": 953,
+   "hMed": 4.52,
+   "z": 6.25,
+   "az": 127.4,
+   "ext": 91,
+   "cases": 3812,
+   "couvert": 99.1,
+   "couvertInt": 100,
+   "trous": 0,
+   "creux": 159,
+   "ecartMed": 5,
+   "ecart95": 25,
+   "dz05": -25,
+   "dz95": 6,
+   "terrainDessus": 0,
+   "iou": 0.94,
+   "ecartModele": 0.05,
+   "repli": false,
+   "joints": [
+    2,
+    2
+   ],
+   "libre": [
+    false,
+    false
+   ],
+   "sections": 24,
+   "longueur": 90.7,
+   "largeur": 11,
+   "piles": null,
+   "type": null
+  }
+ ],
+ "raccords": [
+  {
+   "pont": [
+    111,
+    87.7
+   ],
+   "bout": 0,
+   "marche": 15,
+   "bosse": 17,
+   "depasse": 61,
+   "partTerrain": 26,
+   "ou": [
+    0.5,
+    -0.3
+   ]
+  },
+  {
+   "pont": [
+    111,
+    87.7
+   ],
+   "bout": 1,
+   "marche": 7,
+   "bosse": 14,
+   "depasse": 42,
+   "partTerrain": 26,
+   "ou": [
+    -0.5,
+    0.3
+   ]
+  }
+ ],
+ "infos": [
+  {
+   "x": 111,
+   "y": 87.7,
+   "longueur": 90.7,
+   "largeur": 11,
+   "droit": false,
+   "iou": 0.94,
+   "ecart": 0.05,
+   "libre": [
+    false,
+    false
+   ],
+   "joints": [
+    2,
+    2
+   ],
+   "bouts": [
+    [
+     72.8,
+     115.6
+    ],
+    [
+     148.7,
+     58.8
+    ]
+   ],
+   "sections": 24
+  }
+ ]
+}

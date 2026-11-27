@@ -1,0 +1,122 @@
+{
+ "site": "quai",
+ "R": 200,
+ "centre": [
+  2683480,
+  1247304
+ ],
+ "ms": [
+  445,
+  25
+ ],
+ "triDessus": 126,
+ "triVersLeBas": 0,
+ "triCotes": 184,
+ "triModeles": 0,
+ "pliMax": 49.4,
+ "plis3": 21,
+ "pliOu": [
+  [
+   -67.5,
+   -140.7,
+   49.4
+  ],
+  [
+   -66.1,
+   -140.4,
+   38.1
+  ],
+  [
+   -67,
+   -140.6,
+   35
+  ]
+ ],
+ "pliMaxModeles": 0,
+ "ouverts": 79.6,
+ "ouvertsModeles": 0,
+ "ponts": [
+  {
+   "x": -100.3,
+   "y": -149.9,
+   "aire": 606,
+   "hMed": 5.86,
+   "z": -3.74,
+   "az": 81.1,
+   "ext": 69,
+   "cases": 2217,
+   "couvert": 98.1,
+   "couvertInt": 100,
+   "trous": 0,
+   "creux": 0,
+   "ecartMed": 2,
+   "ecart95": 7,
+   "dz05": -6,
+   "dz95": 5,
+   "terrainDessus": 0,
+   "iou": 0.9,
+   "ecartModele": 0.02,
+   "repli": false,
+   "joints": [
+    1,
+    0
+   ],
+   "libre": [
+    false,
+    true
+   ],
+   "sections": 21,
+   "longueur": 68.3,
+   "largeur": 9.5,
+   "piles": null,
+   "type": null
+  }
+ ],
+ "raccords": [
+  {
+   "pont": [
+    -100.3,
+    -149.9
+   ],
+   "bout": 0,
+   "marche": 29,
+   "bosse": 17,
+   "depasse": 45,
+   "partTerrain": 21,
+   "ou": [
+    0.75,
+    -0.3
+   ]
+  }
+ ],
+ "infos": [
+  {
+   "x": -100.3,
+   "y": -149.9,
+   "longueur": 68.3,
+   "largeur": 9.5,
+   "droit": false,
+   "iou": 0.9,
+   "ecart": 0.02,
+   "libre": [
+    false,
+    true
+   ],
+   "joints": [
+    1,
+    0
+   ],
+   "bouts": [
+    [
+     -66.3,
+     -143.4
+    ],
+    [
+     -134.7,
+     -154
+    ]
+   ],
+   "sections": 21
+  }
+ ]
+}

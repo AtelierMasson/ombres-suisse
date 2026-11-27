@@ -1,0 +1,170 @@
+{
+ "site": "peney",
+ "R": 300,
+ "centre": [
+  2492303,
+  1117122
+ ],
+ "ms": [
+  598,
+  73
+ ],
+ "triDessus": 180,
+ "triVersLeBas": 0,
+ "triCotes": 220,
+ "triModeles": 0,
+ "pliMax": 22.9,
+ "plis3": 50,
+ "pliOu": [
+  [
+   68.8,
+   -286.5,
+   22.9
+  ],
+  [
+   65.6,
+   -283.8,
+   21.9
+  ],
+  [
+   69.1,
+   -285.5,
+   21.6
+  ]
+ ],
+ "pliMaxModeles": 0,
+ "ouverts": 256.2,
+ "ouvertsModeles": 0,
+ "ponts": [
+  {
+   "x": 105,
+   "y": -197.8,
+   "aire": 2110,
+   "hMed": 14.53,
+   "z": 17.81,
+   "az": 22.6,
+   "ext": 190,
+   "cases": 8440,
+   "couvert": 99.8,
+   "couvertInt": 100,
+   "trous": 0,
+   "creux": 1126,
+   "ecartMed": 4,
+   "ecart95": 29,
+   "dz05": -29,
+   "dz95": 4,
+   "terrainDessus": 0,
+   "iou": 0.97,
+   "ecartModele": 0.04,
+   "repli": false,
+   "joints": [
+    2,
+    2
+   ],
+   "libre": [
+    false,
+    false
+   ],
+   "sections": 31,
+   "longueur": 188.8,
+   "largeur": 11.4,
+   "piles": [
+    [
+     33,
+     3,
+     9.8
+    ],
+    [
+     148.5,
+     2,
+     9.8
+    ],
+    [
+     179,
+     7,
+     10.9
+    ]
+   ],
+   "type": null
+  }
+ ],
+ "raccords": [
+  {
+   "pont": [
+    105,
+    -197.8
+   ],
+   "bout": 0,
+   "marche": 17,
+   "bosse": 16,
+   "depasse": 43,
+   "partTerrain": 23,
+   "ou": [
+    0.5,
+    0.3
+   ]
+  },
+  {
+   "pont": [
+    105,
+    -197.8
+   ],
+   "bout": 1,
+   "marche": 20,
+   "bosse": 19,
+   "depasse": 44,
+   "partTerrain": 22,
+   "ou": [
+    0.5,
+    0
+   ]
+  }
+ ],
+ "infos": [
+  {
+   "x": 105,
+   "y": -197.8,
+   "longueur": 188.8,
+   "largeur": 11.4,
+   "droit": false,
+   "iou": 0.97,
+   "ecart": 0.04,
+   "libre": [
+    false,
+    false
+   ],
+   "joints": [
+    2,
+    2
+   ],
+   "bouts": [
+    [
+     142.2,
+     -108.8
+    ],
+    [
+     68.6,
+     -286.9
+    ]
+   ],
+   "sections": 31,
+   "piles": [
+    [
+     33,
+     3,
+     9.8
+    ],
+    [
+     148.5,
+     2,
+     9.8
+    ],
+    [
+     179,
+     7,
+     10.9
+    ]
+   ]
+  }
+ ]
+}

@@ -1,0 +1,89 @@
+{
+ "site": "grandpont",
+ "R": 200,
+ "centre": [
+  2537957,
+  1152430
+ ],
+ "ms": [
+  339,
+  115
+ ],
+ "triDessus": 6524,
+ "triVersLeBas": 28,
+ "triCotes": 8618,
+ "triModeles": 3680,
+ "pliMax": 76.2,
+ "plis3": 1395,
+ "pliOu": [
+  [
+   5.8,
+   -19,
+   76.2
+  ],
+  [
+   2.6,
+   -21,
+   75.9
+  ],
+  [
+   44.3,
+   -2.8,
+   74.5
+  ]
+ ],
+ "pliMaxModeles": 22.4,
+ "ouverts": 0,
+ "ouvertsModeles": 0,
+ "ponts": [
+  {
+   "x": 25.2,
+   "y": 22.5,
+   "aire": 835,
+   "hMed": 12.74,
+   "z": 12.27,
+   "az": 10.4,
+   "ext": 141,
+   "cases": 3339,
+   "couvert": 96.8,
+   "couvertInt": 100,
+   "trous": 0,
+   "creux": 0,
+   "ecartMed": 1,
+   "ecart95": 5,
+   "dz05": -3,
+   "dz95": 3,
+   "terrainDessus": 0,
+   "iou": 0.35,
+   "ecartModele": 0.02,
+   "repli": true,
+   "joints": null,
+   "libre": [
+    false,
+    false
+   ],
+   "sections": null,
+   "longueur": 120.8,
+   "largeur": 17.1,
+   "piles": null,
+   "type": null
+  }
+ ],
+ "raccords": [],
+ "infos": [
+  {
+   "x": 25.2,
+   "y": 22.5,
+   "longueur": 120.8,
+   "largeur": 17.1,
+   "droit": false,
+   "iou": 0.35,
+   "ecart": 0.02,
+   "libre": [
+    false,
+    false
+   ],
+   "repli": true
+  }
+ ]
+}

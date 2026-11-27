@@ -1,0 +1,18 @@
+--- a/src/maillages.js	2026-11-27 10:34:12
++++ b/src/maillages.js	2026-11-27 10:34:12
+@@ -1265,6 +1265,7 @@
+     }
+     info.joints = [+(s0 - joint[0]).toFixed(1), +(joint[1] - s1).toFixed(1)];
+     info.bouts = [0, 1].map(b => enPlan(joint[b], mil[b]).map(v => +v.toFixed(1)));
++    info.dbg = { axe, cum, s0, s1, mil, lar, joint: [...joint] }; // (banc de mesure)
+     // sections : tous les mètres du premier joint au dernier (1,5 m de plus, sous le terrain), puis allégées
+     const FONDU = 3, PLONGE = 1.5, nT = Math.max(2, Math.min(6, Math.round(aire / nb / 3.5)));
+     const debut = libre[0] ? s0 - c / 2 : joint[0] - PLONGE, fin = libre[1] ? s1 + c / 2 : joint[1] + PLONGE;
+@@ -1392,6 +1393,7 @@
+         const tete = profil(sm) - lire(eA, sm) - zRef + 0.05, C4 = [enPlan(sa, ga), enPlan(sb, ga), enPlan(sb, da), enPlan(sa, da)];
+         const pied = Math.min(...C4.map(([x, y]) => solEn(G, x, y))) - 1 - zRef;
+         for (let k = 0; k < 4; k++) quad(bas, P(C4[k], pied), P(C4[(k + 1) % 4], pied), P(C4[(k + 1) % 4], tete), P(C4[k], tete));
++        (info.piles ||= []).push([+(sm - s0).toFixed(1), +(sb - sa).toFixed(1), +(da - ga).toFixed(1)]);
+       }
+     }
+     return true;
