@@ -161,6 +161,41 @@ Ordre conseillé : A + B + LOD1 d'abord (gain visible immédiat sur l'ombre et l
 
 ---
 
+## 5. Ce qui est fait (27.11.2026)
+
+- **Étape A** (`src/arbresSegmentation.js`, dans un fil : `src/arbres.worker.js`) : MNC 0,5 m (végétation − sol) ;
+  fermeture morphologique de 1 m (max puis min sur 5 × 5 cellules) ; lissage 3 × 3 ; sommets par maxima locaux,
+  fenêtre de rayon `clamp(0,6 + 0,08·h, 1,5, 6) m`, h ≥ 3 m ; croissance de région depuis les sommets, la plus haute
+  cellule d'abord (file par paliers de 2 cm), critères Dalponte (0,45 × sommet, 0,55 × moyenne de la couronne,
+  rayon ≤ min(10 m, 0,6·h)) ; puis fusion de deux couronnes voisines si le col qui les sépare dépasse 85 % du plus bas
+  sommet et que la couronne réunie garde une taille plausible (rayon ≤ min(12, 0,45·h + 2,5) m) : c'est ce qui évite
+  qu'un grand feuillu sans feuilles devienne plusieurs arbres. Couronnes de moins de 2 m² écartées.
+- **Étape B** : rayon de couronne sur 8 directions (secteurs vides comblés, adoucis) ; type conifère / feuillu /
+  indéterminé par un score à 4 indices (élancement h / diamètre, pente moyenne à 1–2 m du sommet, densité relative
+  des points, part des points dans le tiers haut) ; base de la couronne = 10e centile des hauteurs relatives des
+  points (bornée à 15–70 % de h ; 25 % / 40 % sans points). Seuils **non calibrés** sur des arbres connus.
+- **Étape D, LOD1** (`src/arbres.js`) : tronc à six pans + couronne 12 azimuts (ellipsoïde à dessous un peu aplati
+  pour un feuillu, cône pour un conifère), ~108 à 132 triangles par arbre, une géométrie fusionnée, facettes plates,
+  couleurs du thème selon le type. Style « Arbres isolés » de l'onglet Affichage, à côté des « Points du relevé »
+  (défaut) et des « Masses » (couronnes lissées existantes, lissage des hauteurs porté à 5 m). Repli sur les points
+  si la segmentation échoue ou ne trouve aucun arbre.
+- **Vue plan dessinée** (`src/vuePlan.js`) : cercle de couronne (rayon moyen), point du tronc, aplat léger en option,
+  pour la maquette fine (segmentation) et l'anneau (arbres swissTLM3D).
+- **Pas fait** : étape C (tronc et branches en space colonization), indices nationaux (Waldmischungsgrad), export
+  OBJ / DXF par calques avec ces arbres (l'export garde `arbresUnParUn` d'export.js), impression 3D (inchangée).
+
+Mesures (Chromium sans carte graphique, SwiftShader ; les temps d'image ne valent que les uns par rapport aux autres) :
+
+| Lieu | Arbres détectés | Segmentation (fil) | Triangles des arbres | Temps d'image points / masses / isolés |
+|---|---|---|---|---|
+| Lausanne, lieu boisé (2538950, 1154650 ; R 150 m, 1,47 M points d'arbres) | 688 | 0,30 s | 88 700 | 2,2 / 1,5 / 1,1 s |
+| Lausanne, av. Floréal (urbain, R 150 m, 91 000 points d'arbres) | 198 | 0,08–0,12 s | 25 400 | 1,2 / 1,0 / 0,95 s |
+| Même lieu boisé, R 300 m | 955 | 0,52 s | — | — |
+| Forêt simulée, 4 M cellules (R 1000 m) | 4 340 | 1,5 s | — | — |
+
+Les arbres isolés sont le style le plus léger à dessiner ; les masses pèsent ~480 000 triangles en forêt. Le premier
+calcul ajoute le démarrage du fil (~1 s en développement).
+
 ## Sources principales
 - lidR : [segment_trees](https://search.r-project.org/CRAN/refmans/lidR/html/segment.html), [lidR book ITD](https://r-lidar.github.io/lidRbook/itd.html), [silva2016](https://search.r-project.org/CRAN/refmans/lidR/html/its_silva2016.html)
 - Eysn et al. 2015, benchmark NEWFOR : [HAL](https://hal-sde.archives-ouvertes.fr/hal-01170682)

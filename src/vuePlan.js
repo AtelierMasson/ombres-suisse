@@ -4,7 +4,10 @@
 //    thème sombre) et trait fin foncé ;
 //  - les bâtiments 3D (relevé, swisstopo, Advanced) ne sont pas dessinés et ne portent pas d'ombre (option : leurs
 //    ombres à la date choisie, en aplat léger), pas d'occlusion ambiante ;
-//  - arbres, sol (plan cadastral ou autre fond choisi), parcelles, volumes du projet et coupes restent tels quels ;
+//  - arbres en symboles d'architecte : cercle de couronne au trait fin, point du tronc, aplat léger en option ; ceux
+//    de la maquette fine viennent de la segmentation (arbres.js), ceux de l'anneau des arbres swisstopo ; les arbres 3D
+//    (points, masses ou isolés) ne sont pas dessinés et ne portent leur ombre qu'avec l'option « Ombres » ;
+//  - sol (plan cadastral ou autre fond choisi), parcelles, volumes du projet et coupes restent tels quels ;
 //  - échelle graphique en bas à gauche ; le nord est donné par la boussole.
 // Tout se fait autour du rendu (les objets de la scène sont remis dans leur état après chaque image) : en quittant
 // la vue plan, rien n'a changé.
@@ -15,21 +18,19 @@ import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { emprisesOfficielles } from "./reconstruction/emprises.js";
 import { contoursBatiments } from "./contours.js";
 import { solEn } from "./grille.js";
-import { langue } from "./i18n.js";
+import { t } from "./i18n.js";
+import { CHAMPS, rayonMoyen } from "./arbresSegmentation.js";
 
 const CALQUE_OMBRE = 2; // comme scene.js : calque vu du seul soleil (porte son ombre sans être dessiné)
 const CLE = "ombres.vuePlan";
 
-const TEXTES = {
-  fr: { groupe: "Vue plan", dessin: "Plan", dessinT: "Plan dessiné : emprises des bâtiments (mensuration officielle), sans la maquette 3D", dessus: "3D", dessusT: "Vue de dessus de la maquette 3D", ombres: "Ombres", ombresT: "Ombres des bâtiments à la date et l'heure choisies, en aplat léger", echelle: "Échelle graphique" },
-  de: { groupe: "Grundriss", dessin: "Plan", dessinT: "Gezeichneter Plan: Gebäudegrundrisse (amtliche Vermessung), ohne 3D-Modell", dessus: "3D", dessusT: "Draufsicht auf das 3D-Modell", ombres: "Schatten", ombresT: "Gebäudeschatten zum gewählten Datum und zur gewählten Uhrzeit, als helle Fläche", echelle: "Massstabsleiste" },
-  it: { groupe: "Vista in pianta", dessin: "Pianta", dessinT: "Pianta disegnata: impronte degli edifici (misurazione ufficiale), senza il modello 3D", dessus: "3D", dessusT: "Vista dall'alto del modello 3D", ombres: "Ombre", ombresT: "Ombre degli edifici alla data e all'ora scelte, in tinta chiara", echelle: "Scala grafica" },
-  en: { groupe: "Plan view", dessin: "Plan", dessinT: "Drawn plan: building footprints (official cadastral survey), without the 3D model", dessus: "3D", dessusT: "Top view of the 3D model", ombres: "Shadows", ombresT: "Building shadows at the chosen date and time, as a light tint", echelle: "Scale bar" },
-};
-const tx = k => (TEXTES[langue] || TEXTES.fr)[k];
+const tx = k => t("plan." + k);
 
 /** Couleurs du dessin selon le thème : aplat et trait. */
-const couleurs = T => T?.sombre ? { aplat: "#3d434d", trait: "#e6eaf0" } : { aplat: "#ecebe7", trait: "#26292e" };
+const couleurs = T => T?.sombre
+  ? { aplat: "#3d434d", trait: "#e6eaf0", arbreTrait: "#b9d4c4", arbreAplat: "#7fb89a", opacite: 0.16, papier: "#1d2431" }
+  : { aplat: "#ecebe7", trait: "#26292e", arbreTrait: "#3c5a3f", arbreAplat: "#8fb27a", opacite: 0.22, papier: "#f3f1ec" };
+const couleurFond = new THREE.Color();
 
 const aire = a => { let s = 0; for (let i = 0, j = a.length - 1; i < a.length; j = i++) s += a[j][0] * a[i][1] - a[i][0] * a[j][1]; return s / 2; };
 function dansAnneau(x, y, a) {
@@ -65,7 +66,7 @@ function contoursReleve(G) {
 }
 
 export function brancherVuePlan(scene, S) {
-  let reglage = { dessin: true, ombres: false };
+  let reglage = { dessin: true, ombres: false, aplat: true };
   try { Object.assign(reglage, JSON.parse(localStorage.getItem(CLE) || "{}")); } catch { /* stockage indisponible */ }
   const garder = () => { try { localStorage.setItem(CLE, JSON.stringify(reglage)); } catch { /* stockage indisponible */ } };
 
@@ -75,14 +76,25 @@ export function brancherVuePlan(scene, S) {
   scene.scene.add(groupe);
   const matAplat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, fog: false, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
   const matTrait = new LineMaterial({ linewidth: 1.15, fog: false });
-  const teinter = () => { const c = couleurs(scene.T); matAplat.color.set(c.aplat); matTrait.color.set(c.trait); };
+  // arbres : trait plus fin, point du tronc, aplat translucide (sans écrire la profondeur, sous les traits)
+  const matArbreTrait = new LineMaterial({ linewidth: 0.8, fog: false });
+  const matTronc = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, fog: false });
+  const matArbreAplat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, fog: false, transparent: true, depthWrite: false });
+  const teinter = () => {
+    const c = couleurs(scene.T);
+    matAplat.color.set(c.aplat); matTrait.color.set(c.trait);
+    matArbreTrait.color.set(c.arbreTrait); matTronc.color.set(c.arbreTrait); matArbreAplat.color.set(c.arbreAplat); matArbreAplat.opacity = c.opacite;
+  };
   teinter();
 
+  const groupeArbres = new THREE.Group();
+  groupeArbres.name = "planArbres";
+  groupe.add(groupeArbres);
   let lieu = null, chargement = null, actif = false;
 
   const vider = () => {
     groupe.traverse(o => o.geometry?.dispose());
-    groupe.clear();
+    groupe.clear(); groupe.add(groupeArbres); viderArbres();
     polys = [];
     lieu = null; chargement?.abort(); chargement = null;
   };
@@ -121,8 +133,7 @@ export function brancherVuePlan(scene, S) {
         traits.push(p[0], h + 0.05, -p[1], q[0], h + 0.05, -q[1]);
       }
     }
-    groupe.traverse(o => o.geometry?.dispose());
-    groupe.clear();
+    for (const o of [...groupe.children]) if (o !== groupeArbres) { o.geometry?.dispose(); groupe.remove(o); }
     if (!pos.length) return;
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
@@ -131,6 +142,64 @@ export function brancherVuePlan(scene, S) {
     const gl = new LineSegmentsGeometry().setPositions(traits), trait = new LineSegments2(gl, matTrait);
     for (const o of [aplat, trait]) { o.raycast = () => {}; o.castShadow = o.receiveShadow = false; o.renderOrder = 1; o.frustumCulled = false; }
     groupe.add(aplat, trait);
+  }
+
+  // ---- arbres en symboles : maquette fine (segmentation) et anneau (arbres swisstopo)
+  let fins = null, sigArbres = "", attenteFins = null;
+  function viderArbres() {
+    groupeArbres.traverse(o => o.geometry?.dispose());
+    groupeArbres.clear();
+    fins = null; sigArbres = ""; attenteFins = null;
+  }
+  const signerArbres = () => `${scene.idScene}|${fins ? fins.nb : -1}|${scene.arbresPlan?.versionAnneau() ?? 0}|${!!scene.couches?.anneau?.visible}|${reglage.aplat}`;
+  /** Lance (une fois par grille) la segmentation des arbres de la maquette fine. */
+  function chargerArbres() {
+    const G = scene.G;
+    if (!scene.arbresPlan || !G || attenteFins === G) return;
+    attenteFins = G;
+    scene.arbresPlan.fins().then(r => { if (scene.G === G && attenteFins === G) { fins = r; scene.demander(2); } });
+  }
+  function construireArbres() {
+    sigArbres = signerArbres();
+    groupeArbres.traverse(o => o.geometry?.dispose());
+    groupeArbres.clear();
+    const liste = [];
+    if (fins?.nb) {
+      const A = fins.arbres, zRef = scene.zRef, Rz = scene.G?.rayonZone || Infinity;
+      for (let q = 0; q < fins.nb; q++) {
+        const o = q * CHAMPS, x = A[o], y = A[o + 1];
+        if (Math.hypot(x, y) > Rz) continue;
+        liste.push({ x, y, z: A[o + 3] - zRef, r: rayonMoyen(A, q) });
+      }
+    }
+    if (scene.couches?.anneau?.visible) {
+      const Rz = scene.G?.rayonZone || 0;
+      for (const a of scene.arbresPlan?.anneau() || []) if (Math.hypot(a.x, a.y) > Rz) liste.push(a);
+    }
+    if (!liste.length) return;
+    // maquette ronde sans paysage : rien au-delà du cercle (les couronnes du bord y sont coupées)
+    const Rmax = scene.couches?.anneau?.visible ? Infinity : scene.G?.rayonZone || Infinity, dedans = (x, y) => x * x + y * y <= Rmax * Rmax;
+    const N = 20, traits = [], aplat = [], tronc = [];
+    for (const { x, y, z, r } of liste) {
+      if (!dedans(x, y)) continue;
+      const zt = z + 0.3, rt = Math.min(0.35, Math.max(0.15, r * 0.06));
+      for (let k = 0; k < N; k++) {
+        const a0 = k * 2 * Math.PI / N, a1 = (k + 1) * 2 * Math.PI / N;
+        const p0 = [x + r * Math.cos(a0), y + r * Math.sin(a0)], p1 = [x + r * Math.cos(a1), y + r * Math.sin(a1)];
+        if (!dedans(...p0) || !dedans(...p1)) continue;
+        traits.push(p0[0], zt, -p0[1], p1[0], zt, -p1[1]);
+        if (reglage.aplat) aplat.push(x, z, -y, p1[0], z, -p1[1], p0[0], z, -p0[1]);
+      }
+      for (let k = 0; k < 8; k++) {
+        const a0 = k * Math.PI / 4, a1 = (k + 1) * Math.PI / 4;
+        tronc.push(x, zt + 0.02, -y, x + rt * Math.cos(a1), zt + 0.02, -(y + rt * Math.sin(a1)), x + rt * Math.cos(a0), zt + 0.02, -(y + rt * Math.sin(a0)));
+      }
+    }
+    const maille = (pos, m) => { const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); return new THREE.Mesh(g, m); };
+    const objets = [new LineSegments2(new LineSegmentsGeometry().setPositions(traits), matArbreTrait), maille(tronc, matTronc)];
+    if (aplat.length) objets.unshift(maille(aplat, matArbreAplat));
+    objets.forEach((o, k) => { o.raycast = () => {}; o.castShadow = o.receiveShadow = false; o.renderOrder = 2 + k; o.frustumCulled = false; });
+    groupeArbres.add(...objets);
   }
 
   /** Emprises du lieu courant (une fois par lieu) : officielles, et nos contours là où il n'y en a pas. */
@@ -181,7 +250,8 @@ export function brancherVuePlan(scene, S) {
     echelle.hidden = scene.modeVue !== "plan" || !scene.G;
     bDessin.setAttribute("aria-pressed", reglage.dessin); bDessus.setAttribute("aria-pressed", !reglage.dessin);
     bOmbres.setAttribute("aria-pressed", reglage.ombres); bOmbres.hidden = !reglage.dessin;
-    if (a) charger();
+    bAplat.setAttribute("aria-pressed", reglage.aplat); bAplat.hidden = !reglage.dessin;
+    if (a) { charger(); chargerArbres(); }
     if (a !== actif) { actif = a; }
     scene.ombres();
     majEchelle();
@@ -192,7 +262,11 @@ export function brancherVuePlan(scene, S) {
   scene.rendre = function () {
     if (!enDessin()) { groupe.visible = false; return rendre(); }
     if (polys.length && signature !== signer()) construire(polys); // anneau arrivé ou enlevé depuis
-    const c = scene.couches || {}, objets = [c.bati, c.roofer, scene.swiss?.tuiles?.group].filter(Boolean);
+    if (sigArbres !== signerArbres()) construireArbres(); // arbres détectés, tuiles d'arbres de l'anneau arrivées
+    // arbres 3D : les points ne sont pas dessinés ; les volumes (masses, isolés, anneau) seulement pour leur ombre
+    const pointsArbres = scene.arbresPlan?.materiauxPoints() || [], visPoints = pointsArbres.map(m => m.visible);
+    pointsArbres.forEach(m => { m.visible = false; });
+    const c = scene.couches || {}, objets = [c.bati, c.roofer, scene.swiss?.tuiles?.group, ...(scene.arbresPlan?.volumes() || [])].filter(Boolean);
     const avant = [], couches = [];
     for (const o of objets) {
       avant.push(o.visible);
@@ -203,16 +277,28 @@ export function brancherVuePlan(scene, S) {
     }
     const effets = scene.effets, ombre = scene.soleil.shadow, intensite = ombre.intensity;
     scene.effets = false; // pas d'occlusion ambiante : elle dessinerait les bâtiments absents en creux
-    ombre.intensity = intensite * 0.45; // aplat léger
+    ombre.intensity = reglage.ombres ? intensite * 0.45 : 0; // aplat léger, ou aucune ombre (ni celle des arbres)
+    // éclairage de papier : le sol garde le même ton à toute heure (en fin de journée, il virait au brun) ; avec les
+    // ombres, un soleil réglé pour que le sol éclairé ait ce ton et que l'ombre reste un aplat léger. Fond hors du
+    // modèle : la couleur du papier (il était noir, la caméra regardant sous l'horizon du ciel)
+    const soleil = scene.soleil, ciel = scene.ciel, iSoleil = soleil.intensity, iCiel = ciel.intensity, fond = scene.scene.background;
+    const teinteSoleil = soleil.color.getHex(); soleil.color.set("#ffffff"); // pas de lumière orangée du soir sur un plan
+    const hSoleil = soleil.position.clone().sub(soleil.target.position).normalize().y;
+    if (reglage.ombres && iSoleil > 0 && hSoleil > 0.02) { ciel.intensity = 1.7; soleil.intensity = 0.9 / Math.max(0.25, hSoleil); }
+    else { ciel.intensity = 2.55; soleil.intensity = 0; }
+    scene.scene.background = couleurFond.set(couleurs(scene.T).papier);
     const r = scene.renderer.getSize(new THREE.Vector2());
     matTrait.resolution.set(r.x, r.y);
     const plans = scene.coupe && scene.couperModele !== false && scene.plan ? [scene.plan] : null;
-    if ((matAplat.clippingPlanes?.[0] || null) !== (plans?.[0] || null)) { matAplat.clippingPlanes = matTrait.clippingPlanes = plans; matAplat.needsUpdate = matTrait.needsUpdate = true; }
+    matArbreTrait.resolution.set(r.x, r.y);
+    if ((matAplat.clippingPlanes?.[0] || null) !== (plans?.[0] || null)) for (const m of [matAplat, matTrait, matArbreTrait, matTronc, matArbreAplat]) { m.clippingPlanes = plans; m.needsUpdate = true; }
     groupe.visible = true;
     try { return rendre(); } finally {
       groupe.visible = false;
       scene.effets = effets; ombre.intensity = intensite;
+      soleil.intensity = iSoleil; ciel.intensity = iCiel; scene.scene.background = fond; soleil.color.setHex(teinteSoleil);
       objets.forEach((o, k) => { o.visible = avant[k]; });
+      pointsArbres.forEach((m, k) => { m.visible = visPoints[k]; });
       for (const [m, mask] of couches) m.layers.mask = mask;
     }
   };
@@ -231,8 +317,9 @@ export function brancherVuePlan(scene, S) {
   ui.setAttribute("role", "group"); ui.setAttribute("aria-label", tx("groupe"));
   ui.hidden = true;
   const bouton = (texte, titre) => { const b = document.createElement("button"); b.type = "button"; b.textContent = texte; b.title = titre; ui.appendChild(b); return b; };
-  const bDessin = bouton(tx("dessin"), tx("dessinT")), bDessus = bouton(tx("dessus"), tx("dessusT")), bOmbres = bouton(tx("ombres"), tx("ombresT"));
-  bOmbres.className = "ombres";
+  const bDessin = bouton(tx("dessin"), tx("dessinT")), bDessus = bouton(tx("dessus"), tx("dessusT")), bOmbres = bouton(tx("ombres"), tx("ombresT")), bAplat = bouton(tx("aplatArbres"), tx("aplatArbresTitre"));
+  bOmbres.className = bAplat.className = "ombres";
+  bAplat.addEventListener("click", () => { reglage.aplat = !reglage.aplat; garder(); maj(); scene.demander(); });
   bDessin.addEventListener("click", () => { reglage.dessin = true; garder(); maj(); });
   bDessus.addEventListener("click", () => { reglage.dessin = false; garder(); maj(); });
   bOmbres.addEventListener("click", () => { reglage.ombres = !reglage.ombres; garder(); maj(); });

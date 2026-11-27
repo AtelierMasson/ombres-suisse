@@ -225,6 +225,11 @@
           <table class="table-calques"><tbody>
             <tr><th scope="row"><label for="vArbres" data-i18n="aff.arbres">Arbres</label></th>
               <td><input class="form-check-input oeil" type="checkbox" id="vArbres" checked data-i18n-aria-label="aff.arbresVoir" aria-label="Voir les arbres"></td></tr>
+            <tr class="ligne-curseur"><td colspan="2"><select class="form-select form-select-sm" id="vArbresStyle" data-i18n-aria-label="aff.arbresStyle" aria-label="Style des arbres" data-i18n-title="aff.arbresStyleTitre" title="Points mesurés par le relevé laser, masses lissées ou arbres isolés stylisés (couronne et tronc)">
+                <option value="points" data-i18n="aff.arbresPoints">Points du relevé</option>
+                <option value="masses" data-i18n="aff.arbresMasses">Masses (couronnes lissées)</option>
+                <option value="isoles" data-i18n="aff.arbresIsoles">Arbres isolés (couronne et tronc)</option>
+              </select><div class="small text-secondary mt-1" id="noteArbresStyle" hidden></div></td></tr>
             <tr><th scope="row"><label for="vArbresOmbre" data-i18n="aff.arbresOmbre">Ombre des arbres</label></th>
               <td><input class="form-check-input oeil" type="checkbox" id="vArbresOmbre" checked></td></tr>
           </tbody></table>

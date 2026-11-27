@@ -25,9 +25,18 @@ gratuitement (GitHub Pages, Cloudflare Pages…).
    si l'affichage devient lent.
 7. **Fond du terrain** : plan cadastral (mensuration officielle) reteinté dans la gamme du thème — sol et bâtiments
    ton sur ton, comme une maquette —, ou terrain uni (interrupteur « Plan cadastral au sol »).
-8. **Arbres** en points du relevé (disques plats de teintes variées) qui s'assombrissent dans l'ombre portée (une canopée invisible, à 1 m, porte leur ombre) ; **nuage de points brut**
-   affichable, coloré par classe, construit seulement quand on le demande ; sa végétation n'est pas dessinée tant que
-   les arbres sont affichés.
+8. **Arbres**, trois styles au choix sous l'interrupteur « Arbres » de l'onglet Affichage (choix mémorisé) :
+   les **points du relevé** (par défaut : disques plats de teintes variées qui s'assombrissent dans l'ombre portée,
+   une canopée invisible à 1 m porte leur ombre), des **masses** (couronnes lissées, un volume arrondi par massif) ou
+   des **arbres isolés** stylisés (tronc à six pans, couronne en ellipsoïde pour un feuillu, en cône pour un conifère,
+   rayon lu sur 8 directions ; ~100 à 130 triangles par arbre). Les arbres isolés viennent d'une segmentation du
+   modèle de canopée calculée dans un fil (`src/arbresSegmentation.js`, voir `docs/recherche-arbres.md`) : 0,1 à 0,5 s
+   pour une maquette de 150 à 300 m ; si elle échoue ou ne trouve rien, les points restent. Ombres, thème et coupe
+   suivent le style ; dans l'anneau du paysage, les volumes sont les arbres de swisstopo (swissTLM3D). En **vue plan
+   dessinée**, les arbres sont dessinés comme sur un plan d'architecte : cercle de couronne au trait fin, point du
+   tronc et aplat léger (bouton « Aplat »), quel que soit le style 3D.
+   **Nuage de points brut** affichable, coloré par classe, construit seulement quand on le demande ; sa végétation
+   n'est pas dessinée tant que les arbres sont affichés.
 9. **Montagnes lointaines** : profil d'horizon sur 50 km tout autour (y compris France et Italie) ; quand le soleil
    passe derrière, la parcelle est à l'ombre. Le diagramme montre l'horizon et la course du soleil (jour choisi,
    21 juin, 21 décembre) et les heures où le soleil dépasse les montagnes.
@@ -114,6 +123,10 @@ npm run build      # site statique dans dist/, à publier tel quel
 | `src/grille.js` | Grilles 0,5 m : sol, bâtiments, arbres, surface ; repli raster (geotiff.js) |
 | `src/contours.js` | Volumes et contours des bâtiments : côtés droits, angles redressés |
 | `src/pans.js` | Essai (sans option visible) : pans de toit plans par volume, arêtes dans l'axe des façades |
+| `src/arbresSegmentation.js` | Arbres un par un : modèle de canopée, sommets, croissance de région, rayons, type (conifère / feuillu) |
+| `src/arbres.worker.js` | Segmentation des arbres hors du fil principal |
+| `src/arbres.js` | Styles des arbres (points, masses, isolés) : maillage low-poly, ombres, thème, coupe, anneau ; arbres de la vue plan |
+| `src/vuePlan.js` | Vue plan dessinée : emprises des bâtiments, arbres en symboles, éclairage de papier, échelle graphique |
 | `src/maillages.js` | Géométries : terrain et socle, toits et murs, canopée, nuages de points, limite de parcelle |
 | `src/scene.js` | Scène three.js : lumières, ciel, ombres, occlusion ambiante, fond de plan, plan de coupe |
 | `src/rebond.js` | Un rebond de lumière (éclairage indirect) à l'écran, après l'occlusion ambiante |

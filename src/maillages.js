@@ -658,8 +658,9 @@ function flou(a, n, r) {
 /**
  * Couronnes d'arbres lissées : un volume fermé et arrondi par massif (dessus bombé, dessous plus plat), au lieu de
  * milliers de points. Teinte variée par vertex (couleurs du thème : c1 ombre, c2 lumière, c3 accent).
+ * `lissage` : rayon du flou des hauteurs, en mètres.
  */
-export function couronnes(G, zRef, couleurs) {
+export function couronnes(G, zRef, couleurs, lissage = 2) {
   const { n, c, x0, sol, veg } = G, pas = 2, m = Math.floor(n / pas);
   // grille réduite à 1 m : présence de végétation et hauteur de couronne
   const pres = new Float32Array(m * m), haut = new Float32Array(m * m);
@@ -672,7 +673,8 @@ export function couronnes(G, zRef, couleurs) {
     pres[j * m + i] = q / (pas * pas); haut[j * m + i] = h;
   }
   // masque lissé (bouche les trous entre points), puis distance au bord en mètres (chanfrein 3-4)
-  const P = flou(pres, m, 2), Hp = flou(haut.map((h, k) => h * pres[k]), m, 2), seuil = 0.3;
+  // `lissage` (m) : rayon du flou des hauteurs ; plus grand, les massifs s'arrondissent (style « masses » des arbres)
+  const P = flou(pres, m, 2), Hp = flou(haut.map((h, k) => h * pres[k]), m, lissage), seuil = 0.3;
   const dist = new Float32Array(m * m);
   for (let k = 0; k < m * m; k++) dist[k] = P[k] >= seuil ? 1e9 : 0;
   const passe = (j0, j1, dj, i0, i1, di) => {
