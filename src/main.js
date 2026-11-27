@@ -33,7 +33,7 @@ import { brancherPro } from "./pro.js";
 import { brancherCompte } from "./compte.js";
 import { brancherPub } from "./pub.js";
 import { brancherRapport } from "./rapportBug.js";
-import { bassinsAutour, creuserBassins } from "./piscines.js";
+import { bassinsAutour, creuserBassins, baseAuPlanDEau } from "./piscines.js";
 import { brancherInterface } from "./interface.js";
 import { brancherVuePlan } from "./vuePlan.js";
 import "./compte.css";
@@ -1004,6 +1004,8 @@ function calculerHeures() {
   const facades = S.facades;
   const P = soleilsPeriode(periode(), S.jour, S.lat, S.lon, S.horizon), cle = clePeriode(), debut = performance.now(), jeu = jeuHeures();
   const heures = new Float32Array(zone.w * zone.h), heuresF = new Float32Array(facades.carreaux.length);
+  // piscines : le rayon part du plan d'eau, pas du fond du bassin creusé
+  const baseEau = baseAuPlanDEau(G, jeu.base);
   const fin = () => {
     calcul = null;
     etat(1, "");
@@ -1029,7 +1031,7 @@ function calculerHeures() {
       for (let p = 0; p < heuresF.length; p++) heuresF[p] += data.heuresF[p];
       if (--restants === 0) fin();
     };
-    w.postMessage({ surface: jeu.surface, base: jeu.base, n: G.n, c: G.c, zone: [zone.i0, zone.j0, zone.i1, zone.j1], alpha: zone.alpha, soleils: lot, facades: facades.pts });
+    w.postMessage({ surface: jeu.surface, base: baseEau, n: G.n, c: G.c, zone: [zone.i0, zone.j0, zone.i1, zone.j1], alpha: zone.alpha, soleils: lot, facades: facades.pts });
     return w;
   }) };
 }

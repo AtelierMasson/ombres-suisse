@@ -95,10 +95,23 @@ export function creuserBassins(G, bassins, E0, N0) {
     for (const [p, u] of couronne) if (!isNaN(sol[p])) { const w = u * u * (3 - 2 * u); sol[p] = niveau + (sol[p] - niveau) * w; }
     for (const p of interieur) { sol[p] = niveau - PROFONDEUR - 0.05; bat[p] = NaN; if (G.veg) G.veg[p] = NaN; if (G.pont) G.pont[p] = NaN; }
     // l'eau, les parois et la margelle sont dessinées sur le contour exact (maillageBassins), pas par cellules
-    (G.bassins ||= []).push({ anneau: ext, trous, niveau });
+    // `cellules` : cellules creusées (le départ des rayons d'ensoleillement y est remonté au plan d'eau)
+    (G.bassins ||= []).push({ anneau: ext, trous, niveau, cellules: Int32Array.from(interieur) });
     nb++;
   }
   return nb;
+}
+
+/**
+ * Départ des rayons d'ensoleillement dans les bassins : `base` vaut le fond creusé (niveau − 1,65 m), d'où les parois
+ * faisaient de l'ombre. On renvoie une copie où les cellules des bassins sont au plan d'eau (niveau − 0,20 m) ;
+ * sans bassin, `base` tel quel.
+ */
+export function baseAuPlanDEau(G, base) {
+  if (!G?.bassins?.length || !base) return base;
+  const b = Float32Array.from(base);
+  for (const B of G.bassins) for (const p of B.cellules || []) b[p] = Math.max(b[p], B.niveau - EAU);
+  return b;
 }
 
 /**
