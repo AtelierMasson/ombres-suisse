@@ -34,6 +34,7 @@ import { brancherPro } from "./pro.js";
 import { brancherCompte } from "./compte.js";
 import { brancherPub } from "./pub.js";
 import { brancherRapport } from "./rapportBug.js";
+import { brancherAdmin } from "./admin.js";
 import { bassinsAutour, creuserBassins, baseAuPlanDEau } from "./piscines.js";
 import { brancherInterface } from "./interface.js";
 import { brancherVuePlan } from "./vuePlan.js";
@@ -70,6 +71,8 @@ brancherRapport({ compte, scene, t, etatApp: () => ({
   coupes: (S.coupes || []).map(c => ({ A: c.A, B: c.B })),
   interrupteurs: Object.fromEntries($$("#colonne input[type=checkbox][id], #colonne select[id], #colonne input[type=range][id]").map(i => [i.id, i.type === "checkbox" ? i.checked : i.value])),
 }) });
+// panneau d'administration (à côté du rapport de bug) : outils réservés aux administrateurs, dont « Ponts »
+brancherAdmin({ compte, scene, t });
 brancherVuePlan(scene, S); // vue plan dessinée (emprises officielles, sans la maquette 3D)
 
 function aujourdhui() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
