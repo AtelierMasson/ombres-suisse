@@ -34,6 +34,7 @@ export function brancherAdmin({ compte, scene, t = c => c }) {
   bouton.innerHTML = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>';
   bouton.hidden = true;
   document.body.append(bouton);
+  let fenetre = null, actif = null; // déclarés avant montrer() (appelé tout de suite : en prod, sans admin, la fenêtre est lue)
   const montrer = () => {
     bouton.hidden = !(compte?.etat().admin || dev);
     if (bouton.hidden && fenetre) fenetre.hidden = true;
@@ -44,7 +45,6 @@ export function brancherAdmin({ compte, scene, t = c => c }) {
 
   // ------------------------------------------------------------------ fenêtre à onglets
   const outils = [{ id: "ponts", titre: t("admin.ponts.titre"), monter: corps => outilPonts(corps, { scene, t }) }];
-  let fenetre = null, actif = null;
   const montes = new Map();
 
   function creer() {
