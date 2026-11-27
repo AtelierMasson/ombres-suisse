@@ -48,7 +48,9 @@ export function depuisPoints(nuage, R, c = 0.5) {
     // fond, sinon le sol y était interpolé depuis la rue, au niveau du tablier (pont bas écarté, canal coupé). Au plus
     // 30 m de suite sous un tablier (un viaduc au-dessus d'une vallée non relevée n'est pas inondé)
     const sousPont = new Float32Array(n * n);
-    const gagnee = (q, niv) => isNaN(E[q]) && isNaN(bat[q]) && (isNaN(pont[q]) || pont[q] > niv + 1) && (isNaN(sol[q]) ? isNaN(veg[q]) : sol[q] < niv - 0.03);
+    // le fond vu sous l'eau est à faible profondeur : un sol plus de 3 m sous le niveau n'est pas un fond de lac mais une
+    // autre vallée (lac de Gübsen à 682 m au bord de la gorge de la Sitter à 587 m : la gorge était noyée)
+    const gagnee = (q, niv) => isNaN(E[q]) && isNaN(bat[q]) && (isNaN(pont[q]) || pont[q] > niv + 1) && (isNaN(sol[q]) ? isNaN(veg[q]) : sol[q] < niv - 0.03 && sol[q] > niv - 3);
     for (let f = 0; f < file.length; f++) {
       const p = file[f], i = p % n;
       for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p >= n ? p - n : -1, p + n < n * n ? p + n : -1]) {
