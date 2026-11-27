@@ -79,7 +79,7 @@ export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, on
     const pages = [copc.info.rootHierarchyPage];
     while (pages.length) {
       const { nodes, pages: sous } = await pageHierarchie(t.url, pages.pop());
-      for (const [k, n] of Object.entries(nodes)) if (n && n.pointCount && garder(k)) liste.push({ url: t.url, copc, n });
+      for (const [k, n] of Object.entries(nodes)) if (n && n.pointCount && garder(k)) liste.push({ url: t.url, copc, n, d: +k.split("-")[0] });
       for (const [k, p] of Object.entries(sous)) if (+k.split("-")[0] <= profMax && coupe(boiteNoeud(k), boite) && dansCercle(boiteNoeud(k))) pages.push(p);
     }
     return liste;
@@ -89,8 +89,9 @@ export async function chargerNuage(tuiles, boite, [E0, N0], espacement = 0.5, on
   apercu?.debut(total);
   let X = new Float32Array(total), Y = new Float32Array(total), Z = new Float32Array(total), C = new Uint8Array(total);
   let n = 0, faits = 0;
-  // les plus gros blocs d'abord : les fils finissent à peu près ensemble
-  taches.sort((a, b) => b.n.pointCount - a.n.pointCount);
+  // niveaux grossiers d'abord (environ un point par m² sur toute la zone), puis les fins ; dans un même niveau, les plus
+  // gros blocs d'abord : les fils finissent à peu près ensemble
+  taches.sort((a, b) => a.d - b.d || b.n.pointCount - a.n.pointCount);
   const nb = Math.min(6, Math.max(1, (navigator.hardwareConcurrency || 2) - 1), taches.length);
   const fils = filsNuage(nb);
   let fini = false;

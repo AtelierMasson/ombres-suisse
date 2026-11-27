@@ -1,6 +1,6 @@
 // Mise en grille 0,5 m : terrain (sol), bâtiments, végétation et surface (le plus haut des trois).
 // Indices : i vers l'est, j vers le nord ; la cellule (i, j) couvre [x0 + i·c, x0 + (i+1)·c] (relatif à E0, N0).
-import { fromUrl } from "geotiff";
+import { fromUrl, fromArrayBuffer } from "geotiff";
 import { t as tr } from "./i18n.js";
 import { modeliserPonts } from "./pontsAuto.js";
 
@@ -168,12 +168,24 @@ async function lireFenetre(url, fenetre, essais = 3) {
  */
 // tuiles swissALTI3D 2 m déjà lues, gardées d'un lieu à l'autre (environ 1 Mo chacune, au plus 80)
 const ALTI = new Map();
+/**
+ * Une tuile 2 m lue en un seul `fetch` (environ 1 Mo) puis décodée en mémoire : ~0,3 s au lieu de ~1 s et 50 requêtes
+ * par plages avec `fromUrl`. Seconde tentative à une adresse distincte (hors cache) si la réponse est tronquée.
+ */
 function lireAlti(url) {
   if (!ALTI.has(url)) {
     const p = (async () => {
-      const img = await (await fromUrl(url, { maxRanges: 1 })).getImage();
-      const [bx0, , , by1] = img.getBoundingBox();
-      return { bx0, by1, w: img.getWidth(), h: img.getHeight(), ras: (await img.readRasters({ samples: [0] }))[0] };
+      for (let k = 1; ; k++) {
+        try {
+          const r = await fetch(k === 1 ? url : `${url}?essai=${Date.now()}`);
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          const img = await (await fromArrayBuffer(await r.arrayBuffer())).getImage();
+          const [bx0, , , by1] = img.getBoundingBox();
+          return { bx0, by1, w: img.getWidth(), h: img.getHeight(), ras: (await img.readRasters({ samples: [0] }))[0] };
+        } catch (e) {
+          if (k >= 2) throw e;
+        }
+      }
     })();
     p.catch(() => ALTI.delete(url));
     ALTI.set(url, p);
@@ -182,16 +194,33 @@ function lireAlti(url) {
   return ALTI.get(url);
 }
 
+/** Tuile (clé « E-N » en km) qui recoupe la boîte [e0, n0, e1, n1] ? */
+const dansBoite = (t, [e0, n0, e1, n1]) => {
+  const [e, n] = t.cle.split("-").map(Number);
+  return e * 1000 < e1 && (e + 1) * 1000 > e0 && n * 1000 < n1 && (n + 1) * 1000 > n0;
+};
+
+/** Lecture anticipée des tuiles 2 m qui recoupent la boîte (gardées dans le cache ALTI). */
+export function prechargerAlti(liste, boite) {
+  for (const t of liste) if (dansBoite(t, boite)) lireAlti(t.url).catch(() => {});
+}
+
+/**
+ * Terrain swissALTI3D 2 m autour de (E0, N0) jusqu'à `rayon`. Les tuiles les plus proches du centre sont lues d'abord,
+ * six à la fois (une requête chacune). Les tuiles déjà lues (cache ALTI) ne sont pas retéléchargées.
+ */
 export async function terrainAutour(liste, E0, N0, rayon) {
   const c = 2, n = Math.ceil(2 * rayon / c), e0 = Math.floor((E0 - rayon) / c) * c, n1 = Math.ceil((N0 + rayon) / c) * c;
   const h = new Float32Array(n * n).fill(NaN);
+  const boite = [E0 - rayon, N0 - rayon, E0 + rayon, N0 + rayon];
+  const dist = t => { const [e, m] = t.cle.split("-").map(Number); return Math.hypot(e * 1000 + 500 - E0, m * 1000 + 500 - N0); };
+  const file = liste.filter(t => dansBoite(t, boite)).sort((a, b) => dist(a) - dist(b));
   let i = 0;
   const lire = async () => {
-    while (i < liste.length) {
-      const t = liste[i++];
+    while (i < file.length) {
+      const t = file[i++];
       try {
-        // une seconde tentative : sous charge, une lecture par plages échoue parfois
-        const { bx0, by1, w, h: hh, ras } = await lireAlti(t.url).catch(() => lireAlti(t.url));
+        const { bx0, by1, w, h: hh, ras } = await lireAlti(t.url);
         for (let l = 0; l < hh; l++) {
           const j = Math.round((n1 - (by1 - l * c)) / c);
           if (j < 0 || j >= n) continue;
@@ -203,8 +232,66 @@ export async function terrainAutour(liste, E0, N0, rayon) {
       } catch (e) { console.warn("swissALTI3D 2 m :", t.cle, e.message); }
     }
   };
-  await Promise.all([lire(), lire(), lire(), lire()]); // quatre téléchargements à la fois
+  await Promise.all(Array.from({ length: 6 }, lire)); // six téléchargements à la fois
   return { e0, n1, c, n, h };
+}
+
+/** Altitude interpolée (bilinéaire) dans une grille de terrainAutour, en coordonnées MN95 ; NaN hors couverture. */
+export function altitudeTerrain(T, E, N) {
+  const fx = (E - T.e0) / T.c - 0.5, fy = (T.n1 - N) / T.c - 0.5, i = Math.floor(fx), j = Math.floor(fy), u = fx - i, v = fy - j;
+  if (i < 0 || j < 0 || i >= T.n - 1 || j >= T.n - 1) return NaN;
+  const p = j * T.n + i, H = T.h;
+  return (H[p] * (1 - u) + H[p + 1] * u) * (1 - v) + (H[p + T.n] * (1 - u) + H[p + T.n + 1] * u) * v;
+}
+
+/** Sol swisstopo rééchantillonné sur la grille de G (même n, c, x0), autour de (E0, N0). */
+export function solDepuisTerrain(T, G, E0, N0) {
+  const { n, c, x0 } = G, s = new Float32Array(n * n).fill(NaN);
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) s[j * n + i] = altitudeTerrain(T, E0 + x0 + (i + 0.5) * c, N0 + x0 + (j + 0.5) * c);
+  remplir(s, n);
+  return s;
+}
+
+/**
+ * Vue de base : grille 0,5 m dont le sol vient du terrain swissALTI3D (2 m), sans bâtiments ni arbres (les bâtiments
+ * Swiss3D sont montrés à la place). Remplacée par la grille du relevé quand le nuage est arrivé.
+ */
+export function grilleTerrain(T, E0, N0, R, c = 0.5) {
+  const G = grilleVide(R, c);
+  G.sol = solDepuisTerrain(T, G, E0, N0);
+  G.provisoire = true;
+  G.surface = surface(G);
+  return G;
+}
+
+/**
+ * Terrain swissALTI3D 0,5 m sur la boîte du lieu (fenêtres lues dans les tuiles de `liste`, au plus 4), sur la grille
+ * de G. Retourne le sol (NaN comblés) ou null si une tuile manque.
+ */
+export async function solAlti05(liste, G, E0, N0) {
+  const { n, c, x0, R } = G, s = new Float32Array(n * n).fill(NaN);
+  if (!liste?.length || liste.length > 4) return null;
+  for (const t of liste) {
+    const img = await (await fromUrl(t.url, { maxRanges: 1 })).getImage();
+    const [bx0, , , by1] = img.getBoundingBox(), [rx] = img.getResolution(), w = img.getWidth(), h = img.getHeight();
+    const e0 = E0 - R, n1 = N0 + R;
+    const c0 = Math.max(0, Math.floor((e0 - bx0) / rx)), c1 = Math.min(w, Math.ceil((e0 + 2 * R - bx0) / rx));
+    const l0 = Math.max(0, Math.floor((by1 - n1) / rx)), l1 = Math.min(h, Math.ceil((by1 - (n1 - 2 * R)) / rx));
+    if (c1 <= c0 || l1 <= l0) continue;
+    const ras = await lireFenetre(t.url, [c0, l0, c1, l1]);
+    for (let l = l0; l < l1; l++) for (let col = c0; col < c1; col++) {
+      const E = bx0 + (col + 0.5) * rx, N = by1 - (l + 0.5) * rx;
+      const i = Math.floor((E - E0 - x0) / c), j = Math.floor((N - N0 - x0) / c);
+      if (i < 0 || j < 0 || i >= n || j >= n) continue;
+      const v = ras[(l - l0) * (c1 - c0) + (col - c0)];
+      if (v > -1000) s[j * n + i] = v;
+    }
+  }
+  let vides = 0;
+  for (let p = 0; p < s.length; p++) if (isNaN(s[p])) vides++;
+  if (vides > s.length * 0.02) return null;
+  remplir(s, n);
+  return s;
 }
 
 /**

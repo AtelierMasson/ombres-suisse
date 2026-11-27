@@ -926,5 +926,7 @@ export function brancherPro(o) {
       if (P.projet && memeLieu(P.projet)) ouvrir(lireProjet(P.projet.id) || P.projet);
       else if (P.projet) { P.projet = null; dernier = null; projetOuvert(null); cartesProjets(); }
     },
+    /** Maquette refaite sur un autre terrain (onglet Affichage) : les bâtiments masqués le restent. */
+    apresTerrain() { if (P.masques.size) appliquer(); if (P.volumes.length) scene.afficherVolumes(P.volumes); },
   };
 }

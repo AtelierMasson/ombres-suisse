@@ -235,6 +235,11 @@ export async function tuilesAlti2m(boite) {
   return r.flatMap(o => Object.values(o).filter(Boolean));
 }
 
+/** Tuiles swissALTI3D 0,5 m (terrain swisstopo de la maquette fine), la plus récente par km² : [{ url, annee, cle }]. */
+export async function tuilesAlti05(boite) {
+  return Object.values(await tuilesJeu("alti05", cles(boite))).filter(Boolean);
+}
+
 function cles([e0, n0, e1, n1]) {
   const r = [];
   for (let e = Math.floor(e0 / 1000); e <= Math.floor((e1 - 0.01) / 1000); e++)

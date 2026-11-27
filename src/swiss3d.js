@@ -110,7 +110,7 @@ export class Swiss3D {
     this.lieuCharge = lieu; this.idScene = this.s.idScene;
     if (this.tuiles && this.reutilisable) return this.repositionner({ E, N });
     this.vider();
-    const s = this.s, G = s.G, h = s.zRef + GEOIDE;
+    const s = this.s, h = s.zRef + GEOIDE;
     const t = this.tuiles = new TilesRenderer(TUILES);
     bornerCache(t);
     this.reutilisable = true;
@@ -139,9 +139,10 @@ export class Swiss3D {
         o.layers.set(k.batVoir ? 0 : 2);
         o.castShadow = k.batOmbre;
         o.receiveShadow = true;
-        if (!this.calageFige) this.relever(o, G);
+        // grille du moment (s.G) : celle de la vue de base, puis celle du relevé après la bascule
+        if (!this.calageFige) this.relever(o, s.G);
       });
-      if (!this.calageFige) { this.caler(G); if (!this.calage) this.calerSol(G); }
+      if (!this.calageFige) { this.caler(s.G); if (!this.calage) this.calerSol(s.G); }
       s.appliquerCalques(); // tuiles nouvelles : calque et ombre selon l'affichage
       s.majBords();
       s.ombres();

@@ -719,7 +719,7 @@ void main() {
 
   vider() {
     this.swiss?.vider({ garder: true }); // bâtiments swisstopo gardés d'un lieu à l'autre (D5)
-    this.rayonExt = 0;
+    this.rayonExt = 0; this.argsAnneau = null;
     this.liberer(this.groupe); this.liberer(this.outils);
     for (const F of Object.values(this.fonds)) F.tex?.dispose();
     this.fonds = {};
@@ -736,17 +736,41 @@ void main() {
     this.idScene++;
   }
 
-  /** Construit la scène depuis les grilles. `urls` = { cadastre } (image du plan cadastral) ou null. */
-  construire(G, nuage, parcelle, urls) {
-    this.vider();
+  /**
+   * Retire les couches de la maquette fine (terrain, socle, bâtiments, arbres, eau, ponts, piscines, nuage brut, heures),
+   * en gardant tout le reste : anneau, paysage, tuiles swisstopo, plan, fonds, caméra (voir construire, `remplacer`).
+   */
+  retirerFine() {
+    const c = this.couches;
+    for (const k of ["terrain", "socle", "bati", "canopee", "arbres", "limite", "eau", "ponts", "piscines", "couronnes", "tous", "heures"]) {
+      const o = c[k];
+      if (!o) continue;
+      this.groupe.remove(o); this.liberer(o); c[k] = null;
+    }
+    CONTACT.tHeures.value?.dispose(); CONTACT.tHeures.value = null; CONTACT.heuresActif.value = 0;
+    CONTACT.reelActif.value = 0; for (const k of ["sol", "bati", "mur"]) this.reel?.[k].dispose(); this.reel = null;
+    CONTACT.tSel.value?.dispose(); CONTACT.tSel.value = null;
+    this.contours = this.contoursTous = this.volumes = this.batOrigine = this.grilleComp = null;
+  }
+
+  /**
+   * Construit la scène depuis les grilles. `urls` = { cadastre } (image du plan cadastral) ou null.
+   * `remplacer` : bascule de la vue de base vers la maquette fine (ou changement de terrain) sans rien recharger : seules
+   * les couches de la maquette changent ; l'altitude de référence, la caméra, l'anneau, le paysage et les tuiles restent.
+   */
+  construire(G, nuage, parcelle, urls, { remplacer = false } = {}) {
+    remplacer &&= !!this.G && this.zRef != null;
+    if (remplacer) this.retirerFine(); else this.vider();
     this.G = G;
     // le nuage est gardé (tableaux typés X, Y, Z, C) : nuage brut construit à la demande, points proches de la coupe
     this.nuage = nuage;
-    this.urls = urls;
-    this.zRef = solEn(G, 0, 0);
-    const s = this.soleil.shadow.camera, R = G.R * 1.45;
-    Object.assign(s, { left: -R, right: R, top: R, bottom: -R, near: 1, far: 3000 });
-    s.updateProjectionMatrix();
+    if (!remplacer) {
+      this.urls = urls;
+      this.zRef = solEn(G, 0, 0);
+      const s = this.soleil.shadow.camera, R = G.R * 1.45;
+      Object.assign(s, { left: -R, right: R, top: R, bottom: -R, near: 1, far: 3000 });
+      s.updateProjectionMatrix();
+    }
     let zmin = Infinity;
     for (let p = 0; p < G.sol.length; p++) if (G.sol[p] < zmin) zmin = G.sol[p];
     this.zBas = zmin - this.zRef - Math.max(6, G.R * 0.05);
@@ -819,14 +843,24 @@ void main() {
       if (G.rayonZone) ponts.children.forEach(o => { if (o.material === m.terrain) o.geometry = decouperCercle(o.geometry, G.rayonZone - 0.03); });
       ponts.children.forEach(o => decouperBord(o, G.R - 0.03));
     }
-    this.couches = { terrain: sol, socle: base, bati, canopee, arbres, limite, eau, ponts, piscines };
-    for (const o of Object.values(this.couches)) if (o) this.groupe.add(o);
+    const nouvelles = { terrain: sol, socle: base, bati, canopee, arbres, limite, eau, ponts, piscines };
+    if (remplacer) Object.assign(this.couches, nouvelles); else this.couches = nouvelles;
+    for (const o of Object.values(nouvelles)) if (o) this.groupe.add(o);
     // la canopée qui porte l'ombre des points est un peu abaissée : le haut des couronnes reste au soleil,
     // l'intérieur et le bas s'assombrissent
     canopee.position.y = -0.8;
     this.styleArbres();
     this.appliquerCoupe();
     this.appliquerTheme(this.T);
+    if (remplacer) {
+      // anneau déjà là : son bord intérieur reprend le terrain de la nouvelle maquette (socle et bande d'eau fins cachés)
+      if (this.argsAnneau && this.rayonExt > 0) this.construireAnneau(...this.argsAnneau);
+      // tuiles swisstopo calées jusque-là sur le terrain seul : recalées sur les toits du relevé
+      if (this.swiss?.tuiles && !G.provisoire) this.swiss.caler(G);
+      this.majBords();
+      this.ombres();
+      return;
+    }
     if (this.typeFond !== "cadastre") this.fond(this.typeFond);
     this.controls.target.set(0, 0, 0);
     this.vueDepart();
@@ -1002,6 +1036,7 @@ void main() {
    */
   construireAnneau(fin, Rint, Rext, lieu, lac = null) {
     const c = this.couches, G = this.G;
+    this.argsAnneau = [fin, Rint, Rext, lieu, lac];
     for (const k of ["anneau", "socleAnneau", "eauAnneau", "releveAnneau"]) if (c[k]) { this.groupe.remove(c[k]); c[k].geometry.dispose(); c[k] = null; }
     if (this.mat.pointsAnneau) this.mat.pointsAnneau.visible = true;
     this.rayonExt = 0; this.zBasAnneau = null;

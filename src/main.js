@@ -7,10 +7,10 @@ import { brancherLieux } from "./lieux.js";
 import { brancherCalendrier } from "./calendrier.js";
 import { brancherFiche } from "./fiche.js";
 import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
-import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, versWgs, lireCoordonnees, preparerTuiles } from "./geo.js";
+import { chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, tuilesAlti05, versWgs, lireCoordonnees, preparerTuiles } from "./geo.js";
 import { chargerNuage, chaufferFils } from "./nuage.js";
 import { LodAnneau } from "./lodAnneau.js";
-import { depuisPoints, depuisRasters, solEn, terrainAutour, garderCercle, majSurface } from "./grille.js";
+import { depuisPoints, depuisRasters, solEn, terrainAutour, garderCercle, majSurface, grilleTerrain, solDepuisTerrain, solAlti05, altitudeTerrain, prechargerAlti } from "./grille.js";
 import { reliefLointain } from "./lointain.js";
 import { Scene3D } from "./scene.js";
 import { essaiRoofer, maillageRoofer, maillagePolygones } from "./roofer.js";
@@ -142,6 +142,7 @@ function accueil() {
   arreterVol?.(); arreterVol = null;
   chargement?.abort();
   annulerCalcul();
+  telechargement("affinage", null);
   document.body.classList.add("accueil");
   $("#panneau").hidden = $("#panneauPro").hidden = $("#panneauExport").hidden = $("#panneauAffichage").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
   message("");
@@ -390,6 +391,7 @@ async function depuisAdresse(o = null) {
   const et = ACC ? () => {} : etat;
   const E = +h.get("e"), N = +h.get("n"), id = ++tache;
   mesure = scene.tempsVol = Object.defineProperty({ lieu: ACC ? "accueil" : `${E},${N}` }, "t0", { value: performance.now() });
+  let finReleve = null; // libère les téléchargements gardés pour après le relevé (anneau, terrain 0,5 m)
   // voyage au clavier : le lieu se recentre sur la caméra sans chercher de parcelle, et la vue est gardée telle quelle
   const voyage = !ACC && h.get("t") === "Voyage", E0avant = S.E0, N0avant = S.N0;
   chargement?.abort();
@@ -406,6 +408,10 @@ async function depuisAdresse(o = null) {
     et(0.02, t("etat.parcelle"));
     // tuiles du relevé demandées en même temps que la parcelle (boîte la plus grande possible autour du point) : D2
     preparerTuiles([E - RAYON_FIN_MAX - 150, N - RAYON_FIN_MAX - 150, E + RAYON_FIN_MAX + 150, N + RAYON_FIN_MAX + 150]);
+    // terrain 2 m : sa liste (STAC) et les tuiles du point demandé sont lues pendant la recherche de la parcelle
+    // (le centre se déplace ensuite au plus de quelques centaines de mètres ; la boîte de 2,5 km couvre l'anneau)
+    const MARGE_ALTI = 2500, altiTot = ACC ? null : tuilesAlti2m([E - MARGE_ALTI, N - MARGE_ALTI, E + MARGE_ALTI, N + MARGE_ALTI]);
+    altiTot?.then(l => prechargerAlti(l, [E - 500, N - 500, E + 500, N + 500])).catch(() => {});
     const parcelle = ACC || voyage ? null : await parcelleEn(E, N);
     marquer("parcelle");
     if (id !== tache) return;
@@ -439,130 +445,228 @@ async function depuisAdresse(o = null) {
     // piscines et bassins de la mensuration officielle : demandés tout de suite, creusés une fois la grille faite
     const bassins = ACC ? Promise.resolve([]) : bassinsAutour(boite);
 
+    // terrain swissALTI3D 2 m du lieu (vue de base, terrain « swisstopo »), demandé tout de suite ; chaque tuile est lue
+    // en une seule requête (grille.js, lireAlti). Pas pour le décor de l'accueil (relevé seul, déjà en route).
+    const RB = R + 10;
+    const alti = ACC ? null : altiTot && Math.max(Math.abs(E0 - E), Math.abs(N0 - N)) + RB <= MARGE_ALTI ? altiTot
+      : tuilesAlti2m([E0 - RB, N0 - RB, E0 + RB, N0 + RB]);
+    const terrainBase = alti ? alti.then(l => terrainAutour(l, E0, N0, RB)) : Promise.resolve(null);
+    terrainBase.catch(() => {});
+    // le reste (anneau et paysage, D1 : terrain 2 m jusqu'à 2 km s'ils se voient ; terrain 0,5 m) attend le relevé :
+    // sinon il lui prend la bande passante
+    const apresReleve = new Promise(r => { finReleve = r; }); // tenue à la fin du chargement (finally, plus bas)
+    // terrain swisstopo 0,5 m de la maquette : lu seulement si ce terrain est choisi, après le relevé (le 2 m sert d'ici là)
+    let attente05 = null;
+    const charger05 = () => attente05 ||= apresReleve.then(() => tuilesAlti05(boite))
+      .then(l => solAlti05(l, { n: Math.round(2 * R / 0.5), c: 0.5, x0: -R, R }, E0, N0)).catch(e => { console.warn("swissALTI3D 0,5 m :", e.message); return null; });
+
     et(0.05, t("etat.releve"));
-    let G, nuage = null, source;
+    // vue de base (terrain swisstopo, bâtiments Swiss3D) affichée en attendant le relevé ; null tant qu'elle ne l'est pas
+    let base = null;
+    const progres = (f, texte) => {
+      if (id !== tache) return;
+      if (base) telechargement("affinage", t("etat.affinage"), f); else et(0.05 + 0.7 * f, texte);
+    };
     // ponts du lieu : ne dépendent que du centre, demandés pendant le relevé (D2)
     const ponts = pontsAutour(E0, N0, R).catch(() => []);
-    const copc = await tuilesNuage(boite);
-    marquer("tuiles");
-    if (id !== tache) return;
-    if (copc) {
-      // densité : 0 légère, 1 équilibrée, 2 complète ; la parcelle et 40 m autour gardent toujours toute la finesse
-      const niv = 1, coeur = parcelle ? [Math.min(...parcelle.anneaux.flat().map(p => p[0])) - 40, Math.min(...parcelle.anneaux.flat().map(p => p[1])) - 40,
-        Math.max(...parcelle.anneaux.flat().map(p => p[0])) + 40, Math.max(...parcelle.anneaux.flat().map(p => p[1])) + 40] : [E0 - 60, N0 - 60, E0 + 60, N0 + 60];
-      // chargement visible : les points apparaissent au fil de l'arrivée (pas pour la grande zone de l'accueil, déjà affichée)
-      const apercu = voyage ? null : { debut: total => id === tache && scene.debutChargement(total, R, ACC ? { garderVue: true, z0: ACC.z } : {}), bloc: (...a) => id === tache && scene.ajouterBloc(...a) };
-      nuage = await chargerNuage(copc, boite, [E0, N0], 0.5, (f, t) => id === tache && et(0.05 + 0.7 * f, t), (chargement = new AbortController()).signal,
-        { interieur: coeur, niveau: niv === 2 ? 0 : niv === 1 ? 1 : 2 }, apercu, ACC || ronde() ? { E: E0, N: N0, R: R + 3 } : null);
-      marquer("nuage");
-      if (id !== tache) return;
-      et(0.78, t("etat.reconstruction"));
-      await pause();
-      G = depuisPoints(nuage, R);
-      marquer("grille");
-      source = t("source.nuage", { annees: [...new Set(copc.map(u => u.annee))].join(", "), n: entier(nuage.n) });
-    } else {
+    // relevé laser (nuage COPC) : téléchargé en arrière-plan, niveaux grossiers d'abord (nuage.js)
+    const releve = (async () => {
+      const copc = await tuilesNuage(boite);
+      marquer("tuiles");
+      if (id !== tache) return null;
+      if (copc) {
+        // densité : 0 légère, 1 équilibrée, 2 complète ; la parcelle et 40 m autour gardent toujours toute la finesse
+        const niv = 1, coeur = parcelle ? [Math.min(...parcelle.anneaux.flat().map(p => p[0])) - 40, Math.min(...parcelle.anneaux.flat().map(p => p[1])) - 40,
+          Math.max(...parcelle.anneaux.flat().map(p => p[0])) + 40, Math.max(...parcelle.anneaux.flat().map(p => p[1])) + 40] : [E0 - 60, N0 - 60, E0 + 60, N0 + 60];
+        // chargement visible (points qui apparaissent au fil de l'arrivée) : seulement pour le décor de l'accueil ; ailleurs,
+        // la vue de base est montrée pendant ce temps
+        const apercu = ACC ? { debut: total => id === tache && scene.debutChargement(total, R, { garderVue: true, z0: ACC.z }), bloc: (...a) => id === tache && scene.ajouterBloc(...a) } : null;
+        const nuage = await chargerNuage(copc, boite, [E0, N0], 0.5, progres, (chargement = new AbortController()).signal,
+          { interieur: coeur, niveau: niv === 2 ? 0 : niv === 1 ? 1 : 2 }, apercu, ACC || ronde() ? { E: E0, N: N0, R: R + 3 } : null);
+        marquer("nuage");
+        if (id !== tache) return null;
+        if (!base) et(0.78, t("etat.reconstruction"));
+        await pause();
+        const G = depuisPoints(nuage, R);
+        marquer("grille");
+        return { G, nuage, source: t("source.nuage", { annees: [...new Set(copc.map(u => u.annee))].join(", "), n: entier(nuage.n) }) };
+      }
       const g = await tuilesGrille(boite);
-      G = await depuisRasters(g, [E0, N0], R, 0.5, (f, t) => id === tache && et(0.05 + 0.7 * f, t));
+      const G = await depuisRasters(g, [E0, N0], R, 0.5, progres);
+      return { G, nuage: null, source: t("source.grille", { terrain: [...new Set(g.terrain.map(u => u.annee))].join(", "), surface: [...new Set(g.surface.map(u => u.annee))].join(", ") }) };
+    })();
+    releve.catch(() => {}); // l'erreur éventuelle est traitée à l'attente, plus bas
+
+    /** Anneau et paysage : lancés une fois, après la première maquette affichée (vue de base ou relevé). */
+    let paysageLance = false;
+    const lancerPaysage = async () => {
+      if (paysageLance) return;
+      paysageLance = true;
+      donnerAltitude(scene.zRef + 1.7);
+      if (horizonFini < 1 && !base) et(0.9 + 0.1 * horizonFini, t("etat.relief"));
+      S.horizon = await horizon;
+      marquer("horizon");
       if (id !== tache) return;
-      source = t("source.grille", { terrain: [...new Set(g.terrain.map(u => u.annee))].join(", "), surface: [...new Set(g.surface.map(u => u.annee))].join(", ") });
+      // anneau (terrain swissALTI3D à 2 m) et paysage jusqu'à 50 km, sans bloquer, seulement s'ils se voient (D1), et
+      // après le relevé (bande passante) : sur la maquette du relevé quand la vue de base l'a précédée
+      const idScene = scene.idScene;
+      apresReleve.then(() => id === tache && paysageEtAnneau(id, idScene)).catch(e => console.warn("Relief lointain :", e.message));
+    };
+
+    /** Première maquette du lieu (vue de base `provisoire`, ou directement celle du relevé) : scène, caméra, panneaux. */
+    const monter = async (G, nuage, source, provisoire) => {
+      S.rayonZone = Rz;
+      $("#source").textContent = source; $("#infos").title = source;
+      [S.lon, S.lat] = versWgs(E0, N0);
+      Object.assign(S, { E0, N0, parcelle: rel, G, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false, contoursSwiss: null });
+      $("#vCoupe").checked = false; $("#outilsCoupe").hidden = true;
+      $("#btnHeures").textContent = t("heures.calculer");
+      if (!provisoire) et(0.85, t("etat.scene"));
+      await pause();
+      if (id !== tache) return;
+      scene.controls.autoRotate = false;
+      scene.typeFond = ACC ? "uni" : typeFond();
+      // accueil : brume douce (le réglage de l'utilisateur revient en quittant l'accueil)
+      if (ACC) { scene.loin.facteurBrume = 0.6; scene.loin.brume = true; }
+      scene.pontsModeles = await ponts; scene.lieuPonts = { E: E0, N: N0 };
+      if (id !== tache) return;
+      const vueAvant = voyage ? { p: scene.camera.position.clone(), c: scene.controls.target.clone(), z: scene.zRef } : null;
+      // vue gardée pendant le chargement visible (la caméra s'est placée sur les points du nouveau lieu)
+      const vuePoints = scene.chargementPts ? { p: scene.camera.position.clone(), c: scene.controls.target.clone(), z0: scene.chargementPts.z0 } : null;
+      scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite), bruit: urlFond(COUCHES.bruit, boite) });
+      if (import.meta.env.DEV) performance.mark(provisoire ? "ombres:base" : "ombres:fine"); // mesures (essais)
+      // mesures : « base » et « imageBase » pour la vue de base, « maquette » et « image » pour celle du relevé
+      marquer(provisoire ? "base" : "maquette");
+      requestAnimationFrame(() => requestAnimationFrame(() => id === tache && marquer(provisoire ? "imageBase" : "image")));
+      // accueil : les points étaient posés à l'altitude du centre (ACCUEIL.z) ; la maquette prend la sienne (à quelques
+      // décimètres près) : la caméra, qui suit son trajet, est décalée d'autant pour que le décor ne saute pas
+      if (vuePoints && ACC) decalageAccueil = vuePoints.z0 - scene.zRef;
+      if (vuePoints && !ACC) {
+        // même cadrage que pendant le chargement (les points étaient posés sur le sol bas du premier bloc)
+        const dz = scene.zRef - vuePoints.z0;
+        vuePoints.p.y -= dz; vuePoints.c.y -= dz;
+        scene.camera.position.copy(vuePoints.p); scene.controls.target.copy(vuePoints.c); scene.controls.update();
+      }
+      scene.finChargement(true);
+      if (vueAvant && E0avant != null) {
+        // même vue qu'avant le rechargement : la caméra est décalée du déplacement du centre (et de l'altitude de référence)
+        const dx = E0 - E0avant, dn = N0 - N0avant, dz = scene.zRef - vueAvant.z;
+        for (const v of [vueAvant.p, vueAvant.c]) { v.x -= dx; v.z += dn; v.y -= dz; }
+        scene.camera.position.copy(vueAvant.p); scene.controls.target.copy(vueAvant.c); scene.controls.update();
+      }
+      S.voyage = false;
+      // les bâtiments montent du sol, puis les arbres apparaissent ; en voyage, la vague part du lieu d'où l'on vient
+      scene.animerConstruction(undefined, { origine: voyage && E0avant != null ? [E0avant - E0, N0avant - N0] : null });
+      // vue enregistrée (lieu du compte) : la caméra reprend sa place
+      const cam = (h.get("cam") || "").split(",").map(Number);
+      if (cam.length === 6 && cam.every(Number.isFinite)) { scene.camera.position.set(cam[0], cam[1], cam[2]); scene.controls.target.set(cam[3], cam[4], cam[5]); scene.controls.update(); scene.demander?.(3); }
+      lieux.majBouton();
+      scene.tuilesPlan.placer(E0, N0, G.R); // plan autour : tuiles en mémoire aussitôt, les autres au fil de l'eau
+      pro.reinitialiser();
+      // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
+      if (!ACC) scene.surligner(rel, h.get("t") === "Adresse" ? [E - E0, N - N0] : null);
+      // parcelles voisines (limites et numéros), chargées sans bloquer
+      S.voisines = [];
+      if (!ACC) parcellesAutour(boite).then(v => {
+        if (id !== tache) return;
+        S.toutes = v.map(p => ({ numero: p.numero, anneauxRel: p.anneaux.map(a => a.map(([e, n]) => [e - E0, n - N0])) }));
+        S.voisines = S.toutes.filter(p => p.numero !== parcelle?.numero);
+        scene.afficherParcelles(S.voisines, $("#vParcelles").checked);
+        if (S.coupe) majCoupe(S.coupe.A, S.coupe.B);
+      }).catch(e => console.warn("Parcelles voisines :", e.message));
+      S.roofer = essaiRoofer(E0, N0);
+      choixRoofer();
+      scene.comparerSwiss(!!ACC || jeuAffiche() === "swiss", { E: S.E0, N: S.N0 });
+      comparerRoofer();
+      if (ACC) scene.reglerCalques({ jeu: "swiss", batVoir: true, batOmbre: true, arbOmbre: true });
+      else appliquerAffichage();
+      $("#vArbres").disabled = !nuage && !G.veg.some(v => !isNaN(v)); $("#vPoints").disabled = $("#distPoints").disabled = !nuage;
+      $("#noteTerrain").hidden = !provisoire;
+      await lancerPaysage();
+      if (id !== tache) return;
+      // piscines de l'onglet Soleil : contours et calcul de la zone choisie, sur la maquette du relevé seulement
+      if (!ACC && !provisoire) zones.nouveauLieu();
+      et(1, "");
+      if (ACC) { volAccueil(E0, N0); return; }
+      $("#commandes").hidden = $("#panneauAffichage").hidden = false; $("#diagramme").hidden = false;
+      // Pro et exports : seulement sur la maquette du relevé (volumes, masquage et fichiers en dépendent)
+      if (!provisoire) { $("#panneauPro").hidden = $("#panneauExport").hidden = false; pro.apresChargement(); compter("lieu"); }
+      majSoleil();
+    };
+
+    // vue de base : dès que le terrain du lieu est lu (en général 1 à 3 s), si le relevé n'est pas déjà là
+    if (!ACC) {
+      const T = await Promise.race([terrainBase.catch(() => null), releve.then(() => null, () => null)]);
+      if (id !== tache) return;
+      if (T && couvreLieu(T, E0, N0, R)) {
+        const G0 = grilleTerrain(T, E0, N0, R);
+        if (ronde()) garderCercle(G0, R);
+        base = G0;
+        await monter(G0, null, t("source.base"), true);
+        if (id !== tache) return;
+        telechargement("affinage", t("etat.affinage"), null);
+      }
     }
+
+    const r = await releve;
+    if (!r || id !== tache) return;
+    const { G, nuage, source } = r;
     // lacs : fond mesuré (swissBATHY3D) sous l'eau, là où il est préparé ; sinon la pente estimée reste
     try { await fondLacs(G, E0, N0); } catch (e) { console.warn("Fond des lacs :", e.message); }
     // sous l'eau, le sol reste sous la surface : des mâts de bateaux (ports) levaient sinon des aiguilles de terrain
     if (G.eau) for (let p = 0; p < G.sol.length; p++) if (!isNaN(G.eau[p]) && !(G.sol[p] < G.eau[p] - 0.1)) G.sol[p] = G.eau[p] - 0.3;
+    // terrains au choix (onglet Affichage, Sol) : celui du relevé, et celui de swisstopo (2 m, puis 0,5 m s'il est choisi)
+    G.solReleve = G.sol.slice();
+    const T2 = await terrainBase.catch(() => null);
+    if (id !== tache) return;
+    const sw = T2 && couvreLieu(T2, E0, N0, R) ? solDepuisTerrain(T2, G, E0, N0) : null;
+    if (sw) G.solSwisstopo = solComposeSwisstopo(G, sw);
+    if (choixTerrain() === "swisstopo" && G.solSwisstopo) G.sol = G.solSwisstopo.slice();
     // piscines : abords aplanis, fond à −1,60 m, eau à −0,20 m (au plus 4 s d'attente du service cantonal)
     try {
       const B = await Promise.race([bassins, new Promise(r => setTimeout(() => r([]), 4000))]);
-      if (B.length && creuserBassins(G, B, E0, N0)) majSurface(G);
+      S.bassinsLieu = B;
+      if (B.length) creuserBassins(G, B, E0, N0);
     } catch (e) { console.warn("Piscines :", e.message); }
+    majSurface(G);
     if (id !== tache) return;
     if (ACC || ronde()) garderCercle(G, R); // ne montrer que le cercle (sinon : maquette carrée, comme avant)
-    S.rayonZone = Rz;
-    $("#source").textContent = source; $("#infos").title = source;
-    [S.lon, S.lat] = versWgs(E0, N0);
-    Object.assign(S, { E0, N0, parcelle: rel, G, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
-    $("#vCoupe").checked = false; $("#outilsCoupe").hidden = true;
-    $("#btnHeures").textContent = t("heures.calculer");
-    et(0.85, t("etat.scene"));
+    // terrain swisstopo 0,5 m, à la demande (appliquerTerrain) : il remplace le 2 m, et la maquette si ce terrain est choisi
+    S.charger05 = () => charger05().then(s => {
+      if (!s || id !== tache || S.G !== G || G.alti05) return;
+      G.solSwisstopo = solComposeSwisstopo(G, s); G.alti05 = true;
+      if (choixTerrain() === "swisstopo") appliquerTerrain();
+    });
+    if (!ACC && choixTerrain() === "swisstopo") S.charger05();
+    if (!base) { await monter(G, nuage, source, false); return; }
+
+    // bascule : la maquette du relevé remplace la vue de base, sans recharger ni bouger la caméra
+    et(0.99, t("etat.reconstruction"));
     await pause();
-    scene.controls.autoRotate = false;
-    scene.typeFond = ACC ? "uni" : typeFond();
-    // accueil : brume douce (le réglage de l'utilisateur revient en quittant l'accueil)
-    if (ACC) { scene.loin.facteurBrume = 0.6; scene.loin.brume = true; }
-    scene.pontsModeles = await ponts; scene.lieuPonts = { E: E0, N: N0 };
     if (id !== tache) return;
-    const vueAvant = voyage ? { p: scene.camera.position.clone(), c: scene.controls.target.clone(), z: scene.zRef } : null;
-    // vue gardée pendant le chargement visible (la caméra s'est placée sur les points du nouveau lieu)
-    const vuePoints = scene.chargementPts ? { p: scene.camera.position.clone(), c: scene.controls.target.clone(), z0: scene.chargementPts.z0 } : null;
-    scene.construire(G, nuage, rel, { cadastre: urlFond(COUCHES.cadastre, boite), ortho: urlFond(COUCHES.ortho, boite), bruit: urlFond(COUCHES.bruit, boite) });
-    // accueil : les points étaient posés à l'altitude du centre (ACCUEIL.z) ; la maquette prend la sienne (à quelques
-    // décimètres près) : la caméra, qui suit son trajet, est décalée d'autant pour que le décor ne saute pas
-    if (vuePoints && ACC) decalageAccueil = vuePoints.z0 - scene.zRef;
-    if (vuePoints && !ACC) {
-      // même cadrage que pendant le chargement (les points étaient posés sur le sol bas du premier bloc)
-      const dz = scene.zRef - vuePoints.z0;
-      vuePoints.p.y -= dz; vuePoints.c.y -= dz;
-      scene.camera.position.copy(vuePoints.p); scene.controls.target.copy(vuePoints.c); scene.controls.update();
-    }
-    scene.finChargement(true);
+    $("#source").textContent = source; $("#infos").title = source;
+    remplacerMaquette(G, nuage, S.parcelle === rel && h.get("t") === "Adresse" ? [E - E0, N - N0] : null);
+    if (import.meta.env.DEV) performance.mark("ombres:fine"); // mesures (essais)
     marquer("maquette");
     requestAnimationFrame(() => requestAnimationFrame(() => id === tache && marquer("image")));
-    if (vueAvant && E0avant != null) {
-      // même vue qu'avant le rechargement : la caméra est décalée du déplacement du centre (et de l'altitude de référence)
-      const dx = E0 - E0avant, dn = N0 - N0avant, dz = scene.zRef - vueAvant.z;
-      for (const v of [vueAvant.p, vueAvant.c]) { v.x -= dx; v.z += dn; v.y -= dz; }
-      scene.camera.position.copy(vueAvant.p); scene.controls.target.copy(vueAvant.c); scene.controls.update();
-    }
-    S.voyage = false;
-    // les bâtiments montent du sol, puis les arbres apparaissent ; en voyage, la vague part du lieu d'où l'on vient
-    scene.animerConstruction(undefined, { origine: voyage && E0avant != null ? [E0avant - E0, N0avant - N0] : null });
-    // vue enregistrée (lieu du compte) : la caméra reprend sa place
-    const cam = (h.get("cam") || "").split(",").map(Number);
-    if (cam.length === 6 && cam.every(Number.isFinite)) { scene.camera.position.set(cam[0], cam[1], cam[2]); scene.controls.target.set(cam[3], cam[4], cam[5]); scene.controls.update(); scene.demander?.(3); }
-    lieux.majBouton();
-    scene.tuilesPlan.placer(E0, N0, G.R); // plan autour : tuiles en mémoire aussitôt, les autres au fil de l'eau
-    pro.reinitialiser();
-    // sélection : la parcelle, et le bâtiment de l'adresse (ou ceux de la parcelle)
-    if (!ACC) scene.surligner(rel, h.get("t") === "Adresse" ? [E - E0, N - N0] : null);
-    // parcelles voisines (limites et numéros), chargées sans bloquer
-    S.voisines = [];
-    if (!ACC) parcellesAutour(boite).then(v => {
-      if (id !== tache) return;
-      S.toutes = v.map(p => ({ numero: p.numero, anneauxRel: p.anneaux.map(a => a.map(([e, n]) => [e - E0, n - N0])) }));
-      S.voisines = S.toutes.filter(p => p.numero !== parcelle?.numero);
-      scene.afficherParcelles(S.voisines, $("#vParcelles").checked);
-      if (S.coupe) majCoupe(S.coupe.A, S.coupe.B);
-    }).catch(e => console.warn("Parcelles voisines :", e.message));
-    S.roofer = essaiRoofer(E0, N0);
-    choixRoofer();
-    scene.comparerSwiss(!!ACC || choixBatiments() === "swiss", { E: S.E0, N: S.N0 });
-    comparerRoofer();
-    if (ACC) scene.reglerCalques({ jeu: "swiss", batVoir: true, batOmbre: true, arbOmbre: true });
-    else appliquerAffichage();
+    scene.animerConstruction(1600);
     $("#vArbres").disabled = !nuage && !G.veg.some(v => !isNaN(v)); $("#vPoints").disabled = $("#distPoints").disabled = !nuage;
-
-    donnerAltitude(scene.zRef + 1.7);
-    if (horizonFini < 1) et(0.9 + 0.1 * horizonFini, t("etat.relief"));
-    S.horizon = await horizon;
-    marquer("horizon");
-    if (id !== tache) return;
-    if (!ACC) zones.nouveauLieu(); // piscines de l'onglet Soleil : contours et calcul de la zone choisie
-    // anneau (terrain swissALTI3D à 2 m) et paysage jusqu'à 50 km, sans bloquer, seulement s'ils se voient (D1)
-    paysageEtAnneau(id, scene.idScene).catch(e => console.warn("Relief lointain :", e.message));
+    $("#noteTerrain").hidden = true;
+    comparerRoofer();
+    telechargement("affinage", null);
+    if (!ACC) zones.nouveauLieu(); // piscines de l'onglet Soleil : contours et calcul sur la maquette du relevé
     et(1, "");
-    if (ACC) { volAccueil(E0, N0); return; }
-    $("#commandes").hidden = $("#panneauPro").hidden = $("#panneauExport").hidden = $("#panneauAffichage").hidden = false; $("#diagramme").hidden = false;
-    majSoleil();
+    if (ACC) return;
+    $("#panneauPro").hidden = $("#panneauExport").hidden = false;
     pro.apresChargement(); // projet rouvert depuis la liste : démolitions, volumes, coupes
     compter("lieu");
   } catch (e) {
     if (id === tache) scene.finChargement();
     if (id !== tache) return; // lieu changé entre-temps : le chargement abandonné n'affiche rien
     console.error(e);
-    telechargement("lieu", null);
+    telechargement("lieu", null); telechargement("affinage", null);
     message(t("msg.erreur", { m: e.message }));
-  }
+  } finally { if (id === tache) finReleve?.(); } // lieu abandonné : rien de plus n'est téléchargé
 }
 const pause = () => new Promise(r => setTimeout(r, 30));
 
@@ -664,7 +768,7 @@ $("#btnLecture").onclick = () => {
 /* ------------------------------------------------------------------ affichage */
 function appliquerAffichage() {
   const c = scene.couches || {};
-  const jeu = choixBatiments();
+  const jeu = jeuAffiche();
   $("#vBatVoir").disabled = $("#vBatOmbre").disabled = jeu === "aucun";
   scene.reglerCalques({ jeu, batVoir: $("#vBatVoir").checked, batOmbre: $("#vBatOmbre").checked, arbOmbre: $("#vArbresOmbre").checked });
   scene.styleArbres($("#vArbres").checked);
@@ -780,6 +884,7 @@ async function reconstruireAdvanced() {
 }
 async function comparerRoofer() {
   if (choixBatiments() !== "roofer") { scene.afficherRoofer(null); return; }
+  if (S.G?.provisoire) return; // vue de base : Advanced attend le relevé (appelé de nouveau à la bascule)
   if (!S.roofer) {
     const lieu = S.E0;
     try {
@@ -808,6 +913,8 @@ async function maillageAdvanced() {
 scene.surTuilesSwiss = n => telechargement("swiss", n > 0 && !scene.vol && !document.body.classList.contains("accueil") ? t("etat.swiss", { n }) : null); // le vol et l'accueil chargent sans bandeau
 // bâtiments affichés : un seul jeu à la fois (relevé, swisstopo, roofer là où il a été calculé, ou aucun)
 function choixBatiments() { return $("input[name=batiments]:checked")?.value || "releve"; }
+/** Jeu de bâtiments montré : pendant la vue de base (pas encore de relevé), les Swiss3D, quel que soit le choix. */
+function jeuAffiche() { const c = choixBatiments(); return S.G?.provisoire && c !== "aucun" ? "swiss" : c; }
 const NOTES = {
   releve: "", aucun: "",
   swiss: t("aff.noteSwiss"),
@@ -820,7 +927,7 @@ function choixRoofer() {
 $$("input[name=batiments]").forEach(b => b.addEventListener("change", () => {
   const choix = choixBatiments();
   $("#noteBatiments").textContent = NOTES[choix];
-  scene.comparerSwiss(choix === "swiss", S.E0 != null ? { E: S.E0, N: S.N0 } : null);
+  scene.comparerSwiss(jeuAffiche() === "swiss", S.E0 != null ? { E: S.E0, N: S.N0 } : null);
   comparerRoofer();
   appliquerAffichage();
   refaireCoupe();
@@ -841,6 +948,69 @@ for (const [id, radio] of [["#vSwiss", "#bSwiss"], ["#vAdvanced", "#bRoofer"]]) 
 });
 synchroSwiss();
 window.addEventListener("pageshow", synchroSwiss);
+/* ------------------------------------------------------------------ terrain de la maquette */
+// « swisstopo » (swissALTI3D, celui de la vue de base), « releve » (grille 0,5 m tirée du nuage, par défaut),
+// « adaptatif » (maillage irrégulier du relevé : pas encore disponible, bouton désactivé). Retenu par ce navigateur.
+function choixTerrain() {
+  let v = null;
+  try { v = localStorage.getItem("ombres.terrain"); } catch { /* stockage indisponible */ }
+  return v === "swisstopo" ? "swisstopo" : "releve";
+}
+$(choixTerrain() === "swisstopo" ? "#tSwiss" : "#tReleve").checked = true;
+$$("input[name=terrain]").forEach(b => b.addEventListener("change", e => {
+  if (!e.target.checked) return;
+  try { localStorage.setItem("ombres.terrain", e.target.value); } catch { /* stockage indisponible */ }
+  appliquerTerrain();
+}));
+
+/** Le terrain 2 m couvre-t-il le lieu (moins de 10 % de trous) ? Hors de Suisse : non, la vue de base est sautée. */
+function couvreLieu(T, E0, N0, R) {
+  let vides = 0, tous = 0;
+  for (let y = -R; y <= R; y += R / 10) for (let x = -R; x <= R; x += R / 10) { tous++; if (isNaN(altitudeTerrain(T, E0 + x, N0 + y))) vides++; }
+  return vides < tous * 0.1;
+}
+
+/** Sol « swisstopo » de la maquette : le terrain swisstopo, sauf sous l'eau et sous les ponts, où le relevé reste. */
+function solComposeSwisstopo(G, sw) {
+  const s = Float32Array.from(sw);
+  for (let p = 0; p < s.length; p++) if ((G.eau && !isNaN(G.eau[p])) || (G.pont && !isNaN(G.pont[p])) || isNaN(s[p])) s[p] = G.solReleve[p];
+  return s;
+}
+
+/**
+ * Nouvelle grille pour la maquette (bascule de la vue de base vers le relevé, ou autre terrain) : seules les couches de
+ * la maquette sont refaites ; caméra, anneau, paysage et tuiles restent. Sélection, coupes et heures suivent.
+ */
+function remplacerMaquette(G, nuage, point = null) {
+  Object.assign(S, { G, zone: null, facades: null, resultat: null, contoursSwiss: null });
+  scene.construire(G, nuage, S.parcelle, null, { remplacer: true });
+  scene.surligner(S.parcelle, point);
+  if (S.voisines?.length) scene.afficherParcelles(S.voisines, $("#vParcelles").checked);
+  scene.comparerSwiss(jeuAffiche() === "swiss", { E: S.E0, N: S.N0 });
+  appliquerAffichage();
+  // coupes : toutes refaites sur la nouvelle grille, l'active en dernier
+  const active = S.coupe;
+  for (const c of S.coupes || []) if (c !== active && c.A) { S.coupe = c; majCoupe(c.A, c.B); }
+  S.coupe = active;
+  if (active) majCoupe(active.A, active.B);
+  if (S.heuresDemandees) calculerHeures();
+}
+
+/** Applique le terrain choisi à la maquette du relevé, sans recharger le lieu. */
+function appliquerTerrain() {
+  const G = S.G;
+  if (!G || G.provisoire || !G.solReleve) return;
+  if (choixTerrain() === "swisstopo" && !G.alti05) S.charger05?.(); // 0,5 m lu en arrière-plan, appliqué à son arrivée
+  const src = choixTerrain() === "swisstopo" && G.solSwisstopo ? G.solSwisstopo : G.solReleve;
+  if (scene.batOrigine) G.bat.set(scene.batOrigine); // bâtiments masqués (Pro) : réappliqués après (pro.apresTerrain)
+  G.sol = src.slice(); G.bassins = [];
+  if (S.bassinsLieu?.length) creuserBassins(G, S.bassinsLieu, S.E0, S.N0);
+  majSurface(G);
+  remplacerMaquette(G, scene.nuage);
+  pro.apresTerrain();
+  zones.nouveauLieu(); // piscines de l'onglet Soleil : recalculées sur le nouveau terrain
+}
+
 // sol : photo aérienne (prioritaire), plan cadastral, ou uni
 function typeFond() { return $("#vReel").checked ? "ortho" : $("#vCadastre").checked ? "cadastre" : "uni"; } // couche bruit retirée du site (27.11)
 $("#vCadastre").addEventListener("change", () => scene.fond(typeFond()));
@@ -898,7 +1068,7 @@ function suivreCoupe(A, B) {
 }
 function majCoupe(A, B, { rapide = false } = {}) {
   // la coupe suit le jeu de bâtiments affiché (relevé, swisstopo, roofer ou aucun) ; en mode pro, points du nuage proches
-  const jeu = choixBatiments(), hv = scene.hauteursVolumes();
+  const jeu = jeuAffiche(), hv = scene.hauteursVolumes();
   let grille = jeu === "swiss" || jeu === "roofer" ? scene.grilleComparaison(jeu) : null;
   // volumes du projet : ajoutés aux bâtiments coupés (au relevé comme aux autres jeux)
   if (hv) {
@@ -1076,6 +1246,8 @@ $("#btnHeures").onclick = () => { S.heuresDemandees = true; calculerHeures(); };
 function calculerHeures() {
   annulerCalcul();
   const G = S.G;
+  // vue de base : les heures se calculent sur la grille du relevé, dès la bascule (remplacerMaquette)
+  if (G?.provisoire) { S.heuresDemandees = true; message(t("msg.heuresAffinage")); return; }
   if (!G || !S.horizon) return;
   const zone = S.zone ||= zoneHeures(G, S.parcelle.anneauxRel);
   // bâtiments de la carte : ceux du relevé, ou les Swiss3D (contours tirés de leurs toits vus de dessus) : toits et
