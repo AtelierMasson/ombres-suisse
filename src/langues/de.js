@@ -94,6 +94,7 @@ export default {
   "compte.cocherCgv": "Kreuzen Sie zuerst oben das Feld zu den Verkaufsbedingungen an, um fortzufahren.",
   "compte.dejaPro": "Dieses Konto ist bereits Pro.",
   "compte.sessionExpiree": "Ihre Sitzung ist abgelaufen (oder Sie sind auf einem anderen Gerät angemeldet). Melden Sie sich erneut an, um fortzufahren.",
+  "compte.gestion": "Kontoverwaltung",
   "compte.supprimer": "Konto löschen",
   "compte.supprimerConfirmer": "Möchten Sie Ihr Konto, Ihre Angaben und Ihre gespeicherten Orte endgültig löschen? Geben Sie zur Bestätigung Ihre E-Mail-Adresse erneut ein: {email}",
   "compte.supprime": "Ihr Konto wurde gelöscht.",

@@ -95,6 +95,7 @@ export default {
   "compte.cocherCgv": "Cochez d'abord la case des conditions de vente ci-dessus pour continuer.",
   "compte.dejaPro": "Ce compte est déjà Pro.",
   "compte.sessionExpiree": "Votre session a expiré (ou vous êtes connecté sur un autre appareil). Reconnectez-vous pour continuer.",
+  "compte.gestion": "Gestion du compte",
   "compte.supprimer": "Supprimer mon compte",
   "compte.supprimerConfirmer": "Supprimer définitivement votre compte, vos informations et vos lieux enregistrés ? Pour confirmer, saisissez à nouveau votre adresse e-mail : {email}",
   "compte.supprime": "Votre compte a été supprimé.",

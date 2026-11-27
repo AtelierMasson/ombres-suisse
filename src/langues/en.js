@@ -94,6 +94,7 @@ export default {
   "compte.cocherCgv": "First tick the terms of sale box above to continue.",
   "compte.dejaPro": "This account is already Pro.",
   "compte.sessionExpiree": "Your session has expired (or you are signed in on another device). Sign in again to continue.",
+  "compte.gestion": "Account management",
   "compte.supprimer": "Delete my account",
   "compte.supprimerConfirmer": "Permanently delete your account, details and saved places? To confirm, enter your email address again: {email}",
   "compte.supprime": "Your account has been deleted.",

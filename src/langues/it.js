@@ -94,6 +94,7 @@ export default {
   "compte.cocherCgv": "Spunti prima la casella delle condizioni di vendita qui sopra per continuare.",
   "compte.dejaPro": "Questo conto è già Pro.",
   "compte.sessionExpiree": "La sua sessione è scaduta (o è connesso su un altro dispositivo). Acceda di nuovo per continuare.",
+  "compte.gestion": "Gestione del conto",
   "compte.supprimer": "Eliminare il mio account",
   "compte.supprimerConfirmer": "Vuole eliminare definitivamente il suo account, i suoi dati e i luoghi salvati? Per confermare, inserisca di nuovo il suo indirizzo e-mail: {email}",
   "compte.supprime": "Il suo account è stato eliminato.",

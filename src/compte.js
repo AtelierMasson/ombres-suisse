@@ -189,15 +189,16 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
         contenu.push(a);
       }
       contenu.push(bouton2("btn btn-link btn-sm compte-deconnexion", t("compte.deconnecter"), "deconnecter"));
-      contenu.push(bouton2("btn btn-link btn-sm compte-supprimer", t("compte.supprimer"), "supprimer"));
-      // rétractation (14 jours après le paiement) : discrète, en bas, sous « Supprimer mon compte »
+      // « Gestion du compte » : un lien discret qui déplie la rétractation (14 jours après l'achat) et la suppression
+      const gestion = el("details", "compte-gestion");
+      gestion.append(el("summary", null, t("compte.gestion")));
       if (e.pro && e.retractation) {
         const date = new Date(e.retractation).toLocaleDateString(langueDoc() + "-CH", { day: "numeric", month: "long", year: "numeric" });
-        const r = bouton2("btn btn-link btn-sm compte-retracter", t("compte.retracter"), "retracter");
-        r.title = t("compte.retractationInfo", { date });
-        const d = el("p", "compte-retracter-note", t("compte.retractationInfo", { date }));
-        contenu.push(r, d);
+        gestion.append(bouton2("btn btn-link btn-sm compte-retracter", t("compte.retracter"), "retracter"),
+          el("p", "compte-retracter-note", t("compte.retractationInfo", { date })));
       }
+      gestion.append(bouton2("btn btn-link btn-sm compte-supprimer", t("compte.supprimer"), "supprimer"));
+      contenu.push(gestion);
     }
     if (message) {
       const m = el("p", "compte-message", message);

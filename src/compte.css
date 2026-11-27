@@ -55,3 +55,11 @@
 /* rétractation : discrète, comme « Supprimer mon compte » */
 #compte .compte-retracter { display: block; padding: 0; margin-top: .1rem; font-size: 12px; color: var(--doux, #66727f); text-decoration: underline; }
 #compte .compte-retracter-note { font-size: 11px; color: var(--doux, #66727f); margin: 0 0 .25rem; }
+
+/* « Gestion du compte » : lien discret qui déplie la rétractation et la suppression */
+#compte .compte-gestion { margin-top: .2rem; }
+#compte .compte-gestion > summary { font-size: 12px; color: var(--doux, #66727f); cursor: pointer; text-decoration: underline; list-style: none; display: inline-block; }
+#compte .compte-gestion > summary::-webkit-details-marker { display: none; }
+#compte .compte-gestion[open] > summary { margin-bottom: .2rem; }
+#compte .compte-gestion .btn-link { display: block; padding: 0 0 0 .75rem; text-align: left; }
+#compte .compte-gestion .compte-retracter-note { padding-left: .75rem; }
