@@ -84,7 +84,14 @@ export default {
   "fiche.nNiveaux": "{n} niv.",
   "fiche.aucunBatiment": "Le registre ne recense aucun bâtiment sur cette parcelle.",
   "compte.autreAppareil": "Vous êtes maintenant connecté sur un autre appareil. La session sur cet appareil a pris fin. Un seul appareil peut être connecté à la fois par compte.",
-  "compte.accepteCgv": "J'accepte les conditions de vente : l'abonnement se renouvelle automatiquement jusqu'à sa résiliation, possible à tout moment.",
+  "compte.accepteCgv": "J'accepte les conditions de vente et je demande l'accès immédiat à Topograph Pro. Je peux me rétracter pendant 14 jours et être remboursé intégralement.",
+  "compte.retractationInfo": "Vous pouvez vous rétracter jusqu'au {date} : remboursement intégral, même si vous avez utilisé Topograph Pro.",
+  "compte.retracter": "Me rétracter et être remboursé",
+  "compte.retracterConfirmer": "Vous rétracter ? Le paiement vous sera remboursé en entier et l'accès Pro sera retiré tout de suite.",
+  "compte.retracte": "Rétractation enregistrée : le remboursement est lancé et un e-mail de confirmation vous a été envoyé.",
+  "compte.retracterDelai": "Le délai de rétractation de 14 jours est dépassé.",
+  "compte.retracterAucun": "Aucun achat remboursable n'a été trouvé sur ce compte.",
+  "compte.retracterErreur": "Le remboursement n'a pas pu être lancé. Écrivez-nous à contact@topograph.ch, votre demande sera traitée dans le délai.",
   "compte.cocherCgv": "Cochez d'abord la case des conditions de vente ci-dessus pour continuer.",
   "compte.dejaPro": "Ce compte est déjà Pro.",
   "compte.sessionExpiree": "Votre session a expiré (ou vous êtes connecté sur un autre appareil). Reconnectez-vous pour continuer.",
@@ -376,8 +383,8 @@ export default {
   "ui.langue": "Langue",
   "offre.titre": "Topograph Pro",
   "offre.texte": "Projets, volumes, exports et coupes en PDF ou DXF. Sans publicité.",
-  "offre.prix": "CHF 9.– par mois",
-  "offre.note": "Ou 7.– par mois à l'année (84.– par an). 7 jours gratuits, résiliable à tout moment.",
+  "offre.prix": "CHF 39.–",
+  "offre.note": "Paiement unique, sans abonnement. L'accès reste actif tant que Topograph est en service.",
   "offre.bouton": "Voir mon compte",
   "heures.resume": "Soleil au-dessus du relief, {titre} : {max}. Façades comprises ({carreaux} carreaux). Calculé en {s} s.",
 
@@ -412,35 +419,15 @@ export default {
   "compte.statut": "Statut",
   "compte.gratuit": "Gratuit",
   "compte.pro": "Pro",
-  "compte.avantages": "Exports, extrait A4, analyses d'ensoleillement et projets, sans publicité.",
-  "compte.paiementSansEssai": "Renouvellement automatique, résiliable à tout moment. Par carte (Stripe).",
-  "compte.offreMois": "Mensuel",
-  "compte.offreMoisPrix": "CHF 9.– par mois",
-  "compte.offreAnnee": "Annuel",
-  "compte.offreAnneePrix": "CHF 7.– par mois, facturé 84.– par an",
-  "compte.essayer": "Essayer gratuitement pendant 7 jours",
-  "compte.sAbonner": "S'abonner",
-  "compte.aboMois": "Abonnement mensuel — {prix} par mois",
-  "compte.aboAnnee": "Abonnement annuel — {prix} par an",
-  "compte.aboEssai": "Essai gratuit jusqu'au {date}. L'abonnement démarre ensuite automatiquement ; résiliez avant cette date pour ne rien payer.",
-  "compte.aboActif": "Prochain renouvellement le {date}.",
-  "compte.aboResilie": "Abonnement résilié : l'accès Pro reste actif jusqu'au {date}, sans nouveau débit.",
-  "compte.aboImpaye": "Le dernier paiement n'a pas abouti. Mettez à jour votre carte pour garder l'accès Pro.",
-  "compte.gerer": "Gérer mon abonnement",
-  "compte.gererNote": "Carte, factures et résiliation, sur la page sécurisée de Stripe.",
-  "compte.passerAnnee": "Passer à l'annuel (7.– par mois, facturé 84.– par an)",
-  "compte.passerMois": "Passer au mensuel (9.– par mois)",
-  "compte.formuleConfirmer": "Changer de formule ? Pendant l'essai, rien n'est débité. Sinon, la nouvelle formule est facturée tout de suite, avec un crédit pour le temps non utilisé.",
-  "compte.formuleChangee": "Formule changée.",
-  "compte.formuleErreur": "La formule n'a pas pu être changée. Vérifiez votre carte dans « Gérer mon abonnement » ou réessayez plus tard.",
-  "compte.portailErreur": "La page de gestion n'a pas pu s'ouvrir. Réessayez dans quelques minutes ; si cela persiste, écrivez à contact@topograph.ch.",
-  "compte.paiement": "7 jours gratuits, puis renouvellement automatique. Rien n'est débité pendant l'essai. Résiliable à tout moment. Par carte (Stripe).",
+  "compte.avantages": "Exports, extrait A4, analyses d'ensoleillement et projets, sans publicité. L'accès Pro reste actif tant que Topograph est en service.",
+  "compte.passerPro": "Acheter Pro — CHF 39.–",
+  "compte.paiement": "Paiement unique, sans abonnement. Par TWINT ou carte (Stripe).",
   "compte.conditions": "Conditions",
   "compte.redirection": "Ouverture du paiement…",
   "compte.erreurPaiement": "La page de paiement n'a pas pu s'ouvrir. Réessayez dans quelques minutes ; si cela persiste, écrivez à contact@topograph.ch.",
-  "compte.confirmation": "Merci. Activation de votre abonnement en cours…",
-  "compte.confirmationLente": "L'activation est en cours. Le statut Pro apparaîtra d'ici quelques minutes.",
-  "compte.annule": "Inscription annulée. Rien n'a été débité.",
+  "compte.confirmation": "Merci. Confirmation du paiement en cours…",
+  "compte.confirmationLente": "Le paiement est en cours de confirmation. Le statut Pro apparaîtra d'ici quelques minutes.",
+  "compte.annule": "Paiement annulé. Rien n'a été débité.",
   "compte.merci": "Merci. Toutes les fonctions Pro sont disponibles.",
   "compte.deconnecter": "Se déconnecter",
   "compte.raisonPro": "Les projets, les volumes et les exports sont réservés à Topograph Pro.",
@@ -702,7 +689,7 @@ export default {
     <p><b>Visite du site</b><br>La maquette, les ombres, les heures de soleil et les exports sont calculés dans votre navigateur ; ces résultats ne nous sont pas envoyés. Notre hébergeur (Infomaniak, en Suisse) enregistre dans ses journaux techniques l'adresse IP, la date et la page demandée, pour la sécurité et le bon fonctionnement du site. Nous comptons aussi quelques actions de façon anonyme (par exemple « un lieu a été chargé »), sans identifiant ni adresse IP.</p>
     <p><b>Services géographiques</b><br>Pour charger un lieu, votre navigateur contacte directement les serveurs de la Confédération (geo.admin.ch), des cantons (geodienste.ch, géoportails cantonaux) et d'Amazon Web Services (relief lointain, aux États-Unis). Ces services reçoivent l'adresse recherchée ou la zone affichée et votre adresse IP.</p>
     <p><b>Compte</b><br>Si vous créez un compte, nous traitons votre adresse e-mail (connexion par lien envoyé par e-mail), votre statut (gratuit ou Pro), les informations que vous ajoutez librement (nom, société, adresse, téléphone) et les lieux que vous enregistrez. Base légale : l'exécution du contrat (art. 6, al. 1, let. b RGPD). Un seul appareil est connecté à la fois.</p>
-    <p><b>Abonnement Pro</b><br>L'abonnement et les paiements sont traités par Stripe (Stripe Payments Europe Ltd, Irlande, et Stripe Inc., États-Unis). Nous ne recevons pas les données de votre carte ; nous gardons la formule, les dates et l'état de l'abonnement et des paiements pour notre comptabilité (obligation légale, 10 ans).</p>
+    <p><b>Achat de l'offre Pro</b><br>Le paiement est traité par Stripe (Stripe Payments Europe Ltd, Irlande, et Stripe Inc., États-Unis). Nous ne recevons pas les données de votre carte ; nous gardons le montant, la date et l'état du paiement pour notre comptabilité (obligation légale, 10 ans).</p>
     <p><b>Suggestions</b><br>Si vous envoyez une suggestion, nous gardons son texte, le lieu affiché, la langue, le type de navigateur et, si vous l'indiquez, votre adresse e-mail pour vous répondre (intérêt légitime à améliorer le site). Nous effaçons ces suggestions au plus tard après 12 mois.</p>
     <p><b>Publicité</b><br>La version gratuite affiche une annonce en bas du panneau des réglages, fournie par Google AdSense (Google Ireland Limited, Irlande ; Google LLC, États-Unis, sous le Data Privacy Framework). Google reçoit votre adresse IP et des informations sur le navigateur et la page. Il ne dépose des cookies et ne personnalise les annonces qu'avec votre accord, demandé par une fenêtre de consentement ; sans accord, les annonces sont non personnalisées. Vous pouvez modifier votre choix à tout moment par le lien de cette fenêtre. Les comptes Pro ne voient aucune publicité. Plus d'informations : policies.google.com/technologies/ads.</p>
     <p><b>Destinataires et transferts à l'étranger</b><br>Infomaniak (hébergement, base de données, envoi des e-mails, Suisse) ; Stripe (paiement, Irlande et États-Unis, sous le Data Privacy Framework et des clauses contractuelles types) ; les services géographiques cités plus haut. Nous ne vendons pas vos données.</p>
@@ -712,11 +699,8 @@ export default {
   "legal.pageConditions": `<h2>Conditions d'utilisation et de vente</h2>
     <p><b>Usage</b><br>Topograph est édité par Atelier Masson Sàrl. La version gratuite est mise à disposition sans garantie de disponibilité.</p>
     <p><b>Résultats indicatifs</b><br>La maquette est reconstruite automatiquement à partir de relevés laser et peut contenir des erreurs. Les ombres, heures de soleil, cotes et exports sont indicatifs : ils ne remplacent ni un relevé de géomètre ni une étude d'ensoleillement ni les documents officiels d'une demande de permis.</p>
-    <p><b>Abonnement Pro</b><br>L'abonnement Pro donne au compte abonné un accès aux fonctions réservées (mode Pro, volumes, exports, coupes en PDF et DXF, sans publicité). Deux formules : CHF 9.– par mois, ou CHF 84.– par an (soit 7.– par mois). Le paiement se fait par carte, par Stripe.</p>
-    <p><b>Essai gratuit</b><br>Un premier abonnement commence par 7 jours d'essai gratuit, une fois par compte. La carte est demandée à l'inscription, mais rien n'est débité pendant l'essai. Un e-mail vous rappelle la fin de l'essai 3 jours avant. Sans résiliation avant la fin de l'essai, l'abonnement démarre automatiquement et la première période est débitée.</p>
-    <p><b>Renouvellement et résiliation</b><br>L'abonnement se renouvelle automatiquement à la fin de chaque période (mois ou année). Vous pouvez le résilier à tout moment dans « Mon compte », puis « Gérer mon abonnement » : l'accès Pro reste actif jusqu'à la fin de la période payée, et plus rien n'est débité. Une période commencée n'est pas remboursée au prorata. Un changement de formule s'applique tout de suite, avec un crédit pour le temps non utilisé. Tout changement de prix est annoncé par e-mail au moins 30 jours à l'avance ; vous pouvez alors résilier.</p>
-    <p><b>Essai et rétractation</b><br>L'essai gratuit permet d'essayer l'offre sans frais : une résiliation pendant l'essai ne coûte rien. Pour toute question sur un débit, écrivez-nous à <a href="mailto:contact@topograph.ch">contact@topograph.ch</a>.</p>
-    <p><b>Paiement refusé</b><br>Si un paiement échoue, Stripe réessaie pendant quelques jours et nous vous prévenons par e-mail. L'accès Pro reste actif 7 jours ; sans paiement, l'abonnement prend fin.</p>
+    <p><b>Offre Pro</b><br>L'offre Pro donne au compte utilisé pour l'achat un accès aux fonctions réservées (mode Pro, volumes, exports, coupes en PDF et DXF, sans publicité), pour un paiement unique de CHF 39.–, sans abonnement. L'accès dure tant que le service Topograph est exploité. Le paiement se fait par Stripe ; l'accès est activé dès la confirmation du paiement.</p>
+    <p><b>Droit de rétractation</b><br>Vous pouvez vous rétracter sans motif dans les 14 jours suivant le paiement, même si vous avez déjà utilisé l'offre Pro. Pour cela, utilisez le bouton « Me rétracter et être remboursé » dans la fenêtre « Mon compte », ou écrivez-nous à <a href="mailto:contact@topograph.ch">contact@topograph.ch</a>. Nous confirmons la réception par e-mail. Le montant payé (CHF 39.–) est remboursé en entier sur le moyen de paiement utilisé, au plus tard dans les 14 jours suivant la rétractation, et l'accès Pro est retiré. Ce délai est rappelé dans l'e-mail de confirmation d'achat.</p>
     <p><b>Responsabilité</b><br>Atelier Masson Sàrl n'est pas responsable des décisions prises sur la base de ces résultats, dans les limites permises par le droit applicable.</p>
     <p><b>Données</b><br>Les exports contiennent des données swisstopo et cantonales ; leur réutilisation est soumise aux conditions de ces données, avec mention de la source.</p>
     <p><b>Droit applicable</b><br>Droit suisse. For : Lausanne, sous réserve des fors impératifs en faveur des consommateurs.</p>

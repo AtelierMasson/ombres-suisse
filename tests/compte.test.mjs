@@ -55,17 +55,3 @@ test("déconnecté (401) puis connecté gratuit puis pro : un événement par ch
   c.etat().pro = false;
   assert.equal(c.etat().pro, true);
 });
-
-test("abonnement : état transmis tel quel, essai possible par défaut", async () => {
-  const abo = { statut: "trialing", intervalle: "month", montant: 900, essaiFin: "2026-12-04T00:00:00+00:00", resilie: false, impaye: false };
-  avecFetch(async () => reponse(200, { email: "a@b.ch", pro: true, abonnement: abo, essaiPossible: false }));
-  const c = brancherCompte({});
-  await c.pret;
-  assert.equal(c.etat().pro, true);
-  assert.deepEqual(c.etat().abonnement, abo);
-  assert.equal(c.etat().essaiPossible, false);
-  avecFetch(async () => reponse(200, { email: "a@b.ch", pro: false }));
-  await c.relire();
-  assert.equal(c.etat().abonnement, null);
-  assert.equal(c.etat().essaiPossible, true);
-});

@@ -40,13 +40,13 @@ CREATE TABLE IF NOT EXISTS sessions (
   CONSTRAINT sessions_compte FOREIGN KEY (compte_id) REFERENCES comptes (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Achats uniques (ancienne offre à 39.–, plus vendue) : une ligne par session Stripe Checkout
+-- Achats : une ligne par session Stripe Checkout
 CREATE TABLE IF NOT EXISTS achats (
   id         VARCHAR(255) NOT NULL PRIMARY KEY,   -- cs_test_… / cs_live_…
   compte_id  INT UNSIGNED NOT NULL,
   montant    INT UNSIGNED NOT NULL,               -- centimes
   devise     CHAR(3) NOT NULL,
-  etat       VARCHAR(16) NOT NULL DEFAULT 'ouvert', -- ouvert, paye, rembourse (ancienne vente unique, gardée pour la comptabilité)
+  etat       VARCHAR(16) NOT NULL DEFAULT 'ouvert', -- ouvert, paye
   cree_le    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY compte_idx (compte_id),
   CONSTRAINT achats_compte FOREIGN KEY (compte_id) REFERENCES comptes (id)
@@ -91,35 +91,3 @@ ALTER TABLE achats
   ADD COLUMN IF NOT EXISTS rembourse_le DATETIME NULL,
   ADD COLUMN IF NOT EXISTS remboursement VARCHAR(255) NULL,
   ADD COLUMN IF NOT EXISTS langue CHAR(2) NULL;
-
--- Abonnement Pro (voir aussi migration-2026-11-abonnement.sql pour une base existante)
-ALTER TABLE comptes
-  ADD COLUMN IF NOT EXISTS stripe_customer VARCHAR(255) NULL,
-  ADD INDEX IF NOT EXISTS stripe_customer_idx (stripe_customer);
-
--- Abonnements : une ligne par abonnement Stripe, tenue à jour par le webhook.
--- Le statut Pro vaut : comptes.pro = 1 (Pro offert par un administrateur) OU un abonnement trialing / active,
--- ou past_due depuis moins de 7 jours.
-CREATE TABLE IF NOT EXISTS abonnements (
-  id               VARCHAR(255) NOT NULL PRIMARY KEY,      -- sub_…
-  compte_id        INT UNSIGNED NOT NULL,
-  stripe_customer  VARCHAR(255) NOT NULL,                  -- cus_…
-  statut           VARCHAR(24) NOT NULL,                   -- trialing, active, past_due, canceled, unpaid, incomplete…
-  intervalle       VARCHAR(8) NULL,                        -- month, year
-  montant          INT UNSIGNED NULL,                      -- centimes par période
-  devise           CHAR(3) NULL,
-  periode_fin      DATETIME NULL,                          -- fin de la période en cours (UTC)
-  essai_fin        DATETIME NULL,                          -- fin de l'essai gratuit (UTC)
-  resilie          TINYINT(1) NOT NULL DEFAULT 0,          -- résiliation programmée en fin de période
-  impaye_depuis    DATETIME NULL,                          -- premier paiement refusé (grâce de 7 jours)
-  cgv_version      VARCHAR(20) NULL,
-  langue           CHAR(2) NULL,
-  bienvenue_le     DATETIME NULL,                          -- e-mails envoyés une seule fois
-  rappel_essai_le  DATETIME NULL,
-  evenement_le     INT UNSIGNED NOT NULL DEFAULT 0,        -- horodatage Stripe du dernier état enregistré
-  cree_le          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  maj_le           DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  KEY compte_idx (compte_id),
-  KEY customer_idx (stripe_customer),
-  CONSTRAINT abonnements_compte FOREIGN KEY (compte_id) REFERENCES comptes (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

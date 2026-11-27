@@ -1,5 +1,4 @@
-// Compte : connexion par lien e-mail, statut Gratuit / Pro, abonnement Pro (CHF 9.– par mois ou 84.– par an, 7 jours
-// d'essai) géré par Stripe (Checkout, portail client). Sans dépendance.
+// Compte : connexion par lien e-mail, statut Gratuit / Pro, achat unique (CHF 39.–). Sans dépendance.
 // Un seul écran : une petite boîte <dialog> ouverte par le bouton « Compte » de la barre du haut.
 // Si l'API n'est pas joignable (site statique seul), le module se tait : bouton masqué, etat() déconnecté.
 //
@@ -46,8 +45,7 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
         disponible = true;
         // administrateur : le statut Pro peut être simulé (gratuit ou Pro) pour essayer l'application des deux côtés
         const simule = d.admin ? proSimule() : null;
-        changer({ connecte: true, email: String(d.email || ""), pro: simule ?? !!d.pro, proReel: !!d.pro, admin: !!d.admin, profil: d.profil || {},
-          abonnement: d.abonnement || null, essaiPossible: d.essaiPossible !== false });
+        changer({ connecte: true, email: String(d.email || ""), pro: simule ?? !!d.pro, proReel: !!d.pro, admin: !!d.admin, profil: d.profil || {}, retractation: d.retractation || null });
       } else disponible = false;
     } catch { disponible = false; }
     if (bouton) bouton.hidden = !disponible;
@@ -94,13 +92,12 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
           lab?.classList.add("compte-cgv-manque"); if (m) m.hidden = false; c.focus();
           return;
         }
-        acheter(dlg.querySelector("input[name=formule]:checked")?.value || "mois");
+        acheter();
       }
-      else if (a === "gerer") gerer();
-      else if (a === "formule") changerFormule(ev.target.closest("[data-formule]").dataset.formule);
       else if (a === "basculerPro") basculerPro(ev.target.checked);
       else if (a === "deconnecter") deconnecter();
       else if (a === "supprimer") supprimer();
+      else if (a === "retracter") retracter();
     });
     dlg.addEventListener("submit", ev => {
       ev.preventDefault();
@@ -144,10 +141,31 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       dl.append(el("dt", null, t("compte.email")), el("dd", null, e.email),
         el("dt", null, t("compte.statut")), el("dd", e.pro ? "compte-statut-pro" : null, t(e.pro ? "compte.pro" : "compte.gratuit")));
       contenu.push(dl);
-      const abo = aboVivant(e.abonnement);
-      if (abo) contenu.push(blocAbonnement(abo));
-      else if (e.pro) contenu.push(el("p", "compte-doux", t("compte.merci")));
-      else contenu.push(blocOffre());
+      if (e.pro) {
+        contenu.push(el("p", "compte-doux", t("compte.merci")));
+      }
+      else {
+        // offre Pro : titre, avantages, bouton et conditions dans un même encadré, bien visible
+        const offre = el("div", "compte-offre");
+        offre.append(el("div", "compte-offre-titre", "Topograph Pro"), el("p", "compte-offre-texte", t("compte.avantages")));
+        // conditions de vente : case obligatoire avant le paiement (exécution immédiate, renonciation à la rétractation)
+        const accord = el("label", "compte-cgv");
+        const case_ = el("input"); case_.type = "checkbox"; case_.name = "cgv";
+        accord.append(case_, " ", el("span", null, t("compte.accepteCgv")));
+        // bouton toujours actif : sans la case, il dit ce qui manque (au lieu d'un bouton grisé sans explication)
+        const acheter = bouton2("btn btn-primary w-100", t("compte.passerPro"), "acheter");
+        const manque = el("p", "compte-manque", t("compte.cocherCgv"));
+        manque.hidden = true; manque.setAttribute("role", "alert");
+        case_.addEventListener("change", () => { if (case_.checked) { manque.hidden = true; accord.classList.remove("compte-cgv-manque"); } });
+        offre.append(accord, manque, acheter);
+        const note = el("p", "compte-note", t("compte.paiement") + " ");
+        const cgv = el("a", null, t("compte.conditions"));
+        cgv.href = "#";
+        cgv.dataset.legal = "conditions";
+        note.append(cgv);
+        offre.append(note);
+        contenu.push(offre);
+      }
       for (const f of sections) { const n = f(); if (n) contenu.push(n); }
       // informations du compte (facultatives) : repliées, un seul formulaire
       const P = e.profil || {}, det = el("details", "compte-profil"), resume = el("summary", null, t("compte.mesInfos"));
@@ -183,9 +201,14 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
         contenu.push(a);
       }
       contenu.push(bouton2("btn btn-link btn-sm compte-deconnexion", t("compte.deconnecter"), "deconnecter"));
-      // « Gestion du compte » : un lien discret qui déplie la suppression
+      // « Gestion du compte » : un lien discret qui déplie la rétractation (14 jours après l'achat) et la suppression
       const gestion = el("details", "compte-gestion");
       gestion.append(el("summary", null, t("compte.gestion")));
+      if (e.pro && e.retractation) {
+        const date = new Date(e.retractation).toLocaleDateString(langueDoc() + "-CH", { day: "numeric", month: "long", year: "numeric" });
+        gestion.append(bouton2("btn btn-link btn-sm compte-retracter", t("compte.retracter"), "retracter"),
+          el("p", "compte-retracter-note", t("compte.retractationInfo", { date })));
+      }
       gestion.append(bouton2("btn btn-link btn-sm compte-supprimer", t("compte.supprimer"), "supprimer"));
       contenu.push(gestion);
     }
@@ -195,64 +218,6 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
       contenu.push(m);
     }
     dlg.replaceChildren(...contenu);
-  }
-
-  // ------------------------------------------------------------------ abonnement
-
-  const aboVivant = a => (a && ["trialing", "active", "past_due"].includes(a.statut) ? a : null);
-  const chf = centimes => "CHF " + (centimes % 100 ? (centimes / 100).toFixed(2) : centimes / 100 + ".–");
-  const jour = iso => new Date(iso).toLocaleDateString(langueDoc() + "-CH", { day: "numeric", month: "long", year: "numeric" });
-
-  /** Offre Pro (compte gratuit) : deux formules, conditions, bouton d'essai, dans un même encadré bien visible. */
-  function blocOffre() {
-    const offre = el("div", "compte-offre");
-    offre.append(el("div", "compte-offre-titre", "Topograph Pro"), el("p", "compte-offre-texte", t("compte.avantages")));
-    const choix = el("div", "compte-formules");
-    for (const [v, titre, prix] of [["mois", "compte.offreMois", "compte.offreMoisPrix"], ["annee", "compte.offreAnnee", "compte.offreAnneePrix"]]) {
-      const l = el("label", "compte-formule");
-      const r = el("input");
-      Object.assign(r, { type: "radio", name: "formule", value: v, checked: v === "mois" });
-      l.append(r, " ", el("b", null, t(titre)), el("span", null, t(prix)));
-      choix.append(l);
-    }
-    // conditions de vente : case obligatoire avant le paiement (abonnement, renouvellement automatique)
-    const accord = el("label", "compte-cgv");
-    const case_ = el("input"); case_.type = "checkbox"; case_.name = "cgv";
-    accord.append(case_, " ", el("span", null, t("compte.accepteCgv")));
-    // bouton toujours actif : sans la case, il dit ce qui manque (au lieu d'un bouton grisé sans explication)
-    const essai = e.essaiPossible !== false;
-    const acheter = bouton2("btn btn-primary w-100", t(essai ? "compte.essayer" : "compte.sAbonner"), "acheter");
-    const manque = el("p", "compte-manque", t("compte.cocherCgv"));
-    manque.hidden = true; manque.setAttribute("role", "alert");
-    case_.addEventListener("change", () => { if (case_.checked) { manque.hidden = true; accord.classList.remove("compte-cgv-manque"); } });
-    const note = el("p", "compte-note", t(essai ? "compte.paiement" : "compte.paiementSansEssai") + " ");
-    const cgv = el("a", null, t("compte.conditions"));
-    cgv.href = "#";
-    cgv.dataset.legal = "conditions";
-    note.append(cgv);
-    offre.append(choix, accord, manque, acheter, note);
-    return offre;
-  }
-
-  /** Abonnement en cours : formule, état (essai, renouvellement, résiliation, impayé), gestion par le portail Stripe. */
-  function blocAbonnement(a) {
-    const annee = a.intervalle === "year";
-    const montant = a.montant ?? (annee ? 8400 : 900);
-    const bloc = el("div", "compte-abonnement");
-    bloc.append(el("div", "compte-offre-titre", t(annee ? "compte.aboAnnee" : "compte.aboMois", { prix: chf(montant) })));
-    let etat;
-    if (a.impaye) etat = el("p", "compte-abo-etat compte-abo-impaye", t("compte.aboImpaye"));
-    else if (a.resilie && (a.periodeFin || a.essaiFin)) etat = el("p", "compte-abo-etat", t("compte.aboResilie", { date: jour(a.statut === "trialing" ? a.essaiFin || a.periodeFin : a.periodeFin) }));
-    else if (a.statut === "trialing" && a.essaiFin) etat = el("p", "compte-abo-etat", t("compte.aboEssai", { date: jour(a.essaiFin) }));
-    else if (a.periodeFin) etat = el("p", "compte-abo-etat", t("compte.aboActif", { date: jour(a.periodeFin) }));
-    if (etat) bloc.append(etat);
-    bloc.append(bouton2("btn btn-primary w-100", t("compte.gerer"), "gerer"), el("p", "compte-note", t("compte.gererNote")));
-    if (!a.resilie) {
-      const autre = bouton2("btn btn-link btn-sm compte-formule-changer", t(annee ? "compte.passerMois" : "compte.passerAnnee"), "formule");
-      autre.dataset.formule = annee ? "mois" : "annee";
-      bloc.append(autre);
-    }
-    return bloc;
   }
 
   function ouvrir() {
@@ -280,11 +245,11 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
     occupe(false);
   }
 
-  async function acheter(formule = "mois") {
+  async function acheter() {
     ecrire(t("compte.redirection"));
     occupe(true);
     try {
-      const r = await appel("/achat.php", { method: "POST", body: JSON.stringify({ langue: langueDoc(), cgv: true, formule }) });
+      const r = await appel("/achat.php", { method: "POST", body: JSON.stringify({ langue: langueDoc(), cgv: true }) });
       if (r.ok) { location.href = (await r.json()).url; return; }
       // une explication pour chaque refus
       if (r.status === 409) { await relire(); ecrire(t("compte.dejaPro")); }
@@ -306,29 +271,15 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
     dessiner();
   }
 
-  /** Portail client Stripe : carte, factures, résiliation. Retour sur le site avec ?compte=abonnement. */
-  async function gerer() {
-    ecrire(t("compte.redirection"));
+  /** Rétractation de l'achat Pro (14 jours) : remboursement intégral par Stripe, Pro retiré, e-mail de confirmation. */
+  async function retracter() {
+    if (!confirm(t("compte.retracterConfirmer"))) return;
     occupe(true);
     try {
-      const r = await appel("/portail.php", { method: "POST", body: JSON.stringify({ langue: langueDoc() }) });
-      if (r.ok) { location.href = (await r.json()).url; return; }
-      if (r.status === 401) { await relire(); ecrire(t("compte.sessionExpiree")); }
-      else ecrire(t("compte.portailErreur"));
-    } catch { ecrire(t("compte.portailErreur")); }
-    occupe(false);
-  }
-
-  /** Passage mensuel ↔ annuel (formule.php) : rien n'est débité pendant l'essai, sinon facturation tout de suite avec crédit. */
-  async function changerFormule(formule) {
-    if (!confirm(t("compte.formuleConfirmer"))) return;
-    occupe(true);
-    try {
-      const r = await appel("/formule.php", { method: "POST", body: JSON.stringify({ formule }) });
-      if (r.ok || r.status === 409) { message = t("compte.formuleChangee"); await relire(); }
-      else if (r.status === 401) { await relire(); ecrire(t("compte.sessionExpiree")); }
-      else ecrire(t("compte.formuleErreur"));
-    } catch { ecrire(t("compte.formuleErreur")); }
+      const r = await appel("/retractation.php", { method: "POST", body: JSON.stringify({ langue: langueDoc() }) });
+      if (r.ok) { message = t("compte.retracte"); await relire(); }
+      else ecrire(t(r.status === 409 ? "compte.retracterDelai" : r.status === 404 ? "compte.retracterAucun" : "compte.retracterErreur"));
+    } catch { ecrire(t("compte.retracterErreur")); }
     occupe(false);
   }
 
@@ -407,7 +358,6 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
     if (!disponible) return etat();
     if (retour === "lien_expire" || retour === "lien_invalide") { message = t("compte.lienExpire"); ouvrir(); }
     else if (retour === "connecte" && intention()) { memoriser(false); ouvrir(); }
-    else if (retour === "abonnement") ouvrir(); // retour du portail Stripe ou lien d'un e-mail d'abonnement
     if (achat === "ok") {
       memoriser(false);
       message = t("compte.confirmation");

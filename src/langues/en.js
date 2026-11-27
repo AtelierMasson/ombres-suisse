@@ -83,7 +83,14 @@ export default {
   "fiche.nNiveaux": "Storeys: {n}",
   "fiche.aucunBatiment": "No registered building on this parcel.",
   "compte.autreAppareil": "Your account was signed in on another device, so this one has been signed out. One device at a time per account.",
-  "compte.accepteCgv": "I accept the terms of sale: the subscription renews automatically until cancelled, which is possible at any time.",
+  "compte.accepteCgv": "I accept the terms of sale and request immediate access to Topograph Pro. I can withdraw within 14 days and get a full refund.",
+  "compte.retractationInfo": "You can withdraw until {date}: full refund, even if you have used Topograph Pro.",
+  "compte.retracter": "Withdraw and get a refund",
+  "compte.retracterConfirmer": "Withdraw? Your payment will be refunded in full and Pro access removed immediately.",
+  "compte.retracte": "Withdrawal recorded: the refund has been initiated and a confirmation email has been sent to you.",
+  "compte.retracterDelai": "The 14-day withdrawal period has ended.",
+  "compte.retracterAucun": "No refundable purchase was found on this account.",
+  "compte.retracterErreur": "The refund could not be initiated. Write to us at contact@topograph.ch; your request will be handled within the period.",
   "compte.cocherCgv": "First tick the terms of sale box above to continue.",
   "compte.dejaPro": "This account is already Pro.",
   "compte.sessionExpiree": "Your session has expired (or you are signed in on another device). Sign in again to continue.",
@@ -375,8 +382,8 @@ export default {
   "ui.langue": "Language",
   "offre.titre": "Topograph Pro",
   "offre.texte": "Projects, volumes, exports and sections as PDF or DXF. No ads.",
-  "offre.prix": "CHF 9.– per month",
-  "offre.note": "Or 7.– per month billed yearly (84.– per year). 7 days free, cancel at any time.",
+  "offre.prix": "CHF 39.–",
+  "offre.note": "One-time payment, no subscription. Access stays active as long as Topograph is in service.",
   "offre.bouton": "View my account",
   "heures.resume": "Sun above the terrain, {titre}: {max}. Façades included ({carreaux} cells). Computed in {s} s.",
 
@@ -411,35 +418,15 @@ export default {
   "compte.statut": "Status",
   "compte.gratuit": "Free",
   "compte.pro": "Pro",
-  "compte.avantages": "Exports, an A4 extract, sunlight analyses and projects, with no advertising.",
-  "compte.paiementSansEssai": "Automatic renewal, cancel at any time. By card (Stripe).",
-  "compte.offreMois": "Monthly",
-  "compte.offreMoisPrix": "CHF 9.– per month",
-  "compte.offreAnnee": "Yearly",
-  "compte.offreAnneePrix": "CHF 7.– per month, billed 84.– per year",
-  "compte.essayer": "Try free for 7 days",
-  "compte.sAbonner": "Subscribe",
-  "compte.aboMois": "Monthly subscription — {prix} per month",
-  "compte.aboAnnee": "Yearly subscription — {prix} per year",
-  "compte.aboEssai": "Free trial until {date}. The subscription then starts automatically; cancel before that date to pay nothing.",
-  "compte.aboActif": "Next renewal on {date}.",
-  "compte.aboResilie": "Subscription cancelled: Pro access stays active until {date}, with no further charge.",
-  "compte.aboImpaye": "The last payment did not go through. Update your card to keep Pro access.",
-  "compte.gerer": "Manage my subscription",
-  "compte.gererNote": "Card, invoices and cancellation, on Stripe's secure page.",
-  "compte.passerAnnee": "Switch to yearly (7.– per month, billed 84.– per year)",
-  "compte.passerMois": "Switch to monthly (9.– per month)",
-  "compte.formuleConfirmer": "Switch plans? Nothing is charged during the trial. Otherwise the new plan is billed right away, with a credit for unused time.",
-  "compte.formuleChangee": "Plan switched.",
-  "compte.formuleErreur": "The plan could not be switched. Check your card under “Manage my subscription” or try again later.",
-  "compte.portailErreur": "The management page could not be opened. Try again in a few minutes; if this persists, write to contact@topograph.ch.",
-  "compte.paiement": "7 days free, then automatic renewal. Nothing is charged during the trial. Cancel at any time. By card (Stripe).",
+  "compte.avantages": "Exports, an A4 extract, sunlight analyses and projects, with no advertising. Pro access continues for as long as Topograph is in operation.",
+  "compte.passerPro": "Buy Pro — CHF 39.–",
+  "compte.paiement": "One-off payment, no subscription. Pay by TWINT or card (Stripe).",
   "compte.conditions": "Terms",
   "compte.redirection": "Opening checkout…",
   "compte.erreurPaiement": "The payment page could not be opened. Try again in a few minutes; if it persists, write to contact@topograph.ch.",
-  "compte.confirmation": "Thank you. Your subscription is being activated…",
-  "compte.confirmationLente": "Activation is in progress. Pro status will appear within a few minutes.",
-  "compte.annule": "Sign-up cancelled. Nothing has been charged.",
+  "compte.confirmation": "Thank you. Your payment is being confirmed…",
+  "compte.confirmationLente": "Your payment is still being confirmed. Pro status will appear within a few minutes.",
+  "compte.annule": "Payment cancelled. You have not been charged.",
   "compte.merci": "Thank you. All Pro features are now available.",
   "compte.deconnecter": "Sign out",
   "compte.raisonPro": "Projects, building volumes and exports are included in Topograph Pro.",
@@ -701,7 +688,7 @@ export default {
     <p><b>Visiting the site</b><br>The model, the shadows, the hours of sunlight and the exports are calculated in your browser; these results are not sent to us. Our host (Infomaniak, in Switzerland) records the IP address, the date and the requested page in its technical logs to keep the site secure and running properly. We also count a few actions anonymously (for example "a place was loaded"), without any identifier or IP address.</p>
     <p><b>Geographic services</b><br>To load a place, your browser contacts the servers of the Confederation (geo.admin.ch), the cantons (geodienste.ch, cantonal geoportals) and Amazon Web Services (distant terrain, in the United States) directly. These services receive your IP address and either the address you search for or the area you display.</p>
     <p><b>Account</b><br>If you create an account, we process your email address (sign-in by a link sent by email), your status (free or Pro), the details you choose to provide (name, company, address, phone) and the places you save. Legal basis: performance of the contract (Art. 6(1)(b) GDPR). Only one device is signed in at a time.</p>
-    <p><b>Pro subscription</b><br>The subscription and payments are processed by Stripe (Stripe Payments Europe Ltd, Ireland, and Stripe Inc., United States). We do not receive your card details; we keep the plan, the dates and the status of the subscription and payments for our accounting (legal obligation, 10 years).</p>
+    <p><b>Purchasing the Pro offer</b><br>Payment is processed by Stripe (Stripe Payments Europe Ltd, Ireland, and Stripe Inc., United States). We do not receive your card details; we keep the amount, the date and the status of the payment for our accounting (legal obligation, 10 years).</p>
     <p><b>Suggestions</b><br>If you send a suggestion, we keep its text, the place displayed, the language, the browser type and, if you provide it, your email address so that we can reply (legitimate interest in improving the site). We delete suggestions within 12 months.</p>
     <p><b>Advertising</b><br>The free version shows one ad at the bottom of the settings panel, provided by Google AdSense (Google Ireland Limited, Ireland; Google LLC, United States, under the Data Privacy Framework). Google receives your IP address and information about the browser and page. It sets cookies and personalises ads only with your consent, requested in a consent window; without consent, ads are non-personalised. You can change your choice at any time from the link in that window. Pro accounts see no advertising. More information: policies.google.com/technologies/ads.</p>
     <p><b>Recipients and transfers abroad</b><br>Infomaniak (hosting, database, sending of emails, Switzerland); Stripe (payment, Ireland and United States, under the Data Privacy Framework and standard contractual clauses); the geographic services named above. We do not sell your data.</p>
@@ -711,11 +698,8 @@ export default {
   "legal.pageConditions": `<h2>Terms of use and sale</h2>
     <p><b>Use</b><br>Topograph is published by Atelier Masson Sàrl. The free version is provided without any guarantee of availability.</p>
     <p><b>Indicative results</b><br>The model is reconstructed automatically from laser surveys and may contain errors. Shadows, hours of sunlight, dimensions and exports are for guidance. They do not replace a professional land survey, a sunlight study or the official documents required for a planning application.</p>
-    <p><b>Pro subscription</b><br>The Pro subscription gives the subscribed account access to the Pro features (Pro mode, building volumes, exports, sections in PDF and DXF, no advertising). Two plans: CHF 9.– per month, or CHF 84.– per year (7.– per month). Payment is by card, through Stripe.</p>
-    <p><b>Free trial</b><br>A first subscription starts with a 7-day free trial, once per account. Your card is requested at sign-up, but nothing is charged during the trial. An email reminds you 3 days before the trial ends. Unless you cancel before the end of the trial, the subscription starts automatically and the first period is charged.</p>
-    <p><b>Renewal and cancellation</b><br>The subscription renews automatically at the end of each period (month or year). You can cancel at any time under "My account", then "Manage my subscription": Pro access stays active until the end of the paid period, and nothing more is charged. A period already started is not refunded pro rata. A change of plan applies immediately, with a credit for unused time. Any price change is announced by email at least 30 days in advance; you can then cancel.</p>
-    <p><b>Trial and withdrawal</b><br>The free trial lets you try the offer at no cost: cancelling during the trial costs nothing. For any question about a charge, write to us at <a href="mailto:contact@topograph.ch">contact@topograph.ch</a>.</p>
-    <p><b>Declined payment</b><br>If a payment fails, Stripe retries over a few days and we notify you by email. Pro access stays active for 7 days; without payment, the subscription ends.</p>
+    <p><b>Pro offer</b><br>A one-off payment of CHF 39.– gives the purchasing account access to the Pro features (Pro mode, building volumes, exports and sections in PDF and DXF), without advertising or a subscription. Access lasts for as long as Topograph remains in operation. Payment is made through Stripe; access is activated as soon as the payment is confirmed.</p>
+    <p><b>Right of withdrawal</b><br>You can withdraw without giving a reason within 14 days of payment, even if you have already used the Pro offer. To do so, use the "Withdraw and get a refund" button in the "My account" window, or write to us at <a href="mailto:contact@topograph.ch">contact@topograph.ch</a>. We confirm receipt by email. The amount paid (CHF 39.–) is refunded in full to the payment method used, at the latest within 14 days of the withdrawal, and Pro access is removed. This period is stated in the purchase confirmation email.</p>
     <p><b>Liability</b><br>Atelier Masson Sàrl is not liable for decisions made on the basis of these results, to the extent permitted by applicable law.</p>
     <p><b>Data</b><br>The exports contain swisstopo and cantonal data; their reuse is subject to the terms of those data, with source attribution.</p>
     <p><b>Governing law</b><br>Swiss law. Place of jurisdiction: Lausanne, subject to any mandatory rules on jurisdiction that protect consumers.</p>
