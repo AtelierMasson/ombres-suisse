@@ -513,7 +513,7 @@ void main() {
     // plus clair ou plus sombre, plus ou moins vers l'accent. Les petites taches (aVar) restent par-dessus.
     if (especes > 0.5 && e > 0.5) {
       float ess = floor((e - 0.5) / 40.0), r = clamp((e - 1.0 - 40.0 * ess) / 39.0, 0.0, 1.0);
-      if (ess > 1.5) { c = mix(c, c3, 0.42 + 0.2 * r) * vec3(1.06, 1.05, 0.86); accent *= 0.5; }
+      if (ess > 1.5) { c = mix(c, c3, 0.34 + 0.18 * r) * vec3(1.05, 1.04, 0.88); accent *= 0.5; }
       else if (ess > 0.5) { c = mix(c, c1, 0.3 + 0.25 * r) * vec3(0.84, 0.95, 1.1); accent *= 0.3; }
       else { c = mix(mix(c, c2, 0.2 * r), c3, 0.06 + 0.16 * r) * vec3(1.03, 1.02, 0.93); }
       c *= 0.9 + 0.2 * fract(r * 5.7);

@@ -43,11 +43,11 @@ export function indiceForme(pente, prof, nbPts, H) {
 /** Essence d'un arbre depuis la probabilité a priori (conifère) et l'indice de forme. */
 function essence(prior, forme, alt, mixte) {
   const p = sigmo(logit(Math.min(0.97, Math.max(0.03, prior))) + forme);
-  if (p >= 0.5) return [CONIFERE, p];
-  // mélèze : conifère sans aiguilles l'hiver (relevé), il a la texture d'un feuillu ; en altitude, ou en forêt
-  // résineuse de montagne
-  if (alt > 1550 || (alt > 1250 && mixte < 30)) return [MELEZE, p];
-  return [FEUILLU, p];
+  // mélèze : couronne claire et peu dense (et sans aiguilles si le vol est d'hiver : texture de feuillu). En montagne
+  // (au-dessus de 1 400 m, ou de 1 250 m en forêt résineuse selon le LFI), les feuillus sont rares : un arbre à la
+  // forme de feuillu, ou un conifère à couronne peu dense (indice < 1), est classé mélèze. Heuristique non vérifiée.
+  if (forme < 1 && (alt > 1400 || (alt > 1250 && mixte < 30))) return [MELEZE, p];
+  return [p >= 0.5 ? CONIFERE : FEUILLU, p];
 }
 
 /**
@@ -250,7 +250,9 @@ export function preparerArbres(g, G, cellule, zRef) {
   // ------------------------------------------------------------------ essence par point, tuiles
   // aEsp sur un octet signé : ±(1 + 40 · essence + teinte 0..39), négatif = enfoui
   const esp = new Int8Array(nb);
-  const nTu = Math.max(1, Math.min(8, Math.ceil(2 * R / 40))), cote = 2 * R / nTu, nCles = nTu * nTu * 2;
+  // tuiles : au plus 8 × 8, au moins 40 m de côté, ~80 000 points chacune au moins (chaque tuile coûte un appel de
+  // dessin : sur un petit nuage, trop de tuiles coûtaient plus au processeur que ce qu'elles épargnaient)
+  const nTu = Math.max(1, Math.min(8, Math.ceil(2 * R / 40), Math.round(Math.sqrt(nb / 80000)))), cote = 2 * R / nTu, nCles = nTu * nTu * 2;
   const cle = new Uint16Array(nb), compte = new Uint32Array(nCles + 1), boites = new Float32Array(nTu * nTu * 6);
   for (let u = 0; u < nTu * nTu; u++) boites.set([Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity], 6 * u);
   for (let k = 0; k < nb; k++) {

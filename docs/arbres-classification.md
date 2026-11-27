@@ -76,8 +76,12 @@ conifères d'ornement) ; la pénétration seule (au Jorat, conifères et feuillu
   dizaines de Ko, ~0,2–0,3 s). Remplace l'a priori d'altitude **en forêt** dès qu'il arrive ; l'attribut est mis à
   jour sans reconstruire. Vérification : Sihlwald ≈ 99 (hêtraie), Jorat et Engadine ≈ 0–5 (résineux).
 - Décision : `p = sigmoïde(logit(a priori) + L)` ; conifère si `p ≥ 0,5`.
-- **Mélèze** : conifère qui perd ses aiguilles, donc « feuillu » pour le laser d'hiver. Un arbre classé feuillu
-  devient mélèze au-dessus de 1 550 m, ou au-dessus de 1 250 m dans une forêt à moins de 30 % de feuillus.
+- **Mélèze** : conifère qui perd ses aiguilles, donc « feuillu » pour le laser d'hiver. Mais en montagne le relevé
+  est souvent fait en été (neige) : à Zermatt et en Haute-Engadine, presque tous les arbres ont la forme d'un conifère
+  (`L > 0` pour 98 %). Règle retenue, au-dessus de 1 400 m (ou de 1 250 m dans une forêt à moins de 30 % de feuillus
+  selon le LFI), où les vrais feuillus sont rares : un arbre à forme de feuillu ou un conifère à couronne peu dense
+  (`L < 1`, environ le quart des arbres en Haute-Engadine) est classé mélèze (couronne claire et ajourée).
+  **Heuristique non vérifiée** : pas de carte des mélèzes à disposition.
 - Hors couronne (haies, buissons < 3 m) : essence la plus probable à l'altitude du lieu.
 
 Proportions obtenues (arbres, après le degré de mélange) :
@@ -93,7 +97,7 @@ Proportions obtenues (arbres, après le degré de mélange) :
 Toutes tirées du thème (`scene.T.arbres`), dans le shader : base `mix(c1, c2, aRel)`, puis
 - conifère : vers `c1` (30–55 %), × (0,84 ; 0,95 ; 1,10) → plus sombre, bleuté ; accent `c3` réduit à 30 % ;
 - feuillu : un peu vers `c2` (0–20 %), vers `c3` (6–22 %), × (1,03 ; 1,02 ; 0,93) → plus clair, plus jaune ;
-- mélèze : vers `c3` (42–62 %), × (1,06 ; 1,05 ; 0,86) → vert tendre ; accent à 50 % ;
+- mélèze : vers `c3` (34–52 %), × (1,05 ; 1,04 ; 0,88) → vert tendre ; accent à 50 % ;
 - chaque arbre : clarté × 0,9–1,1 et dosage ci-dessus tirés de sa teinte propre (hachage du numéro d'arbre) ;
 - puis les petites taches `aVar` comme avant.
 
