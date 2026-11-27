@@ -527,6 +527,7 @@ void main() {
     this.mat.trait.resolution.set(w, h);
     this.mat.trait.jonction.uniforms.taille.value = this.mat.trait.linewidth * this.ratio;
     this.camera.aspect = w / h;
+    DEGRADE.hauteurEcran.value = h * this.ratio;
     // `decalage` pousse le modèle vers la droite (écran d'accueil, à côté du texte)
     if (this.decalage && w > 900) this.camera.setViewOffset(w, h, -this.decalage * w, 0, w, h); else this.camera.clearViewOffset();
     this.camera.updateProjectionMatrix();
@@ -642,7 +643,9 @@ void main() {
     const leger = this.allegerMouvement !== false && performance.now() - (this.dernierMouvement ?? -Infinity) < 120;
     this.imageLegere = leger && this.effets && this.qualite < 2;
     this.ao.enabled = this.rebond.enabled = !this.imageLegere;
-    if (this.effets && this.qualite < 2) this.composeur.render(); else this.renderer.render(this.scene, this.camera);
+    // vue plan et élévations : sans occlusion ambiante ni rebond de lumière (vus de face, ils n'apportent presque rien
+    // et coûtent ~25 % de chaque image) ; les ombres portées restent
+    if (this.effets && this.qualite < 2 && !this.modeVue) this.composeur.render(); else this.renderer.render(this.scene, this.camera);
   }
 
   /** Images trop lentes (moins de ~5 par seconde, plusieurs fois de suite) : les effets de lumière se coupent. */
@@ -1890,6 +1893,7 @@ void main() {
   }
 
   vueOrtho(mode) {
+    DEGRADE.vueDessus.value = mode === "plan" ? 1 : 0; // arbres en points allégés vus de dessus (maillages.js)
     const cam = this.camera, ctl = this.controls;
     if ((mode || null) === (this.modeVue || null)) return;
     if (mode && !this.modeVue) this.avant3D = { pos: cam.position.clone(), cible: ctl.target.clone(), fov: cam.fov };
@@ -1897,8 +1901,10 @@ void main() {
     if (mode) {
       const R = this.G?.R || 150, fov = 3, h = R * 1.25 / Math.tan(fov * Math.PI / 360);
       cam.fov = fov;
-      // zoom jusqu'à ~8 m de large à l'écran ; les plans proche et lointain suivent la distance (plansCamera)
-      ctl.enableRotate = false; ctl.screenSpacePanning = true; ctl.minDistance = 150; ctl.maxDistance = h * 2;
+      // zoom de ~8 m à ~25 km de large à l'écran (le plan en tuiles et le paysage couvrent au-delà de la maquette) ;
+      // les plans proche et lointain suivent la distance (plansCamera)
+      ctl.enableRotate = false; ctl.screenSpacePanning = true; ctl.minDistance = 150;
+      ctl.maxDistance = mode === "plan" ? Math.max(h * 2, 12500 / Math.tan(fov * Math.PI / 360)) : h * 2;
       // comme une carte : glisser déplace (Maj + glisser revient en 3D, voir interactions)
       ctl.mouseButtons.LEFT = THREE.MOUSE.PAN; ctl.touches.ONE = THREE.TOUCH.PAN;
       if (mode === "plan") {

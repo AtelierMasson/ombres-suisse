@@ -33,9 +33,10 @@ import { brancherPro } from "./pro.js";
 import { brancherCompte } from "./compte.js";
 import { brancherPub } from "./pub.js";
 import { brancherRapport } from "./rapportBug.js";
-import { bassinsAutour, creuserBassins } from "./piscines.js";
+import { bassinsAutour, creuserBassins, baseAuPlanDEau } from "./piscines.js";
 import { brancherInterface } from "./interface.js";
 import { brancherVuePlan } from "./vuePlan.js";
+import { brancherZones } from "./zonesSoleil.js";
 import "./compte.css";
 
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
@@ -146,6 +147,7 @@ function accueil() {
   message("");
   Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
   pro.reinitialiser();
+  zones.vider();
   scene.controls.autoRotate = false;
   scene.animation = null;
   scene.decalage = 0.17; scene.taille();
@@ -171,6 +173,7 @@ async function vol(cle, monde = 0) {
   message("");
   Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
   pro.reinitialiser();
+  zones.vider();
   scene.decalage = 0.17; scene.taille();
   try {
     const arret = await lancerVol(scene, cle, { etat, actif: () => id === tache, monde });
@@ -544,6 +547,7 @@ async function depuisAdresse(o = null) {
     S.horizon = await horizon;
     marquer("horizon");
     if (id !== tache) return;
+    if (!ACC) zones.nouveauLieu(); // piscines de l'onglet Soleil : contours et calcul de la zone choisie
     // anneau (terrain swissALTI3D à 2 m) et paysage jusqu'à 50 km, sans bloquer, seulement s'ils se voient (D1)
     paysageEtAnneau(id, scene.idScene).catch(e => console.warn("Relief lointain :", e.message));
     et(1, "");
@@ -630,6 +634,7 @@ function changerJour(jour) {
   S.jour = jour;
   majSoleil();
   relancerHeures();
+  zones.relancer(); // piscine : l'année des semaines a pu changer
 }
 $("#jour").addEventListener("change", e => { if (e.target.value) changerJour(e.target.value); });
 // calendrier du jour : le nôtre (se ferme au choix d'une date, au clic à côté, avec Échap)
@@ -1017,7 +1022,7 @@ scene.surCoupe = (A, B) => suivreCoupe(A, B);
 const refaireCoupe = () => { if (S.coupe) majCoupe(S.coupe.A, S.coupe.B); };
 // bâtiments de comparaison arrivés ou changés (tuiles swisstopo, roofer) : la coupe, et la carte des heures si elle est
 // affichée, sont recalculées avec les bâtiments montrés
-scene.surBatiments = () => { refaireCoupe(); relancerHeures(); };
+scene.surBatiments = () => { refaireCoupe(); relancerHeures(); zones.relancer(); };
 $("#distPoints").addEventListener("change", refaireCoupe);
 $("#vPro").addEventListener("change", refaireCoupe);
 
@@ -1080,6 +1085,8 @@ function calculerHeures() {
   const facades = S.facades;
   const P = soleilsPeriode(periode(), S.jour, S.lat, S.lon, S.horizon), cle = clePeriode(), debut = performance.now(), jeu = jeuHeures();
   const heures = new Float32Array(zone.w * zone.h), heuresF = new Float32Array(facades.carreaux.length);
+  // piscines : le rayon part du plan d'eau, pas du fond du bassin creusé
+  const baseEau = baseAuPlanDEau(G, jeu.base);
   const fin = () => {
     calcul = null;
     etat(1, "");
@@ -1105,7 +1112,7 @@ function calculerHeures() {
       for (let p = 0; p < heuresF.length; p++) heuresF[p] += data.heuresF[p];
       if (--restants === 0) fin();
     };
-    w.postMessage({ surface: jeu.surface, base: jeu.base, n: G.n, c: G.c, zone: [zone.i0, zone.j0, zone.i1, zone.j1], alpha: zone.alpha, soleils: lot, facades: facades.pts });
+    w.postMessage({ surface: jeu.surface, base: baseEau, n: G.n, c: G.c, zone: [zone.i0, zone.j0, zone.i1, zone.j1], alpha: zone.alpha, soleils: lot, facades: facades.pts });
     return w;
   }) };
 }
@@ -1150,6 +1157,7 @@ marquerTheme();
       if (p && S.E0 != null) allerCentre(S.E0 + p[0], S.N0 + p[1]);
       return;
     }
+    if (zones.clic(e)) return; // outil de la section Piscine (onglet Soleil) : choisir, dessiner, rectangle
     if (!S.G || !S.toutes?.length || scene.trace || scene.modeVue === "N" || scene.modeVue === "S" || scene.modeVue === "E" || scene.modeVue === "O") return;
     if (pro.dessine()) return; // dessin d'un volume : les clics lui reviennent
     let p = scene.pointSol(e);
@@ -1235,6 +1243,9 @@ function choisirParcelle(p) {
 const fiche = brancherFiche(document.body, t);
 const pro = brancherPro({ scene, S, message, etat, fiche, recharger: depuisAdresse, maillageAdvanced, calculerHeures, annulerCalcul, majCoupe, soleilActuel, compte, compter,
   relancerHeures, ouvrirCoupes, rayonZone: () => S.rayonZone, reglerRayon, parcelleEn: (x, y) => S.toutes?.find(q => dansParcelle(x, y, q.anneauxRel)), changerJour: j => { $("#jour").value = j; $("#jour").dispatchEvent(new Event("change")); } });
+// piscines de l'onglet Soleil : ensoleillement par semaine, température de l'eau, chauffage, PDF (zonesSoleil.js)
+const zones = brancherZones({ scene, S, message, etat, compte, compter, surface: () => jeuHeures().surface,
+  cleJeu: () => `${nomJeuHeures()}:${S.versionProjet || 0}` });
 // coupes d'un projet rouvert : toutes recréées, la dernière active
 function ouvrirCoupes(liste) {
   if (!$("#vCoupe").checked) { $("#vCoupe").checked = true; $("#outilsCoupe").hidden = $("#coupe").hidden = false; }
@@ -1246,7 +1257,7 @@ function ouvrirCoupes(liste) {
 brancherInterface({ scene, compte });
 majSoleil();
 depuisAdresse();
-if (import.meta.env.DEV) window.ombres = { scene, S }; // pour l'inspection pendant le développement
+if (import.meta.env.DEV) window.ombres = { scene, S, zones }; // pour l'inspection pendant le développement
 
 // pages légales (mentions, confidentialité, conditions, contact) dans une boîte de dialogue
 {

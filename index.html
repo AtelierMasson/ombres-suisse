@@ -182,6 +182,30 @@
           </div>
         </section>
 
+        <!-- piscine : zone choisie, dessinée ou importée ; heures de soleil par semaine, température de l'eau (src/zonesSoleil.js) -->
+        <section id="zones" class="cellule" data-onglet="soleil">
+          <h3 class="cellule-titre" data-i18n="piscine.titre">Piscine</h3>
+          <div class="d-flex flex-wrap gap-1" role="toolbar" data-i18n-aria-label="piscine.outils" aria-label="Outils de la piscine">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnPiscineChoisir" aria-pressed="false" data-i18n="piscine.choisir" data-i18n-title="piscine.choisirTitre" title="Cliquez sur une piscine de la mensuration officielle">Choisir</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnPiscineDessiner" aria-pressed="false" data-i18n="piscine.dessiner" data-i18n-title="piscine.dessinerTitre" title="Un clic par coin ; cliquez sur le premier point ou appuyez sur Entrée pour finir">Dessiner</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnPiscineRectangle" aria-pressed="false" data-i18n="piscine.rectangle" data-i18n-title="piscine.rectangleTitre" title="Cliquez au centre, puis réglez la longueur, la largeur et l'angle">Rectangle</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnPiscineImporter" data-i18n="piscine.importer" data-i18n-title="piscine.importerTitre" title="Polyligne fermée d'un fichier DXF (MN95, ou centrée sur la maquette)">DXF…</button>
+            <input type="file" id="fichierPiscine" accept=".dxf" hidden>
+          </div>
+          <div id="piscineCotes" class="d-flex gap-1 mt-2 align-items-end small" hidden>
+            <label class="flex-fill"><span data-i18n="piscine.longueur">Longueur (m)</span><input type="number" class="form-control form-control-sm" id="cotLongueur" min="1" max="50" step="0.1" value="8"></label>
+            <label class="flex-fill"><span data-i18n="piscine.largeur">Largeur (m)</span><input type="number" class="form-control form-control-sm" id="cotLargeur" min="1" max="30" step="0.1" value="4"></label>
+            <label class="flex-fill"><span data-i18n="piscine.angle">Angle (°)</span><input type="number" class="form-control form-control-sm" id="cotAngle" min="-180" max="180" step="1" value="0"></label>
+          </div>
+          <ul id="listePiscines" class="liste-piscines list-unstyled small mb-0 mt-2"></ul>
+          <div id="resultatPiscine" class="small mt-2" hidden></div>
+          <!-- réservé au Pro (pro.js basculer : grisé pour un compte gratuit, un clic ouvre l'offre) -->
+          <div id="outilsPiscinePro">
+            <div id="piscinePro" class="mt-2" hidden></div>
+            <button type="button" class="btn btn-sm btn-outline-primary w-100 mt-2" id="exportPiscine" hidden><svg class="ico" aria-hidden="true"><use href="#i-export"/></svg> <span data-i18n="piscine.pdf">Exporter en PDF</span> <span class="badge-pro">Pro</span></button>
+          </div>
+        </section>
+
         <section id="sectionCoupe" class="cellule" data-onglet="coupe">
           <h3 class="cellule-titre" data-i18n="coupe.titre">Coupe</h3>
           <!-- plus d'interrupteur : « Nouvelle coupe » ouvre la première coupe, puis en ajoute (#vCoupe reste, caché, pour le code) -->
