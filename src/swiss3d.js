@@ -12,7 +12,20 @@ const TUILES = "https://3d.geo.admin.ch/ch.swisstopo.swissbuildings3d.3d/v1/tile
 const ARBRES = "https://3d.geo.admin.ch/ch.swisstopo.vegetation.3d/v1/tileset.json";
 // ponts et autres ouvrages de swissTLM3D (quelques centaines de triangles par pont) : pour l'anneau de la maquette
 const PONTS = "https://3d.geo.admin.ch/ch.swisstopo.swisstlm3d.3d/v1/tileset.json";
-const GEOIDE = 0; // les tuiles sont ensuite calées sur nos toits (voir caler)
+// Hauteurs : les tuiles 3D de swisstopo portent l'altitude suisse comme hauteur sur l'ellipsoïde WGS84, alors que
+// matriceVersScene (mn95VersEcef, formules rigoureuses par l'ellipsoïde de Bessel) place l'origine à sa vraie hauteur
+// WGS84 (altitude + ondulation du géoïde, ~47–55 m en Suisse). L'origine est donc abaissée de cette ondulation, lue au
+// service officiel REFRAME de swisstopo pour chaque lieu (valeur moyenne en attendant) ; le calage sur nos toits ne
+// rattrape ensuite que les décimètres.
+const GEOIDE_MOYEN = 51;
+const ondulations = new Map();
+function ondulation(E, N, H) {
+  const cle = `${Math.round(E / 500)},${Math.round(N / 500)}`;
+  if (!ondulations.has(cle)) ondulations.set(cle, fetch(`https://geodesy.geo.admin.ch/reframe/lv95towgs84?easting=${Math.round(E)}&northing=${Math.round(N)}&altitude=${Math.round(H)}&format=json`)
+    .then(r => r.json()).then(d => { const v = +d.altitude - Math.round(H); return Number.isFinite(v) && Math.abs(v - GEOIDE_MOYEN) < 15 ? v : null; })
+    .catch(() => null));
+  return ondulations.get(cle);
+}
 // les tuiles swisstopo sont compressées en Draco : décodeur copié dans public/draco (servi avec le site)
 let draco;
 const decodeur = () => draco ||= new DRACOLoader().setDecoderPath(`${import.meta.env.BASE_URL}draco/`); // écart approximatif ellipsoïde – altitude suisse (m) ; corrigé ensuite sur le terrain
@@ -110,7 +123,8 @@ export class Swiss3D {
     this.lieuCharge = lieu; this.idScene = this.s.idScene;
     if (this.tuiles && this.reutilisable) return this.repositionner({ E, N });
     this.vider();
-    const s = this.s, h = s.zRef + GEOIDE;
+    const s = this.s, h = s.zRef - (this.geoide ?? GEOIDE_MOYEN);
+    this.majGeoide({ E, N });
     const t = this.tuiles = new TilesRenderer(TUILES);
     bornerCache(t);
     this.reutilisable = true;
@@ -150,12 +164,36 @@ export class Swiss3D {
     t.addEventListener("tiles-load-end", () => s.demander(3));
   }
 
+  /**
+   * Ondulation du géoïde au lieu (REFRAME) : si elle diffère de celle utilisée, la matrice des tuiles est refaite et le
+   * calage relancé sur les bâtiments déjà chargés (calage exact au lieu de l'estimation par les pieds des bâtiments).
+   */
+  majGeoide({ E, N }) {
+    const s = this.s;
+    ondulation(E, N, s.zRef).then(g => {
+      if (g == null || !this.tuiles || this.lieuCharge?.E !== E || this.lieuCharge?.N !== N) return;
+      const avant = this.geoide ?? GEOIDE_MOYEN;
+      this.geoide = g;
+      if (Math.abs(g - avant) < 0.02) return;
+      this.versScene = matriceVersScene(E, N, s.zRef - g);
+      this.tuiles.group.matrix.copy(this.versScene); this.tuiles.group.matrixWorldNeedsUpdate = true;
+      for (const x of [this.arbres, this.ponts]) if (x) { x.group.matrix.copy(this.versScene); x.group.matrixWorldNeedsUpdate = true; }
+      if (this.calageFige || !s.G) return;
+      this.sommets = []; this.toits = []; this.bases = []; this.calage = null; this.socle.position.set(0, 0, 0);
+      this.tuiles.forEachLoadedModel(sc => sc.traverse(o => { if (o.isMesh) this.relever(o, s.G); }));
+      this.caler(s.G);
+      if (!this.calage) this.calerSol(s.G);
+      s.ombres(); s.demander(3);
+    });
+  }
+
   /** Lieu suivant, tuiles gardées : nouvelle matrice, puis calage refait sur les bâtiments déjà chargés. */
   repositionner({ E, N }) {
     const s = this.s, G = s.G, t = this.tuiles;
     if (this.arbres) { this.socle.remove(this.arbres.group); this.arbres.dispose(); this.arbres = null; }
     if (this.ponts) { this.socle.remove(this.ponts.group); this.ponts.dispose(); this.ponts = null; }
-    this.versScene = matriceVersScene(E, N, s.zRef + GEOIDE);
+    this.versScene = matriceVersScene(E, N, s.zRef - (this.geoide ?? GEOIDE_MOYEN));
+    this.majGeoide({ E, N });
     t.group.matrix.copy(this.versScene);
     t.group.matrixWorldNeedsUpdate = true;
     this.toits = []; this.sommets = []; this.ecarts = []; this.bases = []; this.calage = null;
@@ -172,7 +210,7 @@ export class Swiss3D {
    */
   deplacerOrigine(E, N) {
     this.calageFige = true; // la grille G du lieu de départ ne vaut plus ici
-    this.versScene = matriceVersScene(E, N, this.s.zRef + GEOIDE);
+    this.versScene = matriceVersScene(E, N, this.s.zRef - (this.geoide ?? GEOIDE_MOYEN));
     for (const t of [this.tuiles, this.arbres, this.ponts]) if (t) { t.group.matrix.copy(this.versScene); t.group.matrixWorldNeedsUpdate = true; }
     this.lieu = this.lieuCharge = { E, N };
   }
