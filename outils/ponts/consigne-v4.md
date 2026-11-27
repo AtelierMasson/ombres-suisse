@@ -8,7 +8,9 @@ Référence de précision : `outils/ponts/modeles/poya.json` (pont de la Poya). 
 - Ne lis pas d'autres fichiers du dépôt que ceux nommés ici. Ne recopie pas le résumé du relevé dans ta réflexion :
   lis-le avec `sed -n`/`awk` par tranches utiles (bouts, piles, terrain).
 - Recherche web : 3 requêtes au plus. Photos : **au moins 2, de côtés différents** (niveau A : 2 à 4 ; niveau B : 1 à 2), < 1,5 Mo chacune,
-  Wikimedia Commons de préférence ; ouvre-les avec Read.
+  Wikimedia Commons de préférence ; ouvre-les avec Read. Pont au-dessus d'une autoroute ou d'une route : cherche en
+  priorité une vue prise depuis la chaussée dessous (Commons, catégorie du pont ou de la route ; Mapillary si un
+  jeton est fourni dans `MAPILLARY_TOKEN`). Pas d'images Google Street View (conditions d'utilisation).
 - Pas de navigateur au niveau B. Au niveau A, un seul onglet à toi (jamais l'onglet « seed »), fermé à la fin.
 
 ## Étapes
