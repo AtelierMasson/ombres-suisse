@@ -630,7 +630,9 @@ void main() {
       if (this.voute.scale.x !== ev) this.voute.scale.setScalar(ev);
     }
     this.swiss?.mettreAJour();
-    if (this.effets && this.qualite < 2) this.composeur.render(); else this.renderer.render(this.scene, this.camera);
+    // vue plan et élévations : sans occlusion ambiante ni rebond de lumière (vus de face, ils n'apportent presque rien
+    // et coûtent ~25 % de chaque image) ; les ombres portées restent
+    if (this.effets && this.qualite < 2 && !this.modeVue) this.composeur.render(); else this.renderer.render(this.scene, this.camera);
   }
 
   /** Images trop lentes (moins de ~5 par seconde, plusieurs fois de suite) : les effets de lumière se coupent. */
