@@ -534,7 +534,8 @@ export default {
     <p><b>Diritto di recesso</b><br>Per i consumatori dell'Unione europea: l'offerta Pro è un contenuto digitale fornito immediatamente. Spuntando la casella prevista prima del pagamento, richiedete questa esecuzione immediata e riconoscete di perdere il vostro diritto di recesso di 14 giorni. In caso di problemi, scriveteci: cerchiamo una soluzione, compreso un rimborso.</p>
     <p><b>Responsabilità</b><br>Atelier Masson Sàrl non è responsabile delle decisioni prese sulla base di questi risultati, nei limiti consentiti dal diritto applicabile.</p>
     <p><b>Dati</b><br>Le esportazioni contengono dati di swisstopo e cantonali; il loro riutilizzo è soggetto alle condizioni di tali dati, con indicazione della fonte.</p>
-    <p><b>Diritto applicabile</b><br>Diritto svizzero. Foro competente: Losanna, con riserva dei fori imperativi a favore dei consumatori.</p>`,
+    <p><b>Diritto applicabile</b><br>Diritto svizzero. Foro competente: Losanna, con riserva dei fori imperativi a favore dei consumatori.</p>
+    <p><b>Lingue</b><br>Questi testi esistono in francese, tedesco, italiano e inglese. In caso di divergenze fa fede la versione francese.</p>`,
   "legal.pageContact": `<h2>Contatto</h2>
     <p>Atelier Masson Sàrl<br>Avenue Floréal 18<br>1006 Lausanne, Svizzera<br><a href="mailto:contact@topograph.ch">contact@topograph.ch</a></p>
     <p>Osservazioni, errori del modello, richieste per un uso professionale: scriveteci.</p>`,

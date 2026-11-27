@@ -534,7 +534,8 @@ export default {
     <p><b>Right of withdrawal</b><br>For consumers in the European Union: the Pro offer is digital content supplied immediately. By ticking the box provided before payment, you request this immediate performance and acknowledge that you lose your 14-day right of withdrawal. If there is a problem, write to us: we will look for a solution, including a refund.</p>
     <p><b>Liability</b><br>Atelier Masson Sàrl is not liable for decisions made on the basis of these results, to the extent permitted by applicable law.</p>
     <p><b>Data</b><br>The exports contain swisstopo and cantonal data; their reuse is subject to the terms of those data, with source attribution.</p>
-    <p><b>Governing law</b><br>Swiss law. Place of jurisdiction: Lausanne, subject to the mandatory places of jurisdiction in favour of consumers.</p>`,
+    <p><b>Governing law</b><br>Swiss law. Place of jurisdiction: Lausanne, subject to the mandatory places of jurisdiction in favour of consumers.</p>
+    <p><b>Languages</b><br>These texts exist in French, German, Italian and English. In the event of any discrepancy, the French version prevails.</p>`,
   "legal.pageContact": `<h2>Contact</h2>
     <p>Atelier Masson Sàrl<br>Avenue Floréal 18<br>1006 Lausanne, Switzerland<br><a href="mailto:contact@topograph.ch">contact@topograph.ch</a></p>
     <p>Comments, model errors, requests for professional use: write to us.</p>`,

@@ -535,7 +535,8 @@ export default {
     <p><b>Droit de rétractation</b><br>Pour les consommateurs de l'Union européenne : l'offre Pro est un contenu numérique fourni immédiatement. En cochant la case prévue avant le paiement, vous demandez cette exécution immédiate et reconnaissez perdre votre droit de rétractation de 14 jours. En cas de problème, écrivez-nous : nous cherchons une solution, y compris un remboursement.</p>
     <p><b>Responsabilité</b><br>Atelier Masson Sàrl n'est pas responsable des décisions prises sur la base de ces résultats, dans les limites permises par le droit applicable.</p>
     <p><b>Données</b><br>Les exports contiennent des données swisstopo et cantonales ; leur réutilisation est soumise aux conditions de ces données, avec mention de la source.</p>
-    <p><b>Droit applicable</b><br>Droit suisse. For : Lausanne, sous réserve des fors impératifs en faveur des consommateurs.</p>`,
+    <p><b>Droit applicable</b><br>Droit suisse. For : Lausanne, sous réserve des fors impératifs en faveur des consommateurs.</p>
+    <p><b>Langues</b><br>Ces textes existent en français, allemand, italien et anglais. En cas de divergence, la version française fait foi.</p>`,
   "legal.pageContact": `<h2>Contact</h2>
     <p>Atelier Masson Sàrl<br>Avenue Floréal 18<br>1006 Lausanne, Suisse<br><a href="mailto:contact@topograph.ch">contact@topograph.ch</a></p>
     <p>Remarques, erreurs de maquette, demandes pour un usage professionnel : écrivez-nous.</p>`,

@@ -534,7 +534,8 @@ export default {
     <p><b>Widerrufsrecht</b><br>Für Konsumentinnen und Konsumenten in der Europäischen Union: Das Pro-Angebot ist ein digitaler Inhalt, der sofort geliefert wird. Mit dem Ankreuzen des vor der Zahlung vorgesehenen Feldes verlangen Sie diese sofortige Ausführung und bestätigen, dass Sie Ihr 14-tägiges Widerrufsrecht verlieren. Bei Problemen schreiben Sie uns: Wir suchen nach einer Lösung, einschliesslich einer Rückerstattung.</p>
     <p><b>Haftung</b><br>Atelier Masson Sàrl haftet nicht für Entscheide, die auf der Grundlage dieser Ergebnisse getroffen werden, soweit dies nach dem anwendbaren Recht zulässig ist.</p>
     <p><b>Daten</b><br>Die Exporte enthalten Daten von swisstopo und der Kantone; ihre Weiterverwendung unterliegt den Bedingungen dieser Daten, mit Quellenangabe.</p>
-    <p><b>Anwendbares Recht</b><br>Schweizerisches Recht. Gerichtsstand: Lausanne, vorbehältlich der zwingenden Gerichtsstände zugunsten von Konsumentinnen und Konsumenten.</p>`,
+    <p><b>Anwendbares Recht</b><br>Schweizerisches Recht. Gerichtsstand: Lausanne, vorbehältlich der zwingenden Gerichtsstände zugunsten von Konsumentinnen und Konsumenten.</p>
+    <p><b>Sprachen</b><br>Diese Texte bestehen auf Französisch, Deutsch, Italienisch und Englisch. Bei Abweichungen ist die französische Fassung massgebend.</p>`,
   "legal.pageContact": `<h2>Kontakt</h2>
     <p>Atelier Masson Sàrl<br>Avenue Floréal 18<br>1006 Lausanne, Schweiz<br><a href="mailto:contact@topograph.ch">contact@topograph.ch</a></p>
     <p>Hinweise, Fehler im Modell, Anfragen für eine berufliche Nutzung: Schreiben Sie uns.</p>`,
