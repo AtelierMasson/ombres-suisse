@@ -111,307 +111,378 @@
  "elements": [
   {
    "de": [
-    161.6,
-    -12.5,
-    391.5
-   ],
-   "a": [
-    111.6,
-    -10.5,
-    433.5
-   ],
-   "larg": 1.9,
-   "ep": 2.2,
-   "larg_fin": 1.9,
-   "ep_fin": 2.1,
-   "materiau": "beton_clair"
-  },
-  {
-   "de": [
-    160.5,
-    12.5,
-    391.5
-   ],
-   "a": [
-    110.5,
-    4.9,
-    433.5
-   ],
-   "larg": 1.9,
-   "ep": 2.2,
-   "larg_fin": 1.9,
-   "ep_fin": 2.1,
-   "materiau": "beton_clair"
-  },
-  {
-   "de": [
-    111.0,
-    -10.5,
-    434.0
-   ],
-   "a": [
-    111.0,
-    4.9,
-    434.0
-   ],
-   "larg": 2.6,
-   "ep": 3.0,
-   "materiau": "beton_clair"
-  },
-  {
-   "de": [
-    120.5,
-    -10.9,
-    426.0
-   ],
-   "a": [
-    119.4,
-    6.3,
-    426.0
-   ],
-   "larg": 0.7,
-   "ep": 0.7,
-   "materiau": "acier"
-  },
-  {
-   "de": [
     122.9,
-    -11.0,
-    424.0
+    -11.34,
+    401.8
    ],
    "a": [
-    150.4,
-    11.0,
-    400.0
-   ],
-   "larg": 0.6,
-   "ep": 0.6,
-   "materiau": "acier"
-  },
-  {
-   "de": [
-    152.7,
-    -12.1,
-    399.0
-   ],
-   "a": [
-    151.6,
-    11.1,
-    399.0
-   ],
-   "larg": 0.7,
-   "ep": 0.7,
-   "materiau": "acier"
-  },
-  {
-   "de": [
-    112.8,
-    -9.6,
-    432.5
-   ],
-   "a": [
-    26.0,
-    -9.4,
-    "chaussee"
-   ],
-   "larg": 0.28,
-   "ep": 0.28,
-   "materiau": "acier_peint"
-  },
-  {
-   "de": [
-    115.2,
-    -9.7,
-    430.5
-   ],
-   "a": [
-    40.0,
-    -9.4,
-    "chaussee"
-   ],
-   "larg": 0.28,
-   "ep": 0.28,
-   "materiau": "acier_peint"
-  },
-  {
-   "de": [
-    117.6,
-    -9.8,
-    428.5
-   ],
-   "a": [
-    56.0,
-    -9.4,
-    "chaussee"
-   ],
-   "larg": 0.28,
-   "ep": 0.28,
-   "materiau": "acier_peint"
-  },
-  {
-   "de": [
-    119.9,
-    -9.9,
-    426.5
-   ],
-   "a": [
-    72.0,
-    -9.4,
-    "chaussee"
-   ],
-   "larg": 0.28,
-   "ep": 0.28,
-   "materiau": "acier_peint"
-  },
-  {
-   "de": [
-    122.3,
-    -10.0,
-    424.5
-   ],
-   "a": [
-    87.0,
-    -9.4,
-    "chaussee"
-   ],
-   "larg": 0.28,
-   "ep": 0.28,
-   "materiau": "acier_peint"
-  },
-  {
-   "de": [
-    124.7,
-    -10.1,
-    422.5
-   ],
-   "a": [
-    100.0,
-    -9.4,
-    "chaussee"
-   ],
-   "larg": 0.28,
-   "ep": 0.28,
-   "materiau": "acier_peint"
-  },
-  {
-   "de": [
-    114.6,
-    -9.7,
-    431
-   ],
-   "a": [
-    126.8,
-    -11.6,
-    393.3
+    122.9,
+    8.19,
+    401.8
    ],
    "larg": 1.0,
-   "ep": 1.0,
+   "ep": 1.2,
    "materiau": "acier"
   },
   {
    "de": [
-    111.7,
-    4.2,
+    114.51,
+    -11.38,
+    426.4
+   ],
+   "a": [
+    114.51,
+    6.24,
+    426.4
+   ],
+   "larg": 1.0,
+   "ep": 1.2,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    122.69,
+    8.14,
+    402.4
+   ],
+   "a": [
+    114.92,
+    -11.38,
+    425.2
+   ],
+   "larg": 0.8,
+   "ep": 0.8,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    114.21,
+    7.38,
+    421.0
+   ],
+   "a": [
+    109.61,
+    6.3,
+    434.6
+   ],
+   "larg": 1.4,
+   "ep": 0.3,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    114.21,
+    -12.09,
+    421.0
+   ],
+   "a": [
+    109.61,
+    -12.1,
+    434.6
+   ],
+   "larg": 1.4,
+   "ep": 0.3,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    113.3,
+    -11.2,
+    434.5
+   ],
+   "a": [
+    25.8,
+    -8.3,
+    "chaussee"
+   ],
+   "larg": 0.22,
+   "ep": 0.22,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    113.6,
+    -11.2,
+    433.5
+   ],
+   "a": [
+    41.0,
+    -8.5,
+    "chaussee"
+   ],
+   "larg": 0.22,
+   "ep": 0.22,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    114.0,
+    -11.2,
     432.5
    ],
    "a": [
-    26.0,
-    9.4,
+    57.5,
+    -8.6,
     "chaussee"
    ],
-   "larg": 0.28,
-   "ep": 0.28,
+   "larg": 0.22,
+   "ep": 0.22,
    "materiau": "acier_peint"
   },
   {
    "de": [
-    114.1,
-    4.5,
-    430.5
+    114.4,
+    -11.2,
+    431.3
    ],
    "a": [
-    40.0,
-    9.4,
+    72.7,
+    -9.0,
     "chaussee"
    ],
-   "larg": 0.28,
-   "ep": 0.28,
+   "larg": 0.22,
+   "ep": 0.22,
    "materiau": "acier_peint"
   },
   {
    "de": [
-    116.5,
-    4.9,
+    114.9,
+    -11.2,
+    429.8
+   ],
+   "a": [
+    88.8,
+    -9.5,
+    "chaussee"
+   ],
+   "larg": 0.22,
+   "ep": 0.22,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    115.4,
+    -11.2,
     428.5
    ],
    "a": [
-    56.0,
-    9.4,
+    104.7,
+    -10.0,
     "chaussee"
    ],
-   "larg": 0.28,
-   "ep": 0.28,
+   "larg": 0.22,
+   "ep": 0.22,
    "materiau": "acier_peint"
   },
   {
    "de": [
-    118.8,
-    5.3,
-    426.5
-   ],
-   "a": [
-    72.0,
-    9.4,
-    "chaussee"
-   ],
-   "larg": 0.28,
-   "ep": 0.28,
-   "materiau": "acier_peint"
-  },
-  {
-   "de": [
-    121.2,
-    5.6,
-    424.5
-   ],
-   "a": [
-    87.0,
-    9.4,
-    "chaussee"
-   ],
-   "larg": 0.28,
-   "ep": 0.28,
-   "materiau": "acier_peint"
-  },
-  {
-   "de": [
-    123.6,
+    112.4,
     6.0,
-    422.5
+    434.6
    ],
    "a": [
-    100.0,
-    9.4,
+    25.8,
+    9.6,
     "chaussee"
    ],
-   "larg": 0.28,
-   "ep": 0.28,
+   "larg": 0.22,
+   "ep": 0.22,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    112.9,
+    6.0,
+    433.3
+   ],
+   "a": [
+    40.8,
+    9.0,
+    "chaussee"
+   ],
+   "larg": 0.22,
+   "ep": 0.22,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    113.1,
+    6.0,
+    432.6
+   ],
+   "a": [
+    57.2,
+    8.7,
+    "chaussee"
+   ],
+   "larg": 0.22,
+   "ep": 0.22,
    "materiau": "acier_peint"
   },
   {
    "de": [
     113.5,
-    4.5,
-    431
+    6.2,
+    431.4
    ],
    "a": [
-    126.8,
-    10.4,
-    393.3
+    72.2,
+    8.3,
+    "chaussee"
    ],
-   "larg": 1.0,
-   "ep": 1.0,
-   "materiau": "acier"
+   "larg": 0.22,
+   "ep": 0.22,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    113.8,
+    6.6,
+    430.4
+   ],
+   "a": [
+    88.8,
+    8.3,
+    "chaussee"
+   ],
+   "larg": 0.22,
+   "ep": 0.22,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    114.2,
+    7.4,
+    429.4
+   ],
+   "a": [
+    104.2,
+    8.3,
+    "chaussee"
+   ],
+   "larg": 0.22,
+   "ep": 0.22,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    112.17,
+    5.28,
+    430.85
+   ],
+   "a": [
+    152.21,
+    12.64,
+    395.82
+   ],
+   "larg": 0.2,
+   "ep": 0.2,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    112.56,
+    5.28,
+    431.3
+   ],
+   "a": [
+    152.6,
+    12.64,
+    396.27
+   ],
+   "larg": 0.2,
+   "ep": 0.2,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    112.96,
+    5.28,
+    431.76
+   ],
+   "a": [
+    153.0,
+    12.64,
+    396.73
+   ],
+   "larg": 0.2,
+   "ep": 0.2,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    113.35,
+    5.28,
+    432.21
+   ],
+   "a": [
+    153.39,
+    12.64,
+    397.18
+   ],
+   "larg": 0.2,
+   "ep": 0.2,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    112.08,
+    -12.31,
+    431.14
+   ],
+   "a": [
+    154.87,
+    -10.97,
+    395.81
+   ],
+   "larg": 0.2,
+   "ep": 0.2,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    112.46,
+    -12.31,
+    431.6
+   ],
+   "a": [
+    155.25,
+    -10.97,
+    396.27
+   ],
+   "larg": 0.2,
+   "ep": 0.2,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    112.84,
+    -12.31,
+    432.06
+   ],
+   "a": [
+    155.63,
+    -10.97,
+    396.73
+   ],
+   "larg": 0.2,
+   "ep": 0.2,
+   "materiau": "acier_peint"
+  },
+  {
+   "de": [
+    113.23,
+    -12.31,
+    432.52
+   ],
+   "a": [
+    156.01,
+    -10.97,
+    397.19
+   ],
+   "larg": 0.2,
+   "ep": 0.2,
+   "materiau": "acier_peint"
   }
  ],
  "sources": [
@@ -424,8 +495,290 @@
   "auteur": "JoachimKohler-HB",
   "licence": "CC BY-SA 4.0"
  },
- "photos_vues": 3,
+ "photos_vues": 4,
  "confiance": "moyenne",
- "notes": "Axe, altitudes (+0,55 %), largeur variable 20-22 m, jambes inclinées (A convergent, ~40° sur l'horizontale, 2 x 2,2 m, sommet 435,6 m), traverse de tête, haubans principaux (6 par nappe, ancrages s = 26 à 100 m) et faisceaux arrière raides vers le caisson d'ancrage (s ~ 127 m) mesurés sur le nuage ; entretoises en Z d'après les photos. Non vérifié : faisceaux arrière en plan (position transversale approchée), pas de pile ni de caisson d'ancrage dessiné sous le tablier (non vu au laser), pieds des jambes dans le talus. Le schéma ne sait pas faire les faisceaux de 8 câbles ni les jambes à section variable.",
- "materiau_tablier": "beton"
+ "notes": "Pylône refait (v2) d'après le nuage 2024 et 4 photos : portique de deux jambes en béton presque verticales (19° sur la verticale en long, penchées vers la travée principale ; pieds au sol s≈128-130 z≈384-386, sommet 435,6 m à s≈111), réunies en tête par une traverse en béton (z 432-435,6) ; entretoises blanches en acier à z≈402 et 426 et diagonale entre elles ; chambres d'ancrage peintes en rouge sur la face avant des jambes ; 6 haubans avant par nappe (ancrages tablier s 26-105 et têtes mesurés) ; haubans arrière en deux faisceaux de câbles rouges (~41° sur l'horizontale) vers la culée sud, auparavant pris à tort pour les jambes. Non vérifié : massif d'ancrage des haubans arrière au-delà de s 152 (non dessiné), dessous du tablier au droit du pylône.",
+ "materiau_tablier": "beton",
+ "volumes": [
+  {
+   "s": 121.0,
+   "t": 0,
+   "z_bas": 383.5,
+   "materiau": "beton_clair",
+   "sections": [
+    {
+     "z": 383.5,
+     "forme": "poly",
+     "points": [
+      [
+       10.24,
+       9.64
+      ],
+      [
+       10.24,
+       12.64
+      ],
+      [
+       6.04,
+       12.64
+      ],
+      [
+       6.04,
+       9.64
+      ]
+     ]
+    },
+    {
+     "z": 394,
+     "forme": "poly",
+     "points": [
+      [
+       6.63,
+       8.81
+      ],
+      [
+       6.63,
+       11.77
+      ],
+      [
+       2.49,
+       11.77
+      ],
+      [
+       2.49,
+       8.81
+      ]
+     ]
+    },
+    {
+     "z": 410,
+     "forme": "poly",
+     "points": [
+      [
+       1.12,
+       7.54
+      ],
+      [
+       1.12,
+       10.44
+      ],
+      [
+       -2.92,
+       10.44
+      ],
+      [
+       -2.92,
+       7.54
+      ]
+     ]
+    },
+    {
+     "z": 431.9,
+     "forme": "poly",
+     "points": [
+      [
+       -6.41,
+       5.81
+      ],
+      [
+       -6.41,
+       8.62
+      ],
+      [
+       -9.75,
+       8.78
+      ],
+      [
+       -9.94,
+       5.97
+      ]
+     ]
+    },
+    {
+     "z": 432.0,
+     "forme": "poly",
+     "points": [
+      [
+       -6.44,
+       -2.94
+      ],
+      [
+       -6.44,
+       8.61
+      ],
+      [
+       -9.79,
+       8.77
+      ],
+      [
+       -10.55,
+       -2.76
+      ]
+     ]
+    },
+    {
+     "z": 435.6,
+     "forme": "poly",
+     "points": [
+      [
+       -7.68,
+       -2.94
+      ],
+      [
+       -7.68,
+       8.32
+      ],
+      [
+       -11.02,
+       8.55
+      ],
+      [
+       -11.77,
+       -2.68
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "s": 121.0,
+   "t": 0,
+   "z_bas": 383.5,
+   "materiau": "beton_clair",
+   "sections": [
+    {
+     "z": 383.5,
+     "forme": "poly",
+     "points": [
+      [
+       10.24,
+       -14.3
+      ],
+      [
+       10.24,
+       -11.3
+      ],
+      [
+       6.04,
+       -11.3
+      ],
+      [
+       6.04,
+       -14.3
+      ]
+     ]
+    },
+    {
+     "z": 394,
+     "forme": "poly",
+     "points": [
+      [
+       6.63,
+       -14.28
+      ],
+      [
+       6.63,
+       -11.32
+      ],
+      [
+       2.49,
+       -11.32
+      ],
+      [
+       2.49,
+       -14.28
+      ]
+     ]
+    },
+    {
+     "z": 410,
+     "forme": "poly",
+     "points": [
+      [
+       1.12,
+       -14.25
+      ],
+      [
+       1.12,
+       -11.35
+      ],
+      [
+       -2.92,
+       -11.35
+      ],
+      [
+       -2.92,
+       -14.25
+      ]
+     ]
+    },
+    {
+     "z": 431.9,
+     "forme": "poly",
+     "points": [
+      [
+       -6.41,
+       -14.21
+      ],
+      [
+       -6.41,
+       -11.39
+      ],
+      [
+       -11.08,
+       -11.19
+      ],
+      [
+       -11.26,
+       -14.0
+      ]
+     ]
+    },
+    {
+     "z": 432.0,
+     "forme": "poly",
+     "points": [
+      [
+       -6.44,
+       -14.21
+      ],
+      [
+       -6.44,
+       -2.94
+      ],
+      [
+       -10.55,
+       -2.76
+      ],
+      [
+       -11.3,
+       -14.0
+      ]
+     ]
+    },
+    {
+     "z": 435.6,
+     "forme": "poly",
+     "points": [
+      [
+       -7.68,
+       -14.2
+      ],
+      [
+       -7.68,
+       -2.94
+      ],
+      [
+       -11.77,
+       -2.68
+      ],
+      [
+       -12.51,
+       -13.91
+      ]
+     ]
+    }
+   ]
+  }
+ ]
 }
