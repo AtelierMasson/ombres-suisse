@@ -844,6 +844,11 @@ function dessinCoupe() {
 $("#btnInverserCoupe").addEventListener("click", () => { if (S.coupe) majCoupe(S.coupe.B, S.coupe.A); });
 // autres coupes ouvertes : montrées en 3D, plus pâles (scene.definirCoupe)
 function autresCoupes() { return (S.coupes || []).filter(c => c !== S.coupe && c.P).map(c => c.P); }
+// clic sur une autre coupe en 3D : elle devient la coupe choisie (même ordre que autresCoupes)
+scene.surChoixCoupe = k => {
+  const c = (S.coupes || []).filter(d => d !== S.coupe && d.P)[k];
+  if (c) { S.coupe = c; majCoupe(c.A, c.B); }
+};
 // par défaut, la maquette n'est pas coupée : seule la ligne de coupe est dessinée
 scene.couperModele = $("#vCouperModele").checked;
 $("#vCouperModele").addEventListener("change", e => { scene.couperModele = e.target.checked; if (S.coupe) scene.definirCoupe(S.coupe.P, autresCoupes()); });

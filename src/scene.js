@@ -1963,6 +1963,7 @@ void main() {
     this.reperesAutres = []; this.traitsAutres = [];
     this.tranche = null;
     // les autres coupes : leur trait seul, plus pâle et plus fin que la coupe choisie, avec leurs lettres
+    this.coupesAutres = autres;
     for (const Q of autres) {
       const t = trancheCoupe(Q, this.zRef, this.zBas, { ...this.T.coupe, arbres: null }, this.mat.trait);
       const traits = t.userData.traits || [];
@@ -2019,6 +2020,30 @@ void main() {
     }
     this.appliquerCoupe();
     this.demander();
+  }
+
+  /** Indice (dans les autres coupes) de celle dont le trait passe à moins de 12 px du pointeur, ou -1. */
+  coupeSousPointeur(e) {
+    const autres = this.coupesAutres || [];
+    if (!autres.length || !this.G) return -1;
+    const b = this.renderer.domElement.getBoundingClientRect(), px = e.clientX - b.left, py = e.clientY - b.top;
+    const ecran = (x, y) => { const v = new THREE.Vector3(x, solEn(this.G, x, y) - this.zRef + 0.5, -y).project(this.camera); return v.z > 1 ? null : [(v.x + 1) / 2 * b.width, (1 - v.y) / 2 * b.height]; };
+    let meilleur = -1, dMin = 12;
+    autres.forEach((Q, k) => {
+      // le trait suit le terrain : on le découpe en 24 morceaux projetés à l'écran
+      let avant = null;
+      for (let i = 0; i <= 24; i++) {
+        const u = i / 24, p = ecran(Q.A[0] + (Q.B[0] - Q.A[0]) * u, Q.A[1] + (Q.B[1] - Q.A[1]) * u);
+        if (p && avant) {
+          const dx = p[0] - avant[0], dy = p[1] - avant[1], l2 = dx * dx + dy * dy || 1;
+          const t = Math.max(0, Math.min(1, ((px - avant[0]) * dx + (py - avant[1]) * dy) / l2));
+          const d = Math.hypot(px - avant[0] - t * dx, py - avant[1] - t * dy);
+          if (d < dMin) { dMin = d; meilleur = k; }
+        }
+        avant = p;
+      }
+    });
+    return meilleur;
   }
 
   /** Le côté masqué est toujours celui de la caméra : on regarde la tranche de face. */
@@ -2243,6 +2268,8 @@ void main() {
     el.addEventListener("pointerup", e => {
       if (prise != null) { prise = null; this.controls.enabled = true; return; }
       if (!appui || Math.hypot(e.clientX - appui[0], e.clientY - appui[1]) > 5) return;
+      // clic près d'une autre coupe (trait pâle) : elle devient la coupe choisie
+      if (!this.trace && e.button === 0) { const k = this.coupeSousPointeur(e); if (k >= 0) { this.surChoixCoupe?.(k); return; } }
       if (!this.trace) { if (e.button === 0) this.surClic?.(e); return; } // simple clic : sélection (mode pro)
       const cibles = [this.couches.terrain, ...(this.couches.bati?.visible ? this.couches.bati.children : [])].filter(Boolean);
       const t = this.viser(e).intersectObjects(cibles)[0];

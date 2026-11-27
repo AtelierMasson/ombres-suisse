@@ -270,7 +270,8 @@
       </div>
       <section id="pro" class="cellule">
         <h3 class="cellule-titre" data-i18n="onglet.pro">Pro</h3>
-        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="vPro"><label class="form-check-label small" for="vPro" data-i18n-html="pro.mode"><b>Mode pro</b> <span class="text-secondary">(masquer des bâtiments, ajouter des volumes, exporter)</span></label></div>
+        <!-- plus d'interrupteur : le mode pro suit le statut du compte (gardé caché pour le code qui le lit) -->
+        <div class="form-check form-switch d-none"><input class="form-check-input" type="checkbox" id="vPro"><label class="form-check-label small" for="vPro" data-i18n-html="pro.mode"><b>Mode pro</b> <span class="text-secondary">(masquer des bâtiments, ajouter des volumes, exporter)</span></label></div>
         <div class="small text-secondary" id="etatPro"></div>
         <div id="outilsPro" hidden>
           <div class="sous-titre" data-i18n="projet.titre">Projet</div>

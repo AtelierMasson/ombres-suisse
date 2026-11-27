@@ -436,17 +436,27 @@ export function brancherPro(o) {
   });
   $("#vCoupe").addEventListener("change", majExport);
 
-  /* ---------------------------------------------------------------- interrupteur */
-  $("#vPro").checked = memoire("ombres.pro") === "1";
-  // version pro : avec un compte en service, le mode pro demande le statut Pro (sinon la boîte du compte s'ouvre)
+  /* ---------------------------------------------------------------- statut Pro (plus d'interrupteur) */
+  // Le mode pro suit le compte : Pro (ou sans service de comptes, en développement) → outils actifs ; sinon les outils
+  // restent visibles mais grisés, et un clic dessus ouvre l'offre Pro.
   const autorise = () => !o.compte?.disponible() || o.compte.etat().pro;
-  $("#vPro").addEventListener("change", () => { if (actif() && !autorise() && !o.compte.exigerPro(t("compte.raisonPro"))) $("#vPro").checked = false; }, true);
-  o.compte?.addEventListener("compte", () => { if (actif() && !autorise()) { $("#vPro").checked = false; basculer(); } });
-  $("#vPro").addEventListener("change", () => { if (actif()) o.compter?.("pro_ouvert"); });
-  const basculer = () => { $("#outilsPro").hidden = !actif(); document.body.classList.toggle("pro", actif()); memoire("ombres.pro", actif() ? "1" : "0"); maj(); };
-  $("#vPro").addEventListener("change", basculer);
-  $("#outilsPro").hidden = !actif();
-  document.body.classList.toggle("pro", actif()); // les réglages « pro » placés ailleurs dans le panneau (.pro-seul)
+  const basculer = () => {
+    const ok = autorise(), avant = $("#vPro").checked;
+    $("#vPro").checked = ok;
+    $("#outilsPro").hidden = false;
+    $("#outilsPro").classList.toggle("pro-verrouille", !ok);
+    $("#outilsPro").setAttribute("aria-disabled", String(!ok));
+    document.body.classList.toggle("pro", ok); // les réglages « pro » placés ailleurs dans le panneau (.pro-seul)
+    if (ok !== avant) { $("#vPro").dispatchEvent(new Event("change")); if (ok) o.compter?.("pro_ouvert"); }
+    maj();
+  };
+  $("#outilsPro").addEventListener("click", e => {
+    if (!$("#outilsPro").classList.contains("pro-verrouille")) return;
+    e.preventDefault(); e.stopPropagation();
+    o.compte?.exigerPro?.(t("compte.raisonPro"));
+  }, true);
+  o.compte?.addEventListener("compte", basculer);
+  basculer();
 
   return {
     /** Nouveau lieu : plus de sélection ni de masquage. */
