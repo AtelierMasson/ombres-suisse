@@ -1881,8 +1881,10 @@ void main() {
     if (mode) {
       const R = this.G?.R || 150, fov = 3, h = R * 1.25 / Math.tan(fov * Math.PI / 360);
       cam.fov = fov;
-      // zoom jusqu'à ~8 m de large à l'écran ; les plans proche et lointain suivent la distance (plansCamera)
-      ctl.enableRotate = false; ctl.screenSpacePanning = true; ctl.minDistance = 150; ctl.maxDistance = h * 2;
+      // zoom de ~8 m à ~25 km de large à l'écran (le plan en tuiles et le paysage couvrent au-delà de la maquette) ;
+      // les plans proche et lointain suivent la distance (plansCamera)
+      ctl.enableRotate = false; ctl.screenSpacePanning = true; ctl.minDistance = 150;
+      ctl.maxDistance = mode === "plan" ? Math.max(h * 2, 12500 / Math.tan(fov * Math.PI / 360)) : h * 2;
       // comme une carte : glisser déplace (Maj + glisser revient en 3D, voir interactions)
       ctl.mouseButtons.LEFT = THREE.MOUSE.PAN; ctl.touches.ONE = THREE.TOUCH.PAN;
       if (mode === "plan") {
