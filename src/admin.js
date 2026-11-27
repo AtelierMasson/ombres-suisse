@@ -242,7 +242,7 @@ function outilPonts(racine, { scene, t }) {
     await Promise.all(Array.from({ length: 12 }, async () => {
       while (i < index.length) {
         const k = i++;
-        res[k] = await fetch(BASE + index[k].fichier).then(r => r.ok ? r.json() : null).catch(() => null);
+        res[k] = await fetch(BASE + index[k].fichier, { cache: "no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null);
         if (++fini % 25 === 0) compteur.textContent = `${t("admin.ponts.chargement")} ${fini}/${index.length}`;
       }
     }));

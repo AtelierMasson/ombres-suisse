@@ -14,9 +14,11 @@ let index = null;
 
 /** Ponts modélisés qui touchent le carré de demi-côté `R` autour de (E0, N0). */
 export async function pontsAutour(E0, N0, R) {
-  index ||= fetch(BASE + "index.json").then(r => r.ok ? r.json() : []).catch(() => []);
+  // « no-cache » : revalidé à chaque chargement (ETag, 304 sans contenu) ; le serveur les garde sinon 24 h en cache et
+  // un pont corrigé restait dans son ancienne version chez le visiteur
+  index ||= fetch(BASE + "index.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : []).catch(() => []);
   const liste = (await index).filter(p => p.boite[2] > E0 - R && p.boite[0] < E0 + R && p.boite[3] > N0 - R && p.boite[1] < N0 + R);
-  return (await Promise.all(liste.map(p => fetch(BASE + p.fichier).then(r => r.ok ? r.json() : null).catch(() => null)))).filter(Boolean);
+  return (await Promise.all(liste.map(p => fetch(BASE + p.fichier, { cache: "no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null)))).filter(Boolean);
 }
 
 /** Le pont occupe-t-il (x, y) (relatif au centre E0, N0) ? Tablier et 2 m de marge : pour effacer le pont automatique. */
