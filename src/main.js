@@ -12,7 +12,8 @@ import { chargerNuage } from "./nuage.js";
 import { depuisPoints, depuisRasters, solEn, terrainAutour, garderCercle } from "./grille.js";
 import { reliefLointain } from "./lointain.js";
 import { Scene3D } from "./scene.js";
-import { essaiRoofer, maillageRoofer } from "./roofer.js";
+import { essaiRoofer, maillageRoofer, maillagePolygones } from "./roofer.js";
+import { emprisesOfficielles } from "./reconstruction/emprises.js";
 import * as THREE from "three";
 import { positionSoleil, directionSoleil, dateA } from "./soleil.js";
 import { profilHorizon, horizonA } from "./horizon.js";
@@ -629,8 +630,48 @@ $("#vParcelles").addEventListener("change", e => { if (scene.couches.voisines) {
 // comparaison roofer : seulement là où un essai a été calculé hors ligne (Lutry)
 // même matière que le terrain (comme nos bâtiments et swisstopo) : la tranche au bord du socle fait une seule masse
 const matRoofer = new THREE.MeshStandardMaterial({ color: T.sol, roughness: 0.92, side: THREE.DoubleSide, flatShading: true });
+// « Advanced » ailleurs que dans les essais roofer : toits reconstruits dans le navigateur (src/reconstruction/), à
+// partir du nuage déjà chargé et des emprises officielles ; calcul dans un fil, gardé pour le lieu (pas refait)
+let advanced = null; // { lieu, maillage } ou { lieu, promesse }
+async function reconstruireAdvanced() {
+  const lieu = `${S.E0},${S.N0},${S.G?.R}`;
+  if (advanced?.lieu === lieu) return advanced.maillage || advanced.promesse;
+  const nuage = scene.nuage, R = S.G?.rayonZone || S.G?.R || 150;
+  if (!nuage?.n) throw new Error(t("msg.advancedSansNuage"));
+  const promesse = (async () => {
+    telechargement("roofer", t("etat.advancedEmprises"), null);
+    const E = await emprisesOfficielles([S.E0 - R, S.N0 - R, S.E0 + R, S.N0 + R]);
+    if (!E?.emprises.length) throw new Error(t("msg.advancedSansEmprises"));
+    telechargement("roofer", t("etat.advancedCalcul", { n: E.emprises.length }), null);
+    const w = new Worker(new URL("./reconstruction/fil.js", import.meta.url), { type: "module" });
+    const r = await new Promise((ok, ko) => {
+      w.onmessage = e => e.data.ok ? ok(e.data) : ko(new Error(e.data.erreur));
+      w.onerror = e => ko(new Error(e.message));
+      w.postMessage({ points: { X: nuage.X, Y: nuage.Y, Z: nuage.Z, C: nuage.C, n: nuage.n }, origine: [S.E0, S.N0], emprises: E.emprises,
+        source: E.source, boite: [S.E0 - R, S.N0 - R, S.E0 + R, S.N0 + R] });
+    }).finally(() => w.terminate());
+    const m = maillagePolygones(r.d, [S.E0, S.N0], scene.zRef, matRoofer);
+    m.userData.resume = t("msg.advancedFait", { n: r.lod2 + r.lod1, lod2: r.lod2, s: nombre(r.ms / 1000, 1) });
+    if (advanced?.lieu === lieu) advanced = { lieu, maillage: m };
+    return m;
+  })();
+  advanced = { lieu, promesse };
+  promesse.catch(() => { if (advanced?.lieu === lieu) advanced = null; });
+  return promesse;
+}
 async function comparerRoofer() {
-  if (!S.roofer || choixBatiments() !== "roofer") { scene.afficherRoofer(null); return; }
+  if (choixBatiments() !== "roofer") { scene.afficherRoofer(null); return; }
+  if (!S.roofer) {
+    const lieu = S.E0;
+    try {
+      const m = await reconstruireAdvanced();
+      if (lieu === S.E0 && choixBatiments() === "roofer") { scene.afficherRoofer(m); if (m.userData.resume) message(m.userData.resume); }
+    } catch (e) {
+      console.error(e); message(e.message);
+      if (choixBatiments() === "roofer") { $("#bReleve").checked = true; $("#bReleve").dispatchEvent(new Event("change")); }
+    } finally { telechargement("roofer", null); }
+    return;
+  }
   const lieu = S.E0;
   telechargement("roofer", t("etat.roofer"), 0);
   try {
@@ -648,10 +689,8 @@ const NOTES = {
   roofer: t("aff.noteRoofer"),
 };
 function choixRoofer() {
-  $("#bRoofer").disabled = !S.roofer;
-  $("#etiquetteRoofer").hidden = $("#bRoofer").hidden = !S.roofer;
-  if (S.roofer) $("#etiquetteRoofer").title = t("aff.rooferEssai", { nom: S.roofer.nom });
-  if (!S.roofer && choixBatiments() === "roofer") $("#bReleve").checked = true;
+  // Advanced : l'essai roofer hors ligne là où il existe, sinon la reconstruction dans le navigateur (partout)
+  $("#etiquetteRoofer").title = S.roofer ? t("aff.rooferEssai", { nom: S.roofer.nom }) : t("aff.advancedCase");
 }
 $$("input[name=batiments]").forEach(b => b.addEventListener("change", () => {
   const choix = choixBatiments();
@@ -664,19 +703,21 @@ $$("input[name=batiments]").forEach(b => b.addEventListener("change", () => {
 // case « Swiss3D » de la ligne Bâtiments : coche le bouton radio (caché) du jeu voulu, la suite passe par son événement.
 // « aucun » et « roofer » (anciens choix restaurés par le navigateur) retombent sur le relevé.
 function synchroSwiss() {
-  if (!["releve", "swiss"].includes(choixBatiments())) $("#bReleve").checked = true;
+  if (!["releve", "swiss", "roofer"].includes(choixBatiments())) $("#bReleve").checked = true;
   $("#vSwiss").checked = choixBatiments() === "swiss";
+  $("#vAdvanced").checked = choixBatiments() === "roofer";
 }
-$("#vSwiss").addEventListener("change", e => {
-  const r = $(e.target.checked ? "#bSwiss" : "#bReleve");
+// Swiss3D et Advanced s'excluent : cocher l'un décoche l'autre ; tout décoché = bâtiments du relevé
+for (const [id, radio] of [["#vSwiss", "#bSwiss"], ["#vAdvanced", "#bRoofer"]]) $(id).addEventListener("change", e => {
+  const r = $(e.target.checked ? radio : "#bReleve");
   r.checked = true;
+  synchroSwiss();
   r.dispatchEvent(new Event("change"));
 });
 synchroSwiss();
 window.addEventListener("pageshow", synchroSwiss);
 // sol : photo aérienne (prioritaire), plan cadastral, ou uni
-function typeFond() { return $("#vReel").checked ? "ortho" : $("#vBruit").checked ? "bruit" : $("#vCadastre").checked ? "cadastre" : "uni"; }
-$("#vBruit").addEventListener("change", () => scene.fond(typeFond()));
+function typeFond() { return $("#vReel").checked ? "ortho" : $("#vCadastre").checked ? "cadastre" : "uni"; } // couche bruit retirée du site (27.11)
 $("#vCadastre").addEventListener("change", () => scene.fond(typeFond()));
 scene.surFondAbsent = () => message(t("msg.cadastreAbsent"));
 // curseurs d'Affichage, retenus par ce navigateur : qualité du rendu, brume, densité des points

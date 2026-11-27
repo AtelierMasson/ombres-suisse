@@ -1966,7 +1966,8 @@ void main() {
       }
       // maquette ronde : swisstopo et roofer sont découpés par la zone (cercle ou anneau), pas par la boîte
       for (const x of [c.roofer?.material, this.swiss?.materiau]) if (x) {
-        if (this.G.rayonZone) decoupeZone(x);
+        // Advanced (roofer ou reconstruction) ne couvre que la maquette fine ; swisstopo : cercle ou anneau selon le jeu
+        if (this.G.rayonZone) decoupeZone(x, x === c.roofer?.material ? ZONE_FINE : ZONE);
         poserPlans(x, this.G.rayonZone ? plans : [...dedans, ...(plans || [])]);
       }
       // swisstopo et roofer débordent du modèle : la partie coupée ne doit pas non plus porter d'ombre (stries sur la

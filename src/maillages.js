@@ -70,6 +70,20 @@ export function hauteurTerrain(G, i, j) {
  * Socle d'une maquette ronde : la paroi du cercle de rayon `R`, du terrain (et du toit des bâtiments coupés par le
  * cercle, si `bat`) jusqu'au fond `zBas`. `solA(x, y)` : altitude absolue du terrain au bord.
  */
+/** Ajoute à un socle son fond plat (polygone convexe à l'altitude zBas, face vers le bas) : vu d'en dessous, la
+ * maquette est fermée au lieu de laisser voir le vide. `contour` : [[x, y nord], …] dans le sens trigonométrique. */
+function avecFond(pos, contour, zBas) {
+  const n = contour.length, out = new Float32Array(pos.length + (n - 2) * 9);
+  out.set(pos);
+  let q = pos.length;
+  const [x0, y0] = contour[0];
+  for (let k = 1; k < n - 1; k++) {
+    // ordre inversé (0, k+1, k) : normale vers le bas
+    for (const [x, y] of [[x0, y0], contour[k + 1], contour[k]]) { out[q++] = x; out[q++] = zBas; out[q++] = -y; }
+  }
+  return out;
+}
+
 export function socleRond(R, solA, zRef, zBas, batA = null) {
   const nb = Math.min(4096, Math.max(256, Math.ceil(2 * Math.PI * R))), pos = new Float32Array(nb * 18);
   const haut = a => {
@@ -83,8 +97,9 @@ export function socleRond(R, solA, zRef, zBas, batA = null) {
     for (const [x, z, y] of [[A[0], A[1], A[2]], [A[0], zBas, A[2]], [B[0], zBas, B[2]], [A[0], A[1], A[2]], [B[0], zBas, B[2]], [B[0], B[1], B[2]]]) { pos[q++] = x; pos[q++] = z; pos[q++] = -y; }
     A = B;
   }
+  const fond = Array.from({ length: nb }, (_, k) => [Math.cos(k / nb * 2 * Math.PI) * R, Math.sin(k / nb * 2 * Math.PI) * R]);
   const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  g.setAttribute("position", new THREE.BufferAttribute(avecFond(pos, fond, zBas), 3));
   g.computeVertexNormals();
   return g;
 }
@@ -146,7 +161,7 @@ export function socle(G, zRef, zBas, bords = null, avecReleve = true) {
   for (let i = n - 1; i >= 0; i--) face(i, n - 1, x0 + (i + 1) * c, R, x0 + i * c, R, 2, i);
   for (let j = n - 1; j >= 0; j--) face(0, j, -R, x0 + (j + 1) * c, -R, x0 + j * c, 3, j);
   const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  g.setAttribute("position", new THREE.BufferAttribute(avecFond(pos, [[-R, -R], [R, -R], [R, R], [-R, R]], zBas), 3));
   g.computeVertexNormals();
   return g;
 }

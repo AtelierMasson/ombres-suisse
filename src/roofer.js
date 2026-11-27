@@ -25,6 +25,11 @@ export async function maillageRoofer(essai, [E0, N0], zRef, materiau, onProgres 
     onProgres(total ? recu / total : null, t("unite.mo", { n: `${nombre(recu / 1e6, 1)}${total ? ` / ${nombre(total / 1e6, 1)}` : ""}` }));
   }
   const d = JSON.parse(new TextDecoder().decode(await new Blob(morceaux).arrayBuffer()));
+  return maillagePolygones(d, [E0, N0], zRef, materiau);
+}
+
+/** Maillage des polygones { origine, polygones: [{ r: anneaux [x, y, z] }] } (essai roofer ou reconstruction « Advanced »). */
+export function maillagePolygones(d, [E0, N0], zRef, materiau) {
   const [oE, oN] = d.origine, pos = [];
   const v3 = ([x, y, z]) => new THREE.Vector3(x + oE - E0, z - zRef, -(y + oN - N0));
   for (const { r } of d.polygones) {
