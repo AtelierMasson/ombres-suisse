@@ -22,7 +22,6 @@ import { urlFond, COUCHES } from "./fond.js";
 import { zoneHeures, soleilsPeriode, carreauxFacades, maillagesHeures } from "./heures.js";
 import { contoursBatiments } from "./contours.js";
 import { profilCoupe, dessinerCoupe } from "./coupe.js";
-import { hameau } from "./demo.js";
 import { lancerVol } from "./vol.js";
 import { fondLacs, fondAutour } from "./bathy.js";
 import { ICONE } from "./icones.js";
@@ -118,7 +117,7 @@ function aller(r) {
 window.addEventListener("hashchange", depuisAdresse);
 
 /* ------------------------------------------------------------------ accueil */
-// décor animé : un hameau inventé, le soleil qui passe, la vue qui tourne lentement
+// accueil : le décor réel de Gruyères, la caméra qui avance lentement vers le château
 function accueil() {
   tache++;
   arreterVol?.(); arreterVol = null;
@@ -128,23 +127,18 @@ function accueil() {
   $("#panneau").hidden = $("#panneauPro").hidden = $("#panneauAffichage").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
   message("");
   Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
-  const D = hameau();
-  scene.construire(D.G, D.nuage, D.parcelle, null);
-  // le décor réel (Gruyères) se charge derrière : le hameau reste affiché en attendant
-  setTimeout(() => { if (document.body.classList.contains("accueil") && !location.hash.includes("e=")) depuisAdresse({ accueil: ACCUEIL }); }, 50);
   pro.reinitialiser();
-  scene.camera.position.set(-78, 52, 96);
-  scene.controls.autoRotate = true; scene.controls.autoRotateSpeed = 0.5;
+  scene.controls.autoRotate = false;
+  scene.animation = null;
   scene.decalage = 0.17; scene.taille();
-  let avant = 0, u = 0.3, sens = 1;
-  scene.animation = t => {
-    if (t - avant < 70) return;
-    avant = t;
-    u += sens * 0.0035;
-    if (u > 0.94 || u < 0.06) sens = -sens;
-    const az = (105 + 150 * u) * Math.PI / 180, h = (10 + 40 * Math.sin(Math.PI * u)) * Math.PI / 180;
-    scene.placerSoleil([Math.sin(az) * Math.cos(h), Math.sin(h), -Math.cos(az) * Math.cos(h)], true);
-  };
+  // Gruyères tout de suite : d'abord le bourg (150 m, vite chargé, bâtiments et arbres proches qui montent du sol),
+  // puis toute la zone (450 m, avec l'anneau) qui le remplace sans rejouer l'animation
+  debutAccueil = null;
+  setTimeout(async () => {
+    if (!document.body.classList.contains("accueil") || location.hash.includes("e=")) return;
+    await depuisAdresse({ accueil: { ...ACCUEIL, R: 150 } });
+    if (document.body.classList.contains("accueil") && !location.hash.includes("e=")) depuisAdresse({ accueil: { ...ACCUEIL, suite: true } });
+  }, 0);
 }
 // vol de démonstration (#vol=gruyeres) : plan drone lent, rendu en direct (vol.js) ; à terme, le décor de l'accueil
 let arreterVol = null;
@@ -390,7 +384,8 @@ async function depuisAdresse(o = null) {
       scene.camera.position.copy(vueAvant.p); scene.controls.target.copy(vueAvant.c); scene.controls.update();
     }
     S.voyage = false;
-    scene.animerConstruction(); // les bâtiments montent du sol, puis les arbres apparaissent
+    if (ACC) volAccueil(E0, N0);
+    if (!ACC?.suite) scene.animerConstruction(); // les bâtiments montent du sol, puis les arbres apparaissent
     // vue enregistrée (lieu du compte) : la caméra reprend sa place
     const cam = (h.get("cam") || "").split(",").map(Number);
     if (cam.length === 6 && cam.every(Number.isFinite)) { scene.camera.position.set(cam[0], cam[1], cam[2]); scene.controls.target.set(cam[3], cam[4], cam[5]); scene.controls.update(); scene.demander?.(3); }
@@ -429,7 +424,7 @@ async function depuisAdresse(o = null) {
       .then(fin => { if (id === tache) { S.fin = fin; return paysageEtAnneau(id, idScene); } })
       .catch(e => console.warn("Relief lointain :", e.message));
     et(1, "");
-    if (ACC) { volAccueil(E0, N0, id); return; }
+    if (ACC) { volAccueil(E0, N0); return; }
     $("#commandes").hidden = $("#panneauPro").hidden = $("#panneauAffichage").hidden = false; $("#diagramme").hidden = false;
     majSoleil();
     pro.apresChargement(); // projet rouvert depuis la liste : démolitions, volumes, coupes
@@ -457,17 +452,19 @@ scene.surVoyage = cible => {
  * Accueil sur Gruyères : la caméra avance lentement depuis le bas du bourg vers le château, puis revient, en boucle.
  * Un geste sur la vue l'arrête (on reprend la main).
  */
-const ACCUEIL = { E: 2572640, N: 1159220, R: 250, chateau: [2572790, 1159320] };
-function volAccueil(E0, N0, id) {
-  // départ au-dessus du bas du bourg, vers le château ; la caméra s'en approche d'un tiers, puis revient
-  const C = [ACCUEIL.chateau[0] - E0 - 60, 5, -(ACCUEIL.chateau[1] - N0) + 40], A = [-300, 135, 220], B = A.map((v, k) => v + (C[k] - v) * 0.35);
-  const t0 = performance.now(), duree = 60000;
+const ACCUEIL = { E: 2572640, N: 1159220, R: 450, chateau: [2572790, 1159320] };
+let debutAccueil = null; // début du mouvement de la caméra (gardé quand la grande zone remplace le bourg)
+function volAccueil(E0, N0) {
+  // départ bas, au-dessus des prés à l'ouest du bourg, assez loin du château ; la caméra s'en approche d'un quart,
+  // puis revient
+  const C = [ACCUEIL.chateau[0] - E0 - 60, 5, -(ACCUEIL.chateau[1] - N0) + 40], A = [-390, 55, 270], B = A.map((v, k) => v + (C[k] - v) * 0.25);
+  const t0 = debutAccueil ??= performance.now(), duree = 70000;
   scene.controls.autoRotate = false;
   // lumière de fin d'après-midi, de l'ouest-sud-ouest : les façades vues de la caméra sont au soleil
   const az = 250 * Math.PI / 180, h = 30 * Math.PI / 180;
   scene.placerSoleil([Math.sin(az) * Math.cos(h), Math.sin(h), -Math.cos(az) * Math.cos(h)], true);
   scene.animation = t => {
-    if (id !== tache) return;
+    if (!document.body.classList.contains("accueil")) return;
     const u = ((t - t0) / duree) % 2, f = u < 1 ? u : 2 - u, e = f * f * (3 - 2 * f);
     scene.camera.position.set(...A.map((v, k) => v + (B[k] - v) * e));
     scene.controls.target.set(...C);
