@@ -1,0 +1,218 @@
+{
+ "nom": "Bretelle A3W sur la Sihl (Verzweigung Zürich-Süd / Sihlhochstrasse), Zurich",
+ "axe": [
+  [
+   2681557.6,
+   1244224.0,
+   433.9
+  ],
+  [
+   2681597.2,
+   1244218.3,
+   435.0
+  ],
+  [
+   2681635.2,
+   1244207.9,
+   436.6
+  ],
+  [
+   2681670.6,
+   1244191.9,
+   438.3
+  ],
+  [
+   2681702.5,
+   1244169.2,
+   439.9
+  ],
+  [
+   2681731.9,
+   1244143.6,
+   441.7
+  ],
+  [
+   2681758.0,
+   1244113.3,
+   443.7
+  ],
+  [
+   2681780.9,
+   1244081.2,
+   445.4
+  ],
+  [
+   2681810.4,
+   1244033.9,
+   446.8
+  ]
+ ],
+ "largeur": 13.0,
+ "epaisseur": 1.8,
+ "garde_corps": {
+  "hauteur": 1.9,
+  "plein": true,
+  "epaisseur": 0.25
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 38,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 2.4,
+   "t": -3.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 38,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 2.4,
+   "t": 3.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 76,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 2.4,
+   "t": -3.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 76,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 2.4,
+   "t": 3.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 114,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 2.4,
+   "t": -3.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 114,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 2.4,
+   "t": 3.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 152,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 2.4,
+   "t": -3.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 152,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 2.4,
+   "t": 3.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 190,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 2.4,
+   "t": -3.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 190,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 2.4,
+   "t": 3.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 228,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 2.4,
+   "t": -3.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 228,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 2.4,
+   "t": 3.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 266,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 2.4,
+   "t": -3.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 266,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 2.4,
+   "t": 3.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "culee",
+   "s": 336.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2024 (COPC)",
+  "swissTLM3D",
+  "https://de.wikipedia.org/wiki/Sihlhochstrasse",
+  "Wikimedia Commons : A3 Allmend Brunau Verzweigung.jpg (Adrian Michael, CC BY 4.0), A3 Autobahnbrücken (Verzweigung Zürich-Süd) über die Sihl (Jag9889, CC BY-SA 4.0), AllmendstrWollishofenI.jpg (Abderitestatos, CC BY 3.0), Sihlhochstrasse Brunau.jpg, Mapillary fcignat (CC BY-SA 4.0)"
+ ],
+ "photos_vues": 9,
+ "confiance": "moyenne",
+ "notes": "Axe TLM décalé de 6,3 m vers la droite (tablier mesuré à o -8,3..+5,0 de l'axe TLM, 13,3 m avec les écrans antibruit ondulés d'environ 1,9 m des deux côtés d'après le nuage et les photos) ; altitudes de chaussée calées sur le nuage (médiane -0,04 m). Branche de la Verzweigung Zürich-Süd, pas le grand viaduc de 25 m (celui-ci est la bande voisine à o +8..+30). Piles NON vues par le laser (tablier trop large) : paires de piles rectangulaires 1,8 x 2,4 m tous les 38 m, placées au jugé d'après les photos (jumelles rectangulaires sous un caisson de 1,8 m, 2,6 m aux appuis ; une photo montre aussi un fût rond évasé en tête, non modélisé). Le schéma ne sait pas faire le dévers, la courbe en plan réelle du caisson ni les fûts évasés ; le 72 % du vérificateur compte les tabliers voisins du couloir (±32 m), le tablier propre est bien couvert. Calage photo non fait : les vues d'ensemble de Commons montrent d'autres branches du nœud, sans point identifiable de façon sûre sur celle-ci.",
+ "epaisseur_appuis": 2.6,
+ "gousset": 7,
+ "remblai": [
+  [
+   318,
+   336
+  ]
+ ],
+ "photo": {
+  "fichier": "c1.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:A3_Allmend_Brunau_Verzweigung.jpg",
+  "auteur": "Adrian Michael (Parpan05)",
+  "licence": "CC BY 4.0"
+ }
+}

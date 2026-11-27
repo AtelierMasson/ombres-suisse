@@ -1,0 +1,15 @@
+{
+  "nom": "Reussbrücke A2 (bretelle Ausfahrt, Sentibrücken), Lucerne",
+  "axe": [[2665092.4,1211920.2,434.45],[2665097.7,1211910.8,434.6],[2665109.8,1211889.9,434.89],[2665123.0,1211869.7,434.73],[2665134.5,1211856.8,434.34]],
+  "largeur": 7.8,
+  "epaisseur": 1.6,
+  "garde_corps": {"hauteur": 3.0, "plein": true, "epaisseur": 0.3},
+  "appuis": [{"type": "culee", "s": 0}, {"type": "culee", "s": 76.4}],
+  "arches": [],
+  "pylones": [],
+  "sources": ["https://structurae.net/en/structures/reussbrucke-a2", "https://www.astra.admin.ch/it/a2-luzern-sentibruecken-verkehrsbehinderungen", "Mapillary fcignat 2025-02-15 (1140471904224888), 2025-07-27 (1185776113581746) ; european-panorama 2026-02-27 (1454666936351694, 1413602050817136), CC BY-SA 4.0"],
+  "photo": {"fichier": "b.jpg", "page": "https://www.mapillary.com/app/?pKey=1454666936351694", "auteur": "european-panorama / Mapillary", "licence": "CC BY-SA 4.0"},
+  "photos_vues": 3,
+  "confiance": "moyenne",
+  "notes": "Bretelle A2 (sortie du tunnel de Reussport) à une travée libre d'environ 62 m sur la Reuss, sans pile ; épaisseur du tablier (1,6 m) supposée, aucune vue de dessous. Murs antibruit de 3 m aux deux bords relevés au laser ; la couverture (dalle) des tronçons d'approche vue sur photo n'est pas modélisée."
+}

@@ -1,0 +1,46 @@
+{
+ "nom": "Passerelle forestière sur la Vuachère (chemin 1 m), Lausanne",
+ "axe": [
+  [
+   2540240.5,
+   1154326.4,
+   662.6
+  ],
+  [
+   2540241.4,
+   1154301.8,
+   662.5
+  ],
+  [
+   2540242.5,
+   1154279.4,
+   662.5
+  ]
+ ],
+ "largeur": 2.6,
+ "epaisseur": 0.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 47.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://www.lausanne.ch/vie-pratique/nature/la-nature-et-vous/balades-nature/chemin-de-la-vuachere/vuachere.html"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Sentier forestier sans voie routière : travée unique de 47 m à 662,5 m au-dessus d'un ravin (fond 651,7 m), tablier mince 2,6 m calé au nuage (médiane -0,03 m, 92 %). Aucune photo de l'ouvrage trouvée (Mapillary : seulement l'autoroute A9 voisine ; ortho : ouvrage sous les arbres), donc structure porteuse (poutres, treillis, arc ?) et matériaux inconnus, épaisseur 0,5 m et garde-corps ajouré supposés ; points non expliqués = troncs verticaux, pas de pile. Calage photo non fait faute de vue."
+}

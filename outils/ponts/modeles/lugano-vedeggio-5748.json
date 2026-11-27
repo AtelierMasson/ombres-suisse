@@ -1,0 +1,124 @@
+{
+ "nom": "Pont de la Via San Gottardo sur le Vedeggio, Taverne",
+ "axe": [
+  [
+   2715786.5,
+   1102788.4,
+   356.0
+  ],
+  [
+   2715709.8,
+   1102553.4,
+   356.0
+  ]
+ ],
+ "largeur": 13.4,
+ "largeur_dessous": 8.5,
+ "epaisseur": 1.6,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0,
+  "epaisseur": 0.15
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 31.0,
+   "forme": "rect",
+   "long": 2.0,
+   "larg": 7.0,
+   "z_bas": 347.7,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 62.0,
+   "forme": "rect",
+   "long": 2.0,
+   "larg": 7.0,
+   "z_bas": 347.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 93.0,
+   "forme": "rect",
+   "long": 2.0,
+   "larg": 7.0,
+   "z_bas": 346.1,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 124.0,
+   "forme": "rect",
+   "long": 2.0,
+   "larg": 7.0,
+   "z_bas": 343.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 154.0,
+   "forme": "rect",
+   "long": 2.0,
+   "larg": 7.0,
+   "z_bas": 345.4,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 185.0,
+   "forme": "rect",
+   "long": 2.0,
+   "larg": 7.0,
+   "z_bas": 345.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 216.0,
+   "forme": "rect",
+   "long": 2.0,
+   "larg": 7.0,
+   "z_bas": 344.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "culee",
+   "s": 247.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://commons.wikimedia.org/wiki/File:Via_San_Gottardo-Br%C3%BCcke_%C3%BCber_den_Vedeggio,_Taverne_TI_20250826-jag9889.jpg",
+  "swissSURFACE3D 2020 (dalle 2715-1102, LAS)",
+  "swisstopo SWISSIMAGE",
+  "swissTLM3D"
+ ],
+ "photo": {
+  "fichier": "a.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Via_San_Gottardo-Br%C3%BCcke_%C3%BCber_den_Vedeggio,_Taverne_TI_20250826-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 4,
+ "confiance": "faible",
+ "notes": "Dalle swissSURFACE3D 2020 sans COPC (LAS extrait localement, supprimé). Tablier, largeur, altitude et extrémités mesurés au laser ; position des 7 piles (rect 2 x 7 m, pas ~31 m) et épaisseur 1,6 m supposées car le dessous est invisible au laser (joints d'après l'orthophoto vers s 90 et 156) et aucune photo de dessous/de côté n'existe (une seule photo depuis la chaussée, Mapillary 2015 inutilisable). Sol de la maquette qui perce aux rampes d'accès s 4-6 et 240-242 (remblai noté), pas de calage photo.",
+ "remblai": [
+  [
+   0,
+   9
+  ],
+  [
+   237,
+   247.2
+  ]
+ ]
+}

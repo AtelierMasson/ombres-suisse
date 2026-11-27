@@ -1,0 +1,333 @@
+{
+ "nom": "Birsbrücke Rütihard (A18), Münchenstein - Muttenz",
+ "axe": [
+  [
+   2613752.3,
+   1263399.1,
+   272.9
+  ],
+  [
+   2613761.8,
+   1263419.7,
+   273.09
+  ],
+  [
+   2613775.9,
+   1263450.7,
+   273.31
+  ],
+  [
+   2613780.2,
+   1263461.0,
+   273.35
+  ],
+  [
+   2613786.7,
+   1263476.4,
+   273.43
+  ],
+  [
+   2613795.8,
+   1263500.1,
+   273.53
+  ],
+  [
+   2613806.5,
+   1263529.4,
+   273.59
+  ],
+  [
+   2613814.7,
+   1263554.1,
+   273.59
+  ],
+  [
+   2613824.6,
+   1263584.3,
+   273.54
+  ],
+  [
+   2613830.5,
+   1263605.2,
+   273.47
+  ],
+  [
+   2613836.9,
+   1263628.9,
+   273.37
+  ],
+  [
+   2613841.9,
+   1263647.9,
+   273.27
+  ]
+ ],
+ "largeur": 19.0,
+ "largeur_dessous": 8.0,
+ "epaisseur": 2.2,
+ "garde_corps": {
+  "hauteur": 1.5,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     9.5,
+     -0.5
+    ],
+    [
+     9.5,
+     -0.95
+    ],
+    [
+     4.0,
+     -2.2
+    ],
+    [
+     -4.0,
+     -2.2
+    ],
+    [
+     -9.5,
+     -0.95
+    ],
+    [
+     -9.5,
+     -0.5
+    ]
+   ]
+  },
+  {
+   "s": 265.1307431663038,
+   "points": [
+    [
+     9.5,
+     -0.5
+    ],
+    [
+     9.5,
+     -0.95
+    ],
+    [
+     4.0,
+     -2.2
+    ],
+    [
+     -4.0,
+     -2.2
+    ],
+    [
+     -9.5,
+     -0.95
+    ],
+    [
+     -9.5,
+     -0.5
+    ]
+   ]
+  }
+ ],
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 53.0,
+   "forme": "rond",
+   "long": 3.0,
+   "larg": 3.0,
+   "z_bas": 264.5
+  },
+  {
+   "type": "pile",
+   "s": 106.0,
+   "forme": "rond",
+   "long": 3.0,
+   "larg": 3.0,
+   "z_bas": 264.4
+  },
+  {
+   "type": "pile",
+   "s": 159.0,
+   "forme": "rond",
+   "long": 3.0,
+   "larg": 3.0,
+   "z_bas": 264.0
+  },
+  {
+   "type": "pile",
+   "s": 212.0,
+   "forme": "rond",
+   "long": 3.0,
+   "larg": 3.0,
+   "z_bas": 264.5
+  },
+  {
+   "type": "culee",
+   "s": 265.1
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [
+  {
+   "de": [
+    0,
+    0.6,
+    274.1
+   ],
+   "a": [
+    60,
+    0.6,
+    274.52
+   ],
+   "larg": 0.5,
+   "ep": 2.3
+  },
+  {
+   "de": [
+    0,
+    10.65,
+    274.2
+   ],
+   "a": [
+    60,
+    10.65,
+    274.62
+   ],
+   "larg": 0.3,
+   "ep": 2.6
+  },
+  {
+   "de": [
+    60,
+    0.6,
+    274.52
+   ],
+   "a": [
+    120,
+    0.6,
+    274.76
+   ],
+   "larg": 0.5,
+   "ep": 2.3
+  },
+  {
+   "de": [
+    60,
+    10.65,
+    274.62
+   ],
+   "a": [
+    120,
+    10.65,
+    274.86
+   ],
+   "larg": 0.3,
+   "ep": 2.6
+  },
+  {
+   "de": [
+    120,
+    0.6,
+    274.76
+   ],
+   "a": [
+    180,
+    0.6,
+    274.77
+   ],
+   "larg": 0.5,
+   "ep": 2.3
+  },
+  {
+   "de": [
+    120,
+    10.65,
+    274.86
+   ],
+   "a": [
+    180,
+    10.65,
+    274.87
+   ],
+   "larg": 0.3,
+   "ep": 2.6
+  },
+  {
+   "de": [
+    180,
+    0.6,
+    274.77
+   ],
+   "a": [
+    240,
+    0.6,
+    274.59
+   ],
+   "larg": 0.5,
+   "ep": 2.3
+  },
+  {
+   "de": [
+    180,
+    10.65,
+    274.87
+   ],
+   "a": [
+    240,
+    10.65,
+    274.69
+   ],
+   "larg": 0.3,
+   "ep": 2.6
+  },
+  {
+   "de": [
+    240,
+    0.6,
+    274.59
+   ],
+   "a": [
+    265,
+    0.6,
+    274.47
+   ],
+   "larg": 0.5,
+   "ep": 2.3
+  },
+  {
+   "de": [
+    240,
+    10.65,
+    274.69
+   ],
+   "a": [
+    265,
+    10.65,
+    274.57
+   ],
+   "larg": 0.3,
+   "ep": 2.6
+  }
+ ],
+ "sources": [
+  "https://commons.wikimedia.org/wiki/File:A18-Br%C3%BCcke_%C3%BCber_die_Birs,_Muttenz_BL_%E2%80%93_M%C3%BCnchenstein_BL_20190406-jag9889.jpg",
+  "https://commons.wikimedia.org/wiki/File:Under_the_autobahn_-_panoramio.jpg",
+  "swissSURFACE3D 2023 (dalle 2613-1263, LAS) ; swissTLM3D"
+ ],
+ "photo": {
+  "fichier": "a.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:A18-Br%C3%BCcke_%C3%BCber_die_Birs,_Muttenz_BL_%E2%80%93_M%C3%BCnchenstein_BL_20190406-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 3,
+ "confiance": "faible",
+ "notes": "Dalle swissSURFACE3D 2023 lue en LAS (pas de COPC à Bâle) : tablier calé au nuage (médiane 0,01 m, 19 m de large, décalé de 1,4 m à gauche de l'axe TLM), écran de séparation central et écrans de rive tirés des classes 1 ; 88 % des points d'ouvrage à moins de 1,5 m. PILES NON VUES AU LASER (dessous du tablier invisible) : 4 appuis ronds de 3 m inventés, équidistants (53 m, cinq travées d'après la fiche de rénovation citée par la recherche web : caisson trapézoïdal à deux cellules), pieds au sol de la maquette (264 m, bien sous le plan d'eau réel à 266,8) ; sous-face (caisson à âmes inclinées, épaisseur 2,2 m) estimée sur une seule vue de dessous (Jag9889), pas de calage photo (aucun point 3D identifiable : piles non localisées, pas de vue d'ensemble trouvée)."
+}

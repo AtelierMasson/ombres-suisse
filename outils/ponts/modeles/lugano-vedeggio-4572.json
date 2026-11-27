@@ -1,0 +1,110 @@
+{
+ "nom": "Pont de la route cantonale sur l'autoroute A2 et le Vedeggio, Bioggio (Lugano)",
+ "axe": [
+  [
+   2714646.9,
+   1097112.6,
+   291.4
+  ],
+  [
+   2714608.4,
+   1097123.6,
+   291.9
+  ],
+  [
+   2714574.8,
+   1097133.2,
+   292.1
+  ],
+  [
+   2714541.2,
+   1097142.9,
+   292.0
+  ],
+  [
+   2714498.9,
+   1097155.0,
+   291.7
+  ]
+ ],
+ "largeur": 11.8,
+ "epaisseur": 1.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.1
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 6
+  },
+  {
+   "type": "pile",
+   "s": 34,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 6.0,
+   "z_bas": 284.0,
+   "chapiteau": {
+    "hauteur": 1.2,
+    "larg": 9.5,
+    "larg_bas": 6.0,
+    "long": 1.6
+   }
+  },
+  {
+   "type": "pile",
+   "s": 70,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 6.0,
+   "z_bas": 284.4,
+   "chapiteau": {
+    "hauteur": 1.2,
+    "larg": 9.5,
+    "larg_bas": 6.0,
+    "long": 1.6
+   }
+  },
+  {
+   "type": "pile",
+   "s": 106,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 6.0,
+   "z_bas": 286.6,
+   "chapiteau": {
+    "hauteur": 1.2,
+    "larg": 9.5,
+    "larg_bas": 6.0,
+    "long": 1.6
+   }
+  },
+  {
+   "type": "culee",
+   "s": 149
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "remblai": [
+  [
+   0,
+   6
+  ],
+  [
+   149,
+   154
+  ]
+ ],
+ "sources": [
+  "swissSURFACE3D 2020 (LAS, tuile 2714-1097)",
+  "Mapillary fcignat / borovac (CC BY-SA 4.0), vues depuis l'A2",
+  "https://wms.geo.admin.ch swissimage"
+ ],
+ "photos_vues": 4,
+ "confiance": "faible",
+ "notes": "Calage photo (Mapillary fcignat, vue depuis l'A2) : ecart moyen 9,7 px ; piles de l'A2 (s 34 et 70) et culee est (s 6) confirmees, pile s 106 et culee ouest (s 149) deduites du terrain et du nuage (sous-ouvrage non visible au laser ni sur les photos disponibles). Conflit de terrain residuel s 4 : talus du remblai d'approche contre la culee est (couvert par `remblai`) ; le verificateur place le sol de la maquette sous l'axe a ~281,3 m, donc pieds de piles (284 m, terrain mesure) signales au-dessus du sol alors qu'ils reposent sur le terrain reel. Pas de vue de dessous cote Vedeggio ; epaisseur de tablier (1,5 m) et tetes de piles estimees."
+}

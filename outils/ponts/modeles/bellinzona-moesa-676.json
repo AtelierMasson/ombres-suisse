@@ -1,32 +1,34 @@
 {
- "nom": "Pont routier sur la Moesa (6 m), Bellinzone",
+ "nom": "Pont routier sur la Moesa, Roveredo (GR)",
  "axe": [
   [
-   2730721.1,
-   1122035.3,
+   2730628.0,
+   1122006.7,
    298.0
   ],
   [
-   2730706.0,
-   1122030.4,
-   298.0
+   2730656.6,
+   1122015.8,
+   298.15
   ],
   [
-   2730666.3,
-   1122017.8,
-   297.9
+   2730685.2,
+   1122024.9,
+   298.35
   ],
   [
-   2730632.3,
-   1122007.0,
-   297.8
+   2730722.6,
+   1122036.7,
+   298.6
   ]
  ],
  "largeur": 11.5,
- "epaisseur": 1.5,
+ "largeur_dessous": 9.0,
+ "epaisseur": 1.2,
  "garde_corps": {
-  "hauteur": 1.0,
-  "plein": true,
+  "hauteur": 1.15,
+  "plein": false,
+  "pas": 2.0,
   "epaisseur": 0.3
  },
  "appuis": [
@@ -36,16 +38,19 @@
   },
   {
    "type": "culee",
-   "s": 93.2
+   "s": 99.2
   }
  ],
  "arches": [],
  "pylones": [],
  "elements": [],
  "sources": [
-  "https://map.geo.admin.ch (swissIMAGE, swissTLM3D, swissALTI3D)"
+  "swissSURFACE3D 2020, dalle LAS 2730-1122 (lue à distance, classes 17, 1, 2, 9)",
+  "https://map.geo.admin.ch (swissIMAGE, swissTLM3D, swissBOUNDARIES3D : commune de Roveredo GR)",
+  "OpenStreetMap way 1078892926 (highway=residential, bridge=yes, sans nom)",
+  "Photo Mapillary 329507488558395, lto / Mapillary, CC BY-SA 4.0 (2015, sur la chaussée, vers l'ouest)"
  ],
- "photos_vues": 0,
+ "photos_vues": 1,
  "confiance": "faible",
- "notes": "Non vérifié au laser : swissSURFACE3D 2020 du Tessin n'existe qu'en LAS.zip (pas de COPC). Axe et altitudes d'après swissTLM3D, terrain swissALTI3D, largeur et appuis lus sur swissIMAGE (aucune pile visible dans le lit ; épaisseur du tablier estimée, nom réel non trouvé)."
+ "notes": "Calé au laser (swissSURFACE3D 2020, dalle LAS lue à distance, pas de COPC) : axe sur le tablier mesuré (99,2 m, chaussée 298,0 → 298,6 m de l'ouest à l'est), tablier médiane 0,00 m, 98 % des points d'ouvrage à < 1,5 m, aucun conflit de terrain ; garde-corps métallique sur bordure béton et candélabres côté nord vus au nuage et sur la photo Mapillary prise sur la chaussée (probablement l'ancienne A13 avant la circonvallazione de 2016, à confirmer ; nom officiel non trouvé). NON VU : aucune photo de l'élévation ni du dessous (pas d'image Commons ni Mapillary depuis les rives ; la photo Commons « Moesa Roveredo » prise depuis ce pont montre un autre pont, le ponte Moesa de 2007 en amont) et le laser ne touche rien sous le tablier (ombre totale au centre) : piles en rivière probables (une poutre de 99 m sans appui intermédiaire est peu plausible) mais ni leur nombre ni leur place ne sont connus, d'où aucune pile ; épaisseur 1,2 m et largeur du dessous 9 m estimées (bord du tablier mesuré à ~0,6 m sous la chaussée)."
 }

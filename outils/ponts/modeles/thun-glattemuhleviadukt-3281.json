@@ -1,0 +1,169 @@
+{
+ "nom": "Glättemühleviadukt (A6 Umfahrung Thun, Zulg)",
+ "axe": [
+  [
+   2613184.8,
+   1180254.8,
+   564.16
+  ],
+  [
+   2613216.4,
+   1180229.4,
+   564.91
+  ],
+  [
+   2613254.5,
+   1180196.4,
+   565.54
+  ],
+  [
+   2613289.6,
+   1180160.7,
+   565.71
+  ],
+  [
+   2613321.9,
+   1180122.6,
+   565.49
+  ],
+  [
+   2613351.7,
+   1180082.1,
+   564.81
+  ],
+  [
+   2613381.8,
+   1180041.9,
+   563.73
+  ],
+  [
+   2613388.7,
+   1180034.7,
+   563.57
+  ]
+ ],
+ "largeur": 12.2,
+ "largeur_dessous": 9.0,
+ "epaisseur": 1.3,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "epaisseur": 0.08,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 25,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 8.0,
+   "larg_colonne": 1.2,
+   "z_bas": 554.3000000000001,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 55,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 8.0,
+   "larg_colonne": 1.2,
+   "z_bas": 554.7,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 85,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 8.0,
+   "larg_colonne": 1.2,
+   "z_bas": 554.5,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 115,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 8.0,
+   "larg_colonne": 1.2,
+   "z_bas": 554.7,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 145,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 8.0,
+   "larg_colonne": 1.2,
+   "z_bas": 554.7,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 175,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 8.0,
+   "larg_colonne": 1.2,
+   "z_bas": 554.5,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 205,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 8.0,
+   "larg_colonne": 1.2,
+   "z_bas": 554.6,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 235,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 8.0,
+   "larg_colonne": 1.2,
+   "z_bas": 554.6,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 265,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 8.0,
+   "larg_colonne": 1.2,
+   "z_bas": 554.5,
+   "materiau": "beton"
+  },
+  {
+   "type": "culee",
+   "s": 296
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://commons.wikimedia.org/wiki/Category:Bridges_over_the_Zulg",
+  "https://de.wikipedia.org/wiki/Liste_der_Br%C3%BCcken_%C3%BCber_die_Zulg"
+ ],
+ "photo": {
+  "fichier": "commons2.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Glättemühleviadukt_über_die_Zulg,_Steffisburg_BE_–_Heimberg_BE_20240526-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 2,
+ "confiance": "moyenne",
+ "notes": "Tablier calé au nuage swissSURFACE3D 2023 (LAS, pas de COPC) : médiane +0,03 m, 86,6 % des points d'ouvrage à moins de 1,5 m, aucun conflit de terrain. Position et espacement des piles (9 lignes de 2 colonnes carrées 1,2 m, pas ~30 m) non mesurés : le laser n'atteint pas le dessous et seules deux vues rapprochées par-dessous existent (Commons, Jag9889, CC BY-SA 4.0), donc pas de calage photo ; le sol de la maquette (~555) est 4 m sous le terrain mesuré (~559), pieds de piles posés sur 555. Le schéma ne rend pas le fruit de la rive du tablier (dalle pleine, âme latérale haute, corniche béton + garde-corps en treillis métallique)."
+}

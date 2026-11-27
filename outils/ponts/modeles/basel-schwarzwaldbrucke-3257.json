@@ -1,0 +1,709 @@
+{
+ "nom": "Schwarzwaldbrücke (A2/A3), Bâle",
+ "axe": [
+  [
+   2613154.7,
+   1267576.4,
+   259.7
+  ],
+  [
+   2613179.2,
+   1267521.6,
+   259.92
+  ],
+  [
+   2613203.8,
+   1267466.9,
+   259.94
+  ],
+  [
+   2613232.4,
+   1267403.0,
+   259.77
+  ],
+  [
+   2613261.4,
+   1267337.1,
+   260.07
+  ],
+  [
+   2613287.8,
+   1267274.4,
+   260.78
+  ],
+  [
+   2613308.5,
+   1267220.3,
+   261.2
+  ]
+ ],
+ "largeur": 62.0,
+ "epaisseur": 2.6,
+ "epaisseur_appuis": 6.0,
+ "gousset": 22,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "bords": [
+  [
+   0,
+   -24,
+   25
+  ],
+  [
+   170,
+   -24,
+   25
+  ],
+  [
+   190,
+   -25,
+   26
+  ],
+  [
+   205,
+   -26,
+   27
+  ],
+  [
+   215,
+   -28,
+   27
+  ],
+  [
+   240,
+   -30,
+   27
+  ],
+  [
+   262,
+   -33,
+   28
+  ],
+  [
+   272,
+   -7,
+   12
+  ],
+  [
+   320,
+   -7,
+   12
+  ],
+  [
+   330,
+   -8,
+   10
+  ],
+  [
+   388,
+   -8,
+   10
+  ]
+ ],
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 387.96772081659935
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "volumes": [
+  {
+   "s": 46.0,
+   "t": -20,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 46.0,
+   "t": -10,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 46.0,
+   "t": 0,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 46.0,
+   "t": 10,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 46.0,
+   "t": 20,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 46.0,
+   "t": 36.3,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 46.0,
+   "t": 49.5,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 105.5,
+   "t": -20,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 105.5,
+   "t": -10,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 105.5,
+   "t": 0,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 105.5,
+   "t": 10,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 105.5,
+   "t": 20,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 105.5,
+   "t": 36.3,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 105.5,
+   "t": 49.5,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 165.0,
+   "t": -20,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 165.0,
+   "t": -10,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 165.0,
+   "t": 0,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 165.0,
+   "t": 10,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 165.0,
+   "t": 20,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 165.0,
+   "t": 36.3,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  },
+  {
+   "s": 165.0,
+   "t": 49.5,
+   "z_bas": 246.5,
+   "sections": [
+    {
+     "z": 246.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    },
+    {
+     "z": 254.5,
+     "forme": "rect",
+     "long": 3.5,
+     "larg": 3.0
+    }
+   ]
+  }
+ ],
+ "elements": [
+  {
+   "de": [
+    8,
+    25.1,
+    "tablier"
+   ],
+   "a": [
+    262,
+    25.1,
+    "tablier"
+   ],
+   "dz_de": 1.3,
+   "dz_a": 1.3,
+   "larg": 0.4,
+   "ep": 2.7,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    8,
+    49.2,
+    "tablier"
+   ],
+   "a": [
+    222,
+    49.2,
+    "tablier"
+   ],
+   "dz_de": -1.3,
+   "dz_a": -1.3,
+   "larg": 0.5,
+   "ep": 0.1
+  },
+  {
+   "de": [
+    8,
+    49.2,
+    "tablier"
+   ],
+   "a": [
+    222,
+    49.2,
+    "tablier"
+   ],
+   "dz_de": 0.5,
+   "dz_a": 0.5,
+   "larg": 0.4,
+   "ep": 3.4
+  },
+  {
+   "de": [
+    8,
+    63.2,
+    "tablier"
+   ],
+   "a": [
+    222,
+    63.2,
+    "tablier"
+   ],
+   "dz_de": 2.4,
+   "dz_a": 2.4,
+   "larg": 0.4,
+   "ep": 2.2
+  },
+  {
+   "de": [
+    8,
+    -0.5,
+    "tablier"
+   ],
+   "a": [
+    262,
+    -0.5,
+    "tablier"
+   ],
+   "dz_de": 0.55,
+   "dz_a": 0.55,
+   "larg": 0.7,
+   "ep": 1.1
+  },
+  {
+   "de": [
+    8,
+    42.5,
+    "tablier"
+   ],
+   "a": [
+    222,
+    42.5,
+    "tablier"
+   ],
+   "dz_de": -1.3,
+   "dz_a": -1.3,
+   "larg": 13,
+   "ep": 2.6
+  },
+  {
+   "de": [
+    8,
+    57,
+    "tablier"
+   ],
+   "a": [
+    222,
+    57,
+    "tablier"
+   ],
+   "dz_de": -0.1,
+   "dz_a": 0.0,
+   "larg": 12,
+   "ep": 2.6
+  },
+  {
+   "de": [
+    262,
+    -30,
+    "tablier"
+   ],
+   "a": [
+    388,
+    -26,
+    "tablier"
+   ],
+   "dz_de": -0.6,
+   "dz_a": 0.1,
+   "larg": 6,
+   "ep": 1.6
+  },
+  {
+   "de": [
+    262,
+    -15,
+    259.2
+   ],
+   "a": [
+    345,
+    -15,
+    255.0
+   ],
+   "larg": 17,
+   "ep": 1.5
+  },
+  {
+   "de": [
+    262,
+    15,
+    259.2
+   ],
+   "a": [
+    330,
+    15,
+    255.6
+   ],
+   "larg": 6,
+   "ep": 1.5
+  },
+  {
+   "de": [
+    262,
+    24,
+    "tablier"
+   ],
+   "a": [
+    388,
+    22,
+    "tablier"
+   ],
+   "dz_de": -0.8,
+   "dz_a": 0.0,
+   "larg": 8,
+   "ep": 1.6
+  }
+ ],
+ "sources": [
+  "swissSURFACE3D 2023 (tuile LAS 2613-1267)",
+  "swissTLM3D",
+  "https://commons.wikimedia.org/wiki/File:Schwarzwaldbruecke_Basel.JPG",
+  "https://structurae.net/en/structures/schwarzwaldbrucke"
+ ],
+ "photo": {
+  "fichier": "p1.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Schwarzwaldbruecke_Basel.JPG",
+  "auteur": "Wladyslaw Sojka",
+  "licence": "CC BY-SA 3.0"
+ },
+ "photos_vues": 4,
+ "confiance": "faible",
+ "notes": "Pas de COPC (Bâle 2023 en LAS.zip) : relevé lu sur la tuile LAS 2613-1267. Rhin s 0-185 : trois rangées de colonnes visibles au laser seulement dans la fente entre tabliers (s 46, 105,5, 165 ; o 36 et 49,5) ; colonnes du tablier principal (o -20..20) et haunche (2,6 m en travée, 6 m aux appuis) supposées d'après la photo ; partie terrestre s 185-262 (appuis inconnus) et tranchée s 262-388 (3 bandes hautes, rampes basses à 256 m laissées au terrain) simplifiées en barres ; murs antibruit, candélabres et rampe ouest approximatifs. Calage photo non fait : une seule vue d'ensemble (côté ouest), correspondance des piles ambiguë ; photos_vues = 4 (Commons Sojka, Roche depuis le tablier, 2 Mapillary de dessous/rive)."
+}

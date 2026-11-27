@@ -1,0 +1,102 @@
+{
+ "nom": "Grüeblischachenbrücke West (bretelle d'entrée Reussbühl, Lucerne)",
+ "axe": [
+  [
+   2665213.8,
+   1213725.2,
+   446.15
+  ],
+  [
+   2665223.4,
+   1213735.4,
+   445.85
+  ],
+  [
+   2665240.8,
+   1213754.0,
+   445.2
+  ],
+  [
+   2665257.6,
+   1213771.9,
+   444.4
+  ],
+  [
+   2665276.2,
+   1213791.7,
+   443.55
+  ],
+  [
+   2665286.6,
+   1213796.5,
+   443.25
+  ],
+  [
+   2665294.9,
+   1213797.2,
+   443.0
+  ]
+ ],
+ "largeur": 18.7,
+ "largeur_dessous": 16.5,
+ "epaisseur": 1.5,
+ "epaisseur_appuis": 2.0,
+ "gousset": 6,
+ "garde_corps": {
+  "hauteur": 0.9,
+  "plein": false,
+  "pas": 2.0,
+  "epaisseur": 0.15
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 27,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12,
+   "larg_colonne": 2.2,
+   "z_bas": 435.6,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 55,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12,
+   "larg_colonne": 2.2,
+   "z_bas": 434.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 83,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12,
+   "larg_colonne": 2.2,
+   "z_bas": 433.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "culee",
+   "s": 110.97
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2020 (LAS tuile 2665-1213)",
+  "swissTLM3D",
+  "swissimage",
+  "Mapillary (photos sur le tablier)"
+ ],
+ "photos_vues": 4,
+ "confiance": "faible",
+ "notes": "Relevé laser 2020 (tuile LAS, pas de COPC) : tablier 18,7 m en deux chaussées de 2 voies séparées par une glissière, fixé au laser à +-0,1 m ; le laser ne voit rien sous le tablier (10 m au-dessus du sol) : les 3 piles à colonnes jumelles (portées de ~28 m) sont supposées, non vues ni sur photo (aucune vue de dessous trouvée), forme et épaisseur 1,5 m incertaines. Bout sud-ouest (raccord au viaduc principal, tablier classé sol) et bout nord-est (boucle en épingle qui se sépare) non modélisés ; glissière centrale et lampadaires non rendus. Calage photo non fait : seules des photos prises sur le tablier existent (Mapillary), aucune vue d'ensemble."
+}

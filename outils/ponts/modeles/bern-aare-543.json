@@ -1,23 +1,32 @@
 {
- "nom": "Pont routier sur l'Aare, Berne (sud)",
+ "nom": "Dalmazibrücke, Berne",
  "axe": [
   [
-   2600573.9,
-   1199252.1,
-   504.2
+   2600512.8,
+   1199282.0,
+   503.77
   ],
   [
-   2600512.4,
-   1199282.5,
-   503.7
+   2600542.9,
+   1199267.2,
+   503.97
+  ],
+  [
+   2600573.3,
+   1199252.3,
+   504.22
   ]
  ],
- "largeur": 13.0,
- "epaisseur": 1.2,
+ "largeur": 13.2,
+ "epaisseur": 0.8,
+ "epaisseur_appuis": 1.4,
+ "gousset": 7,
+ "materiau": "beton",
  "garde_corps": {
   "hauteur": 1.1,
-  "plein": true,
-  "epaisseur": 0.4
+  "plein": false,
+  "pas": 2.5,
+  "materiau": "acier"
  },
  "appuis": [
   {
@@ -25,17 +34,45 @@
    "s": 0
   },
   {
+   "type": "pile",
+   "s": 19.9,
+   "forme": "rect",
+   "long": 2.2,
+   "larg": 15.5,
+   "z_bas": 499.5,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 47.5,
+   "forme": "rect",
+   "long": 2.2,
+   "larg": 15.5,
+   "z_bas": 499.5,
+   "materiau": "beton"
+  },
+  {
    "type": "culee",
-   "s": 68.6
+   "s": 67.4
   }
  ],
  "arches": [],
  "pylones": [],
  "sources": [
-  "https://wms.geo.admin.ch (swissimage)",
-  "swissTLM3D"
+  "swissSURFACE3D 2023 (tuile LAS 2600-1199, lue par zip_distant ; pas de COPC à Berne)",
+  "OpenStreetMap / Nominatim : Dalmazibrücke (way 40425597), Marzili, Berne",
+  "https://commons.wikimedia.org/wiki/File:Dalmazibr%C3%BCcke_%C3%BCber_die_Aare,_Bern_BE_20240820-jag9889.jpg (Jag9889, CC BY-SA 4.0, amont rive droite)",
+  "https://commons.wikimedia.org/wiki/File:Dalmazi-Br%C3%BCcke_%C3%BCber_die_Aare,_Bern_BE_20240820-jag9889.jpg (Jag9889, CC BY-SA 4.0, sur le tablier)",
+  "https://commons.wikimedia.org/wiki/File:Dalmazibr%C3%BCcke_Bern.JPG (Zehnfinger, CC BY-SA 3.0, amont rive gauche)",
+  "https://commons.wikimedia.org/wiki/File:Bern_Aare_Dalmazibr%C3%BCcke_Monbijoubr%C3%BCcke.jpg (AndreasPraefcke, CC BY 3.0, aval depuis la Bundesterrasse)"
  ],
- "photos_vues": 0,
- "confiance": "faible",
- "notes": "Pont en dalle ou poutres d'une seule travée de ~69 m, sans pile visible, trottoir côté aval ; largeur (~13 m) et épaisseur lues à l'orthophoto. Nom non établi. Pas de nuage COPC ici (seule la tuile 2023 en LAZ pour Berne, rien pour Bellinzone) : modèle tiré de l'axe TLM et de l'orthophoto, non vérifié au laser."
+ "photos_vues": 4,
+ "confiance": "moyenne",
+ "notes": "Dalmazibrücke (Berne, Marzili–Dalmazi) : poutre continue en béton à trois travées (~20 / 27,6 / 20 m) sur deux piles-murs rectangulaires dans l'Aare, sous-face à goussets courbes au droit des piles, garde-corps métallique ajouré et lampadaires tous les 8 m ; axe, altitudes (médiane 0,00 m), largeur et longueur (67,4 m) calés sur la tuile LAS swissSURFACE3D 2023 (98 % des points à < 1,5 m). Piles invisibles au laser sauf le nez aval de la pile s 47,5 (points à o +7..+8,6 m) : pile s 19,9 placée par symétrie et d'après les photos amont (c2, c3), pieds (499,5) et goussets (7 m, 1,4 m) estimés ; les appareils d'appui en tête de pile et les goussets aux culées ne sont pas modélisés. Conflit de terrain s 34..62 (et 4..6) = artefact : la tuile 2023 n'a presque aucun retour sur l'Aare (5 points eau, aucun sol entre s 8 et 60), le sol est interpolé d'une rive à l'autre jusqu'au quai est (~504,2) ; eau réelle à ~500,9, soit ~2,3 m sous le tablier, rien n'est remblayé.",
+ "photo": {
+  "fichier": "c2.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Dalmazibr%C3%BCcke_%C3%BCber_die_Aare,_Bern_BE_20240820-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ }
 }

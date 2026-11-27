@@ -1,0 +1,588 @@
+{
+ "nom": "Europabrücke (Zürich, Altstetten–Höngg)",
+ "axe": [
+  [
+   2679579.1,
+   1249665.8,
+   406.22
+  ],
+  [
+   2679635.4,
+   1249852.8,
+   403.3
+  ],
+  [
+   2679658.5,
+   1249949.7,
+   403.03
+  ],
+  [
+   2679688.2,
+   1250075.5,
+   403.77
+  ],
+  [
+   2679713.3,
+   1250181.5,
+   404.45
+  ],
+  [
+   2679732.3,
+   1250262.0,
+   404.93
+  ],
+  [
+   2679742.0,
+   1250318.4,
+   405.22
+  ],
+  [
+   2679771.5,
+   1250410.4,
+   405.92
+  ]
+ ],
+ "largeur": 19.2,
+ "epaisseur": 1.9,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 32.8,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 398.3,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 65.6,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 398.2,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 98.4,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 397.5,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 131.2,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 397.2,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 164.0,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 396.9,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 196.8,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 396.8,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 229.6,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 396.7,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 262.4,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 396.8,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 295.2,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 396.8,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 328.0,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 397.0,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 360.8,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 397.1,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 393.6,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 397.3,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 426.4,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 397.5,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 459.2,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 397.3,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 492.0,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 397.4,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 524.8,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 397.4,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 557.6,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 397.7,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 590.4,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 397.8,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 623.2,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 398.1,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 656.0,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 398.3,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 734.0,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 395.8,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "pile",
+   "s": 765.0,
+   "forme": "double",
+   "long": 1.8,
+   "larg": 12.0,
+   "larg_colonne": 2.4,
+   "z_bas": 398.0,
+   "chapiteau": {
+    "hauteur": 1.5,
+    "larg": 3.6,
+    "larg_bas": 2.4,
+    "long": 3.0
+   }
+  },
+  {
+   "type": "culee",
+   "s": 769.6
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "relevé swissSURFACE3D 2024",
+  "swissTLM3D",
+  "https://structurae.net/de/bauwerke/europabruecke-1962",
+  "https://commons.wikimedia.org/wiki/File:Am_Giessen_passing_under_Europabrücke.jpg (Balise42, CC BY 4.0)",
+  "https://commons.wikimedia.org/wiki/File:Europabrücke_2024.jpeg (Parpan05, CC BY 4.0)",
+  "https://commons.wikimedia.org/wiki/File:Europabrücke-zuerich01.JPG (Bobo11, CC BY-SA 3.0)"
+ ],
+ "photos_vues": 4,
+ "confiance": "moyenne",
+ "notes": "Dalle/caisson en béton précontraint (structurae : 1962, 1100 m au total), modélisé sur 770 m (Altstetten jusqu'après la Limmat, travée de rivière ~78 m entre piles de rive à s 656 et 734, mesurées au laser). Les piles intermédiaires (double colonne à tête évasée, tous ~32,8 m) et la hauteur de fascia (1,9 m en approche, 3,3 m sur la rivière, d'après la photo de côté) ne sont pas vues au laser : positions déduites de la régularité, non vérifiées. Rampes d'accès, lampadaires de l'axe et tramways non représentés ; calage photographique non fait.",
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -9.6,
+     0
+    ],
+    [
+     -9.6,
+     -0.9
+    ],
+    [
+     -6.2,
+     -1.9
+    ],
+    [
+     6.2,
+     -1.9
+    ],
+    [
+     9.6,
+     -0.9
+    ],
+    [
+     9.6,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 630,
+   "points": [
+    [
+     -9.6,
+     0
+    ],
+    [
+     -9.6,
+     -0.9
+    ],
+    [
+     -6.2,
+     -1.9
+    ],
+    [
+     6.2,
+     -1.9
+    ],
+    [
+     9.6,
+     -0.9
+    ],
+    [
+     9.6,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 656,
+   "points": [
+    [
+     -9.6,
+     0
+    ],
+    [
+     -9.6,
+     -3.0
+    ],
+    [
+     -6.2,
+     -3.3
+    ],
+    [
+     6.2,
+     -3.3
+    ],
+    [
+     9.6,
+     -3.0
+    ],
+    [
+     9.6,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 734,
+   "points": [
+    [
+     -9.6,
+     0
+    ],
+    [
+     -9.6,
+     -3.0
+    ],
+    [
+     -6.2,
+     -3.3
+    ],
+    [
+     6.2,
+     -3.3
+    ],
+    [
+     9.6,
+     -3.0
+    ],
+    [
+     9.6,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 752,
+   "points": [
+    [
+     -9.6,
+     0
+    ],
+    [
+     -9.6,
+     -0.9
+    ],
+    [
+     -6.2,
+     -1.9
+    ],
+    [
+     6.2,
+     -1.9
+    ],
+    [
+     9.6,
+     -0.9
+    ],
+    [
+     9.6,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 769.6,
+   "points": [
+    [
+     -9.6,
+     0
+    ],
+    [
+     -9.6,
+     -0.9
+    ],
+    [
+     -6.2,
+     -1.9
+    ],
+    [
+     6.2,
+     -1.9
+    ],
+    [
+     9.6,
+     -0.9
+    ],
+    [
+     9.6,
+     0
+    ]
+   ]
+  }
+ ],
+ "photo": {
+  "fichier": "p1.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Europabrücke_über_die_Limmat,_Stadt_Zürich_20180908-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ }
+}

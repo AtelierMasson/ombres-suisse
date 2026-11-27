@@ -1,0 +1,249 @@
+{
+ "nom": "Pont routier Giubiasco-Sementina sur le Tessin (Bellinzone)",
+ "axe": [
+  [
+   2716678.9,
+   1114583.3,
+   214.0
+  ],
+  [
+   2716682.8,
+   1114569.0,
+   214.45
+  ],
+  [
+   2716699.8,
+   1114504.9,
+   215.91
+  ],
+  [
+   2716704.4,
+   1114488.0,
+   216.03
+  ],
+  [
+   2716732.5,
+   1114386.0,
+   215.49
+  ],
+  [
+   2716738.9,
+   1114362.9,
+   215.07
+  ],
+  [
+   2716748.2,
+   1114328.6,
+   214.2
+  ]
+ ],
+ "largeur": 11.0,
+ "largeur_dessous": 7.0,
+ "epaisseur": 2.4,
+ "materiau": "beton",
+ "materiau_tablier": "acier",
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -5.5,
+     -0.35
+    ],
+    [
+     -4.0,
+     -0.5
+    ],
+    [
+     -3.55,
+     -2.4
+    ],
+    [
+     -2.55,
+     -2.4
+    ],
+    [
+     -2.1,
+     -0.5
+    ],
+    [
+     2.1,
+     -0.5
+    ],
+    [
+     2.55,
+     -2.4
+    ],
+    [
+     3.55,
+     -2.4
+    ],
+    [
+     4.0,
+     -0.5
+    ],
+    [
+     5.5,
+     -0.35
+    ]
+   ]
+  },
+  {
+   "s": 133,
+   "points": [
+    [
+     -5.5,
+     -0.35
+    ],
+    [
+     -4.0,
+     -0.5
+    ],
+    [
+     -3.55,
+     -2.4
+    ],
+    [
+     -2.55,
+     -2.4
+    ],
+    [
+     -2.1,
+     -0.5
+    ],
+    [
+     2.1,
+     -0.5
+    ],
+    [
+     2.55,
+     -2.4
+    ],
+    [
+     3.55,
+     -2.4
+    ],
+    [
+     4.0,
+     -0.5
+    ],
+    [
+     5.5,
+     -0.35
+    ]
+   ]
+  },
+  {
+   "s": 266.1,
+   "points": [
+    [
+     -5.5,
+     -0.35
+    ],
+    [
+     -4.0,
+     -0.5
+    ],
+    [
+     -3.55,
+     -2.4
+    ],
+    [
+     -2.55,
+     -2.4
+    ],
+    [
+     -2.1,
+     -0.5
+    ],
+    [
+     2.1,
+     -0.5
+    ],
+    [
+     2.55,
+     -2.4
+    ],
+    [
+     3.55,
+     -2.4
+    ],
+    [
+     4.0,
+     -0.5
+    ],
+    [
+     5.5,
+     -0.35
+    ]
+   ]
+  }
+ ],
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "pas": 2.0,
+  "materiau": "acier"
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 4
+  },
+  {
+   "type": "pile",
+   "s": 57,
+   "forme": "rect",
+   "long": 5.5,
+   "larg": 8.0,
+   "z_bas": 202.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 110,
+   "forme": "rect",
+   "long": 5.5,
+   "larg": 8.0,
+   "z_bas": 202.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 154,
+   "forme": "rect",
+   "long": 5.5,
+   "larg": 8.0,
+   "z_bas": 201.9,
+   "materiau": "beton"
+  },
+  {
+   "type": "pile",
+   "s": 207,
+   "forme": "rect",
+   "long": 5.5,
+   "larg": 8.0,
+   "z_bas": 202.0,
+   "materiau": "beton"
+  },
+  {
+   "type": "culee",
+   "s": 261
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://www.officineghidoni.ch/progetti/ponte-stradale-giubiasco-sementina-2008",
+  "https://ingegnerispp.ch/portfolio/ponte-sul-fiume-ticino-tra-giubiasco-e-sementina/"
+ ],
+ "photo": {
+  "fichier": "csm_2_a3822aee73.jpg",
+  "page": "https://www.officineghidoni.ch/progetti/ponte-stradale-giubiasco-sementina-2008",
+  "auteur": "Officine Ghidoni SA",
+  "licence": "© Officine Ghidoni, usage de contrôle"
+ },
+ "photos_vues": 4,
+ "confiance": "moyenne",
+ "notes": "Viaduc routier Giubiasco-Sementina (2008, mixte acier-beton, deux poutres a ame pleine en acier Corten, dalle beton, travee centrale ~43 m sur le Tessin, 233,5 m selon Officine Ghidoni, ~257 m entre culees au laser). Le nuage 2020 (tuile LAS, pas de COPC) ne contient aucun point de pile ni de dessous : places des 4 piles (s 57/110/154/207), leurs dimensions (5,5 x 8 m) et la profondeur des poutres (2,4 m) sont estimees sur 2 photos d'ensemble seulement, camera placee a l'oeil (pas de calage numerique : points de calage trop peu fiables, pas de residu en px). Le sol de la maquette sous l'axe tombe a ~202 m (grille.js, comme au viaduc 1358) alors que le terrain mesure est a 208,5 m : z_bas des piles pose a 202,0 pour qu'aucune pile ne flotte ; a revoir si l'application est corrigee (hauteur reelle des piles ~4,5 m). Le schema ne sait pas faire les deux poutres en I separees (approchees par une sous-face en W) ni la courbe verticale."
+}

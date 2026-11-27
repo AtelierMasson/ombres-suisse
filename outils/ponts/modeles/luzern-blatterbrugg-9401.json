@@ -1,0 +1,326 @@
+{
+ "nom": "Pont de la Blatten (Blatterbrugg), Malters",
+ "axe": [
+  [
+   2659386.2,
+   1210681.1,
+   476.0
+  ],
+  [
+   2659399.85,
+   1210717.85,
+   476.4
+  ],
+  [
+   2659413.5,
+   1210754.6,
+   476.8
+  ]
+ ],
+ "largeur": 14.0,
+ "largeur_dessous": 13.0,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 10.5
+  },
+  {
+   "type": "culee",
+   "s": 68.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [
+  {
+   "de": [
+    6,
+    6.4,
+    476.66
+   ],
+   "a": [
+    21,
+    6.4,
+    483.2
+   ],
+   "larg": 0.7,
+   "ep": 1.0,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    21,
+    6.4,
+    483.2
+   ],
+   "a": [
+    48,
+    6.4,
+    483.2
+   ],
+   "larg": 0.7,
+   "ep": 1.0,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    48,
+    6.4,
+    483.2
+   ],
+   "a": [
+    68,
+    6.4,
+    477.29
+   ],
+   "larg": 0.7,
+   "ep": 1.0,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    12,
+    -6.4,
+    476.72
+   ],
+   "a": [
+    27,
+    -6.4,
+    483.2
+   ],
+   "larg": 0.7,
+   "ep": 1.0,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    27,
+    -6.4,
+    483.2
+   ],
+   "a": [
+    57,
+    -6.4,
+    483.2
+   ],
+   "larg": 0.7,
+   "ep": 1.0,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    57,
+    -6.4,
+    483.2
+   ],
+   "a": [
+    74,
+    -6.4,
+    477.35
+   ],
+   "larg": 0.7,
+   "ep": 1.0,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    18.8,
+    6.4,
+    477.09
+   ],
+   "a": [
+    21,
+    6.4,
+    482.7
+   ],
+   "larg": 0.35,
+   "ep": 0.35,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    23.2,
+    6.4,
+    477.14
+   ],
+   "a": [
+    21,
+    6.4,
+    482.7
+   ],
+   "larg": 0.35,
+   "ep": 0.35,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    45.8,
+    6.4,
+    477.37
+   ],
+   "a": [
+    48,
+    6.4,
+    482.7
+   ],
+   "larg": 0.35,
+   "ep": 0.35,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    50.2,
+    6.4,
+    477.40999999999997
+   ],
+   "a": [
+    48,
+    6.4,
+    482.7
+   ],
+   "larg": 0.35,
+   "ep": 0.35,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    24.8,
+    -6.4,
+    477.15
+   ],
+   "a": [
+    27,
+    -6.4,
+    482.7
+   ],
+   "larg": 0.35,
+   "ep": 0.35,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    29.2,
+    -6.4,
+    477.2
+   ],
+   "a": [
+    27,
+    -6.4,
+    482.7
+   ],
+   "larg": 0.35,
+   "ep": 0.35,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    54.8,
+    -6.4,
+    477.46
+   ],
+   "a": [
+    57,
+    -6.4,
+    482.7
+   ],
+   "larg": 0.35,
+   "ep": 0.35,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    59.2,
+    -6.4,
+    477.5
+   ],
+   "a": [
+    57,
+    -6.4,
+    482.7
+   ],
+   "larg": 0.35,
+   "ep": 0.35,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    21,
+    6.4,
+    483.2
+   ],
+   "a": [
+    27,
+    -6.4,
+    483.2
+   ],
+   "larg": 0.45,
+   "ep": 0.45,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    34,
+    6.4,
+    483.2
+   ],
+   "a": [
+    40,
+    -6.4,
+    483.2
+   ],
+   "larg": 0.45,
+   "ep": 0.45,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    48,
+    6.4,
+    483.2
+   ],
+   "a": [
+    57,
+    -6.4,
+    483.2
+   ],
+   "larg": 0.45,
+   "ep": 0.45,
+   "materiau": "acier"
+  },
+  {
+   "de": [
+    21,
+    6.4,
+    482.7
+   ],
+   "a": [
+    34,
+    -6.4,
+    482.7
+   ],
+   "larg": 0.3,
+   "ep": 0.3,
+   "materiau": "acier"
+  }
+ ],
+ "sources": [
+  "https://commons.wikimedia.org/wiki/File:Blattenbr%C3%BCcke_Kleine_Emme_Malters_LU_20170327-jag9889.jpg",
+  "https://www.luzernerzeitung.ch/zentralschweiz/luzern/malters-die-neue-blattenbruecke-wird-90-meter-lang-ld.23657",
+  "https://www.mapillary.com/"
+ ],
+ "photo": {
+  "fichier": "p1.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Blattenbr%C3%BCcke_Kleine_Emme_Malters_LU_20170327-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 2,
+ "confiance": "moyenne",
+ "notes": "Pas de COPC : relevé 2020 en LAS (tuile 2659-1210), axe et cadres relevés au nuage ; cadres porteurs béton décalés en plan (gauche s 6-68, droite s 12-74), entretoises acier approchées."
+}

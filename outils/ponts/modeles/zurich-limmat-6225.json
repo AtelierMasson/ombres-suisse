@@ -1,0 +1,462 @@
+{
+ "nom": "Pont de la Weiningerstrasse sur la Limmat, Unterengstringen",
+ "axe": [
+  [
+   2676198.4,
+   1251428.5,
+   395.17
+  ],
+  [
+   2676223.1,
+   1251488.6,
+   396.72
+  ],
+  [
+   2676249.6,
+   1251556.8,
+   398.47
+  ]
+ ],
+ "largeur": 13.6,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 1.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 2.0
+  },
+  {
+   "type": "pile",
+   "s": 50,
+   "long": 4.5,
+   "larg": 14.5,
+   "z_bas": 386.5,
+   "materiau": "beton",
+   "sections": [
+    {
+     "z": 386.5,
+     "forme": "poly",
+     "points": [
+      [
+       0.43,
+       7.41
+      ],
+      [
+       -3.42,
+       6.35
+      ],
+      [
+       0.57,
+       -8.11
+      ],
+      [
+       4.42,
+       -7.05
+      ]
+     ]
+    },
+    {
+     "z": 389.5,
+     "forme": "poly",
+     "points": [
+      [
+       0.43,
+       7.41
+      ],
+      [
+       -3.42,
+       6.35
+      ],
+      [
+       0.57,
+       -8.11
+      ],
+      [
+       4.42,
+       -7.05
+      ]
+     ]
+    },
+    {
+     "z": 393.2,
+     "forme": "poly",
+     "points": [
+      [
+       0.29,
+       7.17
+      ],
+      [
+       -3.18,
+       6.21
+      ],
+      [
+       0.71,
+       -7.87
+      ],
+      [
+       4.18,
+       -6.91
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "culee",
+   "s": 79.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://de.wikipedia.org/wiki/Liste_der_Br%C3%BCcken_%C3%BCber_die_Limmat",
+  "https://commons.wikimedia.org/wiki/File:Weiningerstrasse_Br%C3%BCcke_%C3%BCber_die_Limmat,_Unterengstringen_20180908-jag9889.jpg",
+  "Mapillary (till, u001, sp8962de, 2sel, kino) CC BY-SA 4.0",
+  "swissSURFACE3D 2024",
+  "swissimage"
+ ],
+ "photos_vues": 6,
+ "confiance": "bonne",
+ "notes": "Pont routier (Weiningerstrasse, Kunstbaute 249-004) en poutres acier continues sous dalle béton, une pile-voile dans la Limmat (s 50, tournée d'env. 15° par rapport à la perpendiculaire) puis passage sur l'A1H au nord ; calé sur photo (6 px). Incertitudes : profondeur réelle des poutres (sous-face non vue au laser), appuis de la rive nord et du passage au-dessus de l'autoroute (culée supposée à s 79, aucune pile intermédiaire vue ni modélisée entre s 79 et 138), élargissement du tablier vers les carrefours nord non modélisé ; le schéma ne rend pas les âmes à goussets ni l'assise en pierre de la pile. Conflit de terrain mineur : sol de la maquette à 0,2 m au-dessus de la sous-face à s 4.",
+ "epaisseur": 2.3,
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -6.8,
+     0
+    ],
+    [
+     -6.8,
+     -1.0
+    ],
+    [
+     -6.3,
+     -1.0
+    ],
+    [
+     -6.3,
+     -1.9
+    ],
+    [
+     -4.7,
+     -1.9
+    ],
+    [
+     -4.7,
+     -1.0
+    ],
+    [
+     4.7,
+     -1.0
+    ],
+    [
+     4.7,
+     -1.9
+    ],
+    [
+     6.3,
+     -1.9
+    ],
+    [
+     6.3,
+     -1.0
+    ],
+    [
+     6.8,
+     -1.0
+    ],
+    [
+     6.8,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 10,
+   "points": [
+    [
+     -6.8,
+     0
+    ],
+    [
+     -6.8,
+     -1.0
+    ],
+    [
+     -6.3,
+     -1.0
+    ],
+    [
+     -6.3,
+     -2.3
+    ],
+    [
+     -4.7,
+     -2.3
+    ],
+    [
+     -4.7,
+     -1.0
+    ],
+    [
+     4.7,
+     -1.0
+    ],
+    [
+     4.7,
+     -2.3
+    ],
+    [
+     6.3,
+     -2.3
+    ],
+    [
+     6.3,
+     -1.0
+    ],
+    [
+     6.8,
+     -1.0
+    ],
+    [
+     6.8,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 38,
+   "points": [
+    [
+     -6.8,
+     0
+    ],
+    [
+     -6.8,
+     -1.0
+    ],
+    [
+     -6.3,
+     -1.0
+    ],
+    [
+     -6.3,
+     -2.3
+    ],
+    [
+     -4.7,
+     -2.3
+    ],
+    [
+     -4.7,
+     -1.0
+    ],
+    [
+     4.7,
+     -1.0
+    ],
+    [
+     4.7,
+     -2.3
+    ],
+    [
+     6.3,
+     -2.3
+    ],
+    [
+     6.3,
+     -1.0
+    ],
+    [
+     6.8,
+     -1.0
+    ],
+    [
+     6.8,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 50,
+   "points": [
+    [
+     -6.8,
+     0
+    ],
+    [
+     -6.8,
+     -1.0
+    ],
+    [
+     -6.3,
+     -1.0
+    ],
+    [
+     -6.3,
+     -2.8
+    ],
+    [
+     -4.7,
+     -2.8
+    ],
+    [
+     -4.7,
+     -1.0
+    ],
+    [
+     4.7,
+     -1.0
+    ],
+    [
+     4.7,
+     -2.8
+    ],
+    [
+     6.3,
+     -2.8
+    ],
+    [
+     6.3,
+     -1.0
+    ],
+    [
+     6.8,
+     -1.0
+    ],
+    [
+     6.8,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 62,
+   "points": [
+    [
+     -6.8,
+     0
+    ],
+    [
+     -6.8,
+     -1.0
+    ],
+    [
+     -6.3,
+     -1.0
+    ],
+    [
+     -6.3,
+     -2.3
+    ],
+    [
+     -4.7,
+     -2.3
+    ],
+    [
+     -4.7,
+     -1.0
+    ],
+    [
+     4.7,
+     -1.0
+    ],
+    [
+     4.7,
+     -2.3
+    ],
+    [
+     6.3,
+     -2.3
+    ],
+    [
+     6.3,
+     -1.0
+    ],
+    [
+     6.8,
+     -1.0
+    ],
+    [
+     6.8,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 140,
+   "points": [
+    [
+     -6.8,
+     0
+    ],
+    [
+     -6.8,
+     -1.0
+    ],
+    [
+     -6.3,
+     -1.0
+    ],
+    [
+     -6.3,
+     -2.3
+    ],
+    [
+     -4.7,
+     -2.3
+    ],
+    [
+     -4.7,
+     -1.0
+    ],
+    [
+     4.7,
+     -1.0
+    ],
+    [
+     4.7,
+     -2.3
+    ],
+    [
+     6.3,
+     -2.3
+    ],
+    [
+     6.3,
+     -1.0
+    ],
+    [
+     6.8,
+     -1.0
+    ],
+    [
+     6.8,
+     0
+    ]
+   ]
+  }
+ ],
+ "materiau_tablier": "acier",
+ "lampadaires": [
+  {
+   "s0": 1.0,
+   "s1": 125,
+   "pas": 29.7,
+   "o": -7.7,
+   "h": 10.3,
+   "ep": 0.25
+  }
+ ],
+ "photo": {
+  "fichier": "commons1.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Weiningerstrasse_Br%C3%BCcke_%C3%BCber_die_Limmat,_Unterengstringen_20180908-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ }
+}

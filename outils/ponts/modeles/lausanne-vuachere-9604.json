@@ -1,0 +1,48 @@
+{
+ "nom": "Passerelle sur la Vuachère (chemin de la Vuachère), Lausanne",
+ "axe": [
+  [
+   2539588.0,
+   1152777.2,
+   531.4
+  ],
+  [
+   2539602.2,
+   1152780.3,
+   531.65
+  ],
+  [
+   2539616.6,
+   1152783.4,
+   531.9
+  ]
+ ],
+ "largeur": 3.0,
+ "epaisseur": 0.4,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 29.3
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "swissSURFACE3D 2025",
+  "swissTLM3D (axe 1m Weg)",
+  "swissIMAGE (arbres: ouvrage invisible)"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Passerelle piétonne non photographiée (aucune photo : Commons vide, Mapillary à 300 m, ouvrage sous les arbres) : type, garde-corps, épaisseur et culées sont estimés ; calage photo non fait, non vérifié sur photo. Sous-face et appuis jamais vus du laser ; largeur 3 m d'après la classe 17 (2,7 m)."
+}

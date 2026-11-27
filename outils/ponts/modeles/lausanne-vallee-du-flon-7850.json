@@ -1,0 +1,50 @@
+{
+ "nom": "Viaduc du métro M2 sur la rue (Jourdils - gare), Lausanne",
+ "axe": [
+  [
+   2537838.0,
+   1151748.0,
+   421.55
+  ],
+  [
+   2537841.6,
+   1151765.5,
+   422.4
+  ]
+ ],
+ "largeur": 11.0,
+ "epaisseur": 0.7,
+ "materiau": "beton",
+ "materiau_tablier": "beton",
+ "garde_corps": {
+  "hauteur": 1.7,
+  "plein": true,
+  "epaisseur": 0.6
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 17.9
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://www.mapillary.com/app/user/sburlot",
+  "https://api3.geo.admin.ch/rest/services/api/MapServer/identify (ch.bav.schienennetz, M2)"
+ ],
+ "photo": {
+  "fichier": "m758844731484066.jpg",
+  "page": "https://www.mapillary.com/app/?pKey=758844731484066",
+  "auteur": "sburlot / Mapillary",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 3,
+ "confiance": "moyenne",
+ "notes": "Viaduc du métro M2 (Jourdils-gare) à dalle béton en U : cuvette à ~421,6-422,4 m avec murs-guides plein de 1,7 m aux rives, sous-face à 421,1 m, 4,7 m au-dessus de la rue ; épaisseur de dalle (0,7 m) et forme des culées déduites du nuage (sous-face peu vue) et de deux photos Mapillary de rue (sburlot, 2016), pas de pile intermédiaire visible dans la portée (la colonne vue sur la photo de dessous n'est pas confirmée au nuage). Le tracé TLM '1m Weg' de l'inventaire est un sentier voisin, remplacé par l'axe mesuré du tablier ; viaduc prolongé de part et d'autre par remblai/murs que le schéma ne distingue pas. Calage photo non réalisé : seules des vues de rue sans vue d'ensemble, extrémités du tablier non identifiables."
+}

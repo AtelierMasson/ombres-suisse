@@ -1,0 +1,174 @@
+{
+ "nom": "Reusseggbrücke (rampe Seetalplatz – Emmen Süd), Luzern/Emmen",
+ "axe": [
+  [
+   2664349.0,
+   1213269.0,
+   437.4
+  ],
+  [
+   2664376.5,
+   1213247.1,
+   439.4
+  ],
+  [
+   2664405.0,
+   1213219.0,
+   441.6
+  ],
+  [
+   2664435.0,
+   1213185.5,
+   443.6
+  ],
+  [
+   2664455.0,
+   1213163.4,
+   444.6
+  ],
+  [
+   2664463.0,
+   1213155.2,
+   445.0
+  ]
+ ],
+ "largeur": 12.0,
+ "largeur_dessous": 8.5,
+ "epaisseur": 1.4,
+ "bords": [
+  [
+   0,
+   -5.0,
+   6.6
+  ],
+  [
+   24,
+   -5.4,
+   6.0
+  ],
+  [
+   56,
+   -5.5,
+   6.1
+  ],
+  [
+   80,
+   -5.9,
+   6.3
+  ],
+  [
+   96,
+   -6.8,
+   7.0
+  ],
+  [
+   112,
+   -7.4,
+   7.2
+  ],
+  [
+   162,
+   -7.4,
+   7.4
+  ]
+ ],
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "epaisseur": 0.12,
+  "pas": 2.5,
+  "materiau": "acier"
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 21,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 6.5,
+   "larg_colonne": 1.4,
+   "z_bas": 428.3,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 42,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 6.5,
+   "larg_colonne": 1.4,
+   "z_bas": 428.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 63,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 6.5,
+   "larg_colonne": 1.4,
+   "z_bas": 428.40000000000003,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 84,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 6.5,
+   "larg_colonne": 1.4,
+   "z_bas": 428.20000000000005,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 105,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 6.5,
+   "larg_colonne": 1.4,
+   "z_bas": 428.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 126,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 6.5,
+   "larg_colonne": 1.4,
+   "z_bas": 428.20000000000005,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 147,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 6.5,
+   "larg_colonne": 1.4,
+   "z_bas": 427.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "culee",
+   "s": 162
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "https://commons.wikimedia.org/wiki/File:Ibachbrücke_Reuss_Luzern_LU_-_Emmenbrücke_LU_20180109-jag9889.jpg",
+  "https://commons.wikimedia.org/wiki/File:Reussbühlbrücke_Kleine_Emme_Emmenbrücke-Luzern_LU_20170327-jag9889.jpg",
+  "swissSURFACE3D 2020",
+  "swissTLM3D"
+ ],
+ "photos_vues": 5,
+ "confiance": "moyenne",
+ "notes": "Rampe courbe en dalle béton (~1,4 m) sur paires de colonnes rondes, vue sur Commons (Ibachbrücke Reuss, jag9889) et Mapillary (gismountains / Mapillary, axe / Mapillary) ; modélisée de la culée NW (s 0) à l'amorce du carrefour (s 162) ; la branche SW (Ausfahrt vers l'A2) et la rampe NE ne sont pas modélisées (un seul axe). Position des 7 piles (pas ~21 m) estimée sur photo, le laser (swissSURFACE3D 2020, LAS, sans classes 26/27) ne les voit pas ; chevêtres non modélisés ; pas de calage photo (aucune pile ni repère de sol identifiable avec certitude)."
+}

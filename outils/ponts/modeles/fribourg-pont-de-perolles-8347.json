@@ -1,0 +1,414 @@
+{
+ "nom": "Pont de Pérolles, Fribourg",
+ "axe": [
+  [
+   2578117.7,
+   1181719.1,
+   623.75
+  ],
+  [
+   2578150.7,
+   1181737.0,
+   623.13
+  ],
+  [
+   2578187.4,
+   1181756.7,
+   622.73
+  ],
+  [
+   2578221.3,
+   1181779.4,
+   622.44
+  ],
+  [
+   2578252.8,
+   1181804.3,
+   622.19
+  ],
+  [
+   2578282.1,
+   1181831.6,
+   622.08
+  ],
+  [
+   2578309.2,
+   1181861.1,
+   622.12
+  ],
+  [
+   2578335.6,
+   1181891.3,
+   622.33
+  ],
+  [
+   2578362.1,
+   1181921.4,
+   622.63
+  ],
+  [
+   2578388.5,
+   1181951.6,
+   622.92
+  ],
+  [
+   2578414.9,
+   1181981.7,
+   623.21
+  ],
+  [
+   2578441.3,
+   1182011.9,
+   623.51
+  ],
+  [
+   2578467.7,
+   1182042.1,
+   623.82
+  ],
+  [
+   2578494.1,
+   1182072.3,
+   624.12
+  ],
+  [
+   2578517.3,
+   1182098.6,
+   624.39
+  ]
+ ],
+ "largeur": 17.2,
+ "largeur_dessous": 14.0,
+ "epaisseur": 2.0,
+ "materiau": "beton",
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.35
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 24.4,
+   "forme": "rect",
+   "long": 3.4,
+   "larg": 9.0,
+   "z_bas": 619.8,
+   "fruit": 0.03
+  },
+  {
+   "type": "pile",
+   "s": 48.9,
+   "forme": "rect",
+   "long": 3.4,
+   "larg": 9.0,
+   "z_bas": 612.8,
+   "fruit": 0.03
+  },
+  {
+   "type": "pile",
+   "s": 73.3,
+   "forme": "rect",
+   "long": 3.4,
+   "larg": 9.0,
+   "z_bas": 606.5,
+   "fruit": 0.03
+  },
+  {
+   "type": "pile",
+   "s": 97.7,
+   "forme": "rect",
+   "long": 3.4,
+   "larg": 9.0,
+   "z_bas": 603.1,
+   "fruit": 0.03
+  },
+  {
+   "type": "pile",
+   "s": 122.2,
+   "forme": "rect",
+   "long": 3.4,
+   "larg": 9.0,
+   "z_bas": 600.2,
+   "fruit": 0.03
+  },
+  {
+   "type": "pile",
+   "s": 146.6,
+   "forme": "rect",
+   "long": 3.4,
+   "larg": 9.0,
+   "z_bas": 598.4,
+   "fruit": 0.03
+  },
+  {
+   "type": "pile",
+   "s": 171.0,
+   "forme": "rect",
+   "long": 3.4,
+   "larg": 9.0,
+   "z_bas": 597.2,
+   "fruit": 0.03
+  },
+  {
+   "type": "pile",
+   "s": 195.4,
+   "forme": "rect",
+   "long": 3.4,
+   "larg": 9.0,
+   "z_bas": 596.8,
+   "fruit": 0.03
+  },
+  {
+   "type": "pile",
+   "s": 219.9,
+   "forme": "rect",
+   "long": 3.4,
+   "larg": 9.0,
+   "z_bas": 595.7,
+   "fruit": 0.03
+  },
+  {
+   "type": "pile",
+   "s": 245.1,
+   "forme": "rect",
+   "long": 10.0,
+   "larg": 15.2,
+   "z_bas": 587.7,
+   "fruit": 0.02
+  },
+  {
+   "type": "pile",
+   "s": 308.4,
+   "forme": "rect",
+   "long": 6.8,
+   "larg": 11.6,
+   "z_bas": 572.8,
+   "fruit": 0.02
+  },
+  {
+   "type": "pile",
+   "s": 369.6,
+   "forme": "rect",
+   "long": 6.8,
+   "larg": 11.6,
+   "z_bas": 566.7,
+   "fruit": 0.02
+  },
+  {
+   "type": "pile",
+   "s": 430.7,
+   "forme": "rect",
+   "long": 6.8,
+   "larg": 11.6,
+   "z_bas": 553.6,
+   "fruit": 0.02
+  },
+  {
+   "type": "pile",
+   "s": 491.9,
+   "forme": "rect",
+   "long": 6.8,
+   "larg": 11.6,
+   "z_bas": 567.2,
+   "fruit": 0.02
+  },
+  {
+   "type": "culee",
+   "s": 556.0
+  }
+ ],
+ "arches": [
+  {
+   "s0": 0,
+   "s1": 22.7,
+   "z_naissance": 607.6,
+   "z_cle": 619.1,
+   "epaisseur": 1.3,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 26.1,
+   "s1": 47.2,
+   "z_naissance": 607.2,
+   "z_cle": 618.7,
+   "epaisseur": 1.3,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 50.6,
+   "s1": 71.6,
+   "z_naissance": 606.9,
+   "z_cle": 618.4,
+   "epaisseur": 1.3,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 75.0,
+   "s1": 96.0,
+   "z_naissance": 606.7,
+   "z_cle": 618.2,
+   "epaisseur": 1.3,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 99.4,
+   "s1": 120.5,
+   "z_naissance": 606.6,
+   "z_cle": 618.1,
+   "epaisseur": 1.3,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 123.9,
+   "s1": 144.9,
+   "z_naissance": 606.4,
+   "z_cle": 617.9,
+   "epaisseur": 1.3,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 148.3,
+   "s1": 169.3,
+   "z_naissance": 606.2,
+   "z_cle": 617.7,
+   "epaisseur": 1.3,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 172.7,
+   "s1": 193.7,
+   "z_naissance": 606.1,
+   "z_cle": 617.6,
+   "epaisseur": 1.3,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 197.1,
+   "s1": 218.2,
+   "z_naissance": 606.1,
+   "z_cle": 617.6,
+   "epaisseur": 1.3,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 221.6,
+   "s1": 240.1,
+   "z_naissance": 606.2,
+   "z_cle": 617.7,
+   "epaisseur": 1.3,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 250.1,
+   "s1": 305.0,
+   "z_naissance": 590,
+   "z_cle": 614.9,
+   "epaisseur": 2.5,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 311.8,
+   "s1": 366.2,
+   "z_naissance": 590,
+   "z_cle": 615.4,
+   "epaisseur": 2.5,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 373.0,
+   "s1": 427.3,
+   "z_naissance": 590,
+   "z_cle": 615.8,
+   "epaisseur": 2.5,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 434.1,
+   "s1": 488.5,
+   "z_naissance": 590,
+   "z_cle": 616.3,
+   "epaisseur": 2.5,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  },
+  {
+   "s0": 495.3,
+   "s1": 553.0,
+   "z_naissance": 590,
+   "z_cle": 616.8,
+   "epaisseur": 2.5,
+   "larg": 17.0,
+   "plein": true,
+   "forme": "cintre"
+  }
+ ],
+ "pylones": [],
+ "elements": [
+  {
+   "de": [
+    374.0,
+    -0.4,
+    565.3
+   ],
+   "a": [
+    428.0,
+    0.8,
+    565.3
+   ],
+   "larg": 3.6,
+   "ep": 2.4
+  }
+ ],
+ "sources": [
+  "https://structurae.net/fr/ouvrages/pont-de-perolles",
+  "https://fr.wikipedia.org/wiki/Pont_de_P%C3%A9rolles",
+  "https://commons.wikimedia.org/wiki/Category:Pont_de_P%C3%A9rolles"
+ ],
+ "photos_vues": 4,
+ "confiance": "moyenne",
+ "notes": "Viaduc béton de 556 m : 10 arches de ~24,4 m côté Marly (piles non vues du laser sous le tablier, emplacement tiré de la photo d'ensemble calée et de la symétrie avec les 5 grandes piles mesurées), 6 grandes arches de 61,5 m dont les piles sont mesurées au nuage; passerelle/conduite basse à z 565 entre deux piles modélisée en élément. Incertitudes : forme exacte des arcs (plein cintre vs ogive), pilastres et corniche nervurée du tablier non représentés; conflit de terrain unique à s=24 (talus de la culée Marly qui touche le dessous du tablier, réel); rendu calé p4 : bridge bien placé mais les arches paraissent moins hautes que sur la photo (scène avec bâtiments flottants, 1 tour de calage).",
+ "remblai": [
+  [
+   0,
+   30
+  ]
+ ],
+ "photo": {
+  "fichier": "p4.jpg",
+  "page": "https://commons.wikimedia.org/wiki/Category:Pont_de_P%C3%A9rolles",
+  "auteur": "Wikimedia Commons (vue d'ensemble panoramique)",
+  "licence": "Commons"
+ }
+}
