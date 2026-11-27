@@ -616,9 +616,18 @@ void main() {
       // visé peut être à des kilomètres alors que la caméra revient près de la maquette)
       const R = this.G?.R || 150, versMaquette = Math.max(0, cam.position.length() - R * 1.5);
       const proche = Math.min(cam.position.distanceTo(this.controls.target), versMaquette, Math.max(0, cam.position.y - (this.zBas || 0)));
-      const far = avecLoin ? 150000 : 20000, near = avecLoin ? Math.min(20, Math.max(0.5, proche * 0.003)) : 0.5;
-      if (cam.far !== far || Math.abs(cam.near - near) > 0.05 * near) { cam.far = far; cam.near = near; cam.updateProjectionMatrix(); }
-      this.voute.position.copy(avecLoin ? cam.position : new THREE.Vector3());
+      let far = avecLoin ? 150000 : 20000;
+      const near = avecLoin ? Math.min(20, Math.max(0.5, proche * 0.003)) : 0.5;
+      // brume : au-delà de la distance où elle couvre tout (≥ 99,5 %, bruit de densité compris), rien n'est visible.
+      // Le plan lointain s'y arrête : ni dessin, ni tuiles téléchargées au-delà (comme le brouillard des jeux vidéo).
+      // 1 − exp(−(d·densité)^2,8 · 0,85) = 0,995  →  d ≈ 1,92 / densité ; jamais en deçà de la maquette elle-même
+      const dens = this.scene.fog?.density || 0;
+      if (dens > 0) far = Math.min(far, Math.max(2.0 / dens, cam.position.length() + 2 * R + 200));
+      if (Math.abs(cam.far - far) > 1 || Math.abs(cam.near - near) > 0.05 * near) { cam.far = far; cam.near = near; cam.updateProjectionMatrix(); }
+      this.voute.position.copy(avecLoin || far < 9500 ? cam.position : new THREE.Vector3());
+      // la voûte du ciel (rayon 9 km) reste dans le champ quand le plan lointain se rapproche
+      const ev = Math.min(1, far * 0.92 / 9000);
+      if (this.voute.scale.x !== ev) this.voute.scale.setScalar(ev);
     }
     this.swiss?.mettreAJour();
     if (this.effets && this.qualite < 2) this.composeur.render(); else this.renderer.render(this.scene, this.camera);
