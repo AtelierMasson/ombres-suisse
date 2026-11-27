@@ -129,7 +129,7 @@ export class Swiss3D {
     t.group.matrixWorldNeedsUpdate = true;
     this.socle.add(t.group);
     this.socle.position.set(0, 0, 0);
-    this.toits = []; this.ecarts = []; this.bases = [];
+    this.toits = []; this.sommets = []; this.ecarts = []; this.bases = [];
     t.addEventListener("load-model", ({ scene }) => {
       scene.traverse(o => {
         if (!o.isMesh) return;
@@ -158,7 +158,7 @@ export class Swiss3D {
     this.versScene = matriceVersScene(E, N, s.zRef + GEOIDE);
     t.group.matrix.copy(this.versScene);
     t.group.matrixWorldNeedsUpdate = true;
-    this.toits = []; this.ecarts = []; this.bases = []; this.calage = null;
+    this.toits = []; this.sommets = []; this.ecarts = []; this.bases = []; this.calage = null;
     this.socle.position.set(0, 0, 0);
     t.forEachLoadedModel(sc => sc.traverse(o => { if (o.isMesh) this.relever(o, G); }));
     this.caler(G);
@@ -193,10 +193,13 @@ export class Swiss3D {
       const z = solEn(G, bas[0], -bas[2]);
       if (!isNaN(z)) this.bases.push(z - zRef - bas[1]);
     }
+    // tous les sommets (échantillon) avec l'écart au terrain : le tri toits / pieds se fait au calage, une fois connu
+    // le décalage grossier (les tuiles peuvent arriver des dizaines de mètres trop bas : géoïde, hauteurs orthométriques)
     for (let i = 0; i < pos.count; i += 2) {
       v.fromBufferAttribute(pos, i).applyMatrix4(M);
       if (Math.abs(v.x) > G.R - 3 || Math.abs(v.z) > G.R - 3) continue;
-      if (v.y + 3 > solEn(G, v.x, -v.z) - zRef + 2.5) this.toits.push(v.x, -v.z, v.y);
+      const sol = solEn(G, v.x, -v.z) - zRef;
+      if (!isNaN(sol)) this.sommets.push(v.x, -v.z, v.y, sol - v.y);
     }
   }
 
@@ -206,7 +209,19 @@ export class Swiss3D {
    * de 25 cm) et on garde celui où le plus de sommets tombent sur un toit à la bonne hauteur ; dz = médiane des écarts.
    */
   caler(G) {
-    const T = this.toits, nb = T.length / 3;
+    // décalage grossier : les pieds des bâtiments sont au terrain, ce sont les sommets les plus bas par rapport au sol
+    // (plus grand écart sol − sommet) ; 97e centile, robuste aux quelques sommets enterrés
+    const S = this.sommets, ns = S.length / 4;
+    if (ns < 200) return;
+    const d = new Float32Array(ns); for (let k = 0; k < ns; k++) d[k] = S[4 * k + 3];
+    d.sort();
+    const grossier = d[Math.floor(ns * 0.97)];
+    // toits : sommets nettement au-dessus du terrain une fois ce décalage appliqué
+    const T = [];
+    for (let k = 0; k < ns; k++) if (S[4 * k + 3] < grossier - 2.5) T.push(S[4 * k], S[4 * k + 1], S[4 * k + 2]);
+    this.toits = T;
+    const nb = T.length / 3;
+    if (nb < 100) { this.socle.position.set(0, grossier, 0); this.calage = { dx: 0, dy: 0, dz: grossier, part: 0, sol: true }; return; }
     if (nb < 100) return;
     const pas = Math.max(1, Math.floor(nb / 4000)), zRef = this.s.zRef, { n, c, x0, bat } = G;
     const toitEn = (x, y) => {
