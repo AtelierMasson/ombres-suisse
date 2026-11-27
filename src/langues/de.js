@@ -503,30 +503,39 @@ export default {
   "coupeExport.points": "Punkte der Wolke näher als {d} m am Schnitt (Layer NUAGE): Boden, Vegetation, Gebäude, Sonstige",
 
   /* pied de page et pages légales */
-  "pied.sources": "© swisstopo (swissSURFACE3D, swissALTI3D, swissBUILDINGS3D, Kataster) · fernes Relief: Terrain Tiles (AWS, Mapzen). Unverbindliche Ergebnisse.",
+  "pied.sources": "© swisstopo (swissSURFACE3D, swissALTI3D, swissBUILDINGS3D, swissTLM3D, swissBATHY3D) · amtliche Vermessung (Kantone, geodienste.ch) · fernes Relief: Terrain Tiles (Mapzen, AWS). Unverbindliche Ergebnisse.",
   "legal.mentions": "Impressum",
   "legal.confidentialite": "Datenschutz",
   "legal.conditions": "Nutzungsbedingungen",
   "legal.contact": "Kontakt",
   "legal.fermer": "Schliessen",
   "legal.pageMentions": `<h2 id="legalTitre">Impressum</h2>
-    <p><b>Herausgeber</b><br>Atelier Masson<br>[adresse]<br>[NPA localité], Schweiz<br><a href="mailto:[email]">[email]</a></p>
-    <p><b>Hosting</b><br>GitHub Pages, GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA.</p>
-    <p><b>Geodaten</b><br>© swisstopo: swissSURFACE3D, swissALTI3D, swissBUILDINGS3D, amtliche Vermessung (geo.admin.ch), verwendet gemäss den Nutzungsbedingungen für Geodaten des Bundes (OGD). Fernes Relief: Terrain Tiles (AWS Open Data, Mapzen).</p>
-    <p><b>Geistiges Eigentum</b><br>Die Website, ihr Code und ihre Gestaltung gehören Atelier Masson. Die Daten bleiben Eigentum ihrer Urheber.</p>`,
-  "legal.pageConfidentialite": `<h2>Datenschutz</h2>
-    <p>Diese Erklärung richtet sich nach dem Bundesgesetz über den Datenschutz (DSG).</p>
-    <p><b>Lokale Berechnung</b><br>Das Modell, die Schatten und die Exporte werden in Ihrem Browser berechnet. Es werden keine Dateien oder Ergebnisse an Atelier Masson übermittelt.</p>
-    <p><b>Dienste Dritter</b><br>Um die Daten zu laden, kontaktiert Ihr Browser direkt die Server von swisstopo (api3.geo.admin.ch, data.geo.admin.ch, wms.geo.admin.ch, 3d.geo.admin.ch), die die gesuchte Adresse und den angezeigten Bereich erhalten, sowie jene von Amazon Web Services für das ferne Relief. Der Hoster GitHub speichert die IP-Adressen der Besucherinnen und Besucher in seinen technischen Protokollen.</p>
-    <p><b>Lokale Speicherung</b><br>Die Website speichert einige Anzeigeeinstellungen (Sprache, Thema, geöffneter Reiter, Pro-Modus) im lokalen Speicher Ihres Browsers. Es werden weder Werbe-Cookies noch Werkzeuge zur Reichweitenmessung verwendet.</p>
-    <p><b>Ihre Rechte</b><br>Bei Fragen zu Ihren Daten: <a href="mailto:[email]">[email]</a>.</p>`,
-  "legal.pageConditions": `<h2>Nutzungsbedingungen</h2>
-    <p><b>Nutzung</b><br>Die Website wird kostenlos und ohne Gewähr für ihre Verfügbarkeit bereitgestellt.</p>
+    <p><b>Herausgeberin</b><br>Atelier Masson Sàrl<br>Avenue Floréal 18<br>1006 Lausanne, Schweiz<br>UID: CHE-359.985.358 (Handelsregister des Kantons Waadt)<br><a href="mailto:contact@topograph.ch">contact@topograph.ch</a></p>
+    <p><b>MWST</b><br>Atelier Masson Sàrl ist nicht im Register der Mehrwertsteuerpflichtigen eingetragen.</p>
+    <p><b>Hosting</b><br>Infomaniak Network SA, rue Eugène-Marziano 25, 1227 Les Acacias (Genève), Schweiz.</p>
+    <p><b>Geodaten</b><br>© swisstopo: swissSURFACE3D, swissALTI3D, swissBUILDINGS3D, swissTLM3D, swissBATHY3D und Geodienste von geo.admin.ch, verwendet gemäss den Nutzungsbedingungen für Geodaten des Bundes (OGD, Quellenangabe obligatorisch). Amtliche Vermessung: Kantone, über geodienste.ch und die kantonalen Geoportale. Eidgenössisches Gebäude- und Wohnungsregister: Bundesamt für Statistik. Fernes Relief: Terrain Tiles (Mapzen, AWS Open Data), unter anderem auf der Grundlage von SRTM, GMTED2010, ETOPO1 und nationalen Modellen.</p>
+    <p><b>Geistiges Eigentum</b><br>Die Website, ihr Code und ihre Gestaltung gehören Atelier Masson Sàrl. Die Daten bleiben Eigentum ihrer Urheber.</p>`,
+  "legal.pageConfidentialite": `<h2>Datenschutzerklärung</h2>
+    <p>Diese Erklärung richtet sich nach dem Bundesgesetz über den Datenschutz (DSG) und, für Personen in der Europäischen Union, nach der Datenschutz-Grundverordnung (DSGVO). Letzte Aktualisierung: 27. November 2026.</p>
+    <p><b>Verantwortliche</b><br>Atelier Masson Sàrl, Avenue Floréal 18, 1006 Lausanne, Schweiz, <a href="mailto:contact@topograph.ch">contact@topograph.ch</a>.</p>
+    <p><b>Besuch der Website</b><br>Das Modell, die Schatten, die Sonnenstunden und die Exporte werden in Ihrem Browser berechnet; diese Ergebnisse werden nicht an uns übermittelt. Unser Hoster (Infomaniak, Schweiz) speichert in seinen technischen Protokollen die IP-Adresse, das Datum und die angeforderte Seite, für die Sicherheit und den ordnungsgemässen Betrieb der Website. Wir zählen ausserdem einige Aktionen anonym (zum Beispiel «ein Ort wurde geladen»), ohne Kennung und ohne IP-Adresse.</p>
+    <p><b>Geodienste</b><br>Um einen Ort zu laden, kontaktiert Ihr Browser direkt die Server des Bundes (geo.admin.ch), der Kantone (geodienste.ch, kantonale Geoportale) und von Amazon Web Services (fernes Relief, in den USA). Diese Dienste erhalten die gesuchte Adresse oder den angezeigten Bereich sowie Ihre IP-Adresse.</p>
+    <p><b>Konto</b><br>Wenn Sie ein Konto erstellen, bearbeiten wir Ihre E-Mail-Adresse (Anmeldung über einen per E-Mail gesendeten Link), Ihren Status (kostenlos oder Pro), die Angaben, die Sie freiwillig hinzufügen (Name, Firma, Adresse, Telefon), und die Orte, die Sie speichern. Rechtsgrundlage: Vertragserfüllung (Art. 6 Abs. 1 Bst. b DSGVO). Es ist jeweils nur ein Gerät angemeldet.</p>
+    <p><b>Kauf des Pro-Angebots</b><br>Die Zahlung wird von Stripe abgewickelt (Stripe Payments Europe Ltd, Irland, und Stripe Inc., USA). Wir erhalten Ihre Kartendaten nicht; wir speichern den Betrag, das Datum und den Status der Zahlung für unsere Buchhaltung (gesetzliche Pflicht, 10 Jahre).</p>
+    <p><b>Vorschläge</b><br>Wenn Sie einen Vorschlag senden, speichern wir dessen Text, den angezeigten Ort, die Sprache, den Browsertyp und, falls Sie sie angeben, Ihre E-Mail-Adresse, um Ihnen zu antworten (berechtigtes Interesse an der Verbesserung der Website). Sie werden spätestens nach 12 Monaten gelöscht.</p>
+    <p><b>Empfänger und Ausland</b><br>Infomaniak (Hosting, Datenbank, Versand der E-Mails, Schweiz); Stripe (Zahlung, Irland und USA, unter dem Data Privacy Framework und mit Standardvertragsklauseln); die oben genannten Geodienste. Wir verkaufen Ihre Daten nicht.</p>
+    <p><b>Aufbewahrungsdauer</b><br>Anmeldelinks: 15 Minuten; Sitzungen: höchstens 180 Tage; Konto, Angaben und Orte: bis zur Löschung des Kontos; Buchhaltungsunterlagen: 10 Jahre; Vorschläge: 12 Monate; Protokolle des Hosters: gemäss Infomaniak.</p>
+    <p><b>Lokaler Speicher und Cookies</b><br>Ein Sitzungs-Cookie wird nur gesetzt, wenn Sie sich anmelden. Der lokale Speicher des Browsers behält Ihre Einstellungen (Sprache, Thema, Anzeige, Radius, Projekte des Pro-Modus). Sie sind für den Betrieb der Website notwendig. Es werden weder Werbe-Cookies noch Werkzeuge zur Reichweitenmessung verwendet.</p>
+    <p><b>Ihre Rechte</b><br>Sie können Auskunft über Ihre Daten, deren Berichtigung, Löschung oder Übertragbarkeit verlangen oder einer Bearbeitung widersprechen. Sie können Ihr Konto im Fenster «Mein Konto» selbst löschen oder uns an <a href="mailto:contact@topograph.ch">contact@topograph.ch</a> schreiben. Sie können sich auch an den Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB) oder, in der Europäischen Union, an die Behörde Ihres Landes wenden.</p>`,
+  "legal.pageConditions": `<h2>Nutzungs- und Verkaufsbedingungen</h2>
+    <p><b>Nutzung</b><br>Topograph wird von Atelier Masson Sàrl herausgegeben. Die kostenlose Version wird ohne Gewähr für ihre Verfügbarkeit bereitgestellt.</p>
     <p><b>Unverbindliche Ergebnisse</b><br>Das Modell wird automatisch aus Laserscans rekonstruiert und kann Fehler enthalten. Schatten, Sonnenstunden, Höhenkoten und Exporte sind Richtwerte: Sie ersetzen weder eine Aufnahme durch einen Geometer noch eine Besonnungsstudie noch die offiziellen Unterlagen eines Baugesuchs.</p>
-    <p><b>Haftung</b><br>Atelier Masson haftet nicht für Entscheide, die auf der Grundlage dieser Ergebnisse getroffen werden, soweit dies nach schweizerischem Recht zulässig ist.</p>
-    <p><b>Daten</b><br>Die Exporte enthalten Daten von swisstopo; ihre Weiterverwendung unterliegt den Nutzungsbedingungen für Geodaten des Bundes, mit Quellenangabe.</p>
-    <p><b>Anwendbares Recht</b><br>Schweizerisches Recht. Gerichtsstand: [localité].</p>`,
+    <p><b>Pro-Angebot</b><br>Das Pro-Angebot gibt dem Konto, das es erwirbt, Zugang zu den vorbehaltenen Funktionen (Pro-Modus, Volumen, Exporte, Schnitte als PDF und DXF, ohne Werbung), gegen eine einmalige Zahlung von CHF 39.–, ohne Abonnement. Der Zugang besteht, solange der Dienst Topograph betrieben wird. Die Zahlung erfolgt über Stripe; der Zugang wird mit der Bestätigung der Zahlung freigeschaltet.</p>
+    <p><b>Widerrufsrecht</b><br>Für Konsumentinnen und Konsumenten in der Europäischen Union: Das Pro-Angebot ist ein digitaler Inhalt, der sofort geliefert wird. Mit dem Ankreuzen des vor der Zahlung vorgesehenen Feldes verlangen Sie diese sofortige Ausführung und bestätigen, dass Sie Ihr 14-tägiges Widerrufsrecht verlieren. Bei Problemen schreiben Sie uns: Wir suchen nach einer Lösung, einschliesslich einer Rückerstattung.</p>
+    <p><b>Haftung</b><br>Atelier Masson Sàrl haftet nicht für Entscheide, die auf der Grundlage dieser Ergebnisse getroffen werden, soweit dies nach dem anwendbaren Recht zulässig ist.</p>
+    <p><b>Daten</b><br>Die Exporte enthalten Daten von swisstopo und der Kantone; ihre Weiterverwendung unterliegt den Bedingungen dieser Daten, mit Quellenangabe.</p>
+    <p><b>Anwendbares Recht</b><br>Schweizerisches Recht. Gerichtsstand: Lausanne, vorbehältlich der zwingenden Gerichtsstände zugunsten von Konsumentinnen und Konsumenten.</p>`,
   "legal.pageContact": `<h2>Kontakt</h2>
-    <p>Atelier Masson<br>[adresse]<br>[NPA localité]<br><a href="mailto:[email]">[email]</a></p>
+    <p>Atelier Masson Sàrl<br>Avenue Floréal 18<br>1006 Lausanne, Schweiz<br><a href="mailto:contact@topograph.ch">contact@topograph.ch</a></p>
     <p>Hinweise, Fehler im Modell, Anfragen für eine berufliche Nutzung: Schreiben Sie uns.</p>`,
 };
