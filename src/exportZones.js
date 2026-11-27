@@ -47,7 +47,7 @@ export async function pdfPiscine({ z, r, reglages, S, lieu, G, chauffage }) {
   y += 3;
   // vue de dessus : relief ombré, bâtiments, arbres et heures de soleil de chaque point (moyenne mai–septembre)
   const cv = imageZone(G, r.anneaux, r.xy, sem.parPointSaison, sem.saison.possibles, { px: 12 });
-  const wI = 95, hI = Math.min(75, wI * cv.height / cv.width), wI2 = hI * cv.width / cv.height;
+  const wI = 95, hI = Math.min(66, wI * cv.height / cv.width), wI2 = hI * cv.width / cv.height;
   pdf.addImage(cv.toDataURL("image/jpeg", 0.9), "JPEG", M, y, wI2, hI);
   police(7, "normal", DOUX); const yLegende = texte(t("piscine.pdfImage", { max: duree(sem.saison.possibles) }), M, y + hI + 4, { largeur: wI2, interligne: 3.2 });
   // mesures, à droite de l'image
