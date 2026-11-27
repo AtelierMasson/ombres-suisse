@@ -1180,6 +1180,10 @@ if (import.meta.env.DEV) window.ombres = { scene, S }; // pour l'inspection pend
     dlg.querySelectorAll(".legal-onglets a").forEach(a => a.classList.toggle("actif", a.dataset.legal === page));
     if (!dlg.open) dlg.showModal();
   };
+  // adresse directe d'une page (lien depuis l'extérieur, par exemple la fenêtre de consentement de Google) :
+  // topograph.ch/?legal=confidentialite (ou mentions, conditions, contact)
+  const demandee = new URLSearchParams(location.search).get("legal");
+  if (demandee && dlg.querySelector(`section[data-page="${CSS.escape(demandee)}"]`)) ouvrir(demandee);
   document.addEventListener("click", e => {
     const a = e.target.closest("[data-legal]");
     if (a) { e.preventDefault(); ouvrir(a.dataset.legal); return; }
