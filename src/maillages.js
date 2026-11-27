@@ -1023,6 +1023,35 @@ export function plansEau(G, zRef) {
     return s / k - zRef;
   };
   const pos = [], P = (a, b) => [x0 + a * c, coin(a, b), -(x0 + b * c)];
+  // courant : sens de l'écoulement par carré de 8 m, depuis la pente du niveau d'eau mesuré (moyenne par carré,
+  // différences sur ±24 m, lissé sur 3 × 3 carrés) ; nul sur un lac (plat) ou une eau presque plate (< 0,2 ‰)
+  const Bf = Math.max(1, Math.round(8 / c)), nb = Math.ceil(n / Bf), Lm = new Float32Array(nb * nb).fill(NaN);
+  {
+    const sm = new Float64Array(nb * nb), k = new Uint32Array(nb * nb);
+    for (let p = 0; p < n * n; p++) { const e = G.eau[p]; if (e === e) { const b = Math.floor((p / n | 0) / Bf) * nb + Math.floor((p % n) / Bf); sm[b] += e; k[b]++; } }
+    for (let b = 0; b < nb * nb; b++) if (k[b] > Bf * Bf / 4) Lm[b] = sm[b] / k[b];
+  }
+  const gX = new Float32Array(nb * nb), gY = new Float32Array(nb * nb);
+  for (let J = 0; J < nb; J++) for (let I = 0; I < nb; I++) {
+    if (!(Lm[J * nb + I] === Lm[J * nb + I])) continue;
+    for (let d = 3; d >= 1; d--) { const a = Lm[J * nb + Math.max(0, I - d)], b = Lm[J * nb + Math.min(nb - 1, I + d)]; if (a === a && b === b && I - d >= 0 && I + d < nb) { gX[J * nb + I] = (b - a) / (2 * d * Bf * c); break; } }
+    for (let d = 3; d >= 1; d--) { const a = Lm[Math.max(0, J - d) * nb + I], b = Lm[Math.min(nb - 1, J + d) * nb + I]; if (a === a && b === b && J - d >= 0 && J + d < nb) { gY[J * nb + I] = (b - a) / (2 * d * Bf * c); break; } }
+  }
+  const fX = new Float32Array(nb * nb), fY = new Float32Array(nb * nb);
+  let coule = false;
+  for (let J = 0; J < nb; J++) for (let I = 0; I < nb; I++) {
+    let sx = 0, sy = 0, k = 0;
+    for (let v = -1; v <= 1; v++) for (let u = -1; u <= 1; u++) { const a = I + u, b = J + v; if (a < 0 || b < 0 || a >= nb || b >= nb || !(Lm[b * nb + a] === Lm[b * nb + a])) continue; sx += gX[b * nb + a]; sy += gY[b * nb + a]; k++; }
+    const g = k ? Math.hypot(sx, sy) / k : 0;
+    if (g > 2e-4) { fX[J * nb + I] = -sx / (k * g); fY[J * nb + I] = -sy / (k * g); coule = true; }
+  }
+  // au sommet (a, b) (en cases) : interpolé entre les centres des carrés, en coordonnées de la scène (x, z = -y)
+  const flotEn = (a, b) => {
+    const u = a / Bf - 0.5, v = b / Bf - 0.5, I = Math.max(0, Math.min(nb - 2, Math.floor(u))), J = Math.max(0, Math.min(nb - 2, Math.floor(v)));
+    const tu = Math.max(0, Math.min(1, u - I)), tv = Math.max(0, Math.min(1, v - J)), q = J * nb + I;
+    const L = (A, w) => (A[q] * (1 - tu) + A[q + 1] * tu) * (1 - tv) + (A[q + nb] * (1 - tu) + A[q + nb + 1] * tu) * tv;
+    return [L(fX), -L(fY)];
+  };
   const horsCercle = (i, j) => G.rayonZone && Math.hypot(x0 + (i + 0.5) * c, x0 + (j + 0.5) * c) > G.rayonZone + 0.5;
   // Par carrés de 8 m : un carré de lac plat (un seul niveau) ou de rive plus haute que lui devient un seul
   // quadrilatère au niveau du lac ; le plan déborde sous la rive et c'est le terrain qui dessine le bord (pas de
@@ -1061,6 +1090,12 @@ export function plansEau(G, zRef) {
   if (!pos.length) return null;
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  if (coule) {
+    const fl = new Float32Array(pos.length / 3 * 2);
+    for (let v = 0, w = 0; v < pos.length; v += 3, w += 2) { const [a, b] = flotEn((pos[v] - x0) / c, (-pos[v + 2] - x0) / c); fl[w] = a; fl[w + 1] = b; }
+    g.setAttribute("flot", new THREE.BufferAttribute(fl, 2));
+  }
+  g.userData.coule = coule;
   // normales verticales : de longues bandes fines, à peine inclinées, prenaient sinon la lumière chacune à sa façon
   // (stries sur le lac, surtout vu de haut)
   const nor = new Float32Array(pos.length);

@@ -13,7 +13,7 @@
 // rapprochée de la caméra dans la profondeur (proportionnellement à la distance) : jamais de scintillement avec le
 // terrain qu'elle recouvre, les berges plus hautes la coupent.
 import * as THREE from "three";
-import { PROF, EAU_DECL, EAU_FRAG } from "./eauShader.js";
+import { PROF, COURANT, EAU_DECL, EAU_FRAG, EAU_COURANT, EAU_COURANT_FRAG_DECL, animerCourant } from "./eauShader.js";
 import { lireCouche } from "./mvt.js";
 import { versWgs, versMn95, tuilesAlti2m } from "./geo.js";
 import { tuile as tuileRelief, versTuile } from "./horizon.js";
@@ -194,13 +194,13 @@ function champRiviere(anneaux, hauteur, g) {
 function materiau(U) {
   const m = new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0.05, transparent: true, opacity: 0.88, side: THREE.DoubleSide });
   m.onBeforeCompile = sh => {
-    Object.assign(sh.uniforms, U, PROF);
+    Object.assign(sh.uniforms, U, PROF, COURANT);
     sh.vertexShader = sh.vertexShader
-      .replace("#include <common>", "#include <common>\nattribute float lac;\nvarying vec3 vEauM;\nvarying float vLac;\nuniform float courbure, hausse;")
+      .replace("#include <common>", "#include <common>\nattribute float lac;\nattribute vec2 flot;\nvarying vec2 vFlot;\nvarying vec3 vEauM;\nvarying float vLac;\nuniform float courbure, hausse;")
       .replace("#include <begin_vertex>", `#include <begin_vertex>
 vec4 eauM = modelMatrix * vec4(transformed, 1.0);
 transformed.y += hausse - dot(eauM.xz, eauM.xz) * courbure; // courbure de la Terre (comme le paysage)
-vEauM = eauM.xyz; vLac = lac;`)
+vEauM = eauM.xyz; vLac = lac; vFlot = flot;`)
       .replace("#include <project_vertex>", `#include <project_vertex>
 { // rapprochée de la caméra dans la profondeur seulement (même pixel) : 0,25 m + 1,5 ‰ de la distance
   float dV = length(mvPosition.xyz);
@@ -211,6 +211,7 @@ vEauM = eauM.xyz; vLac = lac;`)
       .replace("#include <common>", `#include <common>
 varying vec3 vEauM;
 varying float vLac;
+${EAU_COURANT_FRAG_DECL}
 uniform vec3 proche; // centre (x, z) et rayon de la zone des tuiles proches
 uniform float cote;  // 1 : tuile proche (gardée dans le disque), -1 : lointaine (gardée hors du disque)
 uniform vec3 trou;   // maquette fine : rayon, 1 si carrée ; rayon réservé aux lacs (lac de l'anneau)
@@ -225,7 +226,8 @@ ${EAU_DECL}`)
     if (dT < trou.x || (vLac > 0.5 && dO < trou.z) || dO > exterieur) discard;
   }`)
       .replace("#include <map_fragment>", `#include <map_fragment>
-${EAU_FRAG}`);
+${EAU_FRAG}
+${EAU_COURANT}`);
   };
   m.customProgramCacheKey = () => "eauVecteur";
   return m;
@@ -285,6 +287,7 @@ export class EauVecteur {
     // maquette coupée ou vue en élévation : seule la maquette est montrée (comme le paysage)
     this.groupe.visible = !!this.o && !(s.coupe && s.couperModele !== false) && !(s.modeVue && s.modeVue !== "plan");
     if (!this.groupe.visible) return;
+    animerCourant(s, [...this.mailles.values()].some(m => m?.userData.coule));
     // couleur du thème : celle de l'eau de la maquette
     if (s.mat?.eau) { this.matProche.color.copy(s.mat.eau.color); this.matLoin.color.copy(s.mat.eau.color); }
     // pas d'eau au-delà du terrain dessiné : paysage (ou monde) visible, sinon l'anneau, sinon la maquette du vol
@@ -334,13 +337,13 @@ export class EauVecteur {
     if (!polys.length) return;
     // ancre de la tuile (MN95, au mètre) : sommets en coordonnées locales (précision des flottants)
     const n = 2 ** z, [Ea, Na] = versMn95((x + 0.5) / n * 360 - 180, Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 0.5) / n))) * 180 / Math.PI).map(Math.round);
-    const pos = [], lac = [];
+    const pos = [], lac = [], flot = [];
     for (const p of polys) {
       const estLac = p.classe !== "river";
       const hauteur = await this.hauteurs(p, proche, estLac);
       if (gen !== this.gen) return;
       if (!hauteur) continue;
-      this.trianguler(p, hauteur, estLac, proche, Ea, Na, pos, lac);
+      this.trianguler(p, hauteur, estLac, proche, Ea, Na, pos, lac, flot);
       await pause(); // un polygone à la fois : la vue reste fluide
       if (gen !== this.gen) return;
     }
@@ -348,11 +351,13 @@ export class EauVecteur {
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
     g.setAttribute("lac", new THREE.Float32BufferAttribute(lac, 1));
+    g.setAttribute("flot", new THREE.Float32BufferAttribute(flot, 2));
+    const coule = flot.some(v => v !== 0);
     const nor = new Float32Array(pos.length); for (let i = 1; i < nor.length; i += 3) nor[i] = 1;
     g.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
     g.computeBoundingSphere();
     const m = new THREE.Mesh(g, proche ? this.matProche : this.matLoin);
-    m.userData = { E: Ea, N: Na, ms: Math.round(performance.now() - t0) };
+    m.userData = { E: Ea, N: Na, ms: Math.round(performance.now() - t0), coule: coule && proche };
     m.receiveShadow = false; m.castShadow = false; // comme l'eau de la maquette (moiré sur un grand plan)
     m.renderOrder = 1;
     m.frustumCulled = false; // la courbure déplace les sommets dans le shader
@@ -443,7 +448,7 @@ export class EauVecteur {
   }
 
   /** Triangule un polygone (points de Steiner à l'intérieur : la surface suit le niveau), niveau + LEVEE. */
-  trianguler(p, niveau, estLac, proche, Ea, Na, pos, lac) {
+  trianguler(p, niveau, estLac, proche, Ea, Na, pos, lac, flot = null) {
     const V2 = ([e, n]) => new THREE.Vector2(e - Ea, n - Na);
     const contour = p.anneaux[0].map(V2), trous = p.anneaux.slice(1).map(a => a.map(V2));
     // points de Steiner : trame régulière, assez dense pour la pente d'une rivière et pour la courbure d'un lac
@@ -461,9 +466,25 @@ export class EauVecteur {
     try { tris = THREE.ShapeUtils.triangulateShape(contour, trous); } catch { return; }
     const tous = [contour, ...trous].flat(), z = tous.map(v => niveau(v.x + Ea, v.y + Na) + LEVEE);
     const l = estLac ? 1 : 0;
+    // rivière : sens du courant par sommet = pente de la surface (vers l'aval), moyenne des triangles qui le touchent,
+    // pondérée par leur aire ; nulle sur un lac ou une eau presque plate
+    const fx = new Float32Array(tous.length), fy = new Float32Array(tous.length), poids = new Float32Array(tous.length);
+    if (!estLac) for (const t of tris) {
+      if (t.some(i => !(z[i] === z[i]))) continue;
+      const [a, b, c] = t.map(i => tous[i]), [za, zb, zc] = t.map(i => z[i]);
+      const A2 = (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
+      if (!(Math.abs(A2) > 1e-3)) continue;
+      const gx = ((zb - za) * (c.y - a.y) - (zc - za) * (b.y - a.y)) / A2, gy = ((zc - za) * (b.x - a.x) - (zb - za) * (c.x - a.x)) / A2, w = Math.abs(A2);
+      for (const i of t) { fx[i] -= gx * w; fy[i] -= gy * w; poids[i] += w; }
+    }
     for (const t of tris) {
       if (t.some(i => !(z[i] === z[i]))) continue;
-      for (const i of t) { pos.push(tous[i].x, z[i], -tous[i].y); lac.push(l); }
+      for (const i of t) {
+        pos.push(tous[i].x, z[i], -tous[i].y); lac.push(l);
+        const gx = poids[i] ? fx[i] / poids[i] : 0, gy = poids[i] ? fy[i] / poids[i] : 0, g = Math.hypot(gx, gy);
+        // pente de plus de 0,2 ‰ : sens fiable ; en coordonnées de la scène (x = est, z = -nord)
+        if (flot) flot.push(g > 2e-4 ? gx / g : 0, g > 2e-4 ? -gy / g : 0);
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 // Scène three.js. Repère : x = est, y = altitude (relative à zRef), z = sud (−nord).
 import * as THREE from "three";
-import { PROF, PROF_MAX, EAU_DECL, EAU_FRAG } from "./eauShader.js";
+import { PROF, PROF_MAX, COURANT, EAU_DECL, EAU_FRAG, EAU_COURANT, EAU_COURANT_VERT_DECL, EAU_COURANT_FRAG_DECL, animerCourant } from "./eauShader.js";
 import { BrumeCinematique, BRUME_SOL_GLSL } from "./brumeCinematique.js";
 
 // Brume (FogExp2) plus naturelle, pour tous les matériaux : elle monte plus lentement près de la caméra puis plus vite
@@ -202,16 +202,18 @@ function matEau(rayon = RAYON_EAU, rayonInt = null) {
   m.onBeforeCompile = sh => {
     sh.uniforms.rayonEau = rayon;
     sh.uniforms.rayonEauInt = rayonInt || { value: 0 };
-    Object.assign(sh.uniforms, PROF);
-    sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vEauM;")
-      .replace("#include <project_vertex>", "#include <project_vertex>\nvEauM = (modelMatrix * vec4(transformed, 1.0)).xyz;");
+    Object.assign(sh.uniforms, PROF, COURANT);
+    sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vEauM;\n" + EAU_COURANT_VERT_DECL)
+      .replace("#include <project_vertex>", "#include <project_vertex>\nvEauM = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvFlot = flot;");
     sh.fragmentShader = sh.fragmentShader.replace("#include <common>", `#include <common>
 varying vec3 vEauM;
 uniform float rayonEau, rayonEauInt;
+${EAU_COURANT_FRAG_DECL}
 ${EAU_DECL}`)
       .replace("void main() {", "void main() {\n  float rE = length(vEauM.xz);\n  if (rE > rayonEau || rE < rayonEauInt) discard;")
       .replace("#include <map_fragment>", `#include <map_fragment>
-${EAU_FRAG}`);
+${EAU_FRAG}
+${EAU_COURANT}`);
   };
   m.customProgramCacheKey = () => "eauCercle";
   return m;
@@ -662,6 +664,7 @@ void main() {
     this.monde?.mettreAJour();
     this.brumeCine.mettreAJour();
     this.eauVecteur?.mettreAJour(); // rivières et lacs hors de la maquette fine (eau.js)
+    animerCourant(this, !!this.couches.eau?.visible && this.couches.eau.geometry.userData.coule && this.ajouts.eau !== false);
     if (this.eauVecteur && !this.ajouts.eau) this.eauVecteur.groupe.visible = false;
     const leger = this.allegerMouvement !== false && performance.now() - (this.dernierMouvement ?? -Infinity) < 120;
     this.imageLegere = leger && this.effets && this.qualite < 2;

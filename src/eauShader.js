@@ -30,3 +30,24 @@ export const EAU_FRAG = `{ // faible profondeur : plus clair et un peu turquoise
   float pixel = mix(0.5, eauHachage(floor(vEauM * 2.0 + 0.001) + 0.37), smoothstep(0.008, 0.035, max(tC.x, tC.y)));
   diffuseColor.rgb *= 1.0 + 0.06 * ((gE - 0.5) * 1.4 + (pixel - 0.5) * 0.9);
 }`;
+
+// Courant des rivières : attribut `flot` (sens de l'écoulement, unitaire ; 0 sur un lac), horloge partagée.
+export const COURANT = { temps: { value: 0 } };
+export const EAU_COURANT_VERT_DECL = "attribute vec2 flot;\nvarying vec2 vFlot;";
+export const EAU_COURANT_FRAG_DECL = "varying vec2 vFlot;\nuniform float temps;";
+export const EAU_COURANT = `{ // courant : fines traînées étirées dans le sens de l'écoulement, qui glissent vers l'aval (~0,8 m/s)
+  float fl = length(vFlot);
+  if (fl > 0.05) {
+    vec2 f = vFlot / fl, q = vec2(dot(vEauM.xz, f) - temps * 0.8, dot(vEauM.xz, vec2(-f.y, f.x)));
+    float tr = 0.6 * eauBruit(vec3(q.x * 0.12, q.y * 0.9, temps * 0.07)) + 0.4 * eauBruit(vec3(q.x * 0.3, q.y * 2.2, 3.1 + temps * 0.1));
+    diffuseColor.rgb *= 1.0 + 0.07 * smoothstep(0.05, 0.6, fl) * (tr - 0.5) * 2.0;
+  }
+}`;
+const REDUIT = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+let tCourant = 0;
+/** À chaque image : si une eau qui coule est montrée, une image toutes les 125 ms (pas plus : toute la scène est redessinée). */
+export function animerCourant(s, actif) {
+  if (!actif || REDUIT || document.hidden) return;
+  const t = performance.now();
+  if (t - tCourant > 125) { tCourant = t; COURANT.temps.value = (t / 1000) % 3600; s.demander?.(1); }
+}
