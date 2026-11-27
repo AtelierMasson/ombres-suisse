@@ -16,12 +16,19 @@ async function renduCale(cam, { E0, N0, largeur, hauteur, nom = "rendu.jpg", san
   const arbres = document.querySelector("#vArbres");
   if (sansArbres && arbres?.checked) arbres.click();
   const c = s.camera, [px, py, pz] = v(cam.position), [vx, vy, vz] = v(cam.vise), h = cam.haut || [0, 0, 1];
+  // caméra sous le terrain (calage mal contraint en altitude) : le décor vu par en dessous, bâtiments et terrain
+  // « flottants » (Felsenau, Schaffhouse). Refusé : recaler la photo (points à des altitudes variées, ou Z imposé)
+  const solCam = s.solSous?.(px, pz);
+  if (Number.isFinite(solCam) && py < solCam + 0.5) throw new Error(`caméra ${(solCam - py).toFixed(1)} m sous le terrain : recaler la photo`);
   c.position.set(px, py, pz);
   c.up.set(h[0], h[2], -h[1]);                       // haut de l'image (MN95 -> scène)
   c.fov = cam.fov_vertical; c.near = 1; c.far = 60000;
   c.lookAt(vx, vy, vz); c.updateProjectionMatrix();
   s.controls.target.set(vx, vy, vz);
   // laisser les tuiles et le paysage arriver, puis rendre sans que les contrôles ne bougent la caméra
+  // terrain autour de la maquette (anneau 2 m, paysage) : sans lui, les bâtiments swisstopo au-delà du cercle flottaient
+  // sans sol dessous (Felsenau, Schaffhouse)
+  for (let i = 0; i < 30 && !s.couches?.anneau; i++) await new Promise(r => setTimeout(r, 500));
   // tuiles swisstopo et paysage autour de la nouvelle vue
   for (let i = 0; i < 40 && (s.swiss?.enCours > 0); i++) await new Promise(r => setTimeout(r, 250));
   await new Promise(r => setTimeout(r, 2500));
