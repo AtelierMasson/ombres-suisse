@@ -247,6 +247,7 @@ export default {
   "coupe.ajouter": "+ Schnitt hinzufügen",
   "coupe.retirer": "Diesen Schnitt entfernen",
   "coupe.ab": "Schnitt A–B",
+  "coupe.calcul": "Zeichnung wird berechnet…",
   "coupe.legende": "<span class=\"l-terrain\"></span>Geschnittenes Gelände und Gebäude <span class=\"l-arbres\"></span>Bäume <span class=\"l-limite\"></span>Parzellengrenze",
   "coupe.legendePoints": "Punkte der Wolke: <span class=\"l-pt pt0\"></span>Boden <span class=\"l-pt pt1\"></span>Vegetation <span class=\"l-pt pt2\"></span>Gebäude <span class=\"l-pt pt3\"></span>Sonstige",
   "coupe.soleilPlan": "Sonne um {heure}: {angle}° in der Schnittebene",

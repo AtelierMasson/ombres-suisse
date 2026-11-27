@@ -86,6 +86,24 @@ const ZONE_FINE = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
 const ZONE_AO = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
 // anneau seul (entre le cercle fin et le bord extérieur) : ponts swissTLM3D, nos ponts étant dans la maquette fine
 const ZONE_ANNEAU = { zoneMin: { value: 0 }, zoneMax: { value: 1e9 } };
+/**
+ * Pose des plans de coupe sur un matériau, et ne le fait recompiler que s'ils changent vraiment (nombre ou valeurs
+ * différents) : déplacer une coupe ne touche que les valeurs du plan, que three lit à chaque image. Recompiler à chaque
+ * mouvement de poignée coûtait jusqu'à 1,5 s par image sur une grande maquette.
+ */
+function poserPlans(mat, plans) {
+  const sig = plans ? plans.map(p => p === PLAN_MOBILE.plan ? "coupe" : `${p.normal.toArray().join()},${p.constant}`).join(";") : "";
+  if (mat.userData.plans === sig && (!!mat.clippingPlanes === !!plans)) {
+    // mêmes plans : on remet les objets (le plan de coupe est le même objet, ses valeurs ont changé) sans recompiler
+    if (plans && mat.clippingPlanes) mat.clippingPlanes = plans;
+    return;
+  }
+  mat.userData.plans = sig;
+  mat.clippingPlanes = plans;
+  mat.needsUpdate = true;
+}
+const PLAN_MOBILE = { plan: null };
+
 function decoupeZone(mat, zone = ZONE) {
   if (mat.userData.zone) return;
   mat.userData.zone = true;
@@ -1921,11 +1939,12 @@ void main() {
 
   appliquerCoupe() {
     const plans = this.coupe && this.couperModele !== false ? [this.plan] : null, c = this.couches, m = this.mat;
+    PLAN_MOBILE.plan = this.plan;
     // bâtiments swisstopo : chargés par tuiles bien au-delà du modèle, on les coupe aux bords du terrain
     // (et l'occlusion ambiante ne doit pas voir la partie coupée) ; pendant le vol de l'accueil, rien n'est coupé
     if (this.G && this.vol) {
-      if (this.ao.normalMaterial) { this.ao.normalMaterial.clippingPlanes = null; this.ao.normalMaterial.needsUpdate = true; }
-      for (const x of [m.toit, m.mur, this.swiss?.materiau]) if (x?.clippingPlanes) { x.clippingPlanes = null; x.needsUpdate = true; }
+      if (this.ao.normalMaterial) poserPlans(this.ao.normalMaterial, null);
+      for (const x of [m.toit, m.mur, this.swiss?.materiau]) if (x?.clippingPlanes) poserPlans(x, null);
     } else if (this.G) {
       // boîte de l'occlusion 2 cm au-delà du bord : la face du socle est exactement à R, une boîte à R l'effaçait par
       // endroits (arrondis) et l'occlusion y dessinait des stries ; les bâtiments sont de toute façon coupés à R - 3 cm
@@ -1935,7 +1954,7 @@ void main() {
         // maquette ronde : l'occlusion ne voit rien hors du cercle (sinon des bâtiments « fantômes » pâles apparaissaient
         // contre le ciel, au-delà de la paroi)
         if (this.G.rayonZone) decoupeZone(this.ao.normalMaterial, ZONE_AO);
-        this.ao.normalMaterial.clippingPlanes = avecBoite; this.ao.normalMaterial.needsUpdate = true;
+        poserPlans(this.ao.normalMaterial, avecBoite);
       }
       // nos bâtiments (et roofer) : coupés 3 cm en retrait du bord, sinon les murs du bord sont dans le plan de la face
       // du socle et leur partie enterrée apparaît en stries à travers elle
@@ -1943,12 +1962,12 @@ void main() {
       for (const x of [m.toit, m.mur]) if (x) {
         // maquette ronde : coupés net au cercle (dans le shader) ; carrée : coupés au bord par les plans
         if (this.G.rayonZone) decoupeZone(x, ZONE_FINE);
-        x.clippingPlanes = this.G.rayonZone ? plans : [...dedans, ...(plans || [])]; x.needsUpdate = true;
+        poserPlans(x, this.G.rayonZone ? plans : [...dedans, ...(plans || [])]);
       }
       // maquette ronde : swisstopo et roofer sont découpés par la zone (cercle ou anneau), pas par la boîte
       for (const x of [c.roofer?.material, this.swiss?.materiau]) if (x) {
         if (this.G.rayonZone) decoupeZone(x);
-        x.clippingPlanes = this.G.rayonZone ? plans : [...dedans, ...(plans || [])]; x.needsUpdate = true;
+        poserPlans(x, this.G.rayonZone ? plans : [...dedans, ...(plans || [])]);
       }
       // swisstopo et roofer débordent du modèle : la partie coupée ne doit pas non plus porter d'ombre (stries sur la
       // face du socle, ombres de bâtiments invisibles au bord du terrain)
@@ -1961,7 +1980,7 @@ void main() {
     if (c.selection) cibles.push(c.selection.material);
     for (const m of this.mat.projets?.values() || []) cibles.push(m);
     c.imports?.traverse(o => o.isMesh && cibles.push(o.material));
-    for (const x of cibles) if (!!x.clippingPlanes !== !!plans) { x.clippingPlanes = plans; x.needsUpdate = true; }
+    for (const x of cibles) poserPlans(x, plans);
   }
 
   /** Rayon de la caméra passant sous le pointeur. */

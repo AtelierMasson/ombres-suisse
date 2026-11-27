@@ -100,6 +100,8 @@ export function profilCoupe(G, contours, A, B, parcelle, pas = 0.25, voisines = 
     if (isNaN(bat[k])) debut[k + 1] = dedans; else fin[k] = dedans;
   }
   const P = { A, B, L, ux, uy, pas, nb, s, sol, bat, veg, debut, fin, limites, voisines: toutes.filter(d => !limites.some(e => Math.abs(e - d) < 0.3)), parcelles };
+  // `o.rapide` (poignée en mouvement) : ni vue au-delà, ni points du nuage ; le dessin complet suit au relâchement
+  if (o.rapide) { P.rapide = true; P.arbres = arbresCoupe(P, lireNuage(P, null, 0)); return P; }
   P.audela = audela(G, P, toitEn, lim);
   const N = lireNuage(P, o.nuage, o.distance || 0);
   P.points = N.points;

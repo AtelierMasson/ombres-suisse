@@ -3,10 +3,15 @@
 // Calques : TERRAIN_COUPE, BATIMENTS_COUPES, ARBRES, NUAGE (points proches de la coupe), LIMITES_PARCELLE, COTES, CADRE.
 
 import { t as tr, nombre } from "./i18n.js";
+import { BORDS } from "./coupe.js";
 
 const alt = z => nombre(Math.round(z * 10) / 10, 1);
 const ascii = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\x20-\x7e]/g, "-");
-const COULEURS = { TERRAIN_COUPE: [7, "#1f2933"], BATIMENTS_COUPES: [8, "#3b4754"], ARBRES: [8, "#9aa0a6"], NUAGE: [8, "#7a7f8c"], LIMITES_PARCELLE: [1, "#e0262b"], COTES: [5, "#1d4f91"], CADRE: [9, "#66727f"] };
+// vues au-delà de la coupe : un calque par tranche de profondeur (VUE_000-005M…), du proche (soutenu) au lointain (pâle),
+// dessinés en premier (derrière la coupe) ; arbres vus au-delà (30 premiers mètres)
+const VUES = BORDS.slice(1).map((b, i) => [`VUE_${String(BORDS[i]).padStart(3, "0")}-${String(b).padStart(3, "0")}M`, i]);
+const gris = i => { const v = Math.round(0x9a + (0xdc - 0x9a) * i / Math.max(1, VUES.length - 1)).toString(16); return `#${v}${v}${v}`; };
+const COULEURS = { ...Object.fromEntries(VUES.map(([n, i]) => [n, [i < 3 ? 8 : 9, gris(i)]])), VUE_ARBRES: [8, "#a7ad9c"], TERRAIN_COUPE: [7, "#1f2933"], BATIMENTS_COUPES: [8, "#3b4754"], ARBRES: [8, "#9aa0a6"], NUAGE: [8, "#7a7f8c"], LIMITES_PARCELLE: [1, "#e0262b"], COTES: [5, "#1d4f91"], CADRE: [9, "#66727f"] };
 
 // points du nuage par catégorie (sol, végétation, bâtiment, autre) : couleur DXF (indice) et SVG
 const POINTS = [[30, "#8a6d3b"], [3, "#3f8f3a"], [1, "#d9523a"], [8, "#7a7f8c"]];
@@ -42,6 +47,25 @@ export function dessinCoupe(P, o) {
     const a = Math.max(T.a, k0), b = Math.min(T.b, k1);
     if (b <= a) continue;
     ligne("ARBRES", [...profil(a, b, k => T.haut[k - T.a]), ...retour(a, b, k => P.sol[k])], true);
+  }
+  // vues au-delà : silhouette de chaque tranche de profondeur (ce qui dépasse le plus haut, devant compris), entre A et B
+  const V = P.audela;
+  if (V) {
+    const morceaux = (a, calque) => {
+      let pts = [];
+      const fin = () => { if (pts.length >= 4) lignes.push({ calque, pts, ferme: false, plein: false }); pts = []; };
+      for (let c = 0; c < V.nc; c++) {
+        if (isNaN(a[c]) || V.s[c] < P.s[k0] - 1e-6 || V.s[c] > P.s[k1] + 1e-6) { fin(); continue; }
+        pts.push(V.s[c], a[c]);
+      }
+      fin();
+    };
+    let cumul = new Float32Array(V.nc).fill(NaN);
+    VUES.forEach(([nom, b]) => {
+      cumul = cumul.map((v, c) => isNaN(V.plans[b][c]) ? v : isNaN(v) ? V.plans[b][c] : Math.max(v, V.plans[b][c]));
+      morceaux(cumul, nom);
+    });
+    morceaux(V.veg, "VUE_ARBRES");
   }
   ligne("TERRAIN_COUPE", profil(k0, k1, k => P.sol[k]));
   for (const [a, b] of suites(P.bat, k0, k1)) {
@@ -137,7 +161,9 @@ export function coupeSvg(D, infos, echelle = 200) {
   let t = `<?xml version="1.0" encoding="UTF-8"?>\n<!-- ${infos.map(xml).join(" | ").replace(/--/g, "-")} -->\n`
     + `<svg xmlns="http://www.w3.org/2000/svg" width="${f(w * mm)}mm" height="${f(h * mm)}mm" viewBox="${f(x0)} ${f(-D.haut)} ${f(w)} ${f(h)}" font-family="Helvetica, Arial, sans-serif">\n`
     + `<title>${xml(tr("coupeExport.titreSvg", { echelle }))}</title>\n`;
-  for (const [calque, [, couleur]] of Object.entries(COULEURS)) {
+  const ordre = [...VUES.map(([n]) => n).reverse(), ...Object.keys(COULEURS).filter(n => !n.startsWith("VUE_0") && !/^VUE_\d/.test(n))];
+  for (const calque of ordre) {
+    const couleur = COULEURS[calque][1];
     t += `<g id="${calque}" fill="none" stroke="${couleur}" stroke-width="${calque === "TERRAIN_COUPE" ? 0.12 : calque === "BATIMENTS_COUPES" ? 0.08 : 0.04}" stroke-linejoin="round">\n`;
     for (const l of D.lignes) {
       if (l.calque !== calque) continue;

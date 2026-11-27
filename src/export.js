@@ -468,6 +468,19 @@ function ecrireStl(cats, O, entete) {
 
 /* ------------------------------------------------------------------ export */
 /** Nom de fichier sans accent ni espace. */
+/**
+ * Nom des fichiers exportés : Topograph_<lieu>_parcelle-<n>_<contenu>_<date>.<ext>, sans accent ni espace ; le lieu
+ * n'est pas répété s'il est déjà la parcelle (ex. Topograph_Lutry_parcelle-5687_coupe-A_2026-11-27.pdf).
+ */
+export function nomFichier({ lieu, parcelle, contenu, ext }) {
+  const propre = x => String(x || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const p = parcelle?.numero ? `parcelle-${propre(parcelle.numero)}` : "";
+  let l = propre(lieu);
+  if (p && (l.toLowerCase() === p || l.toLowerCase() === "site" || /^parcelle-/i.test(l))) l = "";
+  contenu = propre(contenu).replace(/-(?=[A-Z]$)/, "-");
+  const jour = new Date().toISOString().slice(0, 10);
+  return ["Topograph", l, p, contenu, jour].filter(Boolean).join("_") + "." + ext;
+}
 export const sansAccent = s => (s || "site").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "site";
 
 /** Estimation grossière (triangles, octets avant compression) pour prévenir avant un gros export. */
@@ -498,7 +511,8 @@ export async function exporterSite(o) {
   const triangles = cats.reduce((s, c) => s + (c.maillage ? c.maillage.idx.length / 3 : 0), 0);
   const origine = t("export.origine", { E: o.E0, N: o.N0, Z: Z0 });
   const repere = absolu ? t("export.infoMn95") : t("export.infoLocal", { origine });
-  const base = `ombres_${sansAccent(o.lieu)}_${absolu ? "MN95" : `E${o.E0}_N${o.N0}_Z${Z0}`}`, fichier = `${base}.${format}`;
+  const contenu = `maquette_${absolu ? "MN95" : `origine-E${o.E0}-N${o.N0}-Z${Z0}`}`;
+  const fichier = nomFichier({ lieu: o.lieu, parcelle: o.parcelle, contenu, ext: format }), base = fichier.slice(0, -format.length - 1);
   o.progres?.(0.45, t("export.ecriture", { format: F.nom })); await souffle();
   const infos = [t("export.infoLieu", { lieu: sansAccent(o.lieu) }), repere, t("export.infoSource")];
   const extras = { generateur: "Topograph (Atelier Masson)", lieu: o.lieu, epsg: 2056, origine: { E: o.E0, N: o.N0, Z: Z0 }, unite: t("export.unite"),

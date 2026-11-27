@@ -248,6 +248,7 @@ export default {
   "coupe.ajouter": "+ Ajouter une coupe",
   "coupe.retirer": "Retirer cette coupe",
   "coupe.ab": "Coupe A–B",
+  "coupe.calcul": "calcul du dessin…",
   "coupe.legende": "<span class=\"l-terrain\"></span>Terrain et bâtiments coupés <span class=\"l-arbres\"></span>Arbres <span class=\"l-limite\"></span>Limite de parcelle",
   "coupe.legendePoints": "Points du nuage : <span class=\"l-pt pt0\"></span>sol <span class=\"l-pt pt1\"></span>végétation <span class=\"l-pt pt2\"></span>bâtiment <span class=\"l-pt pt3\"></span>autre",
   "coupe.soleilPlan": "soleil à {heure} : {angle}° dans le plan de coupe",

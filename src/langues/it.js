@@ -247,6 +247,7 @@ export default {
   "coupe.ajouter": "+ Aggiungi una sezione",
   "coupe.retirer": "Rimuovi questa sezione",
   "coupe.ab": "Sezione A–B",
+  "coupe.calcul": "calcolo del disegno…",
   "coupe.legende": "<span class=\"l-terrain\"></span>Terreno ed edifici sezionati <span class=\"l-arbres\"></span>Alberi <span class=\"l-limite\"></span>Limite di particella",
   "coupe.legendePoints": "Punti della nuvola: <span class=\"l-pt pt0\"></span>suolo <span class=\"l-pt pt1\"></span>vegetazione <span class=\"l-pt pt2\"></span>edificio <span class=\"l-pt pt3\"></span>altro",
   "coupe.soleilPlan": "sole alle {heure}: {angle}° nel piano di sezione",

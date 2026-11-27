@@ -713,7 +713,20 @@ const lieux = brancherLieux({ compte, bouton: $("#btnLieu"), t,
 $("#btnPartager").onclick = async () => { await navigator.clipboard.writeText(location.href); $("#btnPartager").textContent = t("panneau.copie"); setTimeout(() => $("#btnPartager").textContent = t("panneau.lien"), 1500); };
 
 /* ------------------------------------------------------------------ coupe */
-function majCoupe(A, B) {
+// coupe qui suit une poignée : profil allégé à chaque image (trait principal, pas adapté à la longueur), puis le
+// profil complet (vue au-delà, points, pas de 25 cm) quand la poignée s'arrête ; « calcul… » pendant ce temps
+let coupeLegere = null, coupeComplete = 0;
+function suivreCoupe(A, B) {
+  const premier = !coupeLegere;
+  coupeLegere = [A, B];
+  if (premier) requestAnimationFrame(() => { const [a, b] = coupeLegere; coupeLegere = null; majCoupe(a, b, { rapide: true }); });
+  clearTimeout(coupeComplete);
+  coupeComplete = setTimeout(() => {
+    $("#coupeTexte").textContent = `· ${t("coupe.calcul")}`;
+    setTimeout(() => S.coupe && majCoupe(S.coupe.A, S.coupe.B), 30); // laisse s'afficher « calcul… »
+  }, 220);
+}
+function majCoupe(A, B, { rapide = false } = {}) {
   // la coupe suit le jeu de bâtiments affiché (relevé, swisstopo, roofer ou aucun) ; en mode pro, points du nuage proches
   const jeu = choixBatiments(), hv = scene.hauteursVolumes();
   let grille = jeu === "swiss" || jeu === "roofer" ? scene.grilleComparaison(jeu) : null;
@@ -725,8 +738,9 @@ function majCoupe(A, B) {
     grille = g;
   }
   const distance = scene.nuage ? +$("#distPoints").value : 0;
-  const P = profilCoupe(S.G, scene.contours, A, B, S.parcelle, 0.25, S.voisines || [],
-    { batiments: grille || (jeu === "releve" ? null : "aucun"), nuage: scene.nuage, distance, rayonExt: scene.rayonExt, solHors: scene.altAnneau });
+  const longueur = Math.hypot(B[0] - A[0], B[1] - A[1]) + 2 * Math.max(S.G.R, scene.rayonExt || 0);
+  const P = profilCoupe(S.G, scene.contours, A, B, S.parcelle, rapide ? Math.max(0.25, longueur / 700) : 0.25, S.voisines || [],
+    { batiments: grille || (jeu === "releve" ? null : "aucun"), nuage: scene.nuage, distance, rayonExt: scene.rayonExt, solHors: scene.altAnneau, rapide });
   // plusieurs coupes : celle-ci est l'active (en 3D et dessinée) ; une nouvelle reçoit la paire de lettres libre suivante
   if (!S.coupe) { S.coupe = { lettres: lettresLibres() }; S.coupes.push(S.coupe); }
   Object.assign(S.coupe, { A, B, P });
@@ -811,7 +825,7 @@ $("#btnTracer").onclick = () => {
   } : null);
 };
 scene.surDepart = () => $("#aideCoupe").textContent = t("coupe.aideB");
-scene.surCoupe = (A, B) => majCoupe(A, B);
+scene.surCoupe = (A, B) => suivreCoupe(A, B);
 const refaireCoupe = () => { if (S.coupe) majCoupe(S.coupe.A, S.coupe.B); };
 // bâtiments de comparaison arrivés ou changés (tuiles swisstopo, roofer) : la coupe, et la carte des heures si elle est
 // affichée, sont recalculées avec les bâtiments montrés
