@@ -20,7 +20,10 @@ Référence de précision : `outils/ponts/modeles/poya.json` (pont de la Poya). 
    autre centre/rayon (2 essais au plus). Pas de points classe 17 du tout (vieux pont couvert, petit ouvrage) : modèle
    depuis l'axe TLM, les altitudes du terrain et les photos, `confiance` « faible ».
 2. **Sources et photos** : type, portées, nombre et forme des piles/arches/pylônes, matériaux. Regarde chaque appui
-   **au-dessus, en dessous et à côté du tablier**.
+   **au-dessus, en dessous et à côté du tablier**. **Regarde vraiment chaque photo (Read), à chaque pont** : avant de
+   modéliser, écris en 5–10 lignes ce que tu vois (porteurs, épaisseurs relatives, forme des arcs — plein cintre,
+   surbaissé, parabole —, ce qui est vertical ou incliné, ce qui est en béton/acier/pierre/bois, raccords aux rives,
+   bâtiments ou toits touchés) ; après le modèle, compare le rendu à chaque photo et corrige ce qui diffère.
 3. **Modèle** dans `outils/ponts/modeles/<id>.json`, au style du pont (voir tableau). **D'abord caler le modèle sur
    le nuage** (axe, altitudes, largeur, place et taille des piles, hauteur du toit ou des pylônes : points classes
    17, 6, 1, 26 et 27 du couloir (26/27 : piles et dessous d'ouvrage dans les relevés récents) ; un pont couvert est souvent classé « bâtiment », 6), **ensuite seulement les photos** pour
