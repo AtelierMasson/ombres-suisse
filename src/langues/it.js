@@ -170,6 +170,7 @@ export default {
   "panneau.lien": "Link",
   "panneau.copie": "Copiato",
   "lieu.parcelle": "Particella {n}",
+  "lieu.paysage": "Paesaggio (prova)",
   "msg.pasDeParcelle": "Nessuna particella trovata in questo punto: analisi attorno al punto.",
   "msg.erreur": "Errore: {m}",
   "etat.parcelle": "Particella…",

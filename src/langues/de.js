@@ -170,6 +170,7 @@ export default {
   "panneau.lien": "Link",
   "panneau.copie": "Kopiert",
   "lieu.parcelle": "Grundstück {n}",
+  "lieu.paysage": "Landschaft (Test)",
   "msg.pasDeParcelle": "An dieser Stelle wurde keine Parzelle gefunden: Analyse rund um den Punkt.",
   "msg.erreur": "Fehler: {m}",
   "etat.parcelle": "Grundstück…",

@@ -57,6 +57,16 @@ export class TuilesPlan {
     this.demander();
   }
 
+  /** Origine flottante : la scène est recentrée de (dx est, dn nord) ; tuiles et images gardées, seulement décalées. */
+  decaler(dx, dn) {
+    if (!this.lieu) return;
+    this.lieu = { ...this.lieu, E0: this.lieu.E0 + dx, N0: this.lieu.N0 + dn };
+    for (const T of this.tuiles.values()) if (T.maille) { T.maille.position.x -= dx; T.maille.position.z += dn; }
+    for (const n of this.nappes) if (n.centre.z) { n.centre.x -= dx; n.centre.y -= dn; }
+    this.sale = true;
+    this.demander();
+  }
+
   vider() {
     for (const T of this.tuiles.values()) this.liberer(T);
     this.tuiles.clear();

@@ -24,7 +24,7 @@ import { urlFond, COUCHES } from "./fond.js";
 import { zoneHeures, soleilsPeriode, carreauxFacades, maillagesHeures } from "./heures.js";
 import { contoursBatiments } from "./contours.js";
 import { profilCoupe, dessinerCoupe } from "./coupe.js";
-import { lancerVol } from "./vol.js";
+import { lancerVol, lancerPaysage } from "./vol.js";
 import { fondLacs, fondAutour } from "./bathy.js";
 import { ICONE } from "./icones.js";
 import { brancherSuggestion } from "./suggestion.js";
@@ -167,6 +167,29 @@ async function vol(cle, monde = 0) {
     const arret = await lancerVol(scene, cle, { etat, actif: () => id === tache, monde });
     if (id === tache) arreterVol = arret; else arret();
   } catch (e) { console.warn("Vol :", e); etat(1, ""); }
+}
+// paysage navigable (#p=E,N) : monde, bâtiments et arbres swisstopo, sans maquette ; déplacement libre sans rechargement
+// (prototype de l'étape 2 du plan de chargement, derrière cette adresse : le reste du site ne change pas)
+async function paysage(p) {
+  const [E, N] = p.split(",").map(Number);
+  if (!(E > 2480000 && E < 2840000 && N > 1070000 && N < 1300000)) return accueil();
+  const id = ++tache;
+  chargement?.abort();
+  annulerCalcul();
+  arreterVol?.(); arreterVol = null;
+  scene.animation = null;
+  document.body.classList.remove("accueil");
+  scene.decalage = 0; scene.taille();
+  $("#panneau").hidden = $("#panneauPro").hidden = $("#panneauExport").hidden = $("#panneauAffichage").hidden = $("#diagramme").hidden = $("#coupe").hidden = true;
+  $("#lieu").textContent = `${E}, ${N}`; $("#lieuType").textContent = t("lieu.paysage");
+  message("");
+  Object.assign(S, { lat: null, lon: null, G: null, horizon: null, zone: null, facades: null, resultat: null, coupe: null, coupes: [], heuresDemandees: false });
+  pro.reinitialiser();
+  try {
+    const arret = await lancerPaysage(scene, { E, N }, { etat, actif: () => id === tache,
+      surOrigine: (E1, N1) => history.replaceState(null, "", `#p=${E1},${N1}`) });
+    if (id === tache) arreterVol = arret; else arret();
+  } catch (e) { console.warn("Paysage :", e); etat(1, ""); }
 }
 function quitterAccueil() {
   arreterVol?.(); arreterVol = null;
@@ -349,6 +372,7 @@ async function depuisAdresse(o = null) {
   const ACC = o?.accueil || null;
   const h = ACC ? new URLSearchParams(`e=${ACC.E}&n=${ACC.N}`) : new URLSearchParams(location.hash.slice(1));
   if (!ACC && h.get("vol")) return vol(h.get("vol"), +h.get("monde") || 0);
+  if (!ACC && h.get("p")) return paysage(h.get("p"));
   if (!ACC && !h.get("e")) return accueil();
   const et = ACC ? () => {} : etat;
   const E = +h.get("e"), N = +h.get("n"), id = ++tache;

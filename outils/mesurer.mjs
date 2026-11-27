@@ -42,15 +42,16 @@ const navigateur = await chromium.launch({ args: ["--enable-precise-memory-info"
 // contexte neuf : rien en cache HTTP
 const page = await (await navigateur.newContext()).newPage({ viewport: { width: largeur, height: Math.round(largeur * 0.6) } });
 await page.addInitScript(r => { try { localStorage.setItem("ombres.rayonZone", String(r)); } catch { /* */ } }, rayon);
-const cdp = await page.context().newCDPSession(page);
-await cdp.send("Network.enable");
-const hotes = new Map();
+// requêtes de la page et de ses fils (les nœuds COPC sont lus par les fils de décodage) : événements du contexte
 let octets = {}, enVol = new Set(), dernier = Date.now();
-cdp.on("Network.requestWillBeSent", e => { if (!/^https?:/.test(e.request.url) || /localhost/.test(e.request.url)) return; enVol.add(e.requestId); dernier = Date.now(); });
-cdp.on("Network.responseReceived", e => hotes.set(e.requestId, new URL(e.response.url).host));
-const fini = e => { enVol.delete(e.requestId); dernier = Date.now(); };
-cdp.on("Network.loadingFinished", e => { const h = hotes.get(e.requestId) || "?"; octets[h] = (octets[h] || 0) + e.encodedDataLength; fini(e); });
-cdp.on("Network.loadingFailed", fini);
+const ctx = page.context(), exterieur = r => /^https?:/.test(r.url()) && !/localhost/.test(r.url());
+ctx.on("request", r => { if (exterieur(r)) { enVol.add(r); dernier = Date.now(); } });
+ctx.on("requestfailed", r => { enVol.delete(r); dernier = Date.now(); });
+ctx.on("requestfinished", async r => {
+  enVol.delete(r); dernier = Date.now();
+  const t = await r.sizes().catch(() => null), h = new URL(r.url()).host;
+  if (t) octets[h] = (octets[h] || 0) + t.responseBodySize + t.responseHeadersSize;
+});
 const erreurs = [];
 page.on("pageerror", e => erreurs.push(e.message));
 

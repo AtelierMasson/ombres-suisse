@@ -165,6 +165,17 @@ export class Swiss3D {
     s.appliquerCalques(); s.majBords(); s.ombres(); s.demander(3);
   }
 
+  /**
+   * Origine flottante (paysage navigable) : la scène est recentrée sur (E, N) ; bâtiments, arbres et ponts gardent
+   * leurs tuiles et leur calage (le géoïde varie de ~10 cm par km), seule la matrice change.
+   */
+  deplacerOrigine(E, N) {
+    this.calageFige = true; // la grille G du lieu de départ ne vaut plus ici
+    this.versScene = matriceVersScene(E, N, this.s.zRef + GEOIDE);
+    for (const t of [this.tuiles, this.arbres, this.ponts]) if (t) { t.group.matrix.copy(this.versScene); t.group.matrixWorldNeedsUpdate = true; }
+    this.lieu = this.lieuCharge = { E, N };
+  }
+
   /** Garde des sommets de toit (nettement au-dessus de notre sol) pour le calage. */
   relever(mesh, G) {
     // position du maillage dans le repère des tuiles (chaîne de ses parents jusqu'au groupe, rattaché ou non), puis

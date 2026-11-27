@@ -115,7 +115,7 @@ async function decor(scene, V, o, marque) {
     // monde persistant : terrain swisstopo (quantized-mesh) dans le repère de la scène, calé sur la grille 2 m du centre
     const m = scene.monde ||= new Monde(scene);
     m.placer(E, N, scene.zRef);
-    m.solEn = (x, y) => solEn(G, x, y);
+    m.solEn = (x, y) => solEn(G, x, y); m.rayonCalage = G.R;
     // matière du paysage (mêmes uniformes : plan drapé, couleurs, brume), dans une instance propre au monde (trou)
     m.montrerTerrain(scene.matMonde ||= materiauLointain(scene.loin.mat.uniforms), { trou: o.monde === 2 ? V.R - 1 : 0 });
     if (o.monde !== 2) k.terrain.visible = false; // le monde seul : qualité du terrain swisstopo jugée telle quelle
@@ -132,3 +132,38 @@ async function decor(scene, V, o, marque) {
   marque("maquette");
   return { G, voirAvant, jeuAvant };
 }
+
+/**
+ * Paysage navigable (#p=E,N) : le décor du vol, sans maquette ni relevé, où l'on se déplace librement (souris,
+ * clavier) sans rechargement : au-delà de 250 m du centre, l'origine de la scène suit la cible (origine flottante) ;
+ * monde, bâtiments, arbres et plan gardent leurs tuiles. Remplace le « voyage » (surVoyage) dans ce mode.
+ */
+export async function lancerPaysage(scene, { E, N }, o) {
+  const V = { nom: o.nom || "Paysage", E, N, R: 300, soleil: { az: 215, h: 35 } }, temps = scene.tempsVol = {}, debut = performance.now();
+  const marque = nom => { if (!(nom in temps)) temps[nom] = Math.round(performance.now() - debut); };
+  const fin = await decor(scene, V, { ...o, monde: 1 }, marque);
+  if (!fin) return () => {};
+  const { voirAvant, jeuAvant } = fin;
+  o.etat(1, "");
+  scene.vol = false; scene.paysage = true;
+  scene.groupe.visible = false; // la petite maquette du départ (grille 2 m) ne suit pas l'origine flottante
+  const m = scene.monde, ctl = scene.controls;
+  ctl.enabled = true; ctl.autoRotate = false;
+  scene.camera.position.set(-420, 260, 520); ctl.target.set(0, 20, 0); ctl.update();
+  scene.surPaysage = cible => {
+    // origine flottante : la scène se recentre sous la cible tous les 250 m (précision des flottants ; les ombres
+    // couvrent ±360 m autour de l'origine)
+    if (Math.hypot(cible.x, cible.z) < 250) return;
+    const E1 = Math.round(m.E0 + cible.x), N1 = Math.round(m.N0 - cible.z);
+    const [dx, dn] = m.rebaser(E1, N1);
+    scene.swiss?.deplacerOrigine(E1, N1);
+    scene.tuilesPlan?.decaler(dx, dn);
+    o.surOrigine?.(E1, N1);
+    scene.demander(3);
+  };
+  return () => {
+    scene.paysage = false; scene.surPaysage = null; m?.cacherTerrain(); scene.groupe.visible = true;
+    scene.reglerLointain({ voir: voirAvant }); scene.calques.jeu = jeuAvant;
+  };
+}
+

@@ -523,7 +523,7 @@ void main() {
    * montagnes lointaines sans blanchir la maquette ; sans paysage, celle du thème (la maquette se fond dans le ciel).
    */
   densiteBrume() {
-    if (this.vol && !this.modeVue) return 1.5e-4; // vol de l'accueil : toujours sa brume d'été
+    if ((this.vol || this.paysage) && !this.modeVue) return 1.5e-4; // vol de l'accueil, paysage navigable : brume d'été
     if (this.modeVue || !this.loin.brume) return 0;
     // curseur de brume : 0 à 100 % (50 % = la brume habituelle), quadruple au plus
     const f = (this.loin.facteurBrume ?? 0.5) * 2;
@@ -2263,6 +2263,8 @@ void main() {
     // jamais plus de 3 km au-dessus du lieu (ni du sol sous la caméra)
     const plafond = (isNaN(sol2) ? 0 : sol2) + 3000;
     if (cam.position.y > plafond) { const m = cam.position.y - plafond; cam.position.y -= m; cible.y -= m; if (v.y > 0) v.y = 0; }
+    // paysage navigable : l'origine suit la cible, sans rechargement (vol.js, surPaysage)
+    if (this.paysage) { this.surPaysage?.(cible); return true; }
     // voyage : près du bord de la maquette, le lieu se recharge sous la caméra (main.js, surVoyage)
     const Rv = Math.max(this.G.R, this.rayonExt || 0);
     if (Math.hypot(cible.x, cible.z) > Rv * 0.75) this.surVoyage?.(cible);
@@ -2271,6 +2273,7 @@ void main() {
 
   /** Altitude du sol (repère de la scène) sous un point x, z : maquette fine, puis anneau ; NaN hors du modèle. */
   solSous(x, z) {
+    if (this.paysage) return this.monde?.solSous(x, z) ?? NaN; // la grille du départ ne vaut plus après rebasage
     const G = this.G;
     if (G && Math.hypot(x, z) < G.R - 1) return solEn(G, x, -z) - this.zRef;
     const a = this.couches?.anneau;

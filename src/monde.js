@@ -77,7 +77,7 @@ export class Monde {
     Object.assign(this, { E0: E, N0: N, zRef });
     this.matrice = matriceVersScene(E, N, zRef);
     if (this.terrain) { this.terrain.group.matrix.copy(this.matrice); this.terrain.group.matrixWorldNeedsUpdate = true; }
-    this.calage = { dz: this.calage.dz, n: 0 }; // le géoïde change peu d'un lieu voisin à l'autre : on repart du précédent
+    this.calage = { ...this.calage, n: 0 }; // le géoïde change peu d'un lieu voisin à l'autre : on repart du précédent
     this.s.demander(2);
   }
 
@@ -89,6 +89,7 @@ export class Monde {
     const dx = E - this.E0, dn = N - this.N0, dz = zRef - this.zRef, cam = this.s.camera, cib = this.s.controls.target;
     for (const v of [cam.position, cib]) { v.x -= dx; v.z += dn; v.y -= dz; }
     cam.updateMatrixWorld();
+    this.solEn = null; // la grille de référence ne vaut qu'au lieu de départ : calage figé (le géoïde varie de ~10 cm/km)
     this.placer(E, N, zRef);
     return [dx, dn];
   }
@@ -129,7 +130,8 @@ export class Monde {
     if (!solEn || !this.terrain) return;
     const r = new THREE.Raycaster(), bas = new THREE.Vector3(0, -1, 0), e = [];
     this.racine.updateMatrixWorld(true);
-    for (const R of [60, 200, 450]) for (let k = 0; k < 12; k++) {
+    const Rc = this.rayonCalage || 500; // dans la grille de référence (au-delà, solEn n'a plus de sens)
+    for (const R of [0.15 * Rc, 0.45 * Rc, 0.85 * Rc]) for (let k = 0; k < 12; k++) {
       const a = k / 12 * Math.PI * 2, x = Math.cos(a) * R, y = Math.sin(a) * R, z = solEn(x, y);
       if (isNaN(z)) continue;
       r.set(new THREE.Vector3(x, 20000, -y), bas);
