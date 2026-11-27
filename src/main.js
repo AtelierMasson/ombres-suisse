@@ -399,7 +399,8 @@ async function depuisAdresse(o = null) {
     }
     S.voyage = false;
     if (ACC) volAccueil(E0, N0);
-    if (!ACC?.suite) scene.animerConstruction(); // les bâtiments montent du sol, puis les arbres apparaissent
+    // les bâtiments montent du sol, puis les arbres apparaissent ; en voyage, la vague part du lieu d'où l'on vient
+    if (!ACC?.suite) scene.animerConstruction(undefined, { origine: voyage && E0avant != null ? [E0avant - E0, N0avant - N0] : null });
     // vue enregistrée (lieu du compte) : la caméra reprend sa place
     const cam = (h.get("cam") || "").split(",").map(Number);
     if (cam.length === 6 && cam.every(Number.isFinite)) { scene.camera.position.set(cam[0], cam[1], cam[2]); scene.controls.target.set(cam[3], cam[4], cam[5]); scene.controls.update(); scene.demander?.(3); }
