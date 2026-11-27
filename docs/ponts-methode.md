@@ -50,3 +50,64 @@ g. **Dessous, piles** : épaisseur constante par pont (0,6 m à portée/20) ; pi
 4. Refonte en `G.ponts` avec `maillagePont` et le garde-fou de repli.
 5. Piles et épaisseur (g), section en T éventuelle.
 6. Cas particuliers (tabliers jumeaux, superposés, arches) ; l'axe swissTLM3D (outils/ponts/recenser.py) comme a priori.
+
+## 4. État au 27 novembre 2026 (étapes 1 à 3, une partie de 4 et 5)
+
+Cause première des ponts « creux » : les faces du dessus de `pontsLegers` tournaient vers le bas (454 triangles sur 474
+à Lutry, de même à Zurich et à Lausanne) alors que la matière du terrain ne montre que la face avant : la chaussée
+n'était pas dessinée, on voyait l'intérieur du tablier (rives et dessous) sans la texture du sol.
+
+### Fait
+- **Grille** (`grille.js`) : `niveauLocal` (a : cases à plus d'un mètre sous le 75e centile du tablier à 3 m, retirées) ;
+  `solSousPonts` + `relaxer` (b : sol sous l'emprise interpolé par relaxation de Laplace ; le sol mesuré à moins d'un
+  mètre sous la chaussée n'est gardé que s'il tient au sol voisin hors de l'emprise, au même niveau). L'emprise n'est
+  pas élargie d'un mètre : cela effaçait la rue aux bouts des ponts bas de Zurich (axe droit perdu). La chaussée reste
+  le maximum par case ; les bords (garde-corps) sont écartés à l'ajustement (cases du milieu, médiane).
+- **Axe** (c) : centres par tranche sans les tranches des coins, trois passes de lissage, droite si l'écart à la corde
+  est sous 40 cm ; normales interpolées entre les nœuds (tangente continue) ; prolongement de 45 m dans la direction
+  des 12 derniers mètres. L'axe droit des ponts courts (`axeDroit`) est gardé.
+- **Rives** (c) : droite robuste (pont court) ou lissage de Whittaker robuste (λ = 1500) des écarts par station.
+- **Profil en long** (d) : lissage de Whittaker robuste (λ = 60) sur la chaussée et 15 m de route de chaque côté ;
+  dévers par moindres carrés, lissé ; `simplifierProfil` n'est plus utilisé pour les ponts.
+- **Raccord** (e) : bout libre si la route ne rejoint pas le tablier dans les 15 m ; sinon joint là où le terrain
+  affiché (`solAffiche`, triangles d'un mètre) rejoint le profil à 25 cm près sur 2 m ; fondu sur 3 m, puis 1,5 m sous
+  le terrain (6 à 36 cm) ; tablier plein jusqu'à 60 cm sous le terrain quand la hauteur libre est sous 1,2 m, face de
+  culée au passage plein / ajouré. Le profil n'est pas gravé dans `G.sol` (voir « Reste »).
+- **Dessus** (f) : faces tournées vers le haut (vérifié triangle par triangle), normales de la surface ajustée,
+  fondues dans celles du terrain au raccord ; 2 à 6 bandes en travers.
+- **Allègement** (g) : sections tous les mètres puis Douglas-Peucker à 5 cm sur les points du dessus et le dessous
+  (64 sections pour 172 m courbes, 79 pour 430 m) ; épaisseur relevée par station puis lissée (pas constante : les
+  tabliers à hauteur variable gardent leur forme) ; piles comme avant, bornées aux rives.
+- **Repli** (g) : emprise ajustée / relevée (IoU) sous 0,7 ou écart médian de hauteur au-dessus de 0,4 m, ou erreur :
+  le pont est rendu par `tabliersPonts`. Seuil à 0,7 et non 0,8 : le Bleicherweg (0,75, tablier aussi large que long,
+  bouts en biais) est mieux rendu par le modèle. Aucun des ponts d'essai ne passe en repli.
+- **Bord du modèle** : `decouperCercle` coupe la chaussée au cercle (elle dépassait de 25 m sur l'anneau, sans rives) ;
+  une paroi ferme le pont coupé le long du cercle.
+
+### Mesures (avant → après)
+Part des cases du tablier couvertes par une face du dessus visible ; écart médian chaussée / relevé.
+
+| Pont | Couvert | Écart |
+|---|---|---|
+| Lutry, pont courbe de 172 m | 2 % → 97 % | 9 → 1 cm |
+| Lutry, pont coupé par le cercle | 5 % → 91 % | 18 → 2 cm |
+| Zurich, Dreikönigstrasse | 0 % → 100 % | 7 cm |
+| Zurich, Bleicherweg | 0 % → 99 % | 2 cm |
+| Lausanne, Chauderon | 1 % → 99 % | 6 → 3 cm |
+| Zurich, Münsterbrücke (lien « Quaibrücke », au bord du cercle) | 1 % → 99 % | 4 → 1 cm |
+| A9, viaducs de la Lutrive (430 m) | 1 % → 98 % et 100 % | 6 → 1 cm |
+
+### Reste
+- Étape 4 : `modeliserPonts(G, nuage)` → `G.ponts` avant la coupe au cercle, un seul mailleur avec `pontsModeles.js`,
+  et le profil gravé dans `G.sol` avant le joint. Aujourd'hui le terrain garde sa forme : là où il dépasse la
+  chaussée de quelques centimètres près du joint, c'est lui qu'on voit (même texture, léger ressaut).
+- Rive au-dessus d'un talus ou d'un mur au raccord (plus de 1,5 m d'écart) : le point reste au niveau du profil, la
+  chaussée fait un pli vers ses voisins.
+- Au cercle, le pont du relevé s'arrête net et celui de swissTLM3D (anneau) reprend avec une autre géométrie : marche
+  visible. Les ponts faits main (`maillagePont`) ne sont pas fermés par une paroi au cercle.
+- Étape 5 : piles regroupées en (s, t) et espacement régularisé, épaisseur constante, section en T ; arches (Chauderon
+  est rendu en poutre droite sur piles, comme avant).
+- Étape 6 : tabliers jumeaux soudés (viaducs de la Lutrive : une seule chaussée de 27 m), ponts superposés, axe
+  swissTLM3D comme a priori.
+- Hors ponts, vu aux viaducs de la Lutrive : le ruisseau s'étale en une grande nappe d'eau inclinée (présente avant
+  ces changements).

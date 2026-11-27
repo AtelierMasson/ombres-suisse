@@ -58,7 +58,12 @@ export function depuisPoints(nuage, R, c = 0.5) {
       }
     }
   }
+  // tablier : les cases nettement plus basses que le tablier autour (sol, pied de pile classés « pont ») sont retirées
+  niveauLocal(pont, n, c);
+  // sol sous les ponts : interpolé en douceur d'un bord à l'autre de l'emprise (plus de falaise le long du tablier)
+  const sousTablier = solSousPonts(sol, pont, n);
   remplir(sol, n);
+  relaxer(sol, sousTablier, n);
   // sous l'eau : le fond descend depuis la rive (estimé : pente de 12 %, au plus 40 m de profondeur ; le relevé ne
   // voit pas le fond), l'eau reste plate au-dessus
   {
@@ -338,6 +343,67 @@ export function remplir(a, n) {
   if (b.some(isNaN)) remplir(b, m);
   for (let j = 0; j < n; j++) for (let i = 0; i < n; i++)
     if (isNaN(a[j * n + i])) a[j * n + i] = b[(j >> 1) * m + (i >> 1)];
+}
+
+/**
+ * Tablier d'un pont : une case à plus d'un mètre sous le niveau du tablier autour d'elle (75e centile des cases « pont »
+ * à 3 m, une sur deux) n'est pas la chaussée (sol sous le pont, pied de pile, talus classés « pont ») : retirée.
+ */
+function niveauLocal(pont, n, c) {
+  const r = Math.round(3 / c), retirer = [], v = [];
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    const p = j * n + i;
+    if (isNaN(pont[p])) continue;
+    v.length = 0;
+    for (let b = Math.max(0, j - r); b <= Math.min(n - 1, j + r); b += 2) for (let a = Math.max(0, i - r); a <= Math.min(n - 1, i + r); a += 2) { const z = pont[b * n + a]; if (!isNaN(z)) v.push(z); }
+    if (v.length < 4) continue;
+    v.sort((x, y) => x - y);
+    if (pont[p] < v[Math.floor(v.length * 0.75)] - 1) retirer.push(p);
+  }
+  for (const p of retirer) pont[p] = NaN;
+}
+
+/**
+ * Sol sous les ponts : dans l'emprise des tabliers, le sol mesuré à moins d'un mètre sous la chaussée n'est gardé que
+ * s'il tient au sol mesuré hors de l'emprise, au même niveau (route posée sur la culée, quai) ; isolé au milieu du
+ * tablier, ce sont des points du pont classés « sol », qui dressaient des falaises sous lui. Retourne le masque des
+ * cases sans sol de l'emprise, à interpoler (`relaxer`).
+ */
+function solSousPonts(sol, pont, n) {
+  const N = n * n, tenu = new Uint8Array(N), file = [], masque = new Uint8Array(N);
+  const haut = p => !isNaN(pont[p]) && sol[p] > pont[p] - 1, voisines = p => { const i = p % n; return [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p >= n ? p - n : -1, p + n < N ? p + n : -1]; };
+  for (let p = 0; p < N; p++) {
+    if (!haut(p)) continue;
+    if (voisines(p).some(q => q >= 0 && isNaN(pont[q]) && Math.abs(sol[q] - sol[p]) < 0.5)) { tenu[p] = 1; file.push(p); }
+  }
+  for (let f = 0; f < file.length; f++) {
+    const p = file[f];
+    for (const q of voisines(p)) if (q >= 0 && !tenu[q] && haut(q) && Math.abs(sol[q] - sol[p]) < 0.3) { tenu[q] = 1; file.push(q); }
+  }
+  for (let p = 0; p < N; p++) {
+    if (isNaN(pont[p])) continue;
+    if (haut(p) && !tenu[p]) sol[p] = NaN;
+    if (isNaN(sol[p])) masque[p] = 1;
+  }
+  return masque;
+}
+
+/**
+ * Interpolation douce (équation de Laplace, sur-relaxation) des cases du masque, déjà remplies grossièrement ; les
+ * cases hors du masque restent fixes : sous un tablier, le sol rejoint ainsi sans marche le terrain mesuré de part et d'autre.
+ */
+function relaxer(a, masque, n, passes = 240) {
+  const L = [];
+  for (let j = 1; j < n - 1; j++) for (let i = 1; i < n - 1; i++) if (masque[j * n + i]) L.push(j * n + i);
+  for (let t = 0; t < passes && L.length; t++) {
+    let dmax = 0;
+    for (let k = 0; k < L.length; k++) {
+      const p = t & 1 ? L[L.length - 1 - k] : L[k], d = (a[p - 1] + a[p + 1] + a[p - n] + a[p + n]) / 4 - a[p];
+      a[p] += 1.8 * d;
+      if (d > dmax) dmax = d; else if (-d > dmax) dmax = -d;
+    }
+    if (dmax < 0.003) break;
+  }
 }
 
 /** Maximum des valeurs (NaN ignorés) dans un carré de côté 2r + 1 autour de chaque cellule (deux passes séparées). */

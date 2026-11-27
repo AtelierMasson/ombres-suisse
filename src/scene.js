@@ -14,7 +14,7 @@ import { solEn, majSurface } from "./grille.js";
 import { indexVolumes } from "./volumes.js";
 import { socleRond, materiauPoints, bordEauRond } from "./maillages.js";
 import { dansPont, maillagePont } from "./pontsModeles.js";
-import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord, tabliersPonts, pontsLegers } from "./maillages.js";
+import { terrain, socle, canopee as nappeCanopee, batiments, nuagePoints, contourParcelle, couronnes, pointsVegetation, hauteursBords, hauteursDessus, limitesVoisines, DEGRADE, RAMPE_GLSL, plansEau, decouperBord, decouperCercle, tabliersPonts, pontsLegers } from "./maillages.js";
 import { chargerImage, teinterCadastre, adoucirPhoto } from "./fond.js";
 import { trancheCoupe } from "./coupe.js";
 
@@ -731,6 +731,9 @@ void main() {
           (x, y) => [(x - G.x0) / (2 * G.R), (y - G.x0) / (2 * G.R)]);
         ponts.add(maille(g.dessus, m.terrain, true, true), maille(g.reste, m.mur, true, true));
       }
+      // maquette ronde : la chaussée (matière du terrain, que le rendu ne découpe pas) est coupée au cercle, comme
+      // le reste du pont l'est par le rendu ; sinon elle dépassait de 25 m sur l'anneau, sans rives ni dessous
+      if (G.rayonZone) ponts.children.forEach(o => { if (o.material === m.terrain) o.geometry = decouperCercle(o.geometry, G.rayonZone - 0.03); });
       ponts.children.forEach(o => decouperBord(o, G.R - 0.03));
     }
     this.couches = { terrain: sol, socle: base, bati, canopee, arbres, limite, eau, ponts };

@@ -954,16 +954,67 @@ function droiteRobuste(P) {
 }
 
 /**
- * Ponts allégés : chaque pont (cellules de tablier connexes) devient un solide balayé le long de son axe principal.
- * On relève, tous les mètres le long de l'axe, les deux rives (écart à l'axe), le dessus du tablier et le dessous
- * relevé (intrados des arches, pied des piles) ; ces quatre profils sont simplifiés (Douglas-Peucker), puis reliés
- * par des faces planes : quelques centaines de triangles par pont au lieu de dizaines de milliers.
- * Pour les ponts droits ou peu courbes. Retourne { dessus (avec coordonnées de texture du terrain), cotes } ou null.
+ * Lissage de Whittaker d'une suite régulière : minimise Σ w (z − y)² + λ Σ (courbure de z)². Les valeurs NaN ou de
+ * poids nul sont franchies en ligne droite ; λ fixe la raideur (longueur d'onde gardée ≈ 2π λ^¼ pas).
+ */
+function lisser(y, w, lambda) {
+  const m = y.length;
+  if (m < 3) { const ok = Array.from(y).filter((v, i) => w[i] > 0 && !isNaN(v)), moy = ok.length ? ok.reduce((a, b) => a + b, 0) / ok.length : 0; return Float64Array.from(y, (v, i) => w[i] > 0 && !isNaN(v) ? v : moy); }
+  // matrice à cinq bandes A = W + λ DᵀD (D : différences secondes) : diagonale d0, puis d1 et d2
+  const d0 = new Float64Array(m), d1 = new Float64Array(m), d2 = new Float64Array(m), z = new Float64Array(m);
+  for (let i = 0; i < m; i++) { const p = w[i] > 0 && !isNaN(y[i]) ? w[i] : 0; d0[i] = p + 1e-9; z[i] = p ? p * y[i] : 0; }
+  for (let i = 0; i < m - 2; i++) { d0[i] += lambda; d0[i + 1] += 4 * lambda; d0[i + 2] += lambda; d1[i] -= 2 * lambda; d1[i + 1] -= 2 * lambda; d2[i] += lambda; }
+  // factorisation L D Lᵀ en place (d0 : D ; d1, d2 : les deux sous-diagonales de L), puis les deux substitutions
+  for (let i = 0; i < m; i++) {
+    if (i >= 1) d0[i] -= d1[i - 1] * d1[i - 1] * d0[i - 1];
+    if (i >= 2) d0[i] -= d2[i - 2] * d2[i - 2] * d0[i - 2];
+    if (i >= 1) d1[i] -= d1[i - 1] * d2[i - 1] * d0[i - 1];
+    d1[i] /= d0[i]; d2[i] /= d0[i];
+  }
+  for (let i = 0; i < m; i++) { if (i >= 1) z[i] -= d1[i - 1] * z[i - 1]; if (i >= 2) z[i] -= d2[i - 2] * z[i - 2]; }
+  for (let i = m - 1; i >= 0; i--) { z[i] /= d0[i]; if (i + 1 < m) z[i] -= d1[i] * z[i + 1]; if (i + 2 < m) z[i] -= d2[i] * z[i + 2]; }
+  return z;
+}
+
+/** Lissage robuste : les valeurs à plus de max(`seuil`, 2,5 écarts médians) de la courbe sont écartées, trois fois. */
+function lisserRobuste(y, lambda, seuil, poids = null) {
+  const p0 = Float64Array.from(y, (v, i) => isNaN(v) ? 0 : poids ? poids[i] : 1);
+  let z = lisser(y, p0, lambda);
+  for (let tour = 0; tour < 3; tour++) {
+    const e = [];
+    for (let i = 0; i < y.length; i++) if (p0[i] > 0) e.push(Math.abs(y[i] - z[i]));
+    if (e.length < 4) break;
+    e.sort((a, b) => a - b);
+    const lim = Math.max(seuil, 2.5 * e[e.length >> 1]);
+    z = lisser(y, p0.map((p, i) => p > 0 && Math.abs(y[i] - z[i]) <= lim ? p : 0), lambda);
+  }
+  return z;
+}
+
+/** Hauteur du terrain tel qu'il est affiché (triangles d'un mètre de `terrain`) au point (x, y). */
+function solAffiche(G, x, y) {
+  const pas = 2 * G.c, a = Math.floor((x - G.x0) / pas), b = Math.floor((y - G.x0) / pas), u = (x - G.x0) / pas - a, v = (y - G.x0) / pas - b;
+  const z = (i, j) => solEn(G, G.x0 + i * pas, G.x0 + j * pas), z00 = z(a, b), z11 = z(a + 1, b + 1);
+  return u >= v ? z00 + u * (z(a + 1, b) - z00) + v * (z11 - z(a + 1, b)) : z00 + u * (z11 - z(a, b + 1)) + v * (z(a, b + 1) - z00);
+}
+
+/**
+ * Ponts allégés : chaque pont (cellules de tablier connexes) devient un solide balayé le long de son axe.
+ * - axe : droit entre les deux raccords (pont court), sinon la suite lissée des centres du tablier, redressée si elle
+ *   est presque droite ; normales continues d'un nœud à l'autre (pas de coin aux coudes) ;
+ * - rives : écarts à l'axe relevés tous les mètres, puis ajustés (droite robuste pour un pont court, courbe raide
+ *   sinon) : des bords nets, sans dents de scie ;
+ * - profil en long : une courbe lisse ajustée sur la chaussée et sur 15 m de route de chaque côté, avec le dévers ;
+ * - raccord : à chaque bout posé sur le terrain, le tablier est prolongé jusqu'au joint (là où le terrain rejoint le
+ *   profil), s'y fond sur 3 m puis plonge sous le terrain ; plein jusqu'au sol tant que la hauteur libre est faible ;
+ * - dessus : faces tournées vers le haut, normales de la surface ajustée (fondues dans celles du terrain au raccord).
+ * Un pont que ce modèle décrit mal (emprise ou hauteur trop différentes du relevé) reste rendu case par case.
+ * Retourne { dessus (avec coordonnées de texture du terrain), cotes } ou null.
  */
 export function pontsLegers(G, zRef, nuage = null) {
   const { n, c, x0, pont, pontBas } = G;
   if (!pont || !pont.some(v => !isNaN(v))) return null;
-  const sous = pontBas || pont.map(z => z - 1.5), vu = new Uint8Array(n * n), haut = [], uv = [], bas = [];
+  const sous = pontBas || pont.map(z => z - 1.5), vu = new Uint8Array(n * n), haut = [], uv = [], nor = [], bas = [];
   // points vus sous le tablier (nuage du relevé) : classe « pont » à moins de 7 m sous la chaussée = dessous du
   // tablier ; plus bas, ou classe 27 (ouvrages) = piles
   const intrados = new Map(), piles = new Map();
@@ -983,9 +1034,17 @@ export function pontsLegers(G, zRef, nuage = null) {
   }
   const avecNuage = !!nuage;
   const UV = (x, y) => [(x - x0) / (2 * G.R), (y - x0) / (2 * G.R)];
+  const med = a => { if (!a.length) return NaN; a.sort((u, v) => u - v); return a[a.length >> 1]; };
+  const P = ([x, y], z) => [x, z, -y];
+  const quad = (o, A, B, C, D) => o.push(...A, ...B, ...C, ...A, ...C, ...D);
+  // normale du terrain affiché (repère de la scène), pour fondre l'éclairage de la chaussée dans celui de la route
+  const normaleSol = (x, y) => { const a = -(solEn(G, x + 1, y) - solEn(G, x - 1, y)) / 2, b = (solEn(G, x, y + 1) - solEn(G, x, y - 1)) / 2, l = Math.hypot(a, 1, b); return [a / l, 1 / l, b / l]; };
+  const infos = [], repli = pont.map(() => NaN);
+  let nRepli = 0;
   // cases « pont » à moins d'un mètre du sol : sol sous le tablier classé « pont », ou bout de pont posé sur la route.
   // Elles ne font pas le tablier (le raccord aux bouts rejoint la route) ; marquées vues, elles sont ignorées
   for (let p = 0; p < n * n; p++) if (!isNaN(pont[p]) && !(pont[p] - G.sol[p] > 1)) vu[p] = 1;
+  const tabliers = [];
   for (let p0 = 0; p0 < n * n; p0++) {
     if (vu[p0] || isNaN(pont[p0])) continue;
     // un pont : cellules connexes
@@ -997,10 +1056,13 @@ export function pontsLegers(G, zRef, nuage = null) {
       for (const q of [i > 0 ? p - 1 : -1, i < n - 1 ? p + 1 : -1, p - n, p + n])
         if (q >= 0 && q < n * n && !vu[q] && !isNaN(pont[q])) { vu[q] = 1; pile.push(q); } // (cases au sol déjà « vues »)
     }
-    if (cel.length * c * c < 20) continue;
+    if (cel.length * c * c >= 20) tabliers.push(cel);
+  }
+  // modèle d'un pont (ses cellules) : ajoute ses faces ; false s'il doit être rendu tel que relevé
+  const modeliser = cel => {
     // axe du pont, droit ou courbe : on ordonne les cellules le long du pont (distance dans le tablier depuis un bout),
-    // puis l'axe est la suite des centres par tranche, lissée et simplifiée ; chaque cellule est ensuite projetée
-    // sur cet axe : abscisse curviligne s et écart t (positif à gauche)
+    // puis l'axe est la suite des centres par tranche, lissée ; chaque cellule est ensuite projetée sur cet axe :
+    // abscisse curviligne s et écart t (positif à gauche)
     const X = cel.map(p => x0 + (p % n + 0.5) * c), Y = cel.map(p => x0 + (Math.floor(p / n) + 0.5) * c);
     const rang = new Map(cel.map((p, k) => [p, k]));
     // pont court (bouts à moins de 60 m l'un de l'autre) : axe droit d'un bout à l'autre. Pour un pont aussi large que
@@ -1029,17 +1091,32 @@ export function pontsLegers(G, zRef, nuage = null) {
       // centres par tranche de 4 m de parcours
       const tr = Math.max(1, Math.round(4 / c)), nt = Math.floor(dmax / tr) + 1, cx = new Float64Array(nt), cy = new Float64Array(nt), cn = new Int32Array(nt);
       for (let k = 0; k < cel.length; k++) { if (dA[k] < 0) continue; const q = Math.floor(dA[k] / tr); cx[q] += X[k]; cy[q] += Y[k]; cn[q]++; }
+      // les tranches des bouts (coins du tablier, peu de cases) tirent l'axe de travers : écartées
+      const plein = med(Array.from(cn).filter(v => v > 0));
+      let q0 = 0, q1 = nt - 1;
+      while (q1 - q0 > 2 && cn[q0] < 0.6 * plein) q0++;
+      while (q1 - q0 > 2 && cn[q1] < 0.6 * plein) q1--;
       axe = [];
-      for (let q = 0; q < nt; q++) if (cn[q]) axe.push([cx[q] / cn[q], cy[q] / cn[q]]);
-      if (axe.length < 2) continue;
-      // lissage (moyenne glissante sur 3) puis prolongement aux deux bouts, et simplification (20 cm)
-      axe = axe.map((v, i) => i === 0 || i === axe.length - 1 ? v : [(axe[i - 1][0] + v[0] + axe[i + 1][0]) / 3, (axe[i - 1][1] + v[1] + axe[i + 1][1]) / 3]);
-      const prolonger = (A, B) => { const dx = A[0] - B[0], dy = A[1] - B[1], l = Math.hypot(dx, dy) || 1; return [A[0] + dx / l * 6, A[1] + dy / l * 6]; };
-      axe = [prolonger(axe[0], axe[1]), ...axe, prolonger(axe.at(-1), axe.at(-2))];
-      axe = simplifierLigne(axe, 0.2);
+      for (let q = q0; q <= q1; q++) if (cn[q]) axe.push([cx[q] / cn[q], cy[q] / cn[q]]);
+      if (axe.length < 2) return false;
+      // lissage (trois passes), bouts fixes
+      for (let passe = 0; passe < 3; passe++) axe = axe.map((v, i) => i === 0 || i === axe.length - 1 ? v : [(axe[i - 1][0] + 2 * v[0] + axe[i + 1][0]) / 4, (axe[i - 1][1] + 2 * v[1] + axe[i + 1][1]) / 4]);
+      // presque droit (moins de 40 cm d'écart à la corde) : une droite
+      {
+        const [ax, ay] = axe[0], [bx, by] = axe.at(-1), L = Math.hypot(bx - ax, by - ay) || 1;
+        if (axe.every(([x, y]) => Math.abs((x - ax) * (by - ay) - (y - ay) * (bx - ax)) / L < 0.4)) axe = [axe[0], axe.at(-1)];
+      }
+    }
+    // prolongement de 45 m à chaque bout, dans la direction des 12 derniers mètres (raccord à la route, projection)
+    {
+      const vers = (A, B) => { const dx = A[0] - B[0], dy = A[1] - B[1], l = Math.hypot(dx, dy) || 1; return [A[0] + dx / l * 45, A[1] + dy / l * 45]; };
+      const k = Math.min(3, axe.length - 1);
+      axe = [vers(axe[0], axe[k]), ...axe, vers(axe.at(-1), axe.at(-1 - k))];
     }
     const cum = [0];
     for (let i = 1; i < axe.length; i++) cum.push(cum[i - 1] + Math.hypot(axe[i][0] - axe[i - 1][0], axe[i][1] - axe[i - 1][1]));
+    // normale (gauche) à chaque nœud : perpendiculaire à la corde de ses deux voisins, interpolée entre les nœuds
+    const nrm = axe.map((_, i) => { const A = axe[Math.max(0, i - 1)], B = axe[Math.min(axe.length - 1, i + 1)], l = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1; return [-(B[1] - A[1]) / l, (B[0] - A[0]) / l]; });
     // projection d'un point sur l'axe : [s, t]
     const projeter = (x, y) => {
       let best = [0, 0], bd = Infinity;
@@ -1054,146 +1131,314 @@ export function pontsLegers(G, zRef, nuage = null) {
     const surAxe = s => {
       let i = 0;
       while (i < axe.length - 2 && cum[i + 1] < s) i++;
-      const [ax, ay] = axe[i], [bx, by] = axe[i + 1], L = cum[i + 1] - cum[i] || 1, u = (s - cum[i]) / L;
-      return { x: ax + (bx - ax) * u, y: ay + (by - ay) * u, nx: -(by - ay) / L, ny: (bx - ax) / L };
+      const [ax, ay] = axe[i], [bx, by] = axe[i + 1], L = cum[i + 1] - cum[i] || 1, u = Math.max(0, Math.min(1, (s - cum[i]) / L));
+      const nx = nrm[i][0] + (nrm[i + 1][0] - nrm[i][0]) * u, ny = nrm[i][1] + (nrm[i + 1][1] - nrm[i][1]) * u, l = Math.hypot(nx, ny) || 1;
+      return { x: ax + (bx - ax) * u, y: ay + (by - ay) * u, nx: nx / l, ny: ny / l };
     };
+    const enPlan = (s, t) => { const A = surAxe(s); return [A.x + A.nx * t, A.y + A.ny * t]; };
     // stations d'un mètre le long de l'axe
     let s0 = Infinity, s1 = -Infinity;
     const ST = cel.map((p, k) => { const v = projeter(X[k], Y[k]); if (v[0] < s0) s0 = v[0]; if (v[0] > s1) s1 = v[0]; return v; });
-    const pas = 1, nb = Math.max(2, Math.ceil((s1 - s0) / pas) + 1), st = Array.from({ length: nb }, () => ({ g: Infinity, d: -Infinity, h: [], b: [], pile: 0, pg: Infinity, pd: -Infinity, pz0: Infinity, pz1: -Infinity, sol: Infinity }));
+    const nb = Math.max(2, Math.ceil(s1 - s0) + 1), st = Array.from({ length: nb }, () => ({ g: Infinity, d: -Infinity, c: [], b: [], pile: 0, pg: Infinity, pd: -Infinity, pz0: Infinity, pz1: -Infinity, sol: Infinity }));
     for (let k = 0; k < cel.length; k++) {
-      const [sk, t] = ST[k], q = Math.min(nb - 1, Math.round((sk - s0) / pas)), T = st[q], p = cel[k];
+      const [sk, t] = ST[k], q = Math.min(nb - 1, Math.round(sk - s0)), T = st[q], p = cel[k];
       if (t - c / 2 < T.g) T.g = t - c / 2;
       if (t + c / 2 > T.d) T.d = t + c / 2;
-      T.h.push(pont[p]); // (les cases basses, sol classé « pont », sont écartées par la médiane)
+      T.c.push([t, pont[p]]);
       if (avecNuage) {
         // dessous : les points du dessous du tablier ; piles : leur emprise en travers
         for (const z of intrados.get(p) || []) T.b.push(z);
-        const P = piles.get(p);
-        if (P) {
-          T.pile += P.length; if (t - c / 2 < T.pg) T.pg = t - c / 2; if (t + c / 2 > T.pd) T.pd = t + c / 2;
-          for (const z of P) { if (z < T.pz0) T.pz0 = z; if (z > T.pz1) T.pz1 = z; }
+        const Q = piles.get(p);
+        if (Q) {
+          T.pile += Q.length; if (t - c / 2 < T.pg) T.pg = t - c / 2; if (t + c / 2 > T.pd) T.pd = t + c / 2;
+          for (const z of Q) { if (z < T.pz0) T.pz0 = z; if (z > T.pz1) T.pz1 = z; }
         }
         if (!isNaN(G.sol[p]) && G.sol[p] < T.sol) T.sol = G.sol[p];
       } else if (!isNaN(sous[p])) T.b.push(sous[p]);
     }
-    const med = a => { if (!a.length) return NaN; a.sort((u, v) => u - v); return a[a.length >> 1]; };
-    const profils = { g: [], d: [], h: [], b: [] };
+    // rives : droites pour un pont court (largeur constante ou linéaire, moindres carrés robustes) ; sinon une courbe
+    // raide qui écarte les cases isolées du bord (trottoirs, quais, bouts de rue classés « pont »)
+    const brut = cle => st.map(T => T.g === Infinity ? NaN : T[cle]);
+    let gA, dA;
+    if (droit && nb >= 4) {
+      [gA, dA] = ["g", "d"].map(cle => { const f = droiteRobuste(st.map((T, q) => [q, T[cle]]).filter(v => isFinite(v[1]))); return Float64Array.from(st, (_, q) => f(q)); });
+    } else { gA = lisserRobuste(brut("g"), 1500, 0.4); dA = lisserRobuste(brut("d"), 1500, 0.4); }
+    for (let q = 0; q < nb; q++) if (dA[q] - gA[q] < 1) { const m = (gA[q] + dA[q]) / 2; gA[q] = m - 0.5; dA[q] = m + 0.5; }
+    // lecture d'une suite par station à l'abscisse s (interpolée, bornée aux bouts)
+    const lire = (A, s, dec = 0) => { const f = Math.max(0, Math.min(A.length - 1, s - s0 + dec)), i = Math.min(A.length - 2, Math.floor(f)); return A[i] + (A[i + 1] - A[i]) * (f - i); };
+    // l'emprise ajustée doit recouvrir celle du relevé, sinon le pont est rendu tel que relevé (carrefour sur dalle,
+    // tabliers accolés, bretelle qui se détache…)
+    let dedans = 0, aire = 0;
+    for (let k = 0; k < cel.length; k++) { const [sk, t] = ST[k]; if (t >= lire(gA, sk) - 0.3 && t <= lire(dA, sk) + 0.3) dedans++; }
+    for (let q = 0; q < nb; q++) aire += dA[q] - gA[q];
+    const iou = dedans * c * c / (aire * (s1 - s0) / (nb - 1) + (cel.length - dedans) * c * c);
+    // chaussée par station : médiane des cases du milieu (les bords portent bordures, garde-corps et parois) ; dévers
+    // par moindres carrés sur les mêmes cases
+    const hS = new Float64Array(nb).fill(NaN), pS = new Float64Array(nb).fill(NaN), eS = new Float64Array(nb).fill(NaN);
     for (let q = 0; q < nb; q++) {
-      const T = st[q], x = s0 + q * pas;
-      if (T.g === Infinity) continue;
-      // dessous : le haut des points vus sous le tablier (85 %), entre 0,4 et 7 m sous la chaussée de la tranche. Le relevé
-      // classe parfois « pont » le sol sous le tablier : ces points (et ces cases) ne font pas le dessous, sinon le pont
-      // devient un mur plein jusqu'au sol
-      const h = med(T.h), bb = T.b.filter(z => z < h - 0.4 && z > h - 7);
-      const b = bb.length ? (bb.sort((u, v) => u - v), bb[Math.min(bb.length - 1, Math.floor(bb.length * 0.85))]) : NaN;
-      profils.g.push([x, T.g]); profils.d.push([x, T.d]); profils.h.push([x, h]); profils.b.push([x, isNaN(b) ? NaN : Math.min(b, h - 0.4)]);
+      const T = st[q], m = (gA[q] + dA[q]) / 2, l = dA[q] - gA[q];
+      if (!T.c.length) continue;
+      const mil = T.c.filter(v => Math.abs(v[0] - m) <= 0.35 * l), C = mil.length >= 3 ? mil : T.c;
+      hS[q] = med(C.map(v => v[1]));
+      const prox = C.filter(v => Math.abs(v[1] - hS[q]) < 0.5);
+      if (prox.length >= 6) {
+        let st1 = 0, sz = 0, stt = 0, stz = 0;
+        for (const [t, z] of prox) { st1 += t - m; sz += z; stt += (t - m) ** 2; stz += (t - m) * z; }
+        const det = prox.length * stt - st1 * st1;
+        if (det > prox.length * prox.length * 0.5) pS[q] = (prox.length * stz - st1 * sz) / det;
+      }
+      // épaisseur : le haut des points vus sous le tablier (85 %), entre 0,4 et 7 m sous la chaussée. Le relevé classe
+      // parfois « pont » le sol sous le tablier : ces points ne font pas le dessous, sinon le pont devient un mur plein
+      const bb = T.b.filter(z => z < hS[q] - 0.4 && z > hS[q] - 7).sort((u, v) => u - v);
+      if (bb.length) eS[q] = hS[q] - bb[Math.min(bb.length - 1, Math.floor(bb.length * 0.85))];
     }
-    // dessous sans mesure : repris des stations voisines (sinon 1,5 m sous la chaussée)
+    const hBouts = [med(Array.from(hS.slice(0, 4)).filter(v => !isNaN(v))), med(Array.from(hS.slice(-4)).filter(v => !isNaN(v)))];
+    if (hBouts.some(isNaN)) return false;
+    // au-delà des bouts, sur 15 m : la route (cases « pont » au ras du sol, sinon le terrain), au milieu du tablier
+    const EXT = 15, mil = [(gA[0] + dA[0]) / 2, (gA[nb - 1] + dA[nb - 1]) / 2], lar = [dA[0] - gA[0], dA[nb - 1] - gA[nb - 1]];
+    const hE = new Float64Array(nb + 2 * EXT).fill(NaN), wE = new Float64Array(nb + 2 * EXT);
+    for (let q = 0; q < nb; q++) { hE[q + EXT] = hS[q]; wE[q + EXT] = 1; }
+    const route = (s, b) => med([-0.3, 0, 0.3].map(f => {
+      const [x, y] = enPlan(s, mil[b] + f * lar[b]), i = Math.floor((x - x0) / c), j = Math.floor((y - x0) / c), v = i >= 0 && j >= 0 && i < n && j < n ? pont[j * n + i] : NaN;
+      return isNaN(v) ? solEn(G, x, y) : v;
+    }).filter(v => !isNaN(v)));
+    // bout libre : la route ne rejoint pas le niveau du tablier dans les 15 m (pont coupé par le bord du modèle, par
+    // un pont modélisé à part, ou tablier qui continue hors du relevé) : pas de raccord, le tablier s'arrête là
+    const libre = [true, true];
+    for (const b of [0, 1]) for (let e = 1; e <= EXT; e++) {
+      const s = b ? s1 + e : s0 - e, v = route(s, b), q = b ? nb - 1 + EXT + e : EXT - e;
+      if (isNaN(v) || Math.abs(v - hBouts[b]) > 1 + 0.1 * e) continue;
+      hE[q] = v; wE[q] = 1;
+      if (Math.abs(v - hBouts[b]) <= 0.6 + 0.08 * e) libre[b] = false;
+    }
+    for (const b of [0, 1]) if (libre[b]) for (let e = 1; e <= EXT; e++) wE[b ? nb - 1 + EXT + e : EXT - e] = 0;
+    // profil en long : une courbe lisse sur le tablier et la route ; dévers et épaisseur lissés de même
+    const zA = lisserRobuste(hE, 60, 0.15, wE), pA = lisserRobuste(pS, 4000, 0.01).map(v => Math.max(-0.08, Math.min(0.08, v)));
     {
-      const B = profils.b, H = profils.h;
+      // épaisseur sans mesure : reprise des stations voisines (sinon 1,2 m)
       let der = NaN;
-      for (let i = 0; i < B.length; i++) { if (isNaN(B[i][1])) B[i][1] = isNaN(der) ? NaN : H[i][1] - der; else der = H[i][1] - B[i][1]; }
+      for (let q = 0; q < nb; q++) { if (isNaN(eS[q])) eS[q] = der; else der = eS[q]; }
       der = NaN;
-      for (let i = B.length - 1; i >= 0; i--) { if (isNaN(B[i][1])) B[i][1] = H[i][1] - (isNaN(der) ? 1.5 : der); else der = H[i][1] - B[i][1]; }
+      for (let q = nb - 1; q >= 0; q--) { if (isNaN(eS[q])) eS[q] = isNaN(der) ? 1.2 : der; else der = eS[q]; }
     }
-    // piles : stations voisines où des points descendent loin sous le tablier, regroupées
-    const blocs = [];
+    const eA = lisserRobuste(eS, 20, 0.3).map(v => Math.max(0.4, Math.min(7, v)));
+    const profil = s => lire(zA, s, EXT), milieu = s => (lire(gA, s) + lire(dA, s)) / 2;
+    // écart entre la chaussée ajustée et le relevé (médiane) : trop grand, le pont est rendu tel que relevé
+    const ecart = med(cel.map((p, k) => { const [sk, t] = ST[k]; return Math.abs(profil(sk) + lire(pA, sk) * (t - milieu(sk)) - pont[p]); }));
+    const info = { x: +(X.reduce((a, b) => a + b, 0) / cel.length).toFixed(1), y: +(Y.reduce((a, b) => a + b, 0) / cel.length).toFixed(1), longueur: +(s1 - s0).toFixed(1), largeur: +(aire / nb).toFixed(1), droit: !!droit || axe.length === 4, iou: +iou.toFixed(2), ecart: +ecart.toFixed(2), libre };
+    infos.push(info);
+    if (iou < 0.7 || ecart > 0.4) { info.repli = true; return false; }
+    // joint de chaque bout : là où le terrain affiché rejoint le profil (à 25 cm près, sur 2 m) ; à défaut, au plus près
+    const joint = [s0, s1];
+    for (const b of [0, 1]) {
+      if (libre[b]) continue;
+      const dz = e => { const s = b ? s1 + e : s0 - e; return Math.abs(profil(s) - solAffiche(G, ...enPlan(s, mil[b]))); };
+      let trouve = -1, mieux = 0;
+      for (let e = 0; e < EXT; e++) {
+        if (dz(e) <= 0.25 && dz(e + 1) <= 0.25) { trouve = e + 1; break; }
+        if (dz(e) < dz(mieux)) mieux = e;
+      }
+      if (trouve < 0) { if (dz(mieux) > 1) { libre[b] = true; continue; } trouve = mieux; }
+      joint[b] = b ? s1 + trouve : s0 - trouve;
+    }
+    info.joints = [+(s0 - joint[0]).toFixed(1), +(joint[1] - s1).toFixed(1)];
+    info.bouts = [0, 1].map(b => enPlan(joint[b], mil[b]).map(v => +v.toFixed(1)));
+    // sections : tous les mètres du premier joint au dernier (1,5 m de plus, sous le terrain), puis allégées
+    const FONDU = 3, PLONGE = 1.5, nT = Math.max(2, Math.min(6, Math.round(aire / nb / 3.5)));
+    const debut = libre[0] ? s0 - c / 2 : joint[0] - PLONGE, fin = libre[1] ? s1 + c / 2 : joint[1] + PLONGE;
+    const section = s => {
+      const sc = Math.max(s0, Math.min(s1, s)), g = lire(gA, sc), d = lire(dA, sc), m = (g + d) / 2, z = profil(s), pente = lire(pA, sc), A = surAxe(s);
+      // raccord : poids du terrain (0 sur le tablier, 1 au joint) et enfoncement sous le terrain
+      const dj = Math.max(libre[0] ? -Infinity : joint[0] - s, libre[1] ? -Infinity : s - joint[1]);
+      const w0 = Math.max(0, Math.min(1, 1 + dj / FONDU)), w = w0 * w0 * (3 - 2 * w0), plonge = 0.06 + Math.max(0, dj / PLONGE) * 0.3;
+      const S = { s, w, xy: [], z: [], sol: [] };
+      let libreMin = Infinity, solMin = Infinity, zMin = Infinity;
+      for (let k = 0; k <= nT; k++) {
+        const t = g + (d - g) * k / nT, xy = [A.x + A.nx * t, A.y + A.ny * t], zs = solAffiche(G, ...xy);
+        let zt = z + pente * (t - m);
+        libreMin = Math.min(libreMin, zt - zs); solMin = Math.min(solMin, zs);
+        // chaque point de la chaussée glisse vers le terrain sous lui (sauf mur ou talus : plus de 1,5 m d'écart)
+        if (w > 0 && Math.abs(zs - zt) < 1.5) zt += (zs - plonge - zt) * w;
+        zMin = Math.min(zMin, zt);
+        S.xy.push(xy); S.z.push(zt - zRef); S.sol.push(zs);
+      }
+      // dessous : épaisseur du tablier ; plein jusque sous le terrain près du sol (culée) et au-delà des cases du tablier
+      S.plein = libreMin < 1.2 || (!libre[0] && s < s0) || (!libre[1] && s > s1);
+      S.bo = Math.min(zMin - 0.3, profil(s) - lire(eA, sc)) - zRef;
+      S.bp = Math.min(S.bo, solMin - 0.6 - zRef);
+      return S;
+    };
+    const nbS = Math.max(1, Math.ceil(fin - debut)), toutes = Array.from({ length: nbS + 1 }, (_, i) => section(debut + (fin - debut) * i / nbS));
+    // un court jour (moins de 6 m) entre deux parties pleines est bouché : pas de fenêtre sous un tablier au ras du sol
+    for (let i = 1, a = -1; i < toutes.length; i++) {
+      if (toutes[i].plein) { if (a >= 0 && i - a > 1 && toutes[i].s - toutes[a].s < 6) for (let k = a + 1; k < i; k++) toutes[k].plein = true; a = i; }
+    }
+    // allègement : une section n'est gardée que si, sans elle, un point du tablier s'écarterait de plus de 5 cm
+    // (Douglas-Peucker sur les points du dessus et le dessous) ; les changements plein / ajouré sont gardés
+    const garde = new Uint8Array(toutes.length), aFaire = [];
+    garde[0] = garde[toutes.length - 1] = 1;
+    for (let i = 0; i < toutes.length - 1; i++) if (toutes[i].plein !== toutes[i + 1].plein) garde[i] = garde[i + 1] = 1;
+    for (let i = 0, a = 0; i < toutes.length; i++) if (garde[i]) { if (i > a + 1) aFaire.push([a, i]); a = i; }
+    while (aFaire.length) {
+      const [a, b] = aFaire.pop(), A = toutes[a], B = toutes[b];
+      let pire = -1, dmax = 0.05;
+      for (let i = a + 1; i < b; i++) {
+        const S = toutes[i], u = (S.s - A.s) / (B.s - A.s);
+        let e = Math.abs(S.bo - (A.bo + (B.bo - A.bo) * u));
+        if (S.plein) e = Math.max(e, Math.abs(S.bp - (A.bp + (B.bp - A.bp) * u)) / 4); // (pied enterré : moins exigeant)
+        for (let k = 0; k <= nT; k++) e = Math.max(e, Math.hypot(S.xy[k][0] - (A.xy[k][0] + (B.xy[k][0] - A.xy[k][0]) * u), S.xy[k][1] - (A.xy[k][1] + (B.xy[k][1] - A.xy[k][1]) * u), S.z[k] - (A.z[k] + (B.z[k] - A.z[k]) * u)));
+        if (e > dmax) { dmax = e; pire = i; }
+      }
+      if (pire > 0) { garde[pire] = 1; aFaire.push([a, pire], [pire, b]); }
+    }
+    const sec = toutes.filter((_, i) => garde[i]);
+    info.sections = sec.length;
+    // normales du dessus : celles de la surface ajustée (lisses d'une section à l'autre), fondues dans celles du
+    // terrain au raccord : plus de couture d'éclairage entre la route et le tablier
+    const pt = (i, k) => { const S = sec[Math.max(0, Math.min(sec.length - 1, i))], kk = Math.max(0, Math.min(nT, k)); return [S.xy[kk][0], S.z[kk], -S.xy[kk][1]]; };
+    for (let i = 0; i < sec.length; i++) {
+      const S = sec[i];
+      S.n = [];
+      for (let k = 0; k <= nT; k++) {
+        const a = pt(i - 1, k), b = pt(i + 1, k), e = pt(i, k - 1), f = pt(i, k + 1), u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [f[0] - e[0], f[1] - e[1], f[2] - e[2]];
+        let N = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+        if (N[1] < 0) N = N.map(x => -x);
+        const l = Math.hypot(...N) || 1, T = S.w > 0 ? normaleSol(...S.xy[k]) : null;
+        N = N.map((x, q) => x / l * (1 - S.w) + (T ? T[q] * S.w : 0));
+        const l2 = Math.hypot(...N) || 1;
+        S.n.push(N.map(x => x / l2));
+      }
+    }
+    // sens des faces du dessus : tournées vers le haut (la matière du terrain ne montre que cette face)
+    const tri = (A, a, B, b, C, cc) => {
+      const pa = P(A.xy[a], A.z[a]), pb = P(B.xy[b], B.z[b]), pc = P(C.xy[cc], C.z[cc]);
+      const versHaut = (pb[2] - pa[2]) * (pc[0] - pa[0]) - (pb[0] - pa[0]) * (pc[2] - pa[2]) > 0;
+      const L = versHaut ? [[A, a, pa], [B, b, pb], [C, cc, pc]] : [[A, a, pa], [C, cc, pc], [B, b, pb]];
+      for (const [S, k, p] of L) { haut.push(...p); uv.push(...UV(...S.xy[k])); nor.push(...S.n[k]); }
+    };
+    const bord = (S, k, z) => P(S.xy[k], z);
+    for (let i = 0; i < sec.length - 1; i++) {
+      const A = sec[i], B = sec[i + 1], plein = A.plein && B.plein, ba = plein ? A.bp : A.bo, bb = plein ? B.bp : B.bo;
+      for (let k = 0; k < nT; k++) { tri(A, k, A, k + 1, B, k + 1); tri(A, k, B, k + 1, B, k); }
+      // dessous, rives gauche et droite
+      quad(bas, bord(A, 0, ba), bord(B, 0, bb), bord(B, nT, bb), bord(A, nT, ba));
+      quad(bas, bord(A, 0, ba), bord(A, 0, A.z[0]), bord(B, 0, B.z[0]), bord(B, 0, bb));
+      quad(bas, bord(A, nT, ba), bord(B, nT, bb), bord(B, nT, B.z[nT]), bord(A, nT, A.z[nT]));
+      // face de culée : là où le tablier plein devient ajouré
+      const suivant = i + 2 < sec.length ? B.plein && sec[i + 2].plein : plein;
+      if (suivant !== plein && B.bp < B.bo - 0.01) quad(bas, bord(B, 0, B.bp), bord(B, nT, B.bp), bord(B, nT, B.bo), bord(B, 0, B.bo));
+    }
+    // bouts : fermés (enterrés dans la route, ou coupe franche d'un bout libre)
+    for (const [S, T] of [[sec[0], sec[1]], [sec.at(-1), sec.at(-2)]]) {
+      const b = S.plein && T.plein ? S.bp : S.bo;
+      for (let k = 0; k < nT; k++) quad(bas, bord(S, k, b), bord(S, k + 1, b), bord(S, k + 1, S.z[k + 1]), bord(S, k, S.z[k]));
+    }
+    // maquette ronde : le pont coupé par le cercle y est fermé par une paroi (du dessous à la chaussée), sinon la
+    // coupe montre l'intérieur du tablier
+    if (G.rayonZone) {
+      const Rc = G.rayonZone - 0.05, pasA = 0.5 / Rc;
+      let coupe = false;
+      for (let k = 0; k < cel.length; k++) if (X[k] * X[k] + Y[k] * Y[k] > (Rc - 2) ** 2) { coupe = true; break; }
+      let avant = null;
+      for (let a = 0; coupe && a < 2 * Math.PI + pasA; a += pasA) {
+        const x = Rc * Math.cos(a), y = Rc * Math.sin(a), [sk, t] = projeter(x, y), sc = Math.max(s0, Math.min(s1, sk)), g = lire(gA, sc), d = lire(dA, sc);
+        if (sk < debut || sk > fin || t < g || t > d) { avant = null; continue; }
+        const S = section(sk), f = (t - g) / (d - g) * nT, k = Math.min(nT - 1, Math.floor(f));
+        const ici = { xy: [x, y], z: S.z[k] + (S.z[k + 1] - S.z[k]) * (f - k), b: S.plein ? S.bp : S.bo };
+        if (avant) quad(bas, P(avant.xy, avant.b), P(ici.xy, ici.b), P(ici.xy, ici.z), P(avant.xy, avant.z));
+        avant = ici;
+      }
+    }
+    // piles : stations voisines où des points montent du sol vers le tablier sur au moins 40 % de la hauteur libre (et
+    // pas seulement le sol sous le pont, que le relevé classe parfois « pont »), regroupées en blocs
     if (avecNuage) {
+      const blocs = [];
       let cur = null;
       for (let q = 0; q < nb; q++) {
-        const T = st[q];
-        // une pile : des points qui montent du sol vers le tablier sur au moins 40 % de la hauteur libre (et pas
-        // seulement le sol sous le pont, que le relevé classe parfois « pont »)
-        const libre = med(T.h.slice()) - T.sol;
-        if (T.pile >= 4 && T.pz1 - T.pz0 > Math.max(2, 0.4 * libre)) {
-          const x = s0 + q * pas;
+        const T = st[q], libreQ = hS[q] - T.sol;
+        if (T.pile >= 4 && T.pz1 - T.pz0 > Math.max(2, 0.4 * libreQ)) {
+          const x = s0 + q;
           if (cur && x - cur.s1 <= 2.5) { cur.s1 = x; cur.g = Math.min(cur.g, T.pg); cur.d = Math.max(cur.d, T.pd); cur.np += T.pile; }
           else { cur = { s0: x, s1: x, g: T.pg, d: T.pd, np: T.pile }; blocs.push(cur); }
         }
       }
-    }
-    if (profils.h.length < 2) continue;
-    // pont court à axe droit : rives droites (largeur constante ou linéaire), ajustées sur les stations en écartant
-    // les cases isolées du bord (trottoirs, quais, bouts de rue classés « pont ») ; sinon des dents de scie
-    if (droit && profils.g.length >= 4) for (const P of [profils.g, profils.d]) {
-      const f = droiteRobuste(P);
-      P.splice(0, P.length, [P[0][0], f(P[0][0])], [P.at(-1)[0], f(P.at(-1)[0])]);
-    }
-    // simplification : rives à 25 cm (vers l'extérieur), dessus à 10 cm (jamais sous la chaussée), dessous à 30 cm
-    const Pg = simplifierProfil(profils.g, 0.25, -1), Pd = simplifierProfil(profils.d, 0.25, 1);
-    const Ph = simplifierProfil(profils.h, 0.1, 1), Pb = simplifierProfil(profils.b, 0.3, -1);
-    const lire = (Pf, x) => {
-      for (let i = 0; i < Pf.length - 1; i++) if (x <= Pf[i + 1][0] + 1e-6) { const [a1, z1] = Pf[i], [a2, z2] = Pf[i + 1]; return a2 - a1 < 1e-6 ? z2 : z1 + (z2 - z1) * (x - a1) / (a2 - a1); }
-      return Pf.at(-1)[1];
-    };
-    // bornes : points des quatre profils, et coudes de l'axe
-    const bornes = [...new Set([Pg, Pd, Ph, Pb].flatMap(P => P.map(v => +v[0].toFixed(3))).concat(cum.filter(v => v > s0 && v < s1).map(v => +v.toFixed(3))))].sort((u, v) => u - v);
-    const section = (x, w = 0) => {
-      // au-delà des bouts (raccord) : largeur, chaussée et dessous du bout, sans extrapoler
-      const xl = Math.max(bornes[0], Math.min(bornes.at(-1), x));
-      const g = lire(Pg, xl), d = lire(Pd, xl), h = lire(Ph, xl) - zRef, b = lire(Pb, xl) - zRef, A = surAxe(x);
-      const G2 = [A.x + A.nx * g, A.y + A.ny * g], D2 = [A.x + A.nx * d, A.y + A.ny * d];
-      if (!w) return { G2, D2, hg: h, hd: h, b };
-      // raccord : chaque bord glisse vers le terrain mesuré sous lui (sans marche, la texture du sol continue)
-      const tg = solEn(G, ...G2) - zRef, td = solEn(G, ...D2) - zRef, f = w * w * (3 - 2 * w);
-      const hg = isNaN(tg) || Math.abs(tg - h) > 3 ? h : h + (tg - h) * f, hd = isNaN(td) || Math.abs(td - h) > 3 ? h : h + (td - h) * f;
-      return { G2, D2, hg, hd, b: Math.min(b, Math.min(hg, hd) - 1) };
-    };
-    const sec = bornes.map(x => section(x));
-    // prolongement de 4,5 m dans la route à chaque bout, par pas de 1,5 m
-    const RAC = [1.5, 3, 4.5];
-    sec.unshift(...RAC.slice().reverse().map(e => section(bornes[0] - e, e / 4.5)));
-    sec.push(...RAC.map(e => section(bornes.at(-1) + e, e / 4.5)));
-    const P = ([x, y], z) => [x, z, -y];
-    const quad = (o, A, B, C, D) => o.push(...A, ...B, ...C, ...A, ...C, ...D);
-    for (let i = 0; i < sec.length - 1; i++) {
-      const A = sec[i], B = sec[i + 1];
-      // dessus (chaussée, texture du terrain), dessous, rives gauche et droite
-      quad(haut, P(A.G2, A.hg), P(A.D2, A.hd), P(B.D2, B.hd), P(B.G2, B.hg));
-      uv.push(...UV(...A.G2), ...UV(...A.D2), ...UV(...B.D2), ...UV(...A.G2), ...UV(...B.D2), ...UV(...B.G2));
-      quad(bas, P(A.G2, A.b), P(B.G2, B.b), P(B.D2, B.b), P(A.D2, A.b));
-      quad(bas, P(A.G2, A.b), P(A.G2, A.hg), P(B.G2, B.hg), P(B.G2, B.b));
-      quad(bas, P(A.D2, A.b), P(B.D2, B.b), P(B.D2, B.hd), P(A.D2, A.hd));
-    }
-    // culées : massif plein sous chaque bout du tablier, jusqu'au terrain (un peu enterré) : plus de jour sous le bout
-    for (const [xa, xb] of [[bornes[0], bornes[0] + 2.5], [bornes.at(-1) - 2.5, bornes.at(-1)]]) {
-      const A = section(xa), B = section(xb);
-      const pied = Math.min(...[A.G2, A.D2, B.G2, B.D2].map(q => solEn(G, ...q))) - zRef - 1.5;
-      if (!(pied < Math.min(A.b, B.b) - 0.3)) continue;
-      const C4 = [[A.G2, A.b], [B.G2, B.b], [B.D2, B.b], [A.D2, A.b]];
-      for (let k = 0; k < 4; k++) {
-        const [q1, z1] = C4[k], [q2, z2] = C4[(k + 1) % 4];
-        quad(bas, P(q1, pied), P(q2, pied), P(q2, z2), P(q1, z1));
+      for (const B of blocs) {
+        // une pile fait au plus ~8 m le long du pont : un « bloc » plus long n'est pas une pile (sol classé « pont »)
+        if (B.np < 12 || B.s1 - B.s0 > 8) continue;
+        const sa = B.s0 - 0.5, sb = B.s1 + 0.5, sm = (sa + sb) / 2, ga = Math.max(B.g - 0.2, lire(gA, sm)), da = Math.min(B.d + 0.2, lire(dA, sm));
+        if (!(da - ga > 0.5)) continue;
+        const tete = profil(sm) - lire(eA, sm) - zRef + 0.05, C4 = [enPlan(sa, ga), enPlan(sb, ga), enPlan(sb, da), enPlan(sa, da)];
+        const pied = Math.min(...C4.map(([x, y]) => solEn(G, x, y))) - 1 - zRef;
+        for (let k = 0; k < 4; k++) quad(bas, P(C4[k], pied), P(C4[(k + 1) % 4], pied), P(C4[(k + 1) % 4], tete), P(C4[k], tete));
       }
     }
-    // piles : blocs du dessous du tablier jusqu'au sol (un peu enterrés)
-    for (const B of blocs) {
-      // une pile fait au plus ~8 m le long du pont : un « bloc » plus long n'est pas une pile (sol classé « pont »)
-      if (B.np < 12 || B.s1 - B.s0 > 8) continue;
-      const sa = B.s0 - 0.5, sb = B.s1 + 0.5, ga = B.g - 0.2, da = B.d + 0.2, haut = lire(Pb, (sa + sb) / 2) - zRef;
-      const coin = (x, t) => { const A = surAxe(x); return [A.x + A.nx * t, A.y + A.ny * t]; };
-      const C4 = [coin(sa, ga), coin(sb, ga), coin(sb, da), coin(sa, da)];
-      const pied = Math.min(...C4.map(([x, y]) => solEn(G, x, y))) - 1 - zRef;
-      for (let k = 0; k < 4; k++) {
-        const A2 = C4[k], B2 = C4[(k + 1) % 4];
-        quad(bas, P(A2, pied), P(B2, pied), P(B2, haut), P(A2, haut));
-      }
-    }
-    // bouts (enterrés dans la route : faces gardées pour fermer le volume)
-    const A = sec[0], B = sec.at(-1);
-    quad(bas, P(A.G2, A.b), P(A.D2, A.b), P(A.D2, A.hd), P(A.G2, A.hg));
-    quad(bas, P(B.G2, B.b), P(B.G2, B.hg), P(B.D2, B.hd), P(B.D2, B.b));
+    return true;
+  };
+  for (const cel of tabliers) {
+    const marque = [haut.length, uv.length, nor.length, bas.length];
+    let ok = false;
+    try { ok = modeliser(cel); } catch (e) { console.warn("Pont reconstruit :", e.message); }
+    if (ok) continue;
+    // modèle écarté : ses faces sont retirées, le pont est rendu tel que relevé
+    [haut, uv, nor, bas].forEach((t, k) => { t.length = marque[k]; });
+    for (const p of cel) repli[p] = pont[p];
+    nRepli++;
   }
-  if (!haut.length) return null;
+  // ponts que le modèle décrit mal : rendus tels que relevés, case par case
+  const brutG = nRepli ? tabliersPonts({ ...G, pont: repli }, zRef) : null;
+  if (!haut.length && !brutG) return null;
+  const joindre = (a, g, nom) => g ? [...a, ...g.attributes[nom].array] : a;
   const dessus = new THREE.BufferGeometry();
-  dessus.setAttribute("position", new THREE.Float32BufferAttribute(haut, 3));
-  dessus.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
-  dessus.computeVertexNormals();
+  dessus.setAttribute("position", new THREE.Float32BufferAttribute(joindre(haut, brutG?.dessus, "position"), 3));
+  dessus.setAttribute("uv", new THREE.Float32BufferAttribute(joindre(uv, brutG?.dessus, "uv"), 2));
+  dessus.setAttribute("normal", new THREE.Float32BufferAttribute(joindre(nor, brutG?.dessus, "normal"), 3));
+  dessus.userData.ponts = infos; // (diagnostic : axe, emprise, écart, joints de chaque pont)
   const cotes = new THREE.BufferGeometry();
-  cotes.setAttribute("position", new THREE.Float32BufferAttribute(bas, 3));
+  cotes.setAttribute("position", new THREE.Float32BufferAttribute(joindre(bas, brutG?.cotes, "position"), 3));
   cotes.computeVertexNormals();
   return { dessus, cotes };
+}
+
+/**
+ * Coupe une géométrie (sans index : position, normale, uv) au cercle de rayon `R` autour du centre : la chaussée des
+ * ponts porte la matière du terrain, que le rendu ne découpe pas au cercle. Chaque triangle à cheval est rogné par
+ * les tangentes au cercle (une par degré de l'arc qu'il couvre).
+ */
+export function decouperCercle(g, R) {
+  const pos = g.attributes.position.array, nor = g.attributes.normal?.array, tuv = g.attributes.uv?.array, oP = [], oN = [], oU = [];
+  const sommet = i => [pos[3 * i], pos[3 * i + 1], pos[3 * i + 2], nor ? nor[3 * i] : 0, nor ? nor[3 * i + 1] : 1, nor ? nor[3 * i + 2] : 0, tuv ? tuv[2 * i] : 0, tuv ? tuv[2 * i + 1] : 0];
+  let coupe = false;
+  for (let t = 0; t < pos.length / 9; t++) {
+    let poly = [sommet(3 * t), sommet(3 * t + 1), sommet(3 * t + 2)];
+    const r = poly.map(v => Math.hypot(v[0], v[2]));
+    if (r.some(v => v > R)) {
+      coupe = true;
+      if (r.every(v => v > R + 60)) continue;
+      // tangentes : de l'angle du premier sommet à ceux des deux autres (écarts ramenés entre −π et π)
+      const a0 = Math.atan2(poly[0][2], poly[0][0]), ec = poly.map(v => { const d = Math.atan2(v[2], v[0]) - a0; return d - 2 * Math.PI * Math.round(d / (2 * Math.PI)); });
+      const e0 = Math.min(...ec), e1 = Math.max(...ec), nb = Math.max(1, Math.ceil((e1 - e0) / (Math.PI / 180)));
+      for (let q = 0; q <= nb && poly.length >= 3; q++) {
+        const a = a0 + e0 + (e1 - e0) * q / nb, cx = Math.cos(a), cz = Math.sin(a), dist = poly.map(v => R - (v[0] * cx + v[2] * cz));
+        if (dist.every(v => v >= 0)) continue;
+        const nv = [];
+        for (let k = 0; k < poly.length; k++) {
+          const A = poly[k], B = poly[(k + 1) % poly.length], da = dist[k], db = dist[(k + 1) % poly.length];
+          if (da >= 0) nv.push(A);
+          if ((da >= 0) !== (db >= 0)) nv.push(A.map((v, i) => v + (B[i] - v) * da / (da - db)));
+        }
+        poly = nv;
+      }
+    }
+    for (let k = 1; k + 1 < poly.length; k++) for (const v of [poly[0], poly[k], poly[k + 1]]) { oP.push(v[0], v[1], v[2]); oN.push(v[3], v[4], v[5]); oU.push(v[6], v[7]); }
+  }
+  if (!coupe) return g;
+  const out = new THREE.BufferGeometry();
+  out.setAttribute("position", new THREE.Float32BufferAttribute(oP, 3));
+  if (nor) out.setAttribute("normal", new THREE.Float32BufferAttribute(oN, 3)); else out.computeVertexNormals();
+  if (tuv) out.setAttribute("uv", new THREE.Float32BufferAttribute(oU, 2));
+  Object.assign(out.userData, g.userData);
+  g.dispose();
+  return out;
 }
 
 /**
