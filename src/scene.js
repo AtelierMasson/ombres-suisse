@@ -792,10 +792,13 @@ void main() {
     // les piscines (raccordsPonts.js). La route d'accès est reportée dans G.sol, puis les raccords recalculés sur ce sol
     G.raccordsPonts = null;
     if ((this.pontsModeles?.length || G.ponts?.length) && !G.provisoire) {
-      const [Er, Nr] = [this.lieuPonts?.E ?? 0, this.lieuPonts?.N ?? 0], opts = { routes: this.routesTLM, stats: {} };
+      const [Er, Nr] = [this.lieuPonts?.E ?? 0, this.lieuPonts?.N ?? 0], opts = { routes: this.routesTLM, nuage, stats: {} };
       G.raccordsPonts = raccordsPonts(G, this.pontsModeles, Er, Nr, undefined, opts);
       if (raccordsAuSol(G, G.raccordsPonts)) { majSurface(G); G.raccordsPonts = raccordsPonts(G, this.pontsModeles, Er, Nr, undefined, opts); }
-      if (import.meta.env?.DEV) console.info(`Raccords des ponts : ${opts.stats.raccordes} bouts raccordés (${opts.stats.tlm} orientés sur la route swissTLM3D), ignorés :`, opts.stats.ignores);
+      if (import.meta.env?.DEV) {
+        const e = opts.stats.ecartsBout.slice().sort((a, b) => a - b), med = e.length ? e[e.length >> 1] : null;
+        console.info(`Raccords des ponts : ${opts.stats.raccordes} bouts raccordés (${opts.stats.tlm} orientés sur la route swissTLM3D ; ${opts.stats.nuage} avec le tablier vu dans le relevé, fin relevée − joint du modèle : médiane ${med} m, de ${e[0] ?? "–"} à ${e.at(-1) ?? "–"} m), ignorés :`, opts.stats.ignores);
+      }
     }
     // le nuage est gardé (tableaux typés X, Y, Z, C) : nuage brut construit à la demande, points proches de la coupe
     this.nuage = nuage;

@@ -23,6 +23,9 @@ export const MARGE_RACCORD = 1;
 const ACCOTEMENT = 1.5, ACCOTEMENT_MAX = 8, TALUS = 1.5;
 /** Écart d'angle maximal entre l'axe du pont et la route d'accès (vers l'axe swissTLM3D de la route). */
 const ROUTE_ANGLE_MAX = 30 * Math.PI / 180;
+/** Maillage de la route d'accès : sections tous les PAS_LONG m, points tous les ~PAS_TRAVERS m en travers (bordures,
+ *  murs et talus du relevé gardés). */
+const PAS_LONG = 0.5, PAS_TRAVERS = 1;
 const DEDANS = 0.3, DANS_TABLIER = 10, LIBRE_PLEIN = 1.2, SOUS_RIVE = 0.05, HAUT_MAX = 8;
 const lisse = u => { const v = Math.min(1, Math.max(0, u)); return v * v * (3 - 2 * v); };
 
@@ -74,16 +77,19 @@ export function boutsPonts(G, modeles, E0, N0, sol, auto, ignorer) {
  * du terrain (falaise, vallée), sous le terrain (tunnel), hors de la maquette, route aussitôt bloquée (eau, bâtiment).
  * `sol(x, y)` : altitude du terrain donnée au maillage des ponts.
  */
-export function raccordsPonts(G, modeles, E0, N0, sol = (x, y) => solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y))), { auto = G.ponts, routes = null, stats = null } = {}) {
+export function raccordsPonts(G, modeles, E0, N0, sol = (x, y) => solEn(G, Math.max(-G.R, Math.min(G.R, x)), Math.max(-G.R, Math.min(G.R, y))), { auto = G.ponts, routes = null, nuage = null, stats = null } = {}) {
   const out = [], st = stats || {};
-  st.raccordes = 0; st.ignores = {}; st.tlm = 0;
+  st.raccordes = 0; st.ignores = {}; st.tlm = 0; st.nuage = 0; st.ecartsBout = [];
   const ignorer = (raison, n = 1) => { st.ignores[raison] = (st.ignores[raison] || 0) + n; };
   const cellule = (x, y) => { const i = Math.floor((x - G.x0) / G.c), j = Math.floor((y - G.x0) / G.c); return i < 0 || j < 0 || i >= G.n || j >= G.n ? -1 : j * G.n + i; };
   const Rz = G.rayonZone || Infinity, lim = G.n * G.c / 2 - 2;
   const dedans = (x, y) => Math.hypot(x, y) < Rz - 2 && Math.abs(x) < lim && Math.abs(y) < lim;
   const libreEn = (x, y) => { const p = cellule(x, y); return dedans(x, y) && p >= 0 && !(G.bat && !isNaN(G.bat[p])) && !(G.eau && !isNaN(G.eau[p])); };
-  for (const Bt of boutsPonts(G, modeles, E0, N0, sol, auto, ignorer)) {
-    const { N, K, i0, sg } = Bt, nT = Math.max(2, Math.min(6, Math.round(Bt.largeur / 3.5)));
+  const bouts = boutsPonts(G, modeles, E0, N0, sol, auto, ignorer);
+  // points du relevé autour des bouts (sol et tablier) : la route d'accès et ses talus prennent leurs hauteurs
+  const PN = nuage ? indexNuage(nuage, bouts.map(B => { const A = noeudEn(B.N, B.N.s[B.i0]); return [A.x, A.y]; }), RAMPE_MAX + ACCOTEMENT_MAX + DANS_TABLIER + 4) : null;
+  for (const Bt of bouts) {
+    const { N, K, i0, sg } = Bt, nT = Math.max(2, Math.min(40, Math.round(Bt.largeur / PAS_TRAVERS)));
     // points du dessus d'une section (nT + 1 points de la rive g à la rive d) ; hauteur libre au-dessus du terrain
     const dessus = idx => {
       const A = noeudEn(N, N.s[idx]), m = (A.g + A.d) / 2, pts = [];
@@ -104,6 +110,13 @@ export function raccordsPonts(G, modeles, E0, N0, sol = (x, y) => solEn(G, Math.
     const A = noeudEn(N, N.s[i0]), B = noeudEn(N, N.s[Math.max(0, Math.min(K - 1, i0 + sg * 2))]);
     let ux = A.x - B.x, uy = A.y - B.y; const lu = Math.hypot(ux, uy) || 1; ux /= lu; uy /= lu;
     const pente = (A.z - B.z) / lu;
+    // terrain relevé au point (x, y) : sol le plus bas du relevé à moins de 40 cm, sinon la chaussée relevée (points
+    // « pont » à moins de 1,5 m de la cote attendue `zAtt`, au-delà du joint du modèle), sinon la grille
+    // (un sol relevé à plus de 50 cm de la grille n'est pas pris : terrain swisstopo choisi, ou point isolé)
+    const terrainEn = (x, y, zAtt = NaN) => {
+      const zs = sol(x, y), o = PN ? observer(PN, x, y, zAtt) : null;
+      return !o ? zs : o.pont || Math.abs(o.z - zs) < 0.5 ? o.z : zs;
+    };
     // rives du tablier vers l'intérieur, tant qu'il est plein (au plus DANS_TABLIER m, jamais au-delà du milieu)
     const rives = [];
     let fond = i0;
@@ -118,6 +131,9 @@ export function raccordsPonts(G, modeles, E0, N0, sol = (x, y) => solEn(G, Math.
     const jc = [(J.pts[0][0] + J.pts[nT][0]) / 2, (J.pts[0][1] + J.pts[nT][1]) / 2], zc = (J.pts[0][2] + J.pts[nT][2]) / 2;
     const vx = J.pts[nT][0] - J.pts[0][0], vy = J.pts[nT][1] - J.pts[0][1], lv = Math.hypot(vx, vy) || 1, ex = vx / lv, ey = vy / lv;
     const loc = J.pts.map(([x, y]) => [(x - jc[0]) * ex + (y - jc[1]) * ey, (x - jc[0]) * ux + (y - jc[1]) * uy]);
+    // fin réelle du tablier dans le relevé (points « pont » à la cote de la chaussée, le long de l'axe) : écart au joint
+    const finReleve = PN ? finTablier(PN, jc, [ux, uy], [ex, ey], lv, zc, pente) : null;
+    if (finReleve !== null) { st.nuage++; st.ecartsBout.push(finReleve); }
     // direction de la route : axe swissTLM3D au bout du pont (sinon l'axe du pont), écart d'angle borné
     const T = directionRoute(routes, jc, [ux, uy]);
     let dA = 0;
@@ -132,24 +148,25 @@ export function raccordsPonts(G, modeles, E0, N0, sol = (x, y) => solEn(G, Math.
     // est haut au-dessus (ou bas au-dessous) du terrain : pente TALUS, de ACCOTEMENT à ACCOTEMENT_MAX m
     const bas = ([x, y, z], sx, sy) => {
       let w = ACCOTEMENT;
-      for (let it = 0; it < 3; it++) w = Math.min(ACCOTEMENT_MAX, Math.max(ACCOTEMENT, TALUS * Math.abs(z - sol(x + sx * w, y + sy * w))));
+      for (let it = 0; it < 3; it++) w = Math.min(ACCOTEMENT_MAX, Math.max(ACCOTEMENT, TALUS * Math.abs(z - terrainEn(x + sx * w, y + sy * w))));
       for (; w > 0.3 && !dedans(x + sx * w, y + sy * w); w /= 2);
       const xa = x + sx * w, ya = y + sy * w;
-      return [xa, ya, sol(xa, ya)];
+      return [xa, ya, terrainEn(xa, ya)];
     };
     // route d'accès, mètre par mètre : axe qui part dans le prolongement du pont et tourne en douceur vers la route TLM
     // (sur la première moitié), sections perpendiculaires à l'axe ; chaussée = tablier prolongé (pente, dévers) qui glisse
     // vers le terrain (lissage en S : pente continue au joint)
     const route = [];
     let cx = jc[0], cy = jc[1];
-    for (let l = 0; l <= Lr; l++) {
+    for (let q = 0, l = 0; l <= Lr + 1e-9; q++, l = q * PAS_LONG) {
       const ang = dA * lisse(l / (Lr / 2)), dx = ux * Math.cos(ang) - uy * Math.sin(ang), dy = ux * Math.sin(ang) + uy * Math.cos(ang);
-      if (l) { const am = dA * lisse((l - 0.5) / (Lr / 2)); cx += ux * Math.cos(am) - uy * Math.sin(am); cy += ux * Math.sin(am) + uy * Math.cos(am); }
+      if (l) { const am = dA * lisse((l - PAS_LONG / 2) / (Lr / 2)); cx += (ux * Math.cos(am) - uy * Math.sin(am)) * PAS_LONG; cy += (ux * Math.sin(am) + uy * Math.cos(am)) * PAS_LONG; }
       const sx = dy, sy = -dx; // en travers (rive g → rive d), dans le sens de (ex, ey) au joint
       const w = 1 - lisse(l / Lr), sec = [];
       for (let k = 0; k <= nT; k++) {
         if (!l) { sec.push(J.pts[k]); continue; }
-        const [t, a] = loc[k], x = cx + sx * t * Math.sign(sx * ex + sy * ey || 1) + dx * a, y = cy + sy * t * Math.sign(sx * ex + sy * ey || 1) + dy * a, zg = sol(x, y);
+        const [t, a] = loc[k], x = cx + sx * t * Math.sign(sx * ex + sy * ey || 1) + dx * a, y = cy + sy * t * Math.sign(sx * ex + sy * ey || 1) + dy * a;
+        const zg = terrainEn(x, y, J.pts[k][2] + pente * l);
         sec.push([x, y, zg + (J.pts[k][2] + pente * l - zg) * w]);
       }
       // la route s'arrête au bord de la maquette, ou quand son milieu rencontre l'eau ou un bâtiment (ses bords
@@ -199,10 +216,67 @@ export function raccordsPonts(G, modeles, E0, N0, sol = (x, y) => solEn(G, Math.
     if (nV) { for (let q = 0; q < nV; q++) trou.push(idV[q][3]); trou.push(idV[nV - 1][1]); } else trou.push(idR[0][nC - 1]);
     for (let k = nT; k >= 0; k--) trou.push(idF[k]);
     const cd = Math.cos(dA), sd = Math.sin(dA);
-    out.push({ X, Y, Z, trou, tri, zone: trou.map(v => [X[v], Y[v]]), u: [ux, uy], d: [ux * cd - uy * sd, ux * sd + uy * cd], joint: jc, zJoint: zc, jointPts: J.pts, source: Bt.source, nom: Bt.nom, longueur: n, tlm: T ? { ecart: +T.ecart.toFixed(1), boutTLM: T.boutTLM, angle: Math.round(dA * 180 / Math.PI) } : null });
+    out.push({ X, Y, Z, trou, tri, zone: trou.map(v => [X[v], Y[v]]), u: [ux, uy], d: [ux * cd - uy * sd, ux * sd + uy * cd], joint: jc, zJoint: zc, jointPts: J.pts, source: Bt.source, nom: Bt.nom, longueur: n * PAS_LONG, finReleve, tlm: T ? { ecart: +T.ecart.toFixed(1), boutTLM: T.boutTLM, angle: Math.round(dA * 180 / Math.PI) } : null });
     st.raccordes++;
   }
   return out;
+}
+
+/** Points du relevé (classes 2 sol, 17 pont) à moins de `R` m des points `centres`, rangés par cases de 1 m. */
+function indexNuage(nuage, centres, R) {
+  const { X, Y, Z, C } = nuage, cases = new Map();
+  if (!centres.length) return null;
+  for (let k = 0; k < nuage.n; k++) {
+    const cl = C[k];
+    if (cl !== 2 && cl !== 17) continue;
+    const x = X[k], y = Y[k];
+    let pres = false;
+    for (const [cx, cy] of centres) if (Math.abs(x - cx) < R && Math.abs(y - cy) < R) { pres = true; break; }
+    if (!pres) continue;
+    const key = Math.floor(x) * 100003 + Math.floor(y);
+    let L = cases.get(key);
+    if (!L) cases.set(key, L = []);
+    L.push(x, y, Z[k], cl);
+  }
+  return cases;
+}
+/** Points de l'index autour de (x, y), dans un rayon `r` : appelle f(x, y, z, classe). */
+function autour(PN, x, y, r, f) {
+  for (let i = Math.floor(x - r); i <= Math.floor(x + r); i++) for (let j = Math.floor(y - r); j <= Math.floor(y + r); j++) {
+    const L = PN.get(i * 100003 + j);
+    if (L) for (let q = 0; q < L.length; q += 4) if ((L[q] - x) ** 2 + (L[q + 1] - y) ** 2 <= r * r) f(L[q], L[q + 1], L[q + 2], L[q + 3]);
+  }
+}
+/** Terrain relevé en (x, y) : le sol le plus bas à moins de 40 cm ; sinon la chaussée relevée (points « pont » à moins de
+ *  1,5 m de `zAtt`, médiane) : { z, pont } ; null sans point. */
+function observer(PN, x, y, zAtt) {
+  let sol = Infinity; const pont = [];
+  autour(PN, x, y, 0.4, (px, py, z, cl) => { if (cl === 2) sol = Math.min(sol, z); else if (Math.abs(z - zAtt) < 1.5) pont.push(z); });
+  if (sol < Infinity) return { z: sol, pont: false };
+  if (!pont.length) return null;
+  pont.sort((a, b) => a - b);
+  return { z: pont[pont.length >> 1], pont: true };
+}
+/**
+ * Fin du tablier dans le relevé : le long de l'axe (u, vers l'extérieur), dans la moitié centrale de la chaussée, par
+ * tranches de 50 cm, les points « pont » à la cote de la chaussée prolongée ; distance (m) du joint du modèle à la
+ * dernière tranche qui en a, en partant de l'intérieur (positive : le tablier relevé continue au-delà du joint). Null
+ * si le relevé n'a pas de tablier au bout.
+ */
+function finTablier(PN, jc, u, e, largeur, zc, pente) {
+  const n = new Map(), b = largeur * 0.25;
+  for (let le = -8; le <= 15; le += 1) for (let tt = -b; tt <= b + 1e-9; tt += 1)
+    autour(PN, jc[0] + u[0] * le + e[0] * tt, jc[1] + u[1] * le + e[1] * tt, 0.71, (x, y, z, cl) => {
+      if (cl !== 17) return;
+      const s = (x - jc[0]) * u[0] + (y - jc[1]) * u[1], t = (x - jc[0]) * e[0] + (y - jc[1]) * e[1];
+      if (Math.abs(t) > b || Math.abs(z - (zc + pente * s)) > 1.2) return;
+      const k = Math.floor(s * 2);
+      n.set(k, (n.get(k) || 0) + 1);
+    });
+  let k = -2;
+  if (!((n.get(k) || 0) + (n.get(k - 1) || 0) >= 2)) return null;
+  while ((n.get(k + 1) || 0) + (n.get(k + 2) || 0) >= 1 && k < 30) k++;
+  return +((k + 1) / 2).toFixed(1);
 }
 
 /**
