@@ -1,5 +1,53 @@
 // Scène three.js. Repère : x = est, y = altitude (relative à zRef), z = sud (−nord).
 import * as THREE from "three";
+
+// Brume (FogExp2) plus naturelle, pour tous les matériaux : elle monte plus lentement près de la caméra puis plus vite
+// au loin (exposant 2,8 au lieu de 2), et sa densité varie un peu d'un endroit à l'autre (bruit doux à grande échelle,
+// ±15 %), au lieu d'un voile parfaitement uniforme. La position du point (repère du monde) est tirée de mvPosition.
+THREE.ShaderChunk.fog_pars_vertex = `#ifdef USE_FOG
+  varying float vFogDepth;
+  varying vec3 vBrumeMonde;
+#endif`;
+THREE.ShaderChunk.fog_vertex = `#ifdef USE_FOG
+  vFogDepth = - mvPosition.z;
+  vBrumeMonde = (vec4(mvPosition.xyz, 0.0) * viewMatrix).xyz + cameraPosition;
+#endif`;
+THREE.ShaderChunk.fog_pars_fragment = `#ifdef USE_FOG
+  uniform vec3 fogColor;
+  varying float vFogDepth;
+  varying vec3 vBrumeMonde;
+  #ifdef FOG_EXP2
+    uniform float fogDensity;
+  #else
+    uniform float fogNear;
+    uniform float fogFar;
+  #endif
+  float brumeHasard(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  float brumeBruit(vec2 p) {
+    vec2 i = floor(p), f = fract(p), u = f * f * (3.0 - 2.0 * f);
+    return mix(mix(brumeHasard(i), brumeHasard(i + vec2(1, 0)), u.x), mix(brumeHasard(i + vec2(0, 1)), brumeHasard(i + vec2(1, 1)), u.x), u.y);
+  }
+#endif`;
+THREE.ShaderChunk.fog_fragment = `#ifdef USE_FOG
+  #ifdef FOG_EXP2
+    // deux octaves : nappes de ~1,5 km et de ~400 m, qui varient aussi un peu avec l'altitude
+    vec2 q = vBrumeMonde.xz * 0.0007 + vBrumeMonde.y * 0.0004;
+    float n = 0.65 * brumeBruit(q) + 0.35 * brumeBruit(q * 3.7 + 17.0);
+    float dd = fogDensity * vFogDepth;
+    float fogFactor = 1.0 - exp(- pow(dd, 2.8) * (0.85 + 0.3 * n));
+  #else
+    float fogFactor = smoothstep(fogNear, fogFar, vFogDepth);
+  #endif
+  // couleur du ciel juste sous l'horizon (shader du ciel : horizon × 0,94), passée par le même rendu que le ciel ; au
+  // bout de la brume, rien n'est plus clair que le ciel (neige, façades claires) : la teinte est d'abord plafonnée
+  vec3 couleurBrume = fogColor * 0.94;
+  #ifdef TONE_MAPPING
+    couleurBrume = toneMapping(couleurBrume);
+  #endif
+  couleurBrume = linearToOutputTexel(vec4(couleurBrume, 1.0)).rgb;
+  vec3 plafonne = mix(gl_FragColor.rgb, min(gl_FragColor.rgb, couleurBrume), fogFactor);
+  gl_FragColor.rgb = mix(plafonne, couleurBrume, fogFactor);
+#endif`;
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
@@ -417,7 +465,7 @@ void main() {
   vec4 texel = texture2D(tDiffuse, vUv);
   float z = texture2D(tDepth, vUv).x;
   float d = ortho > 0.5 ? -orthographicDepthToViewZ(z, cameraNear, cameraFar) : -perspectiveDepthToViewZ(z, cameraNear, cameraFar);
-  float brume = z >= 1.0 ? 1.0 : 1.0 - exp(-densite * densite * d * d);
+  float brume = z >= 1.0 ? 1.0 : 1.0 - exp(-pow(densite * d, 2.8)); // même courbe que la brume des matériaux
   gl_FragColor = vec4(mix(vec3(1.0), texel.rgb, intensity * (1.0 - brume)), texel.a);
 }`;
     ao.blendMaterial.needsUpdate = true;
