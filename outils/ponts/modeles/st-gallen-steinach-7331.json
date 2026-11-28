@@ -1,0 +1,330 @@
+{
+ "nom": "Passerelle de la gare de St-Fiden (passage au-dessus des voies), St. Gallen",
+ "axe": [
+  [
+   2747296.5,
+   1255667.5,
+   651.2
+  ],
+  [
+   2747310.3,
+   1255636.1,
+   652.27
+  ],
+  [
+   2747355.4,
+   1255538.6,
+   652.3
+  ],
+  [
+   2747358.0,
+   1255524.9,
+   652.3
+  ]
+ ],
+ "largeur": 3.4,
+ "epaisseur": 0.6,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 34,
+   "forme": "rect",
+   "long": 0.9,
+   "larg": 1.8,
+   "z_bas": 645.5
+  },
+  {
+   "type": "pile",
+   "s": 54,
+   "forme": "rect",
+   "long": 0.9,
+   "larg": 1.8,
+   "z_bas": 645.5
+  },
+  {
+   "type": "pile",
+   "s": 77.5,
+   "forme": "rect",
+   "long": 0.9,
+   "larg": 1.8,
+   "z_bas": 646.6
+  },
+  {
+   "type": "pile",
+   "s": 100,
+   "forme": "rect",
+   "long": 0.9,
+   "larg": 1.8,
+   "z_bas": 645.4
+  },
+  {
+   "type": "pile",
+   "s": 119,
+   "forme": "rect",
+   "long": 0.9,
+   "larg": 1.8,
+   "z_bas": 645.6
+  },
+  {
+   "type": "culee",
+   "s": 155.7
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [
+  {
+   "de": [
+    152.4,
+    3.39,
+    652.0
+   ],
+   "a": [
+    153.81,
+    2.02,
+    651.32
+   ],
+   "larg": 2.6,
+   "ep": 0.5,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    153.81,
+    2.02,
+    651.32
+   ],
+   "a": [
+    154.37,
+    0.14,
+    650.64
+   ],
+   "larg": 2.6,
+   "ep": 0.5,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    154.37,
+    0.14,
+    650.64
+   ],
+   "a": [
+    153.94,
+    -1.78,
+    649.97
+   ],
+   "larg": 2.6,
+   "ep": 0.5,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    153.94,
+    -1.78,
+    649.97
+   ],
+   "a": [
+    152.64,
+    -3.24,
+    649.29
+   ],
+   "larg": 2.6,
+   "ep": 0.5,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    152.64,
+    -3.24,
+    649.29
+   ],
+   "a": [
+    150.79,
+    -3.89,
+    648.61
+   ],
+   "larg": 2.6,
+   "ep": 0.5,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    150.79,
+    -3.89,
+    648.61
+   ],
+   "a": [
+    148.86,
+    -3.55,
+    647.93
+   ],
+   "larg": 2.6,
+   "ep": 0.5,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    148.86,
+    -3.55,
+    647.93
+   ],
+   "a": [
+    147.33,
+    -2.32,
+    647.26
+   ],
+   "larg": 2.6,
+   "ep": 0.5,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    147.33,
+    -2.32,
+    647.26
+   ],
+   "a": [
+    146.6,
+    -0.5,
+    646.58
+   ],
+   "larg": 2.6,
+   "ep": 0.5,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    146.6,
+    -0.5,
+    646.58
+   ],
+   "a": [
+    146.85,
+    1.44,
+    645.9
+   ],
+   "larg": 2.6,
+   "ep": 0.5,
+   "materiau": "beton"
+  },
+  {
+   "de": [
+    77.5,
+    1.9,
+    651.9
+   ],
+   "a": [
+    77.5,
+    14.0,
+    646.8
+   ],
+   "larg": 3.0,
+   "ep": 0.45
+  },
+  {
+   "de": [
+    77.5,
+    -1.9,
+    651.9
+   ],
+   "a": [
+    77.5,
+    -14.0,
+    646.8
+   ],
+   "larg": 3.0,
+   "ep": 0.45
+  },
+  {
+   "de": [
+    119.0,
+    1.9,
+    651.9
+   ],
+   "a": [
+    119.0,
+    14.0,
+    646.8
+   ],
+   "larg": 3.0,
+   "ep": 0.45
+  },
+  {
+   "de": [
+    119.0,
+    -1.9,
+    651.9
+   ],
+   "a": [
+    119.0,
+    -14.0,
+    646.8
+   ],
+   "larg": 3.0,
+   "ep": 0.45
+  }
+ ],
+ "volumes": [
+  {
+   "s": 150.47,
+   "t": 0,
+   "z_bas": 651.7,
+   "materiau": "beton",
+   "sections": [
+    {
+     "z": 651.7,
+     "forme": "rond",
+     "long": 10.4,
+     "larg": 10.4
+    },
+    {
+     "z": 652.3,
+     "forme": "rond",
+     "long": 10.4,
+     "larg": 10.4
+    }
+   ]
+  },
+  {
+   "s": 150.47,
+   "t": 0,
+   "z_bas": 645.9,
+   "materiau": "beton",
+   "sections": [
+    {
+     "z": 645.9,
+     "forme": "rond",
+     "long": 3.6,
+     "larg": 3.6
+    },
+    {
+     "z": 654.0,
+     "forme": "rond",
+     "long": 3.6,
+     "larg": 3.6
+    }
+   ]
+  }
+ ],
+ "remblai": [],
+ "sources": [
+  "swissSURFACE3D (relevé laser)",
+  "swissTLM3D (axe de l'escalier)",
+  "https://wms.geo.admin.ch (swissimage)",
+  "https://commons.wikimedia.org/wiki/File:Bahnhof_St._Gallen_St._Fiden.jpg",
+  "https://commons.wikimedia.org/wiki/File:Bahnhof_St._Gallen_St._Fiden_ICN_2023.jpg"
+ ],
+ "photos_vues": 2,
+ "confiance": "faible",
+ "notes": "Passerelle piétonne de ~3,4 m de large (le relevé automatique donnait 12 m : toits de quai) ; escalier en colimaçon au sud (noyau cylindrique, palier rond r 5,2, 0,75 tour, d'après la photo Commons et l'axe TLM) et 4 volées droites d'accès (s 77 et 119) estimées. Piles (tous les ~20 m, s 34, 54, 77, 100, 119) non vues au laser (tablier trop haut, voies dessous), place déduite de rares points ; garde-corps, rampe nord et escalier non cotés ; pas de calage photo (aucune vue d'ensemble de la passerelle ; seulement 2 gros plans) ; 59,9 % des points d'ouvrage expliqués car le couloir contient les toits de quai et la halle voisine."
+}

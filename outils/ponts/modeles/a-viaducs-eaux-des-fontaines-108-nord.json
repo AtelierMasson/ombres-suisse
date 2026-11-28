@@ -1,0 +1,849 @@
+{
+ "nom": "Viaducs Eaux des Fontaines (chaussée nord, A16, Court)",
+ "axe": [
+  [
+   2591714.7,
+   1231287.0,
+   739.19
+  ],
+  [
+   2591743.7,
+   1231289.0,
+   738.9
+  ],
+  [
+   2591772.7,
+   1231291.7,
+   738.63
+  ],
+  [
+   2591801.6,
+   1231295.1,
+   738.34
+  ],
+  [
+   2591830.4,
+   1231299.2,
+   738.03
+  ],
+  [
+   2591859.2,
+   1231303.9,
+   737.8
+  ],
+  [
+   2591887.9,
+   1231309.0,
+   737.51
+  ],
+  [
+   2591916.6,
+   1231314.4,
+   737.24
+  ],
+  [
+   2591945.2,
+   1231320.1,
+   736.93
+  ],
+  [
+   2591973.7,
+   1231326.1,
+   736.67
+  ],
+  [
+   2592002.2,
+   1231332.3,
+   736.35
+  ],
+  [
+   2592030.7,
+   1231338.9,
+   736.06
+  ],
+  [
+   2592059.1,
+   1231345.6,
+   735.75
+  ],
+  [
+   2592087.4,
+   1231352.4,
+   735.5
+  ],
+  [
+   2592115.8,
+   1231359.6,
+   735.21
+  ],
+  [
+   2592144.0,
+   1231366.9,
+   734.93
+  ],
+  [
+   2592172.3,
+   1231374.4,
+   734.63
+  ],
+  [
+   2592200.5,
+   1231381.9,
+   734.28
+  ],
+  [
+   2592228.7,
+   1231389.5,
+   733.83
+  ],
+  [
+   2592257.0,
+   1231397.0,
+   733.47
+  ]
+ ],
+ "largeur": 11.2,
+ "epaisseur": 2.7,
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -5.6,
+     -0.3
+    ],
+    [
+     -2.3,
+     -0.55
+    ],
+    [
+     -1.8,
+     -2.7
+    ],
+    [
+     1.6,
+     -2.7
+    ],
+    [
+     2.2,
+     -0.55
+    ],
+    [
+     5.6,
+     -0.3
+    ]
+   ]
+  },
+  {
+   "s": 554.0,
+   "points": [
+    [
+     -5.6,
+     -0.3
+    ],
+    [
+     -2.3,
+     -0.55
+    ],
+    [
+     -1.8,
+     -2.7
+    ],
+    [
+     1.6,
+     -2.7
+    ],
+    [
+     2.2,
+     -0.55
+    ],
+    [
+     5.6,
+     -0.3
+    ]
+   ]
+  }
+ ],
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.35
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 6.4
+  },
+  {
+   "type": "pile",
+   "s": 51.4,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 4.7,
+   "z_bas": 727.9,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 108.4,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 4.7,
+   "z_bas": 718.3,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 165.4,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 4.7,
+   "z_bas": 706.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 222.4,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 4.7,
+   "z_bas": 705.3,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 279.4,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 4.7,
+   "z_bas": 718.9,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 336.4,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 4.7,
+   "z_bas": 721.7,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 393.4,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 4.7,
+   "z_bas": 724.7,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 450.4,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 4.7,
+   "z_bas": 726.8,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 495.4,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 4.7,
+   "z_bas": 727.6,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "poly",
+     "points": [
+      [
+       -1.2,
+       -2.35
+      ],
+      [
+       1.2,
+       -2.35
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       1.2,
+       2.35
+      ],
+      [
+       -1.2,
+       2.35
+      ],
+      [
+       -0.88,
+       0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "culee",
+   "s": 551.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "remblai": [
+  [
+   0,
+   9
+  ],
+  [
+   545.0,
+   554.0
+  ]
+ ],
+ "sources": [
+  "swissSURFACE3D 2023 (nuage LAS, tuiles 2591-1231 et 2592-1231)",
+  "swissTLM3D (axes tlm/108 et tlm/109)",
+  "Espazium, Les viaducs Eaux des Fontaines (INGPHI SA) : coupes transversale et longitudinale, section des piles, photos Yves André",
+  "OPAN, Clin d'oeil du passé : le viaduc Eaux des Fontaines (photos de chantier 2013)",
+  "Structurae, Viaducs Eaux des Fontaines (Court, 2017)"
+ ],
+ "photos_vues": 6,
+ "photo": {
+  "fichier": "yandre-amont-pile-courte.jpg",
+  "page": "https://www.espazium.ch/fr/actualites/les-viaducs-eaux-des-fontaines",
+  "auteur": "Yves André",
+  "licence": "© yves-andre.ch (référence seulement)"
+ },
+ "confiance": "moyenne",
+ "notes": "Chaussée nord (viaduc amont d'après les portées : 45 + 7 x 57 + 45 m, 9 piles). Deux tabliers en caisson béton de 11,18 m séparés par un vide de 0,6 m (coupe publiée INGPHI, largeur totale 22,96 m = nuage 23,1 m), donc deux fichiers nord/sud. Piles invisibles au laser sous le tablier : positions déduites de la rangée de points de pied vus aux s 113/170/226/283/340 et des portées publiées, section en papillon 2,4 x 4,7 m d'après la coupe (les photos montrent des fûts rectangulaires, le papillon est à peine lisible), ouvertures et têtes non modélisées. Le schéma n'a pas de dévers (le dessus mesure ~4 %, +-0,25 m aux rives, médiane à 0,01 m), glissières et corniches non modélisées. Calage photo formel non fait (aucune vue d'ensemble calable : photos de chantier, point de vue inconnu) ; comparaison à vue avec un rendu depuis le versant sud (rendu-essai) : porteur, piles rectangulaires hautes de 8 à 32 m et vide entre tabliers concordent. Mapillary non utilisé (jeton vide ou refusé). Relevé LAS 2023 sans COPC : vérifié sur un cache local. Corrigé le 28.11.2026 : le haut des piles est ramené au dessous du tablier (z \"tablier\" = dessous ; l'épaisseur avait été retranchée deux fois)."
+}

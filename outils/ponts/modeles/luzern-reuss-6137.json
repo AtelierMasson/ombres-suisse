@@ -157,7 +157,7 @@
    "sections": [
     {
      "z": "tablier",
-     "dz": -1.2,
+     "dz": 0,
      "forme": "ogive",
      "long": 3.2,
      "larg": 3.6,
@@ -195,7 +195,7 @@
    "sections": [
     {
      "z": "tablier",
-     "dz": -1.1,
+     "dz": 0,
      "forme": "ogive",
      "long": 1.0,
      "larg": 1.8,
@@ -224,7 +224,7 @@
    "sections": [
     {
      "z": "tablier",
-     "dz": -1.1,
+     "dz": 0,
      "forme": "ogive",
      "long": 1.0,
      "larg": 1.8,
@@ -253,7 +253,7 @@
    "sections": [
     {
      "z": "tablier",
-     "dz": -1.2,
+     "dz": 0,
      "forme": "ogive",
      "long": 3.2,
      "larg": 3.6,
@@ -291,7 +291,7 @@
    "sections": [
     {
      "z": "tablier",
-     "dz": -1.1,
+     "dz": 0,
      "forme": "ogive",
      "long": 1.0,
      "larg": 1.8,
@@ -320,7 +320,7 @@
    "sections": [
     {
      "z": "tablier",
-     "dz": -1.1,
+     "dz": 0,
      "forme": "ogive",
      "long": 1.0,
      "larg": 1.8,
@@ -349,7 +349,7 @@
    "sections": [
     {
      "z": "tablier",
-     "dz": -1.2,
+     "dz": 0,
      "forme": "ogive",
      "long": 3.2,
      "larg": 3.6,
@@ -387,7 +387,7 @@
    "sections": [
     {
      "z": "tablier",
-     "dz": -1.1,
+     "dz": 0,
      "forme": "ogive",
      "long": 1.0,
      "larg": 1.8,
@@ -416,7 +416,7 @@
    "sections": [
     {
      "z": "tablier",
-     "dz": -1.1,
+     "dz": 0,
      "forme": "ogive",
      "long": 1.0,
      "larg": 1.8,
@@ -445,7 +445,7 @@
    "sections": [
     {
      "z": "tablier",
-     "dz": -1.2,
+     "dz": 0,
      "forme": "ogive",
      "long": 3.2,
      "larg": 3.6,
@@ -483,7 +483,7 @@
    "sections": [
     {
      "z": "tablier",
-     "dz": -1.1,
+     "dz": 0,
      "forme": "ogive",
      "long": 1.0,
      "larg": 1.8,
@@ -512,7 +512,7 @@
    "sections": [
     {
      "z": "tablier",
-     "dz": -1.1,
+     "dz": 0,
      "forme": "ogive",
      "long": 1.0,
      "larg": 1.8,
@@ -541,7 +541,7 @@
    "sections": [
     {
      "z": "tablier",
-     "dz": -1.2,
+     "dz": 0,
      "forme": "ogive",
      "long": 3.2,
      "larg": 3.6,
@@ -579,7 +579,7 @@
    "sections": [
     {
      "z": "tablier",
-     "dz": -1.1,
+     "dz": 0,
      "forme": "ogive",
      "long": 1.0,
      "larg": 1.8,
@@ -638,7 +638,7 @@
  },
  "photos_vues": 5,
  "confiance": "moyenne",
- "notes": "Seebrücke de Lucerne (1994-96, Janus ; dalle précontrainte à deux poutres, 157,3 m, 26,7 m ; travées côté Reuss 14,95+8x14,7+15,37 m sur 9 piles minces, côté lac 22,3+4x29,4+20 m sur 5 piles massives en goutte) : piles placées d'après l'article SIA 1997 et les mâts mesurés au laser (alignés sur les piles côté Reuss), tablier mesuré au laser 2020 (médiane -0,06 m). Les piles et le dessous du tablier ne sont pas vus par le laser (formes côté lac et profil des poutres estimés d'après dessins et photos) ; le schéma ne sait pas faire la culée biaise côté Schwanenplatz (rive lac ~22 m plus longue que la rive Reuss) ni les murs de culée Bahnhof : côté Schwanenplatz le sol réel (quai, culée remplie) monte jusqu'au tablier sur s 4..16 m : déclaré en remblai [0,16].",
+ "notes": "Seebrücke de Lucerne (1994-96, Janus ; dalle précontrainte à deux poutres, 157,3 m, 26,7 m ; travées côté Reuss 14,95+8x14,7+15,37 m sur 9 piles minces, côté lac 22,3+4x29,4+20 m sur 5 piles massives en goutte) : piles placées d'après l'article SIA 1997 et les mâts mesurés au laser (alignés sur les piles côté Reuss), tablier mesuré au laser 2020 (médiane -0,06 m). Les piles et le dessous du tablier ne sont pas vus par le laser (formes côté lac et profil des poutres estimés d'après dessins et photos) ; le schéma ne sait pas faire la culée biaise côté Schwanenplatz (rive lac ~22 m plus longue que la rive Reuss) ni les murs de culée Bahnhof : côté Schwanenplatz le sol réel (quai, culée remplie) monte jusqu'au tablier sur s 4..16 m : déclaré en remblai [0,16]. Corrigé le 28.11.2026 : le haut des piles est ramené au dessous du tablier (z \"tablier\" = dessous ; l'épaisseur avait été retranchée deux fois).",
  "remblai": [
   [
    0,

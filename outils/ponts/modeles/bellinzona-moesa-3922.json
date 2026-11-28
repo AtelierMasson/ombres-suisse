@@ -216,7 +216,7 @@
     },
     {
      "z": "tablier",
-     "dz": -1.4,
+     "dz": 0,
      "forme": "rect",
      "long": 3.0,
      "larg": 28,
@@ -238,7 +238,7 @@
     },
     {
      "z": "tablier",
-     "dz": -1.4,
+     "dz": 0,
      "forme": "rect",
      "long": 3.0,
      "larg": 28,
@@ -260,7 +260,7 @@
     },
     {
      "z": "tablier",
-     "dz": -1.4,
+     "dz": 0,
      "forme": "rect",
      "long": 3.0,
      "larg": 28,
@@ -282,7 +282,7 @@
     },
     {
      "z": "tablier",
-     "dz": -1.4,
+     "dz": 0,
      "forme": "rect",
      "long": 3.0,
      "larg": 28,
@@ -305,7 +305,7 @@
  ],
  "photos_vues": 3,
  "confiance": "faible",
- "notes": "Ouvrage large (deux chauss\u00e9es accol\u00e9es, ~32 m) mod\u00e9lis\u00e9 en un seul tablier \u00e0 bords variables ; la fente centrale et les bretelles \u00e9vas\u00e9es au-del\u00e0 de s 130 ne sont pas repr\u00e9sent\u00e9es. Piles non vues par le laser (positions et \u00e9paisseur suppos\u00e9es), aucune vue d'ensemble ni de dessous trouv\u00e9e. Conflit de terrain r\u00e9siduel s 4-16 et 156-158 (talus d'acc\u00e8s au-dessus du dessous du tablier, remblai d\u00e9clar\u00e9). Non cal\u00e9 sur photo (aucune vue d'ensemble).",
+ "notes": "Ouvrage large (deux chaussées accolées, ~32 m) modélisé en un seul tablier à bords variables ; la fente centrale et les bretelles évasées au-delà de s 130 ne sont pas représentées. Piles non vues par le laser (positions et épaisseur supposées), aucune vue d'ensemble ni de dessous trouvée. Conflit de terrain résiduel s 4-16 et 156-158 (talus d'accès au-dessus du dessous du tablier, remblai déclaré). Non calé sur photo (aucune vue d'ensemble). Corrigé le 28.11.2026 : le haut des piles est ramené au dessous du tablier (z \"tablier\" = dessous ; l'épaisseur avait été retranchée deux fois).",
  "remblai": [
   [
    0,

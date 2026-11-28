@@ -1,0 +1,190 @@
+{
+ "nom": "Lindenackerbrücke (chaussée nord-est)",
+ "axe": [
+  [
+   2627296.36,
+   1257157.18,
+   382.24
+  ],
+  [
+   2627285.07,
+   1257175.48,
+   381.72
+  ],
+  [
+   2627274.22,
+   1257193.18,
+   381.18
+  ],
+  [
+   2627263.17,
+   1257210.79,
+   380.63
+  ],
+  [
+   2627251.86,
+   1257228.27,
+   380.08
+  ],
+  [
+   2627240.29,
+   1257245.53,
+   379.53
+  ],
+  [
+   2627228.69,
+   1257262.72,
+   378.99
+  ],
+  [
+   2627217.06,
+   1257279.96,
+   378.44
+  ],
+  [
+   2627204.94,
+   1257296.9,
+   377.88
+  ],
+  [
+   2627192.7,
+   1257313.67,
+   377.35
+  ],
+  [
+   2627180.45,
+   1257330.44,
+   376.8
+  ],
+  [
+   2627168.01,
+   1257347.06,
+   376.25
+  ],
+  [
+   2627154.95,
+   1257364.14,
+   375.99
+  ]
+ ],
+ "largeur": 14.6,
+ "epaisseur": 2.8,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.35
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 22.0,
+   "forme": "rect",
+   "long": 2.8,
+   "larg": 8.0,
+   "z_bas": 367.7
+  },
+  {
+   "type": "pile",
+   "s": 44.0,
+   "forme": "rect",
+   "long": 2.8,
+   "larg": 8.0,
+   "z_bas": 366.5
+  },
+  {
+   "type": "pile",
+   "s": 66.0,
+   "forme": "rect",
+   "long": 2.8,
+   "larg": 8.0,
+   "z_bas": 365.3
+  },
+  {
+   "type": "pile",
+   "s": 88.0,
+   "forme": "rect",
+   "long": 2.8,
+   "larg": 8.0,
+   "z_bas": 365.0
+  },
+  {
+   "type": "pile",
+   "s": 110.0,
+   "forme": "rect",
+   "long": 2.8,
+   "larg": 8.0,
+   "z_bas": 364.8
+  },
+  {
+   "type": "pile",
+   "s": 132.0,
+   "forme": "rect",
+   "long": 2.8,
+   "larg": 8.0,
+   "z_bas": 364.6
+  },
+  {
+   "type": "pile",
+   "s": 154.0,
+   "forme": "rect",
+   "long": 2.8,
+   "larg": 8.0,
+   "z_bas": 364.7
+  },
+  {
+   "type": "pile",
+   "s": 176.0,
+   "forme": "rect",
+   "long": 2.8,
+   "larg": 8.0,
+   "z_bas": 364.5
+  },
+  {
+   "type": "pile",
+   "s": 198.0,
+   "forme": "rect",
+   "long": 2.8,
+   "larg": 8.0,
+   "z_bas": 364.8
+  },
+  {
+   "type": "pile",
+   "s": 220.0,
+   "forme": "rect",
+   "long": 2.8,
+   "larg": 8.0,
+   "z_bas": 364.7
+  },
+  {
+   "type": "culee",
+   "s": 250.8
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissTLM3D (axes tlm/448, tlm/463)",
+  "swissSURFACE3D 2023 (dalle LAS 2627-1257 lue en local, pas de COPC)",
+  "Mapillary 654289170299062 (bct / Mapillary, CC BY-SA 4.0) : chaussée nord-est vers le nord-ouest",
+  "Mapillary 1237271260583254 (maxim752 / Mapillary, CC BY-SA 4.0) : chaussée sud-ouest vers le sud-est",
+  "Mapillary 1152317131948224 (bernet / Mapillary, CC BY-SA 4.0) : vue latérale depuis le sol, piles et caisson"
+ ],
+ "photos_vues": 3,
+ "confiance": "moyenne",
+ "notes": "Deux tabliers séparés par un vide de 8 m (histogramme du nuage), chacun de ~14,6 m : ce fichier est la chaussée nord-est, l'autre est modélisée à part (le vérificateur compte donc ~20 % de points non expliqués : l'autre tablier). Piles à pas de 22 m déduites des quelques points sous le tablier (s 154-222 sur la chaussée nord-est, reportées à l'identique sur l'autre), forme (colonne rectangulaire 2,8 x 8 m) et caisson de 2,8 m estimés sur une vue latérale lointaine ; le schéma ne rend pas le panneau antibruit transparent ni les bandes colorées des parapets.",
+ "largeur_dessous": 9.0,
+ "remblai": [
+  [
+   0,
+   10
+  ],
+  [
+   236.8,
+   250.8
+  ]
+ ]
+}

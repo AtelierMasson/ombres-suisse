@@ -1,0 +1,100 @@
+{
+ "nom": "Route de la Gare, passage sup\u00e9rieur sur l'autoroute et les voies (Denges)",
+ "axe": [
+  [
+   2531180.2,
+   1153396.2,
+   404.85
+  ],
+  [
+   2531183.0,
+   1153471.0,
+   406.95
+  ],
+  [
+   2531185.0,
+   1153540.0,
+   407.45
+  ],
+  [
+   2531187.8,
+   1153602.1,
+   407.15
+  ]
+ ],
+ "largeur": 13.0,
+ "largeur_dessous": 11.5,
+ "epaisseur": 1.4,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 30,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 10.5,
+   "z_bas": 396.2
+  },
+  {
+   "type": "pile",
+   "s": 58,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 10.5,
+   "z_bas": 395.9
+  },
+  {
+   "type": "pile",
+   "s": 86,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 10.5,
+   "z_bas": 395.7
+  },
+  {
+   "type": "pile",
+   "s": 112,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 10.5,
+   "z_bas": 394.8
+  },
+  {
+   "type": "pile",
+   "s": 140,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 10.5,
+   "z_bas": 399.3
+  },
+  {
+   "type": "pile",
+   "s": 168,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 10.5,
+   "z_bas": 399.0
+  },
+  {
+   "type": "culee",
+   "s": 206
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "Relev\u00e9 swissSURFACE3D 2025",
+  "Mapillary lvl5 969254213950751 (depuis l'A1 dessous), changchun1 157644586304974 (sur le tablier), CC BY-SA 4.0 / Mapillary"
+ ],
+ "photos_vues": 3,
+ "confiance": "moyenne",
+ "notes": "Viaduc rectiligne de 206 m, chauss\u00e9e 13 m (deux voies, trottoirs, \u00e9crans antibruit), dalle ~1,4 m sur files de piles rectangulaires. Places des 6 piles estim\u00e9es (espacement ~28 m vu sur photo, laser peu touch\u00e9 sous un tablier surplombant autoroute et faisceau de voies) ; le nuage de la zone contient d'autres ouvrages (A1, voies) non mod\u00e9lis\u00e9s."
+}

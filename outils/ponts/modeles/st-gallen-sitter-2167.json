@@ -1,0 +1,635 @@
+{
+ "nom": "Sitterviadukt (SBB), St. Gallen",
+ "axe": [
+  [
+   2742065.6,
+   1251991.2,
+   649.5
+  ],
+  [
+   2742266.3,
+   1252051.6,
+   649.5
+  ]
+ ],
+ "largeur": 13.8,
+ "epaisseur": 2.3,
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -6.9,
+     0
+    ],
+    [
+     -6.9,
+     -0.9
+    ],
+    [
+     -5.4,
+     -0.9
+    ],
+    [
+     -5.4,
+     -1.6
+    ],
+    [
+     5.4,
+     -1.6
+    ],
+    [
+     5.4,
+     -0.9
+    ],
+    [
+     6.9,
+     -0.9
+    ],
+    [
+     6.9,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 8,
+   "points": [
+    [
+     -6.9,
+     0
+    ],
+    [
+     -6.9,
+     -0.9
+    ],
+    [
+     -5.4,
+     -0.9
+    ],
+    [
+     -5.4,
+     -1.8
+    ],
+    [
+     5.4,
+     -1.8
+    ],
+    [
+     5.4,
+     -0.9
+    ],
+    [
+     6.9,
+     -0.9
+    ],
+    [
+     6.9,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 14,
+   "points": [
+    [
+     -6.9,
+     0
+    ],
+    [
+     -6.9,
+     -0.9
+    ],
+    [
+     -5.4,
+     -0.9
+    ],
+    [
+     -5.4,
+     -2.3
+    ],
+    [
+     5.4,
+     -2.3
+    ],
+    [
+     5.4,
+     -0.9
+    ],
+    [
+     6.9,
+     -0.9
+    ],
+    [
+     6.9,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 209.6,
+   "points": [
+    [
+     -6.9,
+     0
+    ],
+    [
+     -6.9,
+     -0.9
+    ],
+    [
+     -5.4,
+     -0.9
+    ],
+    [
+     -5.4,
+     -2.3
+    ],
+    [
+     5.4,
+     -2.3
+    ],
+    [
+     5.4,
+     -0.9
+    ],
+    [
+     6.9,
+     -0.9
+    ],
+    [
+     6.9,
+     0
+    ]
+   ]
+  }
+ ],
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "materiau": "acier"
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 11.3,
+   "z_bas": 625.5,
+   "materiau": "pierre",
+   "sections": [
+    {
+     "z": 625.5,
+     "forme": "rect",
+     "long": 5.4,
+     "larg": 11.68
+    },
+    {
+     "z": 630.0,
+     "forme": "rect",
+     "long": 5.2,
+     "larg": 11.4
+    },
+    {
+     "z": 638.0,
+     "forme": "rect",
+     "long": 5.06,
+     "larg": 11.12
+    },
+    {
+     "z": 647.0,
+     "forme": "rect",
+     "long": 4.89,
+     "larg": 10.8
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 45.5,
+   "z_bas": 590.5,
+   "materiau": "pierre",
+   "sections": [
+    {
+     "z": 590.5,
+     "forme": "rect",
+     "long": 11.0,
+     "larg": 15.4
+    },
+    {
+     "z": 591.7,
+     "forme": "rect",
+     "long": 11.0,
+     "larg": 15.4
+    },
+    {
+     "z": 591.7,
+     "forme": "rect",
+     "long": 7.42,
+     "larg": 14.29
+    },
+    {
+     "z": 599.0,
+     "forme": "rect",
+     "long": 6.6,
+     "larg": 13.34
+    },
+    {
+     "z": 607.0,
+     "forme": "rect",
+     "long": 6.24,
+     "larg": 12.84
+    },
+    {
+     "z": 615.0,
+     "forme": "rect",
+     "long": 5.88,
+     "larg": 12.34
+    },
+    {
+     "z": 623.0,
+     "forme": "rect",
+     "long": 5.52,
+     "larg": 11.84
+    },
+    {
+     "z": 630.0,
+     "forme": "rect",
+     "long": 5.2,
+     "larg": 11.4
+    },
+    {
+     "z": 638.0,
+     "forme": "rect",
+     "long": 5.06,
+     "larg": 11.12
+    },
+    {
+     "z": 647.0,
+     "forme": "rect",
+     "long": 4.89,
+     "larg": 10.8
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 79.6,
+   "z_bas": 585.5,
+   "materiau": "pierre",
+   "sections": [
+    {
+     "z": 585.5,
+     "forme": "rect",
+     "long": 11.0,
+     "larg": 15.4
+    },
+    {
+     "z": 586.7,
+     "forme": "rect",
+     "long": 11.0,
+     "larg": 15.4
+    },
+    {
+     "z": 586.7,
+     "forme": "rect",
+     "long": 7.65,
+     "larg": 14.61
+    },
+    {
+     "z": 594.0,
+     "forme": "rect",
+     "long": 6.82,
+     "larg": 13.65
+    },
+    {
+     "z": 602.0,
+     "forme": "rect",
+     "long": 6.46,
+     "larg": 13.15
+    },
+    {
+     "z": 610.0,
+     "forme": "rect",
+     "long": 6.1,
+     "larg": 12.65
+    },
+    {
+     "z": 618.0,
+     "forme": "rect",
+     "long": 5.74,
+     "larg": 12.15
+    },
+    {
+     "z": 626.0,
+     "forme": "rect",
+     "long": 5.38,
+     "larg": 11.65
+    },
+    {
+     "z": 630.0,
+     "forme": "rect",
+     "long": 5.2,
+     "larg": 11.4
+    },
+    {
+     "z": 638.0,
+     "forme": "rect",
+     "long": 5.06,
+     "larg": 11.12
+    },
+    {
+     "z": 647.0,
+     "forme": "rect",
+     "long": 4.89,
+     "larg": 10.8
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 113.7,
+   "z_bas": 587.8,
+   "materiau": "pierre",
+   "sections": [
+    {
+     "z": 587.8,
+     "forme": "rect",
+     "long": 11.0,
+     "larg": 15.4
+    },
+    {
+     "z": 589.0,
+     "forme": "rect",
+     "long": 11.0,
+     "larg": 15.4
+    },
+    {
+     "z": 589.0,
+     "forme": "rect",
+     "long": 7.54,
+     "larg": 14.46
+    },
+    {
+     "z": 597.0,
+     "forme": "rect",
+     "long": 6.69,
+     "larg": 13.46
+    },
+    {
+     "z": 605.0,
+     "forme": "rect",
+     "long": 6.33,
+     "larg": 12.96
+    },
+    {
+     "z": 613.0,
+     "forme": "rect",
+     "long": 5.96,
+     "larg": 12.46
+    },
+    {
+     "z": 621.0,
+     "forme": "rect",
+     "long": 5.61,
+     "larg": 11.96
+    },
+    {
+     "z": 629.0,
+     "forme": "rect",
+     "long": 5.25,
+     "larg": 11.46
+    },
+    {
+     "z": 630.0,
+     "forme": "rect",
+     "long": 5.2,
+     "larg": 11.4
+    },
+    {
+     "z": 638.0,
+     "forme": "rect",
+     "long": 5.06,
+     "larg": 11.12
+    },
+    {
+     "z": 647.0,
+     "forme": "rect",
+     "long": 4.89,
+     "larg": 10.8
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 147.8,
+   "z_bas": 601.5,
+   "materiau": "pierre",
+   "sections": [
+    {
+     "z": 601.5,
+     "forme": "rect",
+     "long": 11.0,
+     "larg": 15.4
+    },
+    {
+     "z": 602.7,
+     "forme": "rect",
+     "long": 11.0,
+     "larg": 15.4
+    },
+    {
+     "z": 602.7,
+     "forme": "rect",
+     "long": 6.93,
+     "larg": 13.61
+    },
+    {
+     "z": 610.0,
+     "forme": "rect",
+     "long": 6.1,
+     "larg": 12.65
+    },
+    {
+     "z": 618.0,
+     "forme": "rect",
+     "long": 5.74,
+     "larg": 12.15
+    },
+    {
+     "z": 626.0,
+     "forme": "rect",
+     "long": 5.38,
+     "larg": 11.65
+    },
+    {
+     "z": 630.0,
+     "forme": "rect",
+     "long": 5.2,
+     "larg": 11.4
+    },
+    {
+     "z": 638.0,
+     "forme": "rect",
+     "long": 5.06,
+     "larg": 11.12
+    },
+    {
+     "z": 647.0,
+     "forme": "rect",
+     "long": 4.89,
+     "larg": 10.8
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 181.9,
+   "z_bas": 632.0,
+   "materiau": "pierre",
+   "sections": [
+    {
+     "z": 632.0,
+     "forme": "rect",
+     "long": 11.0,
+     "larg": 15.4
+    },
+    {
+     "z": 633.2,
+     "forme": "rect",
+     "long": 11.0,
+     "larg": 15.4
+    },
+    {
+     "z": 633.2,
+     "forme": "rect",
+     "long": 5.64,
+     "larg": 11.79
+    },
+    {
+     "z": 630.0,
+     "forme": "rect",
+     "long": 5.2,
+     "larg": 11.4
+    },
+    {
+     "z": 638.0,
+     "forme": "rect",
+     "long": 5.06,
+     "larg": 11.12
+    },
+    {
+     "z": 647.0,
+     "forme": "rect",
+     "long": 4.89,
+     "larg": 10.8
+    }
+   ]
+  },
+  {
+   "type": "culee",
+   "s": 209.6
+  }
+ ],
+ "arches": [
+  {
+   "s0": 13.75,
+   "s1": 43.05,
+   "forme": "cintre",
+   "z_naissance": 629.8,
+   "z_cle": 644.4,
+   "epaisseur": 1.7,
+   "larg": 10.8,
+   "plein": true,
+   "materiau": "pierre"
+  },
+  {
+   "s0": 47.95,
+   "s1": 77.15,
+   "forme": "cintre",
+   "z_naissance": 629.8,
+   "z_cle": 644.4,
+   "epaisseur": 1.7,
+   "larg": 10.8,
+   "plein": true,
+   "materiau": "pierre"
+  },
+  {
+   "s0": 82.05,
+   "s1": 111.25,
+   "forme": "cintre",
+   "z_naissance": 629.8,
+   "z_cle": 644.4,
+   "epaisseur": 1.7,
+   "larg": 10.8,
+   "plein": true,
+   "materiau": "pierre"
+  },
+  {
+   "s0": 116.15,
+   "s1": 145.35,
+   "forme": "cintre",
+   "z_naissance": 629.8,
+   "z_cle": 644.4,
+   "epaisseur": 1.7,
+   "larg": 10.8,
+   "plein": true,
+   "materiau": "pierre"
+  },
+  {
+   "s0": 150.25,
+   "s1": 179.45,
+   "forme": "cintre",
+   "z_naissance": 629.8,
+   "z_cle": 644.4,
+   "epaisseur": 1.7,
+   "larg": 10.8,
+   "plein": true,
+   "materiau": "pierre"
+  },
+  {
+   "s0": 184.35,
+   "s1": 201.35,
+   "forme": "cintre",
+   "z_naissance": 636.0,
+   "z_cle": 644.3,
+   "epaisseur": 1.2,
+   "larg": 10.8,
+   "plein": true,
+   "materiau": "pierre"
+  }
+ ],
+ "pylones": [],
+ "elements": [],
+ "remblai": [
+  [
+   0,
+   14
+  ],
+  [
+   184,
+   209.6
+  ]
+ ],
+ "sources": [
+  "https://de.wikipedia.org/wiki/Sitterviadukt_(SBB)",
+  "https://de.wikipedia.org/wiki/St._Galler_Br%C3%BCckenweg",
+  "https://commons.wikimedia.org/wiki/File:SBB_Sitterviadukt_%C3%BCber_die_Sitter,_St._Gallen_SG_20190720-jag9889.jpg",
+  "https://commons.wikimedia.org/wiki/File:Sankt_Gallen-SBB_Sitterviadukt-01ASD.jpg",
+  "https://commons.wikimedia.org/wiki/File:Sankt_Gallen-SBB_Sitterviadukt-02ESD.jpg",
+  "swissSURFACE3D 2024",
+  "swissTLM3D (axe)"
+ ],
+ "photos_vues": 4,
+ "confiance": "bonne",
+ "photo": {
+  "fichier": "asd01.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Sankt_Gallen-SBB_Sitterviadukt-01ASD.jpg",
+  "auteur": "Asurnipal",
+  "licence": "CC BY-SA 4.0"
+ },
+ "notes": "Viaduc ferroviaire SBB (1925, béton coulé parementé en nagelfluh) : cinq voûtes de 30 m entre piles espacées de 34,1 m et une voûte de 17 m côté est, noyée dans le talus (remblai déclaré 0-14 et 184-209,6) ; naissances à 629,8 (laser) et clés estimées sur photo (plein cintre), piles à fruit continu au lieu du léger évasement vu sur photo sous les naissances, semelles 12 x 16 m selon la littérature. Le trottoir en encorbellement et les consoles de la corniche sont approchés par un profil de tablier (épaisseur 2,3 m, réduite d'un rien pour éviter un faux conflit de terrain au bout ouest) ; le schéma ne sait pas faire la rangée de consoles ni le garde-corps maillé. Calage photo asd01 (de la berge, 11 px de résidu moyen, 15 px au plus) : voûtes 2 et 3 et piles 2 à 4 concordent, voûtes ouest cachées par les arbres."
+}

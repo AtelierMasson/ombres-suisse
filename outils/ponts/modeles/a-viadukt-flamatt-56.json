@@ -1,0 +1,194 @@
+{
+ "nom": "Viadukt Flamatt (A12), W\u00fcnnewil-Flamatt",
+ "axe": [
+  [
+   2590012.9,
+   1193111.7,
+   569.81
+  ],
+  [
+   2590112.84,
+   1193115.26,
+   566.01
+  ],
+  [
+   2590212.77,
+   1193118.82,
+   562.01
+  ],
+  [
+   2590312.71,
+   1193122.39,
+   558.11
+  ],
+  [
+   2590412.65,
+   1193125.95,
+   554.21
+  ],
+  [
+   2590512.58,
+   1193129.51,
+   550.21
+  ],
+  [
+   2590612.52,
+   1193133.07,
+   546.51
+  ],
+  [
+   2590717.1,
+   1193136.8,
+   543.41
+  ]
+ ],
+ "largeur": 20.4,
+ "largeur_dessous": 13.0,
+ "epaisseur": 1.8,
+ "epaisseur_appuis": 2.6,
+ "gousset": 12,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 65,
+   "forme": "double",
+   "long": 2.6,
+   "larg": 11.6,
+   "larg_colonne": 2.6,
+   "z_bas": 541.8
+  },
+  {
+   "type": "pile",
+   "s": 130,
+   "forme": "double",
+   "long": 2.6,
+   "larg": 11.6,
+   "larg_colonne": 2.6,
+   "z_bas": 530.5
+  },
+  {
+   "type": "pile",
+   "s": 200,
+   "forme": "double",
+   "long": 2.6,
+   "larg": 11.6,
+   "larg_colonne": 2.6,
+   "z_bas": 534.0
+  },
+  {
+   "type": "pile",
+   "s": 255,
+   "forme": "double",
+   "long": 2.6,
+   "larg": 11.6,
+   "larg_colonne": 2.6,
+   "z_bas": 536.5
+  },
+  {
+   "type": "pile",
+   "s": 310,
+   "forme": "double",
+   "long": 2.6,
+   "larg": 11.6,
+   "larg_colonne": 2.6,
+   "z_bas": 536.0
+  },
+  {
+   "type": "pile",
+   "s": 362,
+   "forme": "double",
+   "long": 2.6,
+   "larg": 11.6,
+   "larg_colonne": 2.6,
+   "z_bas": 533.4
+  },
+  {
+   "type": "pile",
+   "s": 413,
+   "forme": "double",
+   "long": 2.6,
+   "larg": 11.6,
+   "larg_colonne": 2.6,
+   "z_bas": 533.6
+  },
+  {
+   "type": "pile",
+   "s": 465,
+   "forme": "double",
+   "long": 2.6,
+   "larg": 11.6,
+   "larg_colonne": 2.6,
+   "z_bas": 533.9
+  },
+  {
+   "type": "pile",
+   "s": 517,
+   "forme": "double",
+   "long": 2.6,
+   "larg": 11.6,
+   "larg_colonne": 2.6,
+   "z_bas": 534.2
+  },
+  {
+   "type": "pile",
+   "s": 569,
+   "forme": "double",
+   "long": 2.6,
+   "larg": 11.6,
+   "larg_colonne": 2.6,
+   "z_bas": 533.7
+  },
+  {
+   "type": "pile",
+   "s": 621,
+   "forme": "double",
+   "long": 2.6,
+   "larg": 11.6,
+   "larg_colonne": 2.6,
+   "z_bas": 534.2
+  },
+  {
+   "type": "pile",
+   "s": 673,
+   "forme": "double",
+   "long": 2.6,
+   "larg": 11.6,
+   "larg_colonne": 2.6,
+   "z_bas": 534.9
+  },
+  {
+   "type": "culee",
+   "s": 704.6
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "remblai": [
+  [
+   0,
+   12
+  ],
+  [
+   692,
+   704.6
+  ]
+ ],
+ "sources": [
+  "swissSURFACE3D 2024 (nuage)",
+  "swissTLM3D",
+  "swissIMAGE (orthophoto)",
+  "Mapillary chrisbeddow 292748019968894, Yha1 1159213365639817, Yha1 1086634845717926, chuck 136537945079171, trac71 1160108884414427 et 917405092155349 (CC BY-SA 4.0)"
+ ],
+ "photos_vues": 6,
+ "confiance": "faible",
+ "notes": "Une seule dalle jointive de 20,4 m (deux chauss\u00e9es s\u00e9par\u00e9es par une glissi\u00e8re au m\u00eame niveau, un joint de dilatation en travers) ; le tablier au laser est exact, l'axe est rectiligne. Les piles sont cach\u00e9es sous le tablier : positions (65, 130, 200 vues au laser, puis pas de 52 m suppos\u00e9) et gabarit (deux colonnes) d'apr\u00e8s les vues de dessous, non v\u00e9rifi\u00e9s ; colonnes rondes dessin\u00e9es carr\u00e9es ; nervures sous le tablier et \u00e9crans antibruit non mod\u00e9lis\u00e9s. Pas de calage photo : seules des vues de route prises au niveau du sol ou sur la chauss\u00e9e existent (pas de vue d'ensemble) ; les vues ont \u00e9t\u00e9 compar\u00e9es \u00e0 l'\u0153il seulement."
+}

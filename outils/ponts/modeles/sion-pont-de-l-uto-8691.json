@@ -1,0 +1,22 @@
+{
+ "nom": "Pont de l'Uto, Sion (route sur le Rhône)",
+ "axe": [[2598719.7,1121055.1,502.99],[2598710.3,1121067.2,503.26],[2598701.0,1121079.0,503.42],[2598691.8,1121090.8,503.45],[2598682.6,1121102.6,503.43],[2598673.3,1121114.4,503.31],[2598663.4,1121127.2,503.03]],
+ "largeur": 12.9,
+ "largeur_dessous": 11.5,
+ "epaisseur": 1.3,
+ "epaisseur_appuis": 1.8,
+ "gousset": 8,
+ "garde_corps": {"hauteur": 1.1, "plein": false, "pas": 2.5, "epaisseur": 0.15},
+ "appuis": [
+  {"type": "culee", "s": 0},
+  {"type": "pile", "s": 19.0, "forme": "rect", "long": 1.4, "larg": 11.0, "z_bas": 495.4},
+  {"type": "pile", "s": 66.0, "forme": "rect", "long": 1.4, "larg": 11.0, "z_bas": 495.4},
+  {"type": "culee", "s": 91.5}
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": ["swissSURFACE3D 2022 (tuile 2598-1121, LAS)", "Mapillary keigan (CC BY-SA 4.0) : 2721601714798254, 3956493764387125, 290895879359351"],
+ "photos_vues": 7,
+ "confiance": "faible",
+ "notes": "Non verifie par verifier_nuage.mjs (pas de COPC, LAS 2022 lu a la main) : tablier mesure au nuage (503.0 aux bouts, 503.45 au milieu, largeur -5.7/+7.2 m autour de l'axe TLM, trottoir/bordure cote droit). Appuis (deux piles-voiles aux pieds de berge, s=19 et 66) deduits de la geometrie (berge a 498.6, eau 495.9, tablier 4.5 m au-dessus des berges) et non vus ni sur photo ni au laser ; epaisseur du tablier supposee."
+}

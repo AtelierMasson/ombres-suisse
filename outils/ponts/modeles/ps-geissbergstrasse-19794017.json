@@ -1,0 +1,83 @@
+{
+ "nom": "Geissbergstrasse, passage sup\u00e9rieur sur l'A1 (Gossau SG)",
+ "axe": [
+  [
+   2741404.5,
+   1253037.1,
+   644.7
+  ],
+  [
+   2741417.8,
+   1252991.0,
+   647.1
+  ],
+  [
+   2741432.2,
+   1252941.0,
+   649.2
+  ],
+  [
+   2741444.4,
+   1252898.7,
+   650.6
+  ],
+  [
+   2741458.3,
+   1252850.7,
+   651.5
+  ]
+ ],
+ "largeur": 10.8,
+ "largeur_dessous": 9.6,
+ "epaisseur": 1.0,
+ "epaisseur_appuis": 1.3,
+ "gousset": 6,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 16,
+   "forme": "rond",
+   "long": 0.9,
+   "larg": 0.9,
+   "z_bas": 639.2
+  },
+  {
+   "type": "pile",
+   "s": 58,
+   "forme": "rond",
+   "long": 0.9,
+   "larg": 0.9,
+   "z_bas": 640.0
+  },
+  {
+   "type": "pile",
+   "s": 82,
+   "forme": "rond",
+   "long": 0.9,
+   "larg": 0.9,
+   "z_bas": 638.5
+  },
+  {
+   "type": "culee",
+   "s": 194
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "Relev\u00e9 swissSURFACE3D 2024",
+  "Mapillary mcliquid 675965024452195 et himmelbuerger 2936597966576217 (CC BY-SA 4.0 / Mapillary)"
+ ],
+ "photos_vues": 2,
+ "confiance": "moyenne",
+ "notes": "Passage sup\u00e9rieur droit de 194 m sur l'A1 et ses bretelles ; dalle ~1 m, garde-corps ajour\u00e9, appuis : 3 colonnes rondes dans les \u00eelots (positions d'apr\u00e8s le nuage et deux photos depuis l'A1). Grandes port\u00e9es (>30 m) vues sur photo ; murs de sout\u00e8nement des cul\u00e9es et talus non mod\u00e9lis\u00e9s. Conflit de terrain r\u00e9siduel \u00e0 s=4 (sol \u00e0 -0,1 m du dessous, cul\u00e9e)."
+}

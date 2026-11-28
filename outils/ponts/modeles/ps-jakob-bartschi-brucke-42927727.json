@@ -1,0 +1,127 @@
+{
+ "nom": "Pont de la Jakob-Bärtschi-Brücke (passage supérieur de l'autoroute)",
+ "axe": [
+  [
+   2602194,
+   1208536.5,
+   522.96
+  ],
+  [
+   2602218.2,
+   1208530.1,
+   524.06
+  ],
+  [
+   2602247.1,
+   1208524.4,
+   526.16
+  ],
+  [
+   2602265.6,
+   1208523.3,
+   528.01
+  ],
+  [
+   2602284.1,
+   1208536.1,
+   529.26
+  ],
+  [
+   2602300.2,
+   1208560.8,
+   531.11
+  ],
+  [
+   2602318.8,
+   1208594.6,
+   533.21
+  ],
+  [
+   2602332,
+   1208611,
+   533.86
+  ]
+ ],
+ "largeur": 9.0,
+ "epaisseur": 1.2,
+ "epaisseur_appuis": 1.5,
+ "gousset": 4,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.2
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 30,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 6,
+   "z_bas": 522.2
+  },
+  {
+   "type": "pile",
+   "s": 55,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 6,
+   "z_bas": 522.3
+  },
+  {
+   "type": "pile",
+   "s": 80,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 6,
+   "z_bas": 522.3
+  },
+  {
+   "type": "pile",
+   "s": 105,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 6,
+   "z_bas": 522.3
+  },
+  {
+   "type": "pile",
+   "s": 130,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 6,
+   "z_bas": 523
+  },
+  {
+   "type": "pile",
+   "s": 155,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 6,
+   "z_bas": 524
+  },
+  {
+   "type": "culee",
+   "s": 181
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "Relevé swissSURFACE3D 2023",
+  "Mapillary trac71 646472503111847 (CC BY-SA 4.0)"
+ ],
+ "photos_vues": 2,
+ "confiance": "moyenne",
+ "notes": "Rampe courbe de 9 m sur dalle mince à parapet plein clair, culées basses et piles massives rectangulaires ; la place des piles est supposée (peu vue du laser, une seule photo montre le bout ouest). Le sol touche le dessous du tablier côté ouest (remblai déclaré).",
+ "remblai": [
+  [
+   0,
+   24
+  ]
+ ]
+}

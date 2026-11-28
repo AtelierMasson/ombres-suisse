@@ -1,0 +1,145 @@
+{
+ "nom": "Ponts de la Paudèze (A9), chaussée est",
+ "axe": [
+  [
+   2541894.63,
+   1152822.27,
+   647.54
+  ],
+  [
+   2541869.93,
+   1152903.27,
+   650.53
+  ],
+  [
+   2541849.23,
+   1152971.16,
+   653.07
+  ],
+  [
+   2541843.23,
+   1152991.26,
+   653.81
+  ],
+  [
+   2541832.83,
+   1153025.37,
+   655.11
+  ],
+  [
+   2541822.13,
+   1153060.56,
+   656.4
+  ],
+  [
+   2541806.73,
+   1153111.37,
+   658.31
+  ],
+  [
+   2541794.63,
+   1153150.67,
+   659.77
+  ],
+  [
+   2541780.43,
+   1153197.46,
+   661.61
+  ],
+  [
+   2541771.33,
+   1153227.65,
+   662.34
+  ]
+ ],
+ "largeur": 14,
+ "epaisseur": 2.8,
+ "epaisseur_appuis": 6.0,
+ "gousset": 35,
+ "largeur_dessous": 7.0,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 50,
+   "forme": "rect",
+   "long": 4.0,
+   "larg": 7.2,
+   "fruit": 0.02
+  },
+  {
+   "type": "pile",
+   "s": 150,
+   "forme": "rect",
+   "long": 4.0,
+   "larg": 7.2,
+   "fruit": 0.02
+  },
+  {
+   "type": "pile",
+   "s": 250,
+   "forme": "rect",
+   "long": 4.0,
+   "larg": 7.2,
+   "fruit": 0.02
+  },
+  {
+   "type": "pile",
+   "s": 350,
+   "forme": "rect",
+   "long": 4.0,
+   "larg": 7.2,
+   "fruit": 0.02
+  },
+  {
+   "type": "culee",
+   "s": 423.7
+  }
+ ],
+ "materiau": "beton",
+ "sources": [
+  "https://www.espazium.ch/fr/actualites/assainissement-des-ponts-autoroutiers-sur-la-paudeze-une-reflexion-globale",
+  "https://a9-pontpaudeze.ofrou.ch/horaire.html",
+  "https://www.mapillary.com/app/?pKey=2205653856859702",
+  "https://www.mapillary.com/app/?pKey=1665036527898024",
+  "https://www.mapillary.com/app/?pKey=351252574613912"
+ ],
+ "photos_vues": 7,
+ "confiance": "faible",
+ "notes": "Tablier est : 14 m, parapet plein ; écran antibruit transparent de 3 m sur le bord est (nuage et photo Mapillary). Piles à 50, 150, 250, 350 m (la 1re non vue au laser) ; formes de piles et caisson estimés. Sol de la maquette dépasse le dessous du tablier aux culées (s 4..8 ouest ; 4..12 et 404..418 est) : remblais réels, déclarés en remblai.",
+ "remblai": [
+  [
+   0,
+   14
+  ],
+  [
+   402,
+   423.7
+  ]
+ ],
+ "parois": [
+  {
+   "s0": 40.0,
+   "s1": 423.0,
+   "o0": -7.7,
+   "o1": -7.7,
+   "h": 3.0,
+   "ep": 0.05,
+   "materiau": "verre"
+  }
+ ],
+ "photo": {
+  "fichier": "mly_1665036527898024.jpg",
+  "page": "https://www.mapillary.com/app/?pKey=1665036527898024",
+  "auteur": "bct",
+  "licence": "CC BY-SA 4.0 (Mapillary)"
+ }
+}

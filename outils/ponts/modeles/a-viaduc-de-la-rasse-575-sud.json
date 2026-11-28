@@ -1,0 +1,99 @@
+{
+ "nom": "Viaduc de la Rasse (chaussée sud)",
+ "axe": [
+  [
+   2572691.9,
+   1251005.1,
+   441.58
+  ],
+  [
+   2572743.3,
+   1251015.9,
+   441.28
+  ],
+  [
+   2572794.8,
+   1251026.6,
+   441.08
+  ],
+  [
+   2572846.2,
+   1251037.4,
+   440.78
+  ],
+  [
+   2572897.6,
+   1251048.2,
+   440.48
+  ]
+ ],
+ "largeur": 11.0,
+ "epaisseur": 1.0,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 35.0,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 8.0,
+   "z_bas": 433.2
+  },
+  {
+   "type": "pile",
+   "s": 70.0,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 8.0,
+   "z_bas": 433.5
+  },
+  {
+   "type": "pile",
+   "s": 105.0,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 8.0,
+   "z_bas": 432.3
+  },
+  {
+   "type": "pile",
+   "s": 140.0,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 8.0,
+   "z_bas": 432.7
+  },
+  {
+   "type": "pile",
+   "s": 175.0,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 8.0,
+   "z_bas": 434.8
+  },
+  {
+   "type": "culee",
+   "s": 210.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2022 (nuage)",
+  "swissTLM3D",
+  "Mapillary alexanderar (CC BY-SA 4.0) 463957558008085",
+  "swissimage"
+ ],
+ "photos_vues": 2,
+ "confiance": "faible",
+ "notes": "Piles non visibles au laser ni sur photo : positions et gabarit supposés (portées ~35 m), non vérifié. Photo depuis la chaussée (parapets béton, écran de verre côté sud, portail de tunnel à l'est) + orthophoto.",
+ "largeur_dessous": 7.0
+}

@@ -1,0 +1,91 @@
+{
+ "nom": "Freudenbergplatzbrücke, Bern",
+ "axe": [
+  [
+   2602557.2,
+   1199398.4,
+   563.72
+  ],
+  [
+   2602557.1,
+   1199372.5,
+   563.55
+  ],
+  [
+   2602560.6,
+   1199347.3,
+   563.43
+  ],
+  [
+   2602565.8,
+   1199322.4,
+   563.2
+  ],
+  [
+   2602572.2,
+   1199297.7,
+   562.79
+  ],
+  [
+   2602578.3,
+   1199273.0,
+   562.21
+  ],
+  [
+   2602584.0,
+   1199248.2,
+   561.58
+  ]
+ ],
+ "largeur": 25,
+ "epaisseur": 1.4,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 40.0,
+   "forme": "rect",
+   "long": 3.0,
+   "larg": 7.0,
+   "z_bas": 555.6
+  },
+  {
+   "type": "pile",
+   "s": 68.0,
+   "forme": "rect",
+   "long": 3.0,
+   "larg": 7.0,
+   "z_bas": 557.0
+  },
+  {
+   "type": "pile",
+   "s": 130.0,
+   "forme": "rect",
+   "long": 3.0,
+   "larg": 7.0,
+   "z_bas": 557.3
+  },
+  {
+   "type": "culee",
+   "s": 152.4
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2023 (nuage)",
+  "swissTLM3D",
+  "Mapillary habi 406303697378061, sp8962de 148598680493825, SIGINAT0R 1120427180958292 (CC BY-SA 4.0)"
+ ],
+ "photos_vues": 3,
+ "confiance": "faible",
+ "notes": "Viaduc urbain (tablier béton) sur la place, deux chaussées jointives en un seul tablier. Piles (3, supposées d'après quelques points sous le tablier et les photos de dessous) et passerelle piétonne voisine non modélisées avec précision ; bâtiments et magasins sous le tablier peuvent donner des conflits de sol."
+}

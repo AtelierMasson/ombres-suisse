@@ -1,0 +1,71 @@
+{
+ "nom": "Passage supérieur de la jonction autoroutière (A12), sans nom",
+ "axe": [
+  [
+   2559408.5,
+   1186422.4,
+   453.5
+  ],
+  [
+   2559487.3,
+   1186410.7,
+   454.2
+  ],
+  [
+   2559565.8,
+   1186399.1,
+   453.6
+  ],
+  [
+   2559642.9,
+   1186387.6,
+   452.6
+  ]
+ ],
+ "largeur": 16.5,
+ "epaisseur": 1.3,
+ "epaisseur_appuis": 1.8,
+ "gousset": 6,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 122,
+   "forme": "double",
+   "long": 1.6,
+   "larg": 12,
+   "larg_colonne": 1.6,
+   "z_bas": 446.4
+  },
+  {
+   "type": "pile",
+   "s": 160,
+   "forme": "double",
+   "long": 1.6,
+   "larg": 12,
+   "larg_colonne": 1.6,
+   "z_bas": 446.4
+  },
+  {
+   "type": "culee",
+   "s": 237
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "Relevé swissSURFACE3D 2024",
+  "Mapillary it_s_so_funny 902363697163289; fcignat 10024440534240829 (CC BY-SA 4.0)"
+ ],
+ "photos_vues": 2,
+ "confiance": "moyenne",
+ "notes": "Dalle béton à garde-corps ajouré sur rangées de colonnes rondes au-dessus de l'autoroute (photos de deux côtés) ; le nombre de colonnes par rangée (3 à 4 sur photo) et d'éventuelles piles hors chaussée ne sont pas vérifiés. L'élargissement vers l'est (bretelle) n'est pas modélisé : 16,5 m partout."
+}

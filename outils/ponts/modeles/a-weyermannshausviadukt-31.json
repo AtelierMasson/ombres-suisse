@@ -1,0 +1,575 @@
+{
+"nom": "Weyermannshausviadukt (A1, Berne)",
+"axe": [
+[
+2597570.3,
+1199158,
+565.83
+],
+[
+2597568.6,
+1199330,
+564.36
+],
+[
+2597566.9,
+1199502,
+562.88
+],
+[
+2597565.2,
+1199674,
+561.4
+],
+[
+2597563.5,
+1199846,
+559.92
+]
+],
+"largeur": 24.9,
+"largeur_dessous": 21.0,
+"epaisseur": 1.5,
+"bords": [
+[
+0,
+-19.4,
+19.2
+],
+[
+44,
+-16.3,
+17.6
+],
+[
+84,
+-13.7,
+15.0
+],
+[
+104,
+-12.7,
+14.0
+],
+[
+129,
+-12.5,
+12.5
+],
+[
+624,
+-12.5,
+12.4
+],
+[
+644,
+-12.9,
+14.0
+],
+[
+664,
+-14.3,
+16.7
+],
+[
+684,
+-17.5,
+22.3
+],
+[
+688,
+-17.9,
+23.0
+]
+],
+"garde_corps": {
+"hauteur": 1.0,
+"plein": true,
+"epaisseur": 0.4
+},
+"appuis": [
+{
+"type": "culee",
+"s": 0
+},
+{
+"type": "pile",
+"s": 11.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 11.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 33.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 33.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 55.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 55.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 77.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 77.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 99.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 99.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 121.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 121.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 143.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 143.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 165.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 165.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 187.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 187.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 209.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 209.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 231.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 231.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 253.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 253.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 275.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 275.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 297.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 297.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 319.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 319.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 341.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 341.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 363.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 363.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 385.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 385.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 407.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 407.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 429.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 429.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 451.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 451.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 473.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 473.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 495.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 495.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 517.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 517.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 539.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 539.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 561.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 561.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 583.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 583.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 605.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 605.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 627.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 627.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 649.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 649.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "pile",
+"s": 671.0,
+"forme": "double",
+"long": 1.6,
+"larg": 15.0,
+"larg_colonne": 1.6
+},
+{
+"type": "pile",
+"s": 671.0,
+"forme": "rond",
+"long": 1.6,
+"larg": 1.6
+},
+{
+"type": "culee",
+"s": 688.0
+}
+],
+"arches": [],
+"pylones": [],
+"sources": [
+"swissTLM3D (axes tlm/31, tlm/32 quasi confondus)",
+"swissSURFACE3D 2023 (tuile 2597-1199, LAS)",
+"Commons: 3398595145 et ghormon-a12 (dessous), Mapillary 1530659021582609 (chaussee), 2976514946036384 et 1118875041964950 (CC BY-SA 4.0)"
+],
+"photos_vues": 5,
+"confiance": "faible",
+"notes": "Les deux axes TLM sont confondus (<2 m) et le nuage montre une dalle continue de 24,6 m : un seul tablier, le joint central n'est pas visible. Piles non vues par le laser : colonnes rondes (3 par file, pas de 22 m) estimées sur 2 photos de dessous, positions et epaisseur du tablier (1,5 m) incertaines ; elargissements des bretelles en bords variables."
+}

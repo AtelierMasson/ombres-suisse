@@ -1,0 +1,138 @@
+{
+ "nom": "Bretelle sur la galerie (A2)",
+ "axe": [
+  [
+   2666117.03,
+   1203683.89,
+   472.92
+  ],
+  [
+   2666118.64,
+   1203692.86,
+   472.7
+  ],
+  [
+   2666121.23,
+   1203705.94,
+   472.37
+  ],
+  [
+   2666124.63,
+   1203720.21,
+   472.01
+  ],
+  [
+   2666137.53,
+   1203768.51,
+   470.79
+  ],
+  [
+   2666139.94,
+   1203778.75,
+   470.53
+  ],
+  [
+   2666141.64,
+   1203788.88,
+   470.28
+  ],
+  [
+   2666143.44,
+   1203800.19,
+   470.0
+  ],
+  [
+   2666144.65,
+   1203810.12,
+   469.75
+  ],
+  [
+   2666145.65,
+   1203821.14,
+   469.48
+  ],
+  [
+   2666146.25,
+   1203831.67,
+   469.23
+  ],
+  [
+   2666146.35,
+   1203841.69,
+   468.98
+  ]
+ ],
+ "largeur": 8,
+ "epaisseur": 1.5,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 14,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 5.0,
+   "z_bas": 455.0
+  },
+  {
+   "type": "pile",
+   "s": 28,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 5.0,
+   "z_bas": 457.0
+  },
+  {
+   "type": "pile",
+   "s": 98,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 5.0,
+   "z_bas": 460.8
+  },
+  {
+   "type": "pile",
+   "s": 120,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 5.0,
+   "z_bas": 462.5
+  },
+  {
+   "type": "pile",
+   "s": 142,
+   "forme": "rect",
+   "long": 1.8,
+   "larg": 5.0,
+   "z_bas": 464.3
+  },
+  {
+   "type": "culee",
+   "s": 160.9
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "Mapillary canadarunner (2019), alediwi (2022)",
+  "swissIMAGE",
+  "nuage swissSURFACE3D 2020 (dalle LAS)"
+ ],
+ "photos_vues": 2,
+ "confiance": "faible",
+ "notes": "Bretelle (viaduc d'environ 8 m de large) qui franchit la galerie couverte de l'A2 : tablier cal\u00e9 sur le nuage 2020 (pas de COPC), elle repose sur la cr\u00eate de la galerie entre s=40 et s=92 (remblai d\u00e9clar\u00e9) ; positions des piles estim\u00e9es (aucune vue du dessous ni photo d'ensemble, le laser ne les voit pas), parapets b\u00e9ton et \u00e9crans antibruit non mod\u00e9lis\u00e9s (parapet plein seulement).",
+ "remblai": [
+  [
+   38,
+   92
+  ]
+ ]
+}

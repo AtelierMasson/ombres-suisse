@@ -1,0 +1,77 @@
+{
+ "nom": "Passage supérieur de la route de Saint-Julien (jonction autoroutière de Perly), Genève",
+ "axe": [
+  [
+   2496670.1,
+   1113045.3,
+   421.4
+  ],
+  [
+   2496710.2,
+   1113118.1,
+   421.2
+  ],
+  [
+   2496750.2,
+   1113190.9,
+   421.0
+  ]
+ ],
+ "largeur": 24.3,
+ "largeur_dessous": 21.0,
+ "epaisseur": 1.1,
+ "epaisseur_appuis": 1.6,
+ "gousset": 8,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 16,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 18,
+   "larg_colonne": 1.4,
+   "z_bas": 413.3
+  },
+  {
+   "type": "pile",
+   "s": 60,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 18,
+   "larg_colonne": 1.4,
+   "z_bas": 410.3
+  },
+  {
+   "type": "culee",
+   "s": 166.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "Relevé swissSURFACE3D 2025",
+  "Mapillary thepriben 300677394848979, fcignat 2210087872744252 (CC BY-SA 4.0)"
+ ],
+ "photos_vues": 2,
+ "confiance": "moyenne",
+ "notes": "Deux chaussées jointives de 24 m (un seul tablier), dalle épaisse sur paires de colonnes rondes (vues Mapillary depuis l'autoroute dessous, deux côtés). Colonnes de la rampe côté début devinées ; courbure en plan et dévers non modélisés (écart médian nuage ~0,3 m).",
+ "remblai": [
+  [
+   0,
+   9
+  ],
+  [
+   148,
+   166.2
+  ]
+ ]
+}

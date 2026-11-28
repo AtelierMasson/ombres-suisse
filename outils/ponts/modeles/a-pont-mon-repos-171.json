@@ -1,0 +1,221 @@
+{
+ "nom": "Pont Mon Repos, A5 La Neuveville (viaduc \u00e0 une dalle, 2 chauss\u00e9es)",
+ "axe": [
+  [
+   2574160.8,
+   1212584.8,
+   434.67
+  ],
+  [
+   2574255.8,
+   1212629.0,
+   439.32
+  ],
+  [
+   2574308.7,
+   1212657.3,
+   441.46
+  ],
+  [
+   2574349.7,
+   1212685.9,
+   442.4
+  ],
+  [
+   2574418.7,
+   1212743.7,
+   442.74
+  ],
+  [
+   2574450.4,
+   1212768.1,
+   442.45
+  ],
+  [
+   2574501.6,
+   1212799.4,
+   441.22
+  ],
+  [
+   2574541.3,
+   1212818.0,
+   439.52
+  ]
+ ],
+ "largeur": 13.9,
+ "largeur_dessous": 9.5,
+ "epaisseur": 1.7,
+ "epaisseur_appuis": 2.6,
+ "gousset": 6,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "epaisseur": 0.15,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 39.8,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 431.4
+  },
+  {
+   "type": "pile",
+   "s": 67.1,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 431.1
+  },
+  {
+   "type": "pile",
+   "s": 94.4,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 431.3
+  },
+  {
+   "type": "pile",
+   "s": 121.7,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 430.9
+  },
+  {
+   "type": "pile",
+   "s": 149.0,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 431.8
+  },
+  {
+   "type": "pile",
+   "s": 176.3,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 432.5
+  },
+  {
+   "type": "pile",
+   "s": 203.6,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 432.3
+  },
+  {
+   "type": "pile",
+   "s": 230.9,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 432.4
+  },
+  {
+   "type": "pile",
+   "s": 258.2,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 432.4
+  },
+  {
+   "type": "pile",
+   "s": 285.5,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 432.8
+  },
+  {
+   "type": "pile",
+   "s": 312.8,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 434.1
+  },
+  {
+   "type": "pile",
+   "s": 340.1,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 435.6
+  },
+  {
+   "type": "pile",
+   "s": 367.4,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 435.2
+  },
+  {
+   "type": "pile",
+   "s": 394.7,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 434.5
+  },
+  {
+   "type": "pile",
+   "s": 422.0,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 7.4,
+   "larg_colonne": 1.4,
+   "z_bas": 433.4
+  },
+  {
+   "type": "culee",
+   "s": 448.6
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "Mapillary (toaoa 2019, bodo3 2022, fcignat 2025) CC BY-SA 4.0",
+  "https://ingenta.ch/ingenieurbau/neubau-laermschutzwaende-n5-neuenburg-biel/",
+  "swissSURFACE3D 2023 (tuile 2574-1212)"
+ ],
+ "photos_vues": 6,
+ "confiance": "moyenne",
+ "notes": "Axe et altitudes refaits sur le nuage (une seule dalle de 14,2 m, deux chauss\u00e9es s\u00e9par\u00e9es par une glissi\u00e8re, pas de vide : un seul fichier). Piles (paires de colonnes rondes de 1,4 m, port\u00e9e ~27 m) plac\u00e9es d'apr\u00e8s des photos Mapillary sous l'ouvrage ; le laser ne les voit pas : positions \u00e0 +-4 m.",
+ "remblai": [
+  [
+   0,
+   12
+  ],
+  [
+   430,
+   448.6
+  ]
+ ]
+}

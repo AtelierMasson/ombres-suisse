@@ -1,0 +1,1591 @@
+{
+ "nom": "Viaduc de la Plaine du Rhône (chaussée Valais)",
+ "axe": [
+  [
+   2560630.66,
+   1137227.82,
+   380.0
+  ],
+  [
+   2560638.09,
+   1137236.06,
+   380.37
+  ],
+  [
+   2560648.43,
+   1137247.25,
+   380.76
+  ],
+  [
+   2560658.77,
+   1137258.12,
+   381.12
+  ],
+  [
+   2560669.53,
+   1137268.86,
+   381.48
+  ],
+  [
+   2560680.25,
+   1137279.52,
+   381.81
+  ],
+  [
+   2560690.99,
+   1137289.99,
+   382.12
+  ],
+  [
+   2560702.08,
+   1137300.4,
+   382.44
+  ],
+  [
+   2560713.11,
+   1137310.55,
+   382.73
+  ],
+  [
+   2560724.4,
+   1137320.66,
+   383.03
+  ],
+  [
+   2560735.77,
+   1137330.74,
+   383.31
+  ],
+  [
+   2560747.21,
+   1137340.43,
+   383.56
+  ],
+  [
+   2560758.89,
+   1137350.11,
+   383.81
+  ],
+  [
+   2560770.59,
+   1137359.59,
+   384.03
+  ],
+  [
+   2560782.31,
+   1137368.95,
+   384.26
+  ],
+  [
+   2560794.35,
+   1137378.26,
+   384.48
+  ],
+  [
+   2560806.33,
+   1137387.29,
+   384.67
+  ],
+  [
+   2560818.55,
+   1137396.21,
+   384.83
+  ],
+  [
+   2560830.86,
+   1137405.06,
+   385.01
+  ],
+  [
+   2560843.16,
+   1137413.65,
+   385.18
+  ],
+  [
+   2560855.62,
+   1137422.16,
+   385.36
+  ],
+  [
+   2560868.31,
+   1137430.47,
+   385.54
+  ],
+  [
+   2560880.91,
+   1137438.64,
+   385.71
+  ],
+  [
+   2560893.62,
+   1137446.78,
+   385.88
+  ],
+  [
+   2560906.38,
+   1137454.83,
+   386.04
+  ],
+  [
+   2560919.15,
+   1137462.7,
+   386.16
+  ],
+  [
+   2560932.06,
+   1137470.51,
+   386.26
+  ],
+  [
+   2560944.92,
+   1137478.24,
+   386.37
+  ],
+  [
+   2560957.77,
+   1137485.98,
+   386.5
+  ],
+  [
+   2560970.72,
+   1137493.66,
+   386.64
+  ],
+  [
+   2560983.68,
+   1137501.31,
+   386.74
+  ],
+  [
+   2560996.64,
+   1137508.88,
+   386.89
+  ],
+  [
+   2561009.56,
+   1137516.42,
+   387.01
+  ],
+  [
+   2561022.5,
+   1137524.01,
+   387.13
+  ],
+  [
+   2561035.33,
+   1137531.67,
+   387.25
+  ],
+  [
+   2561048.31,
+   1137539.31,
+   387.38
+  ],
+  [
+   2561061.25,
+   1137546.88,
+   387.51
+  ],
+  [
+   2561073.93,
+   1137554.61,
+   387.63
+  ],
+  [
+   2561086.69,
+   1137562.46,
+   387.78
+  ],
+  [
+   2561099.46,
+   1137570.33,
+   387.92
+  ],
+  [
+   2561112.15,
+   1137578.21,
+   388.09
+  ],
+  [
+   2561124.82,
+   1137586.22,
+   388.22
+  ],
+  [
+   2561137.31,
+   1137594.32,
+   388.37
+  ],
+  [
+   2561149.73,
+   1137602.45,
+   388.51
+  ],
+  [
+   2561162.05,
+   1137610.83,
+   388.64
+  ],
+  [
+   2561174.27,
+   1137619.34,
+   388.78
+  ],
+  [
+   2561186.5,
+   1137628.03,
+   388.91
+  ],
+  [
+   2561198.6,
+   1137636.77,
+   389.07
+  ],
+  [
+   2561210.39,
+   1137645.71,
+   389.25
+  ],
+  [
+   2561222.12,
+   1137654.88,
+   389.38
+  ],
+  [
+   2561233.76,
+   1137664.05,
+   389.53
+  ],
+  [
+   2561245.32,
+   1137673.61,
+   389.65
+  ],
+  [
+   2561256.5,
+   1137683.28,
+   389.82
+  ],
+  [
+   2561267.59,
+   1137693.16,
+   389.98
+  ],
+  [
+   2561278.5,
+   1137703.2,
+   390.11
+  ],
+  [
+   2561289.16,
+   1137713.35,
+   390.28
+  ],
+  [
+   2561299.68,
+   1137724.04,
+   390.38
+  ],
+  [
+   2561309.86,
+   1137734.61,
+   390.54
+  ],
+  [
+   2561319.99,
+   1137745.68,
+   390.65
+  ],
+  [
+   2561329.6,
+   1137756.86,
+   390.78
+  ],
+  [
+   2561339.04,
+   1137768.26,
+   390.96
+  ],
+  [
+   2561348.09,
+   1137779.73,
+   391.13
+  ],
+  [
+   2561356.95,
+   1137791.63,
+   391.25
+  ],
+  [
+   2561365.69,
+   1137803.83,
+   391.42
+  ],
+  [
+   2561373.76,
+   1137816.02,
+   391.52
+  ],
+  [
+   2561381.72,
+   1137828.5,
+   391.69
+  ],
+  [
+   2561389.34,
+   1137841.11,
+   391.85
+  ],
+  [
+   2561396.57,
+   1137853.97,
+   392.01
+  ],
+  [
+   2561403.66,
+   1137867.21,
+   392.17
+  ],
+  [
+   2561410.26,
+   1137880.26,
+   392.36
+  ],
+  [
+   2561416.61,
+   1137893.68,
+   392.55
+  ],
+  [
+   2561422.65,
+   1137907.09,
+   392.71
+  ],
+  [
+   2561428.27,
+   1137920.83,
+   392.89
+  ],
+  [
+   2561433.69,
+   1137934.82,
+   393.11
+  ],
+  [
+   2561438.62,
+   1137948.69,
+   393.34
+  ],
+  [
+   2561443.19,
+   1137962.71,
+   393.58
+  ],
+  [
+   2561447.35,
+   1137976.86,
+   393.87
+  ],
+  [
+   2561453.2,
+   1137998.53,
+   394.46
+  ]
+ ],
+ "largeur": 13.5,
+ "largeur_dessous": 9.0,
+ "epaisseur": 1.9,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": false,
+  "pas": 2.0,
+  "epaisseur": 0.15
+ },
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -6.75,
+     0.1
+    ],
+    [
+     -6.75,
+     -0.9
+    ],
+    [
+     -6.45,
+     -0.95
+    ],
+    [
+     -5.2,
+     -0.45
+    ],
+    [
+     -4.4,
+     -0.4
+    ],
+    [
+     -4.3,
+     -1.9
+    ],
+    [
+     -3.5,
+     -1.9
+    ],
+    [
+     -3.4,
+     -0.4
+    ],
+    [
+     -1.7,
+     -0.4
+    ],
+    [
+     -1.6,
+     -1.9
+    ],
+    [
+     -0.8,
+     -1.9
+    ],
+    [
+     -0.7,
+     -0.4
+    ],
+    [
+     0.7,
+     -0.4
+    ],
+    [
+     0.8,
+     -1.9
+    ],
+    [
+     1.6,
+     -1.9
+    ],
+    [
+     1.7,
+     -0.4
+    ],
+    [
+     3.4,
+     -0.4
+    ],
+    [
+     3.5,
+     -1.9
+    ],
+    [
+     4.3,
+     -1.9
+    ],
+    [
+     4.4,
+     -0.4
+    ],
+    [
+     5.2,
+     -0.45
+    ],
+    [
+     6.45,
+     -0.95
+    ],
+    [
+     6.75,
+     -0.9
+    ],
+    [
+     6.75,
+     0.1
+    ]
+   ]
+  },
+  {
+   "s": 1154.7,
+   "points": [
+    [
+     -6.75,
+     0.1
+    ],
+    [
+     -6.75,
+     -0.9
+    ],
+    [
+     -6.45,
+     -0.95
+    ],
+    [
+     -5.2,
+     -0.45
+    ],
+    [
+     -4.4,
+     -0.4
+    ],
+    [
+     -4.3,
+     -1.9
+    ],
+    [
+     -3.5,
+     -1.9
+    ],
+    [
+     -3.4,
+     -0.4
+    ],
+    [
+     -1.7,
+     -0.4
+    ],
+    [
+     -1.6,
+     -1.9
+    ],
+    [
+     -0.8,
+     -1.9
+    ],
+    [
+     -0.7,
+     -0.4
+    ],
+    [
+     0.7,
+     -0.4
+    ],
+    [
+     0.8,
+     -1.9
+    ],
+    [
+     1.6,
+     -1.9
+    ],
+    [
+     1.7,
+     -0.4
+    ],
+    [
+     3.4,
+     -0.4
+    ],
+    [
+     3.5,
+     -1.9
+    ],
+    [
+     4.3,
+     -1.9
+    ],
+    [
+     4.4,
+     -0.4
+    ],
+    [
+     5.2,
+     -0.45
+    ],
+    [
+     6.45,
+     -0.95
+    ],
+    [
+     6.75,
+     -0.9
+    ],
+    [
+     6.75,
+     0.1
+    ]
+   ]
+  }
+ ],
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 29.9,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 373.4,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 59.8,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 373.1,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 89.7,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 373.4,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 119.6,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 373.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 149.6,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 372.9,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 179.5,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 372.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 209.3,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 373.4,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 239.2,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 372.8,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 269.2,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 372.8,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 299.0,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 372.8,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 328.9,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 372.7,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 358.8,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 372.4,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 388.6,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 372.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 418.3,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 372.6,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 448.1,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 372.8,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 477.8,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 372.9,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 507.4,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 372.7,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 537.2,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 372.8,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 566.7,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 373.0,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 596.4,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 373.1,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 626.0,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 373.1,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 655.4,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 373.3,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 685.0,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 373.6,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 714.5,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 373.6,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 743.9,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 373.9,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 773.4,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 373.9,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 802.8,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 373.9,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 832.2,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 374.0,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 861.6,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 374.1,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 890.9,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 374.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 920.0,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 374.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 949.5,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 374.6,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 978.7,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 375.0,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 1008.0,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 375.4,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 1037.3,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 377.1,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 1066.6,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 377.8,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 1096.1,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 383.3,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 1125.3,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.2,
+   "chanfrein": 0.25,
+   "z_bas": 385.1,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    },
+    {
+     "z": "tablier",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.2,
+     "chanfrein": 0.25
+    }
+   ]
+  },
+  {
+   "type": "culee",
+   "s": 1154.7
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "remblai": [
+  [
+   0,
+   10
+  ],
+  [
+   1142.7,
+   1154.7
+  ]
+ ],
+ "sources": [
+  "swissTLM3D (axes tlm/23, tlm/24)",
+  "swissSURFACE3D 2024-2025 (chaussées, rives, joint central, altitudes)",
+  "https://structurae.net/en/structures/plaine-du-rhone-viaduct",
+  "Mapillary 873894426556427, 319295846219988, 301194008381189 (villeneuve / Mapillary, CC BY-SA 4.0) : dessous et piles côté sud-est, s 880-1015",
+  "Mapillary 860884141441632, 220876362834922 (villeneuve / Mapillary, CC BY-SA 4.0) : élévation et dessous côté nord-ouest, s 150-480",
+  "Mapillary 776058363112002 (villeneuve / Mapillary, CC BY-SA 4.0) : dessous côté sud-est, s 480"
+ ],
+ "photos_vues": 7,
+ "confiance": "moyenne",
+ "notes": "Deux tabliers jumeaux de 13,5 m (joint de ~0,1 m entre les deux glissières centrales), dalles à 4 nervures, chaque appui = une colonne rectangulaire par tablier ; aucune pile n'est vue par le laser (dessous de 27 m de large) : piles placées par photogrammétrie de 3 photos Mapillary (8 appuis mesurés, pas régulier 29,7 m, résidu < 1 m) et supposées régulières entre s 250 et 900. Section des colonnes (2,2 x 3,2 m, élargies après la superposition sur la photo calée) et nombre de nervures estimés sur photo ; % de points mesuré sur l'ensemble des deux tabliers (91 %), chaque fichier seul n'explique pas l'autre chaussée."
+}

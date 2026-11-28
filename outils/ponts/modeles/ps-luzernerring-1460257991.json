@@ -1,0 +1,127 @@
+{
+ "nom": "Viaduc du Luzernerring, B\u00e2le",
+ "axe": [
+  [
+   2609915.5,
+   1268746.5,
+   267.7
+  ],
+  [
+   2609950.8,
+   1268758.0,
+   268.2
+  ],
+  [
+   2609993.8,
+   1268772.1,
+   268.6
+  ],
+  [
+   2610037.0,
+   1268786.4,
+   268.45
+  ],
+  [
+   2610079.7,
+   1268801.2,
+   267.85
+  ],
+  [
+   2610119.9,
+   1268821.7,
+   266.65
+  ],
+  [
+   2610155.2,
+   1268851.9,
+   264.5
+  ],
+  [
+   2610187.8,
+   1268887.0,
+   261.9
+  ],
+  [
+   2610205.0,
+   1268903.0,
+   260.5
+  ]
+ ],
+ "largeur": 19.0,
+ "largeur_dessous": 16.5,
+ "epaisseur": 1.5,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 56,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 15.0,
+   "z_bas": 260.4
+  },
+  {
+   "type": "pile",
+   "s": 112,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 15.0,
+   "z_bas": 260.8
+  },
+  {
+   "type": "pile",
+   "s": 168,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 15.0,
+   "z_bas": 259.6
+  },
+  {
+   "type": "pile",
+   "s": 224,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 15.0,
+   "z_bas": 259.6
+  },
+  {
+   "type": "pile",
+   "s": 280,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 15.0,
+   "z_bas": 259.4
+  },
+  {
+   "type": "culee",
+   "s": 336
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "Relev\u00e9 swissSURFACE3D 2022 (LAS, pas de COPC)",
+  "Mapillary derlipper 1680863155891335 (sur le tablier) et johsin18 1112333687700681 (dessous, c\u00f4t\u00e9), CC BY-SA 4.0 / Mapillary"
+ ],
+ "photos_vues": 2,
+ "confiance": "faible",
+ "notes": "Le nuage montre un viaduc courbe de ~336 m (l'OSM n'en donne que 177 m), 19 m de large, qui redescend \u00e0 l'est ; mod\u00e9lis\u00e9 en entier d'apr\u00e8s le nuage (LAS 2022, v\u00e9rifi\u00e9 par script ad hoc). Les piles sont devin\u00e9es (laser cach\u00e9 sous le tablier, photo de dessous montrant un tablier \u00e9pais \u00e0 rives en console sur murs en b\u00e9ton) ; courbure et d\u00e9vers approch\u00e9s par 9 points d'axe. Conflit de terrain r\u00e9siduel aux extr\u00e9mit\u00e9s (s 4-16 et 330-332, rampes en remblai, couvertes par \u00ab remblai \u00bb); 76 % des points d'ouvrage \u00e0 moins de 1,5 m (le reste : b\u00e2timents voisins dans le couloir).",
+ "remblai": [
+  [
+   0,
+   18
+  ],
+  [
+   326,
+   336
+  ]
+ ]
+}

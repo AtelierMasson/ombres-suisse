@@ -1,0 +1,74 @@
+{
+ "nom": "Neue Winterthurerstrasse (viaduc sur la Glatt et l'A1), Glattbrugg",
+ "axe": [
+  [
+   2687017.4,
+   1251263.1,
+   431.2
+  ],
+  [
+   2687069.0,
+   1251371.1,
+   435.9
+  ],
+  [
+   2687096.0,
+   1251425.3,
+   438.3
+  ]
+ ],
+ "largeur": 31.0,
+ "epaisseur": 1.6,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 12,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 24,
+   "larg_colonne": 1.2,
+   "z_bas": 428.0
+  },
+  {
+   "type": "pile",
+   "s": 90,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 24,
+   "larg_colonne": 1.2,
+   "z_bas": 427.7
+  },
+  {
+   "type": "pile",
+   "s": 140,
+   "forme": "double",
+   "long": 1.2,
+   "larg": 28,
+   "larg_colonne": 1.2,
+   "z_bas": 429.0
+  },
+  {
+   "type": "culee",
+   "s": 180
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2024",
+  "swissimage",
+  "Mapillary (petrol) CC BY-SA 4.0"
+ ],
+ "photos_vues": 2,
+ "confiance": "faible",
+ "notes": "Le relevé montre un grand échangeur (Glattbrugg) : j'ai modélisé seulement le tronc large d'environ 28 à 34 m (deux chaussées jointives, joint d'environ 1 m) sur 180 m depuis la Glatt, et non les bretelles ni la boucle, qui s'en détachent ; cela ne correspond pas à l'ouvrage OSM de 126 m x 12 m, donné à titre indicatif. Dalle épaisse (~1,6 m) sur rangées de colonnes rondes vue sur 2 panoramas Mapillary depuis la rive de la Glatt (cloche concave, garde-corps en treillis) ; positions des rangées (s 12, 90, 140) peu certaines ; élargissement final et bretelles non modélisables avec ce schéma."
+}

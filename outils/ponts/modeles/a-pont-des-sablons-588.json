@@ -1,0 +1,150 @@
+{
+ "nom": "Pont des Sablons (A9)",
+ "axe": [
+  [
+   2568146.4,
+   1113983.47,
+   459.77
+  ],
+  [
+   2568145.55,
+   1113962.62,
+   459.11
+  ],
+  [
+   2568144.78,
+   1113941.79,
+   458.65
+  ],
+  [
+   2568144.26,
+   1113920.94,
+   458.15
+  ],
+  [
+   2568143.77,
+   1113900.09,
+   457.68
+  ],
+  [
+   2568143.29,
+   1113879.25,
+   457.21
+  ],
+  [
+   2568143.15,
+   1113858.4,
+   456.79
+  ],
+  [
+   2568143.1,
+   1113837.54,
+   456.25
+  ],
+  [
+   2568143.1,
+   1113816.7,
+   455.95
+  ],
+  [
+   2568143.55,
+   1113795.86,
+   455.46
+  ],
+  [
+   2568144.2,
+   1113775.0,
+   455.22
+  ]
+ ],
+ "largeur": 27.0,
+ "epaisseur": 1.4,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": false,
+  "pas": 2.0,
+  "epaisseur": 0.1
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 30.0,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 20.0,
+   "z_bas": 445.8,
+   "larg_colonne": 3.5
+  },
+  {
+   "type": "pile",
+   "s": 60.0,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 20.0,
+   "z_bas": 445.7,
+   "larg_colonne": 3.5
+  },
+  {
+   "type": "pile",
+   "s": 90.0,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 20.0,
+   "z_bas": 445.6,
+   "larg_colonne": 3.5
+  },
+  {
+   "type": "pile",
+   "s": 120.0,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 20.0,
+   "z_bas": 446.8,
+   "larg_colonne": 3.5
+  },
+  {
+   "type": "pile",
+   "s": 150.0,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 20.0,
+   "z_bas": 447.0,
+   "larg_colonne": 3.5
+  },
+  {
+   "type": "pile",
+   "s": 180.0,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 20.0,
+   "z_bas": 446.9,
+   "larg_colonne": 3.5
+  },
+  {
+   "type": "culee",
+   "s": 208.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissTLM3D (axes tlm/588, tlm/589)",
+  "swissSURFACE3D 2022 (dalle LAS 2568-1113 lue en local, pas de COPC)",
+  "swissimage (orthophoto : deux chaussées jointives, joint central étroit)",
+  "Mapillary 3231060673794191, 906730470042278 (Balbenar, bct / Mapillary, CC BY-SA 4.0) : vues vers le nord depuis la chaussée",
+  "Mapillary 160347016656939, 1807976157282254 (Balbenar, bct / Mapillary, CC BY-SA 4.0) : vues vers le sud depuis la chaussée"
+ ],
+ "photos_vues": 4,
+ "confiance": "faible",
+ "notes": "Un seul tablier de 27 m (les deux chaussées sont jointives, joint central étroit vu sur orthophoto et photos : pas de vide entre elles), centré 0,7 m à l'est de l'axe TLM. Aucune vue de dessous n'a été trouvée et le laser ne voit pas d'appuis : les six piles à pas de 30 m (deux colonnes) sont supposées ; le mur antibruit transparent du bord ouest et le double rail de glissière du terre-plein ne sont pas représentables (garde-corps ajouré seulement). Nuage 2022 (dalle LAS lue en local).",
+ "remblai": [
+  [
+   196,
+   208.5
+  ]
+ ]
+}

@@ -1,0 +1,430 @@
+{
+ "nom": "Viadotto dei Ronchi, A2 (Cadenazzo / Sant'Antonino)",
+ "axe": [
+  [
+   2718217.6,
+   1112201.0,
+   316.3
+  ],
+  [
+   2718177.7,
+   1112199.3,
+   318.14
+  ],
+  [
+   2718137.8,
+   1112196.1,
+   320.01
+  ],
+  [
+   2718098.1,
+   1112191.7,
+   321.9
+  ],
+  [
+   2718058.4,
+   1112186.6,
+   323.8
+  ],
+  [
+   2718018.8,
+   1112180.9,
+   325.7
+  ],
+  [
+   2717979.4,
+   1112174.5,
+   327.6
+  ],
+  [
+   2717940.0,
+   1112167.3,
+   329.5
+  ],
+  [
+   2717900.8,
+   1112159.4,
+   331.38
+  ],
+  [
+   2717861.8,
+   1112150.8,
+   333.25
+  ],
+  [
+   2717822.9,
+   1112141.5,
+   335.09
+  ],
+  [
+   2717784.2,
+   1112131.2,
+   336.91
+  ],
+  [
+   2717745.7,
+   1112120.5,
+   338.69
+  ],
+  [
+   2717707.5,
+   1112108.8,
+   340.43
+  ],
+  [
+   2717669.9,
+   1112095.2,
+   342.13
+  ],
+  [
+   2717651.8,
+   1112088.0,
+   342.94
+  ]
+ ],
+ "largeur": 25.7,
+ "epaisseur": 2.4,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.2
+ },
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -12.85,
+     -0.45
+    ],
+    [
+     -11.2,
+     -0.45
+    ],
+    [
+     -11.0,
+     -2.4
+    ],
+    [
+     -1.8,
+     -2.4
+    ],
+    [
+     -1.6,
+     -0.7
+    ],
+    [
+     1.6,
+     -0.7
+    ],
+    [
+     1.8,
+     -2.4
+    ],
+    [
+     11.0,
+     -2.4
+    ],
+    [
+     11.2,
+     -0.45
+    ],
+    [
+     12.85,
+     -0.45
+    ]
+   ]
+  },
+  {
+   "s": 579.8,
+   "points": [
+    [
+     -12.85,
+     -0.45
+    ],
+    [
+     -11.2,
+     -0.45
+    ],
+    [
+     -11.0,
+     -2.4
+    ],
+    [
+     -1.8,
+     -2.4
+    ],
+    [
+     -1.6,
+     -0.7
+    ],
+    [
+     1.6,
+     -0.7
+    ],
+    [
+     1.8,
+     -2.4
+    ],
+    [
+     11.0,
+     -2.4
+    ],
+    [
+     11.2,
+     -0.45
+    ],
+    [
+     12.85,
+     -0.45
+    ]
+   ]
+  }
+ ],
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 43.8,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 298.4
+  },
+  {
+   "type": "pile",
+   "s": 43.8,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 298.4
+  },
+  {
+   "type": "pile",
+   "s": 87.7,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 295.4
+  },
+  {
+   "type": "pile",
+   "s": 87.7,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 295.4
+  },
+  {
+   "type": "pile",
+   "s": 131.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 295.4
+  },
+  {
+   "type": "pile",
+   "s": 131.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 295.4
+  },
+  {
+   "type": "pile",
+   "s": 175.4,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 295.6
+  },
+  {
+   "type": "pile",
+   "s": 175.4,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 295.6
+  },
+  {
+   "type": "pile",
+   "s": 219.2,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 291.4
+  },
+  {
+   "type": "pile",
+   "s": 219.2,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 291.4
+  },
+  {
+   "type": "pile",
+   "s": 263.1,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 292.3
+  },
+  {
+   "type": "pile",
+   "s": 263.1,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 292.3
+  },
+  {
+   "type": "pile",
+   "s": 306.9,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 295.3
+  },
+  {
+   "type": "pile",
+   "s": 306.9,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 295.3
+  },
+  {
+   "type": "pile",
+   "s": 350.8,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 296.1
+  },
+  {
+   "type": "pile",
+   "s": 350.8,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 296.1
+  },
+  {
+   "type": "pile",
+   "s": 394.6,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 295.4
+  },
+  {
+   "type": "pile",
+   "s": 394.6,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 295.4
+  },
+  {
+   "type": "pile",
+   "s": 438.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 290.9
+  },
+  {
+   "type": "pile",
+   "s": 438.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 290.9
+  },
+  {
+   "type": "pile",
+   "s": 482.3,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 300.6
+  },
+  {
+   "type": "pile",
+   "s": 482.3,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 300.6
+  },
+  {
+   "type": "pile",
+   "s": 526.2,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 313.2
+  },
+  {
+   "type": "pile",
+   "s": 526.2,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 313.2
+  },
+  {
+   "type": "culee",
+   "s": 579.8
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissTLM3D (axes tlm/98, tlm/103)",
+  "swissSURFACE3D 2020 (tablier, rives)",
+  "https://structurae.net/en/structures/ronchi-viaduct",
+  "https://laviadelceneri.ch/it/pannelli-informativi/turistico/la-sosta-dei-viandanti-contemporanei/",
+  "Mapillary 1015588856758113, 1115305239686907, 1664113477588508 (fcignat, maxim752) ; 2027635474056443 (canadarunner) ; 167369758537209 (mknight), CC BY-SA 4.0",
+  "https://commons.wikimedia.org/wiki/File:Sant%27Antonino,_Switzerland_-_panoramio.jpg (CC BY 3.0)"
+ ],
+ "photos_vues": 7,
+ "confiance": "faible",
+ "notes": "A2 (1984, béton précontraint) : les deux chaussées forment au nuage une seule surface continue de 25,7 m (joint de ~0,5 m à o = +1,5, glissière centrale basse sur les photos), donc un seul tablier de deux caissons de 2,4 m ; médiane 0,01 m, 95,7 % des points à < 1,5 m. Aucune pile touchée par le laser (tablier large, forêt dessous) : 12 piles régulières tous les 43,8 m (travées supposées), colonnes rondes Ø2,2 m par chaussée, pieds au terrain des rives ; épaisseur du caisson et forme des piles non vues (photos seulement depuis le tablier et de loin, piles masquées par les arbres) ; conflit de terrain : s 4..12 (culée est, sol maquette jusqu'à 2,0 m au-dessus du dessous du tablier) et s 558..574 (culée ouest, remblai [556,580] déclaré) ; pas de photo calée (aucune vue d'ensemble depuis le dessous), joints et portiques non modélisés.",
+ "remblai": [
+  [
+   556,
+   580
+  ]
+ ]
+}

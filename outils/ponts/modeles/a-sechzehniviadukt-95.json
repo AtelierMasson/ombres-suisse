@@ -1,0 +1,212 @@
+{
+ "nom": "Sechzehniviadukt (A4, Seewen SZ)",
+ "axe": [
+  [
+   2690270.2,
+   1207737.6,
+   454.2
+  ],
+  [
+   2690275.7,
+   1207785.6,
+   454.8
+  ],
+  [
+   2690283.1,
+   1207881.3,
+   455.7
+  ],
+  [
+   2690287.1,
+   1207951.9,
+   456.2
+  ],
+  [
+   2690292.7,
+   1208040.5,
+   456.9
+  ],
+  [
+   2690300.2,
+   1208115.7,
+   457.5
+  ],
+  [
+   2690313.3,
+   1208200.2,
+   458.1
+  ],
+  [
+   2690329.4,
+   1208272.0,
+   458.7
+  ],
+  [
+   2690336.1,
+   1208295.8,
+   458.8
+  ]
+ ],
+ "largeur": 20.3,
+ "epaisseur": 1.6,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": false,
+  "pas": 3.0,
+  "epaisseur": 0.12
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 37.5,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 14.0,
+   "larg_colonne": 2.4,
+   "z_bas": 444.8
+  },
+  {
+   "type": "pile",
+   "s": 75.0,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 14.0,
+   "larg_colonne": 2.4,
+   "z_bas": 445.3
+  },
+  {
+   "type": "pile",
+   "s": 112.5,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 14.0,
+   "larg_colonne": 2.4,
+   "z_bas": 445.6
+  },
+  {
+   "type": "pile",
+   "s": 150.0,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 14.0,
+   "larg_colonne": 2.4,
+   "z_bas": 445.2
+  },
+  {
+   "type": "pile",
+   "s": 187.5,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 14.0,
+   "larg_colonne": 2.4,
+   "z_bas": 445.2
+  },
+  {
+   "type": "pile",
+   "s": 225.0,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 14.0,
+   "larg_colonne": 2.4,
+   "z_bas": 443.4
+  },
+  {
+   "type": "pile",
+   "s": 262.5,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 14.0,
+   "larg_colonne": 2.4,
+   "z_bas": 443.5
+  },
+  {
+   "type": "pile",
+   "s": 300.0,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 14.0,
+   "larg_colonne": 2.4,
+   "z_bas": 445.4
+  },
+  {
+   "type": "pile",
+   "s": 337.5,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 14.0,
+   "larg_colonne": 2.4,
+   "z_bas": 448.0
+  },
+  {
+   "type": "pile",
+   "s": 375.0,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 14.0,
+   "larg_colonne": 2.4,
+   "z_bas": 449.5
+  },
+  {
+   "type": "pile",
+   "s": 412.5,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 14.0,
+   "larg_colonne": 2.4,
+   "z_bas": 450.1
+  },
+  {
+   "type": "pile",
+   "s": 450.0,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 14.0,
+   "larg_colonne": 2.4,
+   "z_bas": 450.9
+  },
+  {
+   "type": "pile",
+   "s": 487.5,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 14.0,
+   "larg_colonne": 2.4,
+   "z_bas": 452.6
+  },
+  {
+   "type": "culee",
+   "s": 562
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://www.mapillary.com/app/?pKey=1105243403318506",
+  "https://www.mapillary.com/app/?pKey=117560668086653",
+  "https://www.mapillary.com/app/?pKey=1846211995779021",
+  "https://www.mapillary.com/app/?pKey=1774497366745510"
+ ],
+ "photos_vues": 8,
+ "confiance": "faible",
+ "notes": "Un seul tablier de 20,3 m (rives -9,9 / +10,1 m de l'axe recentré de 1 m par rapport à TLM 95, médiane au nuage 0,01 m) : les deux chaussées de TLM (tlm/95 et tlm/110) sont jointives, séparées seulement par une bande centrale d'environ 1,5 m (orthophoto) et des glissières, sans vide au laser ni sur les photos Mapillary prises depuis la chaussée ; ni TLM ni le nuage ne justifient deux fichiers. Piles NON vues au laser ni sur photo (aucune vue de dessous trouvée) : 13 paires de colonnes tous les 37,5 m, épaisseur de dalle 1,6 m et glissières hypothétiques ; la longueur de 250 m donnée par Wikipédia ne correspond pas au tablier mesuré (562 m). Conflit de terrain résiduel s 554-558 (rampe d'accès où le sol rejoint le tablier).",
+ "remblai": [
+  [
+   0,
+   10
+  ],
+  [
+   540,
+   562
+  ]
+ ],
+ "photo": {
+  "fichier": "mly-1105243403318506.jpg",
+  "page": "https://www.mapillary.com/app/?pKey=1105243403318506",
+  "auteur": "u001 / Mapillary",
+  "licence": "CC BY-SA 4.0"
+ }
+}

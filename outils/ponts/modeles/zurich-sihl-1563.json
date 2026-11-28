@@ -1,0 +1,216 @@
+{
+ "nom": "Bretelle A3 sur la Sihl (Verzweigung Zürich-Süd, branche intérieure), Zurich",
+ "axe": [
+  [
+   2681558.0,
+   1244235.3,
+   433.83
+  ],
+  [
+   2681596.6,
+   1244249.5,
+   433.23
+  ],
+  [
+   2681630.1,
+   1244273.4,
+   432.81
+  ],
+  [
+   2681655.8,
+   1244305.5,
+   432.39
+  ],
+  [
+   2681672.7,
+   1244344.2,
+   431.89
+  ],
+  [
+   2681676.8,
+   1244384.0,
+   431.19
+  ],
+  [
+   2681682.0,
+   1244423.3,
+   430.45
+  ],
+  [
+   2681689.5,
+   1244461.5,
+   429.92
+  ],
+  [
+   2681702.4,
+   1244499.4,
+   429.48
+  ],
+  [
+   2681713.3,
+   1244526.6,
+   429.17
+  ],
+  [
+   2681725.5,
+   1244551.8,
+   428.91
+  ]
+ ],
+ "largeur": 12.6,
+ "epaisseur": 1.8,
+ "epaisseur_appuis": 2.6,
+ "gousset": 7,
+ "garde_corps": {
+  "hauteur": 1.9,
+  "plein": true,
+  "epaisseur": 0.25
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 20,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 3.0,
+   "t": -2.9,
+   "z_bas": 425.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 20,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 3.0,
+   "t": 2.9,
+   "z_bas": 425.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 62,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 3.0,
+   "t": -2.9,
+   "z_bas": 425.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 62,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 3.0,
+   "t": 2.9,
+   "z_bas": 425.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 100,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 3.0,
+   "t": -2.9,
+   "z_bas": 426.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 100,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 3.0,
+   "t": 2.9,
+   "z_bas": 426.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 138,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 3.0,
+   "t": -2.9,
+   "z_bas": 426.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 138,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 3.0,
+   "t": 2.9,
+   "z_bas": 426.0,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 176,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 3.0,
+   "t": -2.9,
+   "z_bas": 426.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 176,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 3.0,
+   "t": 2.9,
+   "z_bas": 426.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 214,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 3.0,
+   "t": -2.9,
+   "z_bas": 426.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 214,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 3.0,
+   "t": 2.9,
+   "z_bas": 426.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "culee",
+   "s": 378
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "remblai": [
+  [
+   250,
+   378
+  ]
+ ],
+ "sources": [
+  "swissSURFACE3D 2024 (COPC)",
+  "swissTLM3D",
+  "https://de.wikipedia.org/wiki/Sihlhochstrasse",
+  "Wikimedia Commons : A3 Autobahnbrücken (Verzweigung Zürich-Süd) über die Sihl (Jag9889, CC BY-SA 4.0) ; photos de la branche du nœud déjà réunies pour zurich-sihl-1689"
+ ],
+ "photos_vues": 4,
+ "confiance": "moyenne",
+ "notes": "Axe TLM décalé d'environ 5,6 m vers la droite : tablier mesuré (classe 17, médiane +0,15 m) à o -1..+11,5 de l'axe TLM, 12,6 m avec les écrans antibruit ondulés d'environ 1,9 m (classe 27 de part et d'autre, photos), de 433,8 m (sud, côté Sihl) à 428,9 m (nord) ; les tabliers superposés à +8..+10 m (bretelles voisines) expliquent les 47 % du vérificateur, le tablier propre est couvert. Piles NON vues par le laser (tablier surplombé, dessous masqué) : paires rectangulaires 1,6 x 3,0 m tous les ~38 m aux s 20, 62, 100, 138, 176, 214 placées au jugé d'après les photos (jumelles rectangulaires sous caisson de 1,8 m, 2,6 m aux appuis ; une photo montre aussi des fûts ronds évasés en tête sur d'autres branches, non modélisés) ; au-delà de s 250 le tablier rejoint le sol (remblai déclaré [250,378]) et le vérificateur signale un conflit de terrain marginal (sol jusqu'à 0,0 m au-dessus du dessous) aux s 300..302 et 306..376, laissé tel quel. Calage photo non fait : les photos de Commons n'ont ni GPS ni légende de branche et montrent plusieurs bretelles du nœud sans point identifiable de façon sûre sur celle-ci ; le schéma ne sait pas faire le dévers, la courbe réelle du caisson ni les fûts évasés."
+}

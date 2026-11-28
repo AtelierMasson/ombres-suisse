@@ -1,0 +1,185 @@
+{
+ "nom": "Hangbr\u00fccke B\u00f6zingenberg (A5, chauss\u00e9e nord)",
+ "axe": [
+  [
+   2587286.4,
+   1222995.5,
+   502.63
+  ],
+  [
+   2587341.7,
+   1223011.4,
+   499.9
+  ],
+  [
+   2587394.5,
+   1223037.8,
+   497.09
+  ],
+  [
+   2587445.5,
+   1223069.5,
+   494.23
+  ],
+  [
+   2587496.6,
+   1223101.1,
+   490.73
+  ],
+  [
+   2587548.4,
+   1223131.8,
+   487.44
+  ],
+  [
+   2587600.8,
+   1223161.4,
+   484.08
+  ],
+  [
+   2587654.1,
+   1223189.2,
+   480.46
+  ],
+  [
+   2587707.9,
+   1223215.9,
+   476.3
+  ],
+  [
+   2587762.5,
+   1223241.2,
+   471.06
+  ],
+  [
+   2587817.7,
+   1223265.5,
+   468.31
+  ],
+  [
+   2587874.2,
+   1223287.2,
+   464.15
+  ],
+  [
+   2587933.5,
+   1223302.3,
+   460.1
+  ],
+  [
+   2587995.8,
+   1223305.7,
+   456.34
+  ],
+  [
+   2588056.4,
+   1223291.9,
+   453.17
+  ],
+  [
+   2588110.6,
+   1223260.0,
+   450.41
+  ],
+  [
+   2588153.4,
+   1223215.2,
+   448.23
+  ],
+  [
+   2588185.4,
+   1223162.7,
+   446.6
+  ]
+ ],
+ "largeur": 8.7,
+ "epaisseur": 1.5,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 1030.4
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2023 (nuage)",
+  "swissTLM3D",
+  "Mapillary alexanderar (CC BY-SA 4.0) 972769313554290, 1674163372772646, 203498111611150, 459621815134378"
+ ],
+ "photos_vues": 4,
+ "confiance": "faible",
+ "notes": "Deux chauss\u00e9es distinctes (nord plus haute de 2,5 \u00e0 4,4 m, vide d'environ 1,5 m) cal\u00e9es sur le nuage 2023 (swissSURFACE3D, dalles LAS) ; piles non visibles au laser sous le tablier : aucune mod\u00e9lis\u00e9e (positions et port\u00e9es inconnues, non v\u00e9rifi\u00e9). Tron\u00e7ons o\u00f9 le sol touche le tablier (pont pos\u00e9 sur le talus) laiss\u00e9s en remblai s 256-292 et 508-564 ; \u00e9paisseur du tablier et caisson suppos\u00e9s d'apr\u00e8s une vue depuis la chauss\u00e9e sud ; pas de vue de dessous.",
+ "largeur_dessous": 7.6,
+ "bords": [
+  [
+   0,
+   -5.2,
+   5.0
+  ],
+  [
+   60,
+   -5.0,
+   4.3
+  ],
+  [
+   140,
+   -4.4,
+   4.2
+  ],
+  [
+   200,
+   -4.2,
+   4.5
+  ],
+  [
+   640,
+   -4.2,
+   4.6
+  ],
+  [
+   700,
+   -3.8,
+   5.2
+  ],
+  [
+   740,
+   -3.8,
+   5.9
+  ],
+  [
+   900,
+   -3.6,
+   6.6
+  ],
+  [
+   980,
+   -4.0,
+   5.8
+  ],
+  [
+   1030.4,
+   -4.2,
+   5.6
+  ]
+ ],
+ "remblai": [
+  [
+   256,
+   292
+  ],
+  [
+   508,
+   564
+  ]
+ ]
+}

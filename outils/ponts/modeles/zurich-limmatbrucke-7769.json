@@ -1,0 +1,254 @@
+{
+ "nom": "Limmatbrücke A1 (deux chaussées), Zürich",
+ "axe": [
+  [
+   2677696.8,
+   1250808.1,
+   398.6
+  ],
+  [
+   2677711.5,
+   1250798.8,
+   398.6
+  ],
+  [
+   2677727.2,
+   1250788.1,
+   398.6
+  ],
+  [
+   2677757.1,
+   1250766.6,
+   398.6
+  ],
+  [
+   2677804.6,
+   1250729.6,
+   398.6
+  ],
+  [
+   2677845.8,
+   1250694.6,
+   398.5
+  ]
+ ],
+ "largeur": 35.4,
+ "epaisseur": 2.8,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 43.1,
+   "t": -11,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 2.4,
+   "z_bas": 389.0
+  },
+  {
+   "type": "pile",
+   "s": 52.0,
+   "t": -4,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 2.4,
+   "z_bas": 389.0
+  },
+  {
+   "type": "pile",
+   "s": 64.6,
+   "t": 6,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 2.4,
+   "z_bas": 389.0
+  },
+  {
+   "type": "pile",
+   "s": 73.4,
+   "t": 13,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 2.4,
+   "z_bas": 389.0
+  },
+  {
+   "type": "pile",
+   "s": 131.1,
+   "t": -11,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 2.4,
+   "z_bas": 389.0
+  },
+  {
+   "type": "pile",
+   "s": 140.0,
+   "t": -4,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 2.4,
+   "z_bas": 389.0
+  },
+  {
+   "type": "pile",
+   "s": 152.6,
+   "t": 6,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 2.4,
+   "z_bas": 389.0
+  },
+  {
+   "type": "pile",
+   "s": 161.4,
+   "t": 13,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 2.4,
+   "z_bas": 389.0
+  },
+  {
+   "type": "culee",
+   "s": 187.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "relevé swissSURFACE3D 2024",
+  "swissTLM3D (ponts50 id 665 et 677)",
+  "Mapillary (till, sp8962de, fcignat, toaoa, Yha1) CC BY-SA 4.0",
+  "swissimage"
+ ],
+ "photos_vues": 6,
+ "confiance": "faible",
+ "notes": "Les deux chaussées A1 (TLM 665 et 677) sont modélisées en un seul tablier de 35,4 m (axe décalé de 2,5 m, dévers non rendu) ; pas de nom ni de portées publiés, piles (2 rangées de 4 colonnes parallèles aux berges, s 57 et 145) déduites de la position des berges et de 2 photos de la rive sud, hors laser (cachées sous le tablier) ; épaisseur du caisson (1,0 m en rive, 2,8 m au centre) estimée sur photo. Remblais d'accès s 0-20 et 172-187 ; écrans ou mâts à +1,4..3,3 m sur le bord nord non modélisés.",
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -17.7,
+     0
+    ],
+    [
+     -17.7,
+     -1.0
+    ],
+    [
+     -15.2,
+     -1.0
+    ],
+    [
+     -13.7,
+     -2.8
+    ],
+    [
+     -1.8,
+     -2.8
+    ],
+    [
+     -1.2,
+     -1.0
+    ],
+    [
+     1.2,
+     -1.0
+    ],
+    [
+     1.8,
+     -2.8
+    ],
+    [
+     13.7,
+     -2.8
+    ],
+    [
+     15.2,
+     -1.0
+    ],
+    [
+     17.7,
+     -1.0
+    ],
+    [
+     17.7,
+     0
+    ]
+   ]
+  },
+  {
+   "s": 187.2,
+   "points": [
+    [
+     -17.7,
+     0
+    ],
+    [
+     -17.7,
+     -1.0
+    ],
+    [
+     -15.2,
+     -1.0
+    ],
+    [
+     -13.7,
+     -2.8
+    ],
+    [
+     -1.8,
+     -2.8
+    ],
+    [
+     -1.2,
+     -1.0
+    ],
+    [
+     1.2,
+     -1.0
+    ],
+    [
+     1.8,
+     -2.8
+    ],
+    [
+     13.7,
+     -2.8
+    ],
+    [
+     15.2,
+     -1.0
+    ],
+    [
+     17.7,
+     -1.0
+    ],
+    [
+     17.7,
+     0
+    ]
+   ]
+  }
+ ],
+ "remblai": [
+  [
+   0,
+   20
+  ],
+  [
+   172,
+   187.2
+  ]
+ ]
+}

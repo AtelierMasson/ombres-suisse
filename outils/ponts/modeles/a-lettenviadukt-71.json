@@ -1,0 +1,263 @@
+{
+ "nom": "Lettenviadukt (A50, Glatt)",
+ "axe": [
+  [
+   2678240.8,
+   1269025.9,
+   368.26
+  ],
+  [
+   2678278.9,
+   1269033.8,
+   368.66
+  ],
+  [
+   2678312.7,
+   1269039.6,
+   369.1
+  ],
+  [
+   2678345.9,
+   1269044.1,
+   369.48
+  ],
+  [
+   2678380.8,
+   1269047.6,
+   369.92
+  ],
+  [
+   2678413.2,
+   1269049.5,
+   370.35
+  ],
+  [
+   2678447.1,
+   1269050.4,
+   370.79
+  ],
+  [
+   2678466.0,
+   1269050.2,
+   371.03
+  ],
+  [
+   2678475.9,
+   1269049.9,
+   371.16
+  ],
+  [
+   2678505.1,
+   1269048.7,
+   371.51
+  ],
+  [
+   2678535.7,
+   1269046.3,
+   371.91
+  ],
+  [
+   2678570.4,
+   1269042.5,
+   372.37
+  ],
+  [
+   2678599.8,
+   1269038.0,
+   372.72
+  ],
+  [
+   2678630.7,
+   1269032.2,
+   373.15
+  ],
+  [
+   2678662.2,
+   1269025.1,
+   373.55
+  ],
+  [
+   2678697.2,
+   1269016.0,
+   373.98
+  ],
+  [
+   2678729.3,
+   1269006.3,
+   374.42
+  ],
+  [
+   2678760.2,
+   1268995.6,
+   374.84
+  ],
+  [
+   2678793.3,
+   1268982.7,
+   375.28
+  ],
+  [
+   2678824.7,
+   1268969.1,
+   375.72
+  ],
+  [
+   2678858.7,
+   1268952.7,
+   376.21
+  ],
+  [
+   2678875.3,
+   1268943.8,
+   376.34
+  ]
+ ],
+ "largeur": 23.6,
+ "largeur_dessous": 13.0,
+ "epaisseur": 2.4,
+ "epaisseur_appuis": 3.6,
+ "gousset": 14,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 3.0
+  },
+  {
+   "type": "pile",
+   "s": 41.7,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12.0,
+   "larg_colonne": 2.6,
+   "z_bas": 350.0
+  },
+  {
+   "type": "pile",
+   "s": 89.0,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12.0,
+   "larg_colonne": 2.6,
+   "z_bas": 343.7
+  },
+  {
+   "type": "pile",
+   "s": 136.3,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12.0,
+   "larg_colonne": 2.6,
+   "z_bas": 343.1
+  },
+  {
+   "type": "pile",
+   "s": 183.6,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12.0,
+   "larg_colonne": 2.6,
+   "z_bas": 343.1
+  },
+  {
+   "type": "pile",
+   "s": 230.9,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12.0,
+   "larg_colonne": 2.6,
+   "z_bas": 342.8
+  },
+  {
+   "type": "pile",
+   "s": 278.2,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12.0,
+   "larg_colonne": 2.6,
+   "z_bas": 343.9
+  },
+  {
+   "type": "pile",
+   "s": 325.5,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12.0,
+   "larg_colonne": 2.6,
+   "z_bas": 347.8
+  },
+  {
+   "type": "pile",
+   "s": 372.8,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12.0,
+   "larg_colonne": 2.6,
+   "z_bas": 354.8
+  },
+  {
+   "type": "pile",
+   "s": 420.1,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12.0,
+   "larg_colonne": 2.6,
+   "z_bas": 358.3
+  },
+  {
+   "type": "pile",
+   "s": 467.4,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12.0,
+   "larg_colonne": 2.6,
+   "z_bas": 359.6
+  },
+  {
+   "type": "pile",
+   "s": 514.7,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12.0,
+   "larg_colonne": 2.6,
+   "z_bas": 359.4
+  },
+  {
+   "type": "pile",
+   "s": 562.0,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12.0,
+   "larg_colonne": 2.6,
+   "z_bas": 361.4
+  },
+  {
+   "type": "pile",
+   "s": 609.3,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12.0,
+   "larg_colonne": 2.6,
+   "z_bas": 364.3
+  },
+  {
+   "type": "culee",
+   "s": 652.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2024 (nuage)",
+  "swissTLM3D (axes tlm/71 et tlm/73)",
+  "swissIMAGE (ombres des piles)",
+  "Mapillary beat 191805989348193, 595354971857335, 2845885099006871; sp8962de 480988113211138; toaoa 818900682077631 (CC BY-SA 4.0)"
+ ],
+ "photos_vues": 6,
+ "confiance": "faible",
+ "notes": "Deux chaussées jointives (joint de 0,4 m à l'orthophoto) sur un seul tablier courbe de 23,6 m. 13 piles à double colonne (pas ~47 m) placées d'après les ombres au sol de swissIMAGE et une grille régulière, non vues au laser ; section du caisson et calage photo non faits (photos en fisheye, repères au sol absents), comparaison approchée seulement."
+}

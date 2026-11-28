@@ -1,0 +1,58 @@
+{
+ "nom": "Valera (passage supérieur de la bretelle, Mendrisio)",
+ "axe": [
+  [
+   2718672.0,
+   1080444.5,
+   335.05
+  ],
+  [
+   2718771.5,
+   1080291.4,
+   335.85
+  ]
+ ],
+ "largeur": 15.5,
+ "epaisseur": 1.1,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": false,
+  "pas": 3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 58,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 7.0,
+   "z_bas": 324.2
+  },
+  {
+   "type": "pile",
+   "s": 80,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 7.0,
+   "z_bas": 323.3
+  },
+  {
+   "type": "culee",
+   "s": 182.6
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2020",
+  "swissimage",
+  "Mapillary (klimakas, soulcover) CC BY-SA 4.0"
+ ],
+ "photos_vues": 2,
+ "confiance": "faible",
+ "notes": "Tablier béton assez mince (~1 m) en dalle large de 15,5 m (deux chaussées jointives séparées par une glissière, vues Mapillary), au-dessus des bretelles ; garde-corps métalliques ajourés ; piles (s 58 et 80) supposées, le laser ne voit presque rien dessous, épaisseur supposée ; sol de la maquette qui touche le dessous aux deux bouts (s 4-8 et 176-178, remblais d'approche) non modifié. Photos vues : vue de dessus de la chaussée (klimakas 2017) et vue de côté depuis la bretelle (soulcover 2024)."
+}

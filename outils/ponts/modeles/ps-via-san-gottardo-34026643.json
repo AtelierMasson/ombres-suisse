@@ -1,0 +1,104 @@
+{
+ "nom": "Via San Gottardo (viaduc au-dessus de l'A2)",
+ "axe": [
+  [
+   2693396.3,
+   1152501.6,
+   1039.33
+  ],
+  [
+   2693372.5,
+   1152518.5,
+   1040.27
+  ],
+  [
+   2693348.6,
+   1152535.1,
+   1041.12
+  ],
+  [
+   2693324.4,
+   1152551.3,
+   1041.91
+  ],
+  [
+   2693299.9,
+   1152567.0,
+   1042.53
+  ],
+  [
+   2693274.9,
+   1152581.9,
+   1043.08
+  ],
+  [
+   2693249.5,
+   1152596.3,
+   1043.52
+  ],
+  [
+   2693223.4,
+   1152609.4,
+   1043.91
+  ],
+  [
+   2693197.1,
+   1152622.1,
+   1044.27
+  ]
+ ],
+ "largeur": 11.0,
+ "largeur_dessous": 7.0,
+ "epaisseur": 2.2,
+ "garde_corps": {
+  "hauteur": 2.0,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.1
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 62,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 6.0,
+   "z_bas": 1033.4
+  },
+  {
+   "type": "pile",
+   "s": 110,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 6.0,
+   "z_bas": 1034.3
+  },
+  {
+   "type": "pile",
+   "s": 160,
+   "forme": "rect",
+   "long": 2.5,
+   "larg": 6.0,
+   "z_bas": 1034.3
+  },
+  {
+   "type": "culee",
+   "s": 232.8
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2020 (nuage)",
+  "OSM way 34026643",
+  "Mapillary bct/fcignat 1072509118035785 et 1153390433004657 (CC BY-SA 4.0)",
+  "swissimage"
+ ],
+ "photos_vues": 2,
+ "confiance": "faible",
+ "notes": "Viaduc courbe en caisson béton avec écran grillagé, vu de dessous depuis l'A2 ; piles non vues au laser (trafic de l'A2 dessous) : trois appuis supposés, position non vérifiée. Longueur 233 m mesurée au nuage contre 217 m en base."
+}

@@ -1,0 +1,149 @@
+{
+ "nom": "Viaduc de l'A1 (St. Gallen, Neudorf)",
+ "axe": [
+  [
+   2749239.83,
+   1256476.36,
+   641.88
+  ],
+  [
+   2749278.56,
+   1256589.94,
+   639.82
+  ],
+  [
+   2749318.82,
+   1256713.55,
+   637.59
+  ],
+  [
+   2749357.52,
+   1256832.41,
+   635.45
+  ],
+  [
+   2749390.59,
+   1256930.17,
+   633.68
+  ]
+ ],
+ "largeur": 26.6,
+ "largeur_dessous": 15.0,
+ "epaisseur": 2.4,
+ "garde_corps": {
+  "hauteur": 0.9,
+  "plein": false,
+  "pas": 4.0,
+  "epaisseur": 0.15
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 76,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 16.0,
+   "larg_colonne": 4.0,
+   "z_bas": 628.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 124,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 16.0,
+   "larg_colonne": 4.0,
+   "z_bas": 620.6,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 172,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 16.0,
+   "larg_colonne": 4.0,
+   "z_bas": 619.8,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 220,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 16.0,
+   "larg_colonne": 4.0,
+   "z_bas": 618.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 268,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 16.0,
+   "larg_colonne": 4.0,
+   "z_bas": 616.1,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 316,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 16.0,
+   "larg_colonne": 4.0,
+   "z_bas": 614.5,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 364,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 16.0,
+   "larg_colonne": 4.0,
+   "z_bas": 619.3,
+   "fruit": 0.0
+  },
+  {
+   "type": "pile",
+   "s": 412,
+   "forme": "double",
+   "long": 3.0,
+   "larg": 16.0,
+   "larg_colonne": 4.0,
+   "z_bas": 622.6,
+   "fruit": 0.0
+  },
+  {
+   "type": "culee",
+   "s": 478.2
+  }
+ ],
+ "materiau": "beton",
+ "sources": [
+  "https://graph.mapillary.com (images fcignat, european-panorama, Yha1, CC BY-SA 4.0)",
+  "swissSURFACE3D 2024",
+  "swissTLM3D tlm/149 et tlm/150",
+  "swissIMAGE"
+ ],
+ "photos_vues": 4,
+ "confiance": "faible",
+ "notes": "Deux chaussées jointifs (axes TLM à 2-3 m, nuage continu de -14 à +13 m, ortho avec joint central) modélisées en un seul tablier de 27 m ; parapet central non dessiné. Les piles sont hors de portée du laser et des photos (aucune vue depuis le dessous) : leur place (pas de 48 m) et leur forme à deux fûts sont estimées, épaisseur du caisson estimée.",
+ "remblai": [
+  [
+   0,
+   28
+  ],
+  [
+   455,
+   478.2
+  ]
+ ]
+}

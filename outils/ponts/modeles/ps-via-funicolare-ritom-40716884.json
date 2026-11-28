@@ -1,0 +1,86 @@
+{
+ "nom": "Passage sup\u00e9rieur de la Via Funicolare Ritom (A2), Quinto",
+ "axe": [
+  [
+   2694431.0,
+   1152368.5,
+   1019.0
+  ],
+  [
+   2694446.0,
+   1152381.0,
+   1019.4
+  ],
+  [
+   2694471.0,
+   1152406.7,
+   1020.1
+  ],
+  [
+   2694498.0,
+   1152430.7,
+   1020.5
+  ],
+  [
+   2694527.0,
+   1152452.0,
+   1020.9
+  ],
+  [
+   2694539.2,
+   1152458.9,
+   1021.0
+  ]
+ ],
+ "largeur": 8.8,
+ "largeur_dessous": 7.2,
+ "epaisseur": 1.8,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 19.0,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 3.6,
+   "z_bas": 1013.2
+  },
+  {
+   "type": "pile",
+   "s": 60.0,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 3.6,
+   "z_bas": 1012.5
+  },
+  {
+   "type": "pile",
+   "s": 112.0,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 3.6,
+   "z_bas": 1009.3
+  },
+  {
+   "type": "culee",
+   "s": 141.1
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://www.mapillary.com/ (images 195298925775158, 1057081199575075, 1114766397085474)",
+  "https://wms.geo.admin.ch/ swissimage"
+ ],
+ "photos_vues": 3,
+ "confiance": "moyenne",
+ "notes": "Axe courbe, largeur 8,8 m et altitudes de chauss\u00e9e tir\u00e9es du nuage (\u00e9cart m\u00e9dian 0,0 m) ; deux piles de part et d'autre de l'A2 vues sur photos Mapillary (A2 vers l'est et vers l'ouest), forme et \u00e9paisseur du tablier (~1,8 m) estim\u00e9es sur ces photos. Le tablier mesur\u00e9 est plus long que les ~141 m annonc\u00e9s (approches comprises) ; la pile de s 112 (rive du Tessin, sous la for\u00eat) est inf\u00e9r\u00e9e sans preuve laser ni photo, les autres appuis sous le tablier ne sont pas visibles."
+}

@@ -1,0 +1,182 @@
+{
+ "nom": "Viaduc de Colombier (chauss\u00e9e ouest, c\u00f4t\u00e9 Jura, A5)",
+ "axe": [
+  [
+   2556571.5,
+   1201551.9,
+   437.61
+  ],
+  [
+   2556600.8,
+   1201579.1,
+   438.35
+  ],
+  [
+   2556628.4,
+   1201607.3,
+   438.91
+  ],
+  [
+   2556654.7,
+   1201637.1,
+   439.34
+  ],
+  [
+   2556678.9,
+   1201668.3,
+   439.55
+  ],
+  [
+   2556701.8,
+   1201700.8,
+   439.58
+  ],
+  [
+   2556723.1,
+   1201734.3,
+   439.44
+  ],
+  [
+   2556742.5,
+   1201768.9,
+   439.18
+  ],
+  [
+   2556759.9,
+   1201804.5,
+   438.66
+  ],
+  [
+   2556775.2,
+   1201841.0,
+   437.96
+  ],
+  [
+   2556789.2,
+   1201878.5,
+   437.11
+  ],
+  [
+   2556795.4,
+   1201895.0,
+   436.67
+  ]
+ ],
+ "largeur": 10.2,
+ "largeur_dessous": 6.0,
+ "epaisseur": 1.8,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 34.6,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 6.0,
+   "z_bas": 432.8
+  },
+  {
+   "type": "pile",
+   "s": 69.1,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 6.0,
+   "z_bas": 432.8
+  },
+  {
+   "type": "pile",
+   "s": 103.7,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 6.0,
+   "z_bas": 432.8
+  },
+  {
+   "type": "pile",
+   "s": 138.2,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 6.0,
+   "z_bas": 432.8
+  },
+  {
+   "type": "pile",
+   "s": 172.8,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 6.0,
+   "z_bas": 432.8
+  },
+  {
+   "type": "pile",
+   "s": 207.3,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 6.0,
+   "z_bas": 432.8
+  },
+  {
+   "type": "pile",
+   "s": 241.9,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 6.0,
+   "z_bas": 432.8
+  },
+  {
+   "type": "pile",
+   "s": 276.4,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 6.0,
+   "z_bas": 432.8
+  },
+  {
+   "type": "pile",
+   "s": 311.0,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 6.0,
+   "z_bas": 432.5
+  },
+  {
+   "type": "pile",
+   "s": 345.5,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 6.0,
+   "z_bas": 431.4
+  },
+  {
+   "type": "pile",
+   "s": 380.1,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 6.0,
+   "z_bas": 431.4
+  },
+  {
+   "type": "culee",
+   "s": 414.6
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2025 (nuage)",
+  "swissTLM3D",
+  "Mapillary fcignat (2025) et it_s_so_funny (2017) (CC BY-SA 4.0)",
+  "orthophoto swissimage"
+ ],
+ "photos_vues": 4,
+ "confiance": "faible",
+ "notes": "Deux tabliers s\u00e9par\u00e9s (vide de 1,5 \u00e0 3 m, relev\u00e9 au laser et sur l'orthophoto), chacun de 10,2 m ; photos vues depuis la chauss\u00e9e seulement (Mapillary 2017 et 2025, deux sens) : deux voies et une bande d'arr\u00eat, parapet b\u00e9ton avec lisse m\u00e9tallique c\u00f4t\u00e9 ext\u00e9rieur, glissi\u00e8re b\u00e9ton c\u00f4t\u00e9 vide ; aucune vue de dessous ni de c\u00f4t\u00e9. Piles invisibles au laser (cach\u00e9es sous le tablier, 7 m de d\u00e9gagement) : 12 trav\u00e9es \u00e9gales suppos\u00e9es, section et \u00e9paisseur du caisson (1,8 m) suppos\u00e9es, rien de publi\u00e9 trouv\u00e9 ; le v\u00e9rificateur ne compte qu'environ 52 % de points expliqu\u00e9s par tablier car il compte l'autre chauss\u00e9e comme non expliqu\u00e9e (union proche de 100 %). Pas de calage photo (aucune vue d'ensemble)."
+}

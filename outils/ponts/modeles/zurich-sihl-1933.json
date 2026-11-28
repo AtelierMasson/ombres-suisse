@@ -1,0 +1,645 @@
+{
+ "nom": "Bretelle de sortie Wiedikon de la Sihlhochstrasse (Ausfahrt), Z\u00fcrich",
+ "axe": [
+  [
+   2681917.9,
+   1246457.3,
+   426.47
+  ],
+  [
+   2681924.2,
+   1246498.4,
+   425.82
+  ],
+  [
+   2681931.1,
+   1246528.4,
+   424.77
+  ],
+  [
+   2681941.2,
+   1246560.9,
+   422.9
+  ],
+  [
+   2681951.5,
+   1246591.7,
+   420.99
+  ],
+  [
+   2681954.7,
+   1246608.7,
+   419.92
+  ],
+  [
+   2681955.1,
+   1246624.8,
+   419.04
+  ],
+  [
+   2681953.0,
+   1246643.8,
+   418.26
+  ],
+  [
+   2681947.3,
+   1246662.9,
+   417.76
+  ]
+ ],
+ "largeur": 7.4,
+ "epaisseur": 1.8,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 203
+  },
+  {
+   "type": "pile",
+   "s": 28,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "fruit": 0,
+   "chapiteau": {
+    "hauteur": 1.4,
+    "larg": 3.6,
+    "larg_bas": 1.8,
+    "long": 3.6
+   }
+  },
+  {
+   "type": "pile",
+   "s": 58,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "fruit": 0,
+   "chapiteau": {
+    "hauteur": 1.4,
+    "larg": 3.6,
+    "larg_bas": 1.8,
+    "long": 3.6
+   }
+  },
+  {
+   "type": "pile",
+   "s": 88,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "fruit": 0,
+   "chapiteau": {
+    "hauteur": 1.4,
+    "larg": 3.6,
+    "larg_bas": 1.8,
+    "long": 3.6
+   }
+  },
+  {
+   "type": "pile",
+   "s": 118,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "fruit": 0,
+   "chapiteau": {
+    "hauteur": 1.4,
+    "larg": 3.6,
+    "larg_bas": 1.8,
+    "long": 3.6
+   }
+  },
+  {
+   "type": "pile",
+   "s": 148,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "fruit": 0,
+   "chapiteau": {
+    "hauteur": 1.4,
+    "larg": 3.6,
+    "larg_bas": 1.8,
+    "long": 3.6
+   }
+  },
+  {
+   "type": "pile",
+   "s": 178,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "fruit": 0,
+   "chapiteau": {
+    "hauteur": 1.4,
+    "larg": 3.6,
+    "larg_bas": 1.8,
+    "long": 3.6
+   }
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://de.wikipedia.org/wiki/Sihlhochstrasse",
+  "https://commons.wikimedia.org/wiki/File:Manessetunnel_Sihlhochbr%C3%BCcke.jpg",
+  "https://commons.wikimedia.org/wiki/File:Sihlhochstrasse_panosphere_20200221.jpg",
+  "https://commons.wikimedia.org/wiki/File:Sihlhochstrasse_Bahnhof_Giessh%C3%BCbel.jpg"
+ ],
+ "photos_vues": 3,
+ "confiance": "moyenne",
+ "notes": "Axe TLM d\u00e9cal\u00e9 de 3,45 m vers la droite : tablier mesur\u00e9 (classe 17, m\u00e9diane +0,02 m) large de 7,3 m, chauss\u00e9e de 426,5 m (s 0) \u00e0 417,8 m (s 205), \u00e9largie du c\u00f4t\u00e9 droit apr\u00e8s s 165 (bretelle de raccord), parapet plein 1,2 m, \u00e9cran antibruit inclin\u00e9 d'environ 3,4 m c\u00f4t\u00e9 droit de s 48 \u00e0 164 (nuage et photo), mod\u00e9lis\u00e9 en tron\u00e7ons de 8 m droits sur la courbe. Piles NON vues par le laser (tablier sous-face masqu\u00e9) : f\u00fbts ronds de 1,8 m \u00e0 t\u00eate cylindrique de 3,6 m tous les 30 m (s 28 \u00e0 178), plac\u00e9s au jug\u00e9 d'apr\u00e8s les photos (Manessetunnel, panosph\u00e8re) ; sous-face et rive du caisson simplifi\u00e9es. Calage photo NON fait : aucune photo g\u00e9olocalis\u00e9e utilisable (seule la panosph\u00e8re l'est, en \u00e9quirectangulaire, sans point de calage identifiable) et pas de vue d'ensemble \u00e0 point de rep\u00e8re s\u00fbr ; le tron\u00e7on s 0-50 jouxte la dalle de la Sihlhochstrasse (autre mod\u00e8le).",
+ "largeur_dessous": 5.6,
+ "epaisseur_appuis": 2.3,
+ "gousset": 6,
+ "bords": [
+  [
+   0,
+   -5.4,
+   3.7
+  ],
+  [
+   12,
+   -3.7,
+   3.7
+  ],
+  [
+   150,
+   -3.7,
+   3.7
+  ],
+  [
+   162,
+   -3.9,
+   3.65
+  ],
+  [
+   172,
+   -5.3,
+   3.6
+  ],
+  [
+   182,
+   -5.45,
+   3.6
+  ],
+  [
+   205,
+   -5.45,
+   3.6
+  ]
+ ],
+ "volumes": [
+  {
+   "s": 52,
+   "t": 0,
+   "z_bas": 425.14,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 425.14,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 425.54,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 428.94,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  },
+  {
+   "s": 60,
+   "t": 0,
+   "z_bas": 424.88,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 424.88,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 425.28,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 428.68,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  },
+  {
+   "s": 68,
+   "t": 0,
+   "z_bas": 424.57,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 424.57,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 424.97,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 428.37,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  },
+  {
+   "s": 76,
+   "t": 0,
+   "z_bas": 424.22,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 424.22,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 424.62,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 428.02,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  },
+  {
+   "s": 84,
+   "t": 0,
+   "z_bas": 423.81,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 423.81,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 424.21,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 427.61,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  },
+  {
+   "s": 92,
+   "t": 0,
+   "z_bas": 423.35,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 423.35,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 423.75,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 427.15,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  },
+  {
+   "s": 100,
+   "t": 0,
+   "z_bas": 422.9,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 422.9,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 423.3,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 426.7,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  },
+  {
+   "s": 108,
+   "t": 0,
+   "z_bas": 422.45,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 422.45,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 422.85,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 426.25,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  },
+  {
+   "s": 116,
+   "t": 0,
+   "z_bas": 421.98,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 421.98,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 422.38,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 425.78,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  },
+  {
+   "s": 124,
+   "t": 0,
+   "z_bas": 421.51,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 421.51,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 421.91,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 425.31,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  },
+  {
+   "s": 132,
+   "t": 0,
+   "z_bas": 421.02,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 421.02,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 421.42,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 424.82,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  },
+  {
+   "s": 140,
+   "t": 0,
+   "z_bas": 420.55,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 420.55,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 420.94,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 424.34,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  },
+  {
+   "s": 148,
+   "t": 0,
+   "z_bas": 420.05,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 420.05,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 420.45,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 423.85,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  },
+  {
+   "s": 156,
+   "t": 0,
+   "z_bas": 419.53,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 419.53,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 419.93,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 423.33,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  },
+  {
+   "s": 164,
+   "t": 0,
+   "z_bas": 419.04,
+   "materiau": "acier",
+   "sections": [
+    {
+     "z": 419.04,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 419.44,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -3.9
+    },
+    {
+     "z": 422.84,
+     "forme": "rect",
+     "long": 8.1,
+     "larg": 0.35,
+     "o": -4.9
+    }
+   ]
+  }
+ ],
+ "photo": {
+  "fichier": "p1.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Manessetunnel_Sihlhochbr%C3%BCcke.jpg",
+  "auteur": "Commons (Manessetunnel Sihlhochbr\u00fccke)",
+  "licence": "voir page Commons"
+ }
+}

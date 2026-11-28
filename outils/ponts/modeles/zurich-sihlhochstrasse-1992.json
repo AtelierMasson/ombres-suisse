@@ -1,0 +1,1296 @@
+{
+ "nom": "Sihlhochstrasse, Z\u00fcrich",
+ "axe": [
+  [
+   2682083.2,
+   1245198.1,
+   431.2
+  ],
+  [
+   2682075.2,
+   1245252.3,
+   431.7
+  ],
+  [
+   2682061.1,
+   1245354.6,
+   431.7
+  ],
+  [
+   2682031.7,
+   1245626.9,
+   430.4
+  ],
+  [
+   2682007.4,
+   1245783.4,
+   430.0
+  ],
+  [
+   2681953.3,
+   1246011.0,
+   428.9
+  ],
+  [
+   2681917.4,
+   1246188.3,
+   428.1
+  ],
+  [
+   2681900.5,
+   1246310.4,
+   427.6
+  ],
+  [
+   2681896.5,
+   1246414.6,
+   427.3
+  ],
+  [
+   2681900.0,
+   1246459.6,
+   427.2
+  ]
+ ],
+ "largeur": 25.0,
+ "bords": [
+  [
+   0,
+   -21,
+   16
+  ],
+  [
+   75,
+   -20,
+   16
+  ],
+  [
+   125,
+   -18,
+   14
+  ],
+  [
+   175,
+   -16,
+   14
+  ],
+  [
+   225,
+   -13,
+   13.5
+  ],
+  [
+   275,
+   -12,
+   13
+  ],
+  [
+   375,
+   -12,
+   13
+  ],
+  [
+   425,
+   -13,
+   13
+  ],
+  [
+   475,
+   -14,
+   12
+  ],
+  [
+   525,
+   -14,
+   11
+  ],
+  [
+   575,
+   -13,
+   13
+  ],
+  [
+   625,
+   -13,
+   12
+  ],
+  [
+   675,
+   -13,
+   12
+  ],
+  [
+   725,
+   -13,
+   13
+  ],
+  [
+   775,
+   -12,
+   13
+  ],
+  [
+   825,
+   -12,
+   13
+  ],
+  [
+   875,
+   -11,
+   14
+  ],
+  [
+   925,
+   -11,
+   15
+  ],
+  [
+   975,
+   -12,
+   14
+  ],
+  [
+   1025,
+   -12,
+   14
+  ],
+  [
+   1075,
+   -11,
+   15
+  ],
+  [
+   1125,
+   -12,
+   16
+  ],
+  [
+   1175,
+   -13,
+   18
+  ],
+  [
+   1225,
+   -13,
+   17
+  ],
+  [
+   1278,
+   -13,
+   19
+  ]
+ ],
+ "largeur_dessous": 19.0,
+ "epaisseur": 1.9,
+ "garde_corps": {
+  "hauteur": 2.8,
+  "plein": true,
+  "epaisseur": 0.3,
+  "materiau": "acier"
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 1278
+  },
+  {
+   "type": "pile",
+   "s": 10.6,
+   "t": -8.2,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 10.6,
+   "t": 3.4,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 31.8,
+   "t": -8.1,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 31.8,
+   "t": 3.5,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 53.0,
+   "t": -7.9,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 53.0,
+   "t": 3.7,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 74.2,
+   "t": -7.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 74.2,
+   "t": 3.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 95.4,
+   "t": -7.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 95.4,
+   "t": 3.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 116.6,
+   "t": -7.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 116.6,
+   "t": 3.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 137.8,
+   "t": -7.5,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 137.8,
+   "t": 4.1,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 159.0,
+   "t": -7.1,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 159.0,
+   "t": 4.5,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 180.2,
+   "t": -6.7,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 180.2,
+   "t": 4.9,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 201.4,
+   "t": -6.1,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 201.4,
+   "t": 5.5,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 222.6,
+   "t": -5.6,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 222.6,
+   "t": 6.0,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 243.8,
+   "t": -5.5,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 243.8,
+   "t": 6.1,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 265.0,
+   "t": -5.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 265.0,
+   "t": 6.2,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 286.2,
+   "t": -5.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 286.2,
+   "t": 6.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 307.4,
+   "t": -5.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 307.4,
+   "t": 6.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 328.6,
+   "t": -5.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 328.6,
+   "t": 6.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 349.8,
+   "t": -5.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 349.8,
+   "t": 6.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 371.0,
+   "t": -5.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 371.0,
+   "t": 6.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 392.2,
+   "t": -5.5,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 392.2,
+   "t": 6.1,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 413.4,
+   "t": -5.7,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 413.4,
+   "t": 5.9,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 434.6,
+   "t": -6.0,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 434.6,
+   "t": 5.6,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 455.8,
+   "t": -6.4,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 455.8,
+   "t": 5.2,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 477.0,
+   "t": -6.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 477.0,
+   "t": 4.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 498.2,
+   "t": -7.0,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 498.2,
+   "t": 4.6,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 519.4,
+   "t": -7.2,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 519.4,
+   "t": 4.4,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 540.6,
+   "t": -6.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 540.6,
+   "t": 4.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 561.8,
+   "t": -6.2,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 561.8,
+   "t": 5.4,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 583.0,
+   "t": -5.9,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 583.0,
+   "t": 5.7,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 604.2,
+   "t": -6.1,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 604.2,
+   "t": 5.5,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 625.4,
+   "t": -6.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 625.4,
+   "t": 5.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 646.6,
+   "t": -6.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 646.6,
+   "t": 5.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 667.8,
+   "t": -6.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 667.8,
+   "t": 5.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 689.0,
+   "t": -6.2,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 689.0,
+   "t": 5.4,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 710.2,
+   "t": -5.9,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 710.2,
+   "t": 5.7,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 731.4,
+   "t": -5.7,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 731.4,
+   "t": 5.9,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 752.6,
+   "t": -5.5,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 752.6,
+   "t": 6.1,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 773.8,
+   "t": -5.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 773.8,
+   "t": 6.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 795.0,
+   "t": -5.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 795.0,
+   "t": 6.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 816.2,
+   "t": -5.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 816.2,
+   "t": 6.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 837.4,
+   "t": -5.1,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 837.4,
+   "t": 6.5,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 858.6,
+   "t": -4.6,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 858.6,
+   "t": 7.0,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 879.8,
+   "t": -4.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 879.8,
+   "t": 7.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 901.0,
+   "t": -4.0,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 901.0,
+   "t": 7.6,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 922.2,
+   "t": -3.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 922.2,
+   "t": 7.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 943.4,
+   "t": -4.2,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 943.4,
+   "t": 7.4,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 964.6,
+   "t": -4.6,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 964.6,
+   "t": 7.0,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 985.8,
+   "t": -4.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 985.8,
+   "t": 6.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1007.0,
+   "t": -4.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1007.0,
+   "t": 6.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1028.2,
+   "t": -4.7,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1028.2,
+   "t": 6.9,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1049.4,
+   "t": -4.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1049.4,
+   "t": 7.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1070.6,
+   "t": -3.9,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1070.6,
+   "t": 7.7,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1091.8,
+   "t": -3.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1091.8,
+   "t": 7.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1113.0,
+   "t": -3.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1113.0,
+   "t": 7.8,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1134.2,
+   "t": -3.7,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1134.2,
+   "t": 7.9,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1155.4,
+   "t": -3.5,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1155.4,
+   "t": 8.1,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1176.6,
+   "t": -3.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1176.6,
+   "t": 8.3,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1197.8,
+   "t": -3.5,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1197.8,
+   "t": 8.1,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1219.0,
+   "t": -3.7,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1219.0,
+   "t": 7.9,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1240.2,
+   "t": -3.5,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1240.2,
+   "t": 8.1,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1261.4,
+   "t": -3.1,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  },
+  {
+   "type": "pile",
+   "s": 1261.4,
+   "t": 8.5,
+   "forme": "rond",
+   "long": 1.5,
+   "larg": 1.5,
+   "fruit": 0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://de.wikipedia.org/wiki/Sihlhochstrasse",
+  "https://commons.wikimedia.org/wiki/Category:Sihlhochstrasse"
+ ],
+ "photos_vues": 5,
+ "confiance": "moyenne",
+ "notes": "Tablier, rives variables (bords), parapet antibruit de 2,8 m et altitudes v\u00e9rifi\u00e9s au laser ; les piles (paires de colonnes rondes de 1,5 m, tous les 21,2 m, phase 10,6 m) ne sont PAS vues par le laser : espacement estim\u00e9 sur photos (Wikipedia donne 42,4 m en axe normal, photos sugg\u00e8rent plus dense) et phase arbitraire. Calage photo non abouti (g\u00e9otags impr\u00e9cis), \u00e9largissements d'extr\u00e9mit\u00e9 (rampes, s<250 et s>1150) et sous-face \u00e9vas\u00e9e non mod\u00e9lis\u00e9s.",
+ "photo": {
+  "fichier": "p4.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Sihl-Autobahn_-_panoramio.jpg",
+  "auteur": "panoramio",
+  "licence": "CC BY 3.0"
+ }
+}

@@ -1,0 +1,108 @@
+{
+ "nom": "A3 Walensee, chaussée nord (viaduc de la rive, 2 tabliers)",
+ "axe": [
+  [
+   2735315,
+   1219304.8,
+   476.25
+  ],
+  [
+   2735329,
+   1219302.6,
+   476.56
+  ],
+  [
+   2735349,
+   1219299.4,
+   476.87
+  ],
+  [
+   2735369,
+   1219296.0,
+   477.21
+  ],
+  [
+   2735409,
+   1219291.65,
+   477.94
+  ],
+  [
+   2735509,
+   1219280.65,
+   479.8
+  ],
+  [
+   2735589,
+   1219277.15,
+   481.29
+  ],
+  [
+   2735689,
+   1219282.25,
+   483.2
+  ],
+  [
+   2735789,
+   1219292.0,
+   485.19
+  ],
+  [
+   2735909,
+   1219300.95,
+   487.81
+  ],
+  [
+   2736009,
+   1219302.65,
+   490.18
+  ],
+  [
+   2736089,
+   1219300.0,
+   492.25
+  ],
+  [
+   2736110,
+   1219299.15,
+   492.83
+  ]
+ ],
+ "largeur": 13.7,
+ "epaisseur": 2.0,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 797.6
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2024 (nuage COPC)",
+  "swissTLM3D",
+  "Mapillary fcignat, european-panorama, canadarunner (CC BY-SA 4.0)"
+ ],
+ "photos_vues": 4,
+ "confiance": "faible",
+ "notes": "Chaussée nord, 5 m sous la sud, calée sur le nuage 2024 (médiane -0,05 m) ; épaisseur 2,0 m estimée, piles non vues au laser donc aucune modélisée, pas de vue de dessous ni photo calée ; tablier plus étroit (6 à 12 m) sur les 40 premiers mètres près du portail ouest, non modélisé (largeur constante). Conflit de terrain restant s 4..60 et 788..792 (laissé en remblai).",
+ "largeur_dessous": 11.5,
+ "remblai": [
+  [
+   0,
+   60
+  ],
+  [
+   788,
+   800
+  ]
+ ]
+}

@@ -1,0 +1,253 @@
+{
+ "nom": "Viaduc de la Verzweigung Zürich-Süd (A3, Brunau), Zurich",
+ "axe": [
+  [
+   2681709.7,
+   1244561.0,
+   430.28
+  ],
+  [
+   2681693.5,
+   1244533.5,
+   431.23
+  ],
+  [
+   2681680.5,
+   1244504.4,
+   432.63
+  ],
+  [
+   2681670.5,
+   1244474.1,
+   434.22
+  ],
+  [
+   2681663.8,
+   1244442.9,
+   435.79
+  ],
+  [
+   2681660.5,
+   1244411.1,
+   437.3
+  ],
+  [
+   2681660.5,
+   1244379.2,
+   438.68
+  ],
+  [
+   2681664.1,
+   1244347.5,
+   439.89
+  ],
+  [
+   2681671.0,
+   1244316.3,
+   440.97
+  ],
+  [
+   2681681.1,
+   1244286.0,
+   441.92
+  ],
+  [
+   2681694.1,
+   1244256.8,
+   442.7
+  ],
+  [
+   2681709.2,
+   1244228.7,
+   443.4
+  ],
+  [
+   2681725.8,
+   1244201.4,
+   444.11
+  ],
+  [
+   2681743.4,
+   1244174.7,
+   444.76
+  ],
+  [
+   2681761.4,
+   1244148.2,
+   445.39
+  ],
+  [
+   2681779.3,
+   1244121.7,
+   446.07
+  ],
+  [
+   2681796.3,
+   1244094.5,
+   446.74
+  ],
+  [
+   2681809.5,
+   1244072.1,
+   447.27
+  ]
+ ],
+ "largeur": 22.8,
+ "epaisseur": 2.0,
+ "garde_corps": {
+  "hauteur": 0.9,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 35.8,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 15.0,
+   "larg_colonne": 1.8,
+   "z_bas": 425.8
+  },
+  {
+   "type": "pile",
+   "s": 71.6,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 15.0,
+   "larg_colonne": 1.8,
+   "z_bas": 426.0
+  },
+  {
+   "type": "pile",
+   "s": 107.4,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 15.0,
+   "larg_colonne": 1.8,
+   "z_bas": 426.2
+  },
+  {
+   "type": "pile",
+   "s": 143.2,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 15.0,
+   "larg_colonne": 1.8,
+   "z_bas": 426.2
+  },
+  {
+   "type": "pile",
+   "s": 179.1,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 15.0,
+   "larg_colonne": 1.8,
+   "z_bas": 425.9
+  },
+  {
+   "type": "pile",
+   "s": 214.9,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 15.0,
+   "larg_colonne": 1.8,
+   "z_bas": 425.7
+  },
+  {
+   "type": "pile",
+   "s": 250.7,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 15.0,
+   "larg_colonne": 1.8,
+   "z_bas": 425.9
+  },
+  {
+   "type": "pile",
+   "s": 286.5,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 15.0,
+   "larg_colonne": 1.8,
+   "z_bas": 426.5
+  },
+  {
+   "type": "pile",
+   "s": 322.3,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 15.0,
+   "larg_colonne": 1.8,
+   "z_bas": 426.9
+  },
+  {
+   "type": "pile",
+   "s": 358.1,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 15.0,
+   "larg_colonne": 1.8,
+   "z_bas": 427.0
+  },
+  {
+   "type": "pile",
+   "s": 393.9,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 15.0,
+   "larg_colonne": 1.8,
+   "z_bas": 430.4
+  },
+  {
+   "type": "pile",
+   "s": 429.7,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 15.0,
+   "larg_colonne": 1.8,
+   "z_bas": 431.6
+  },
+  {
+   "type": "pile",
+   "s": 465.5,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 15.0,
+   "larg_colonne": 1.8,
+   "z_bas": 433.8
+  },
+  {
+   "type": "pile",
+   "s": 501.3,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 15.0,
+   "larg_colonne": 1.8,
+   "z_bas": 437.6
+  },
+  {
+   "type": "culee",
+   "s": 537.2
+  }
+ ],
+ "sources": [
+  "https://commons.wikimedia.org/wiki/File:ETH-BIB-Zürich-Wollishofen,_Manegg,_Autobahnverzweigung_Zürich-Süd,_Portal_Uetlibergtunnel-DES_04-0057-07.jpg",
+  "https://commons.wikimedia.org/wiki/File:Verzweigung_Zürich-Süd,_Autobahn_A3_A3W,_from_Uetliberg_in_winter,_2010.jpg",
+  "Mapillary (fcignat, Yha1), CC BY-SA 4.0",
+  "swissTLM3D, swissSURFACE3D 2024"
+ ],
+ "confiance": "moyenne",
+ "notes": "Tablier unique jointif de 22,8 m (deux chaussées sous une même dalle, glissière centrale basse, écrans antibruit ondulés de chaque côté) calé sur le nuage 2024 : médiane -0,01 m, aucun conflit de terrain. Piles non vues par le laser (tablier à 5-17 m du sol, rampes voisines) : colonnes doubles tous les ~36 m posées d'après le cliché de chantier ETH et les bretelles voisines (épaisseur du caisson ~2 m estimée) ; non calé sur photo (vue d'ensemble de chantier sans repères 3D sûrs). Le tablier se prolonge au nord par la bretelle publiée zurich-sihl-1563 et au sud par une galerie couverte non modélisée (s 547-593).",
+ "photos_vues": 6,
+ "photo": {
+  "fichier": "ETH-BIB-Zürich-Wollishofen-Autobahnverzweigung.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:ETH-BIB-Zürich-Wollishofen,_Manegg,_Autobahnverzweigung_Zürich-Süd,_Portal_Uetlibergtunnel-DES_04-0057-07.jpg",
+  "auteur": "ETH-Bibliothek",
+  "licence": "voir page Commons"
+ }
+}

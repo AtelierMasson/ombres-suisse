@@ -1,0 +1,159 @@
+{
+ "nom": "Ponts du Talent, chaussée ouest (A1, Chavornay)",
+ "axe": [
+  [
+   2533848.1,
+   1171788.91,
+   486.09
+  ],
+  [
+   2533853.56,
+   1171828.59,
+   485.94
+  ],
+  [
+   2533859.26,
+   1171867.81,
+   485.73
+  ],
+  [
+   2533865.48,
+   1171906.84,
+   485.54
+  ],
+  [
+   2533872.25,
+   1171945.86,
+   485.36
+  ],
+  [
+   2533879.53,
+   1171984.68,
+   485.15
+  ],
+  [
+   2533887.35,
+   1172023.51,
+   484.95
+  ],
+  [
+   2533895.7,
+   1172062.23,
+   484.75
+  ],
+  [
+   2533904.55,
+   1172100.75,
+   484.58
+  ],
+  [
+   2533913.94,
+   1172139.28,
+   484.38
+  ],
+  [
+   2533922.58,
+   1172178.35,
+   484.13
+  ]
+ ],
+ "largeur": 12.2,
+ "epaisseur": 2.8,
+ "epaisseur_appuis": 4.0,
+ "gousset": 10,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.45
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 68.6,
+   "forme": "chanfrein",
+   "chanfrein": 0.5,
+   "long": 3.2,
+   "larg": 4.6,
+   "z_bas": 462.0
+  },
+  {
+   "type": "pile",
+   "s": 109.6,
+   "forme": "chanfrein",
+   "chanfrein": 0.5,
+   "long": 3.2,
+   "larg": 4.6,
+   "z_bas": 450.0
+  },
+  {
+   "type": "pile",
+   "s": 156.1,
+   "forme": "chanfrein",
+   "chanfrein": 0.5,
+   "long": 3.2,
+   "larg": 4.6,
+   "z_bas": 446.0
+  },
+  {
+   "type": "pile",
+   "s": 203.2,
+   "forme": "chanfrein",
+   "chanfrein": 0.5,
+   "long": 3.2,
+   "larg": 4.6,
+   "z_bas": 449.5
+  },
+  {
+   "type": "pile",
+   "s": 249.8,
+   "forme": "chanfrein",
+   "chanfrein": 0.5,
+   "long": 3.2,
+   "larg": 4.6,
+   "z_bas": 451.0
+  },
+  {
+   "type": "pile",
+   "s": 297.0,
+   "forme": "chanfrein",
+   "chanfrein": 0.5,
+   "long": 3.2,
+   "larg": 4.6,
+   "z_bas": 459.5
+  },
+  {
+   "type": "pile",
+   "s": 344.2,
+   "forme": "chanfrein",
+   "chanfrein": 0.5,
+   "long": 3.2,
+   "larg": 4.6,
+   "z_bas": 466.3
+  },
+  {
+   "type": "culee",
+   "s": 396.7
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://commons.wikimedia.org/wiki/File:A1-A9-Br%C3%BCcken_%C3%BCber_den_Talent,_Chavornay_VD_20221017-jag9889.jpg",
+  "https://www.mapillary.com/app/?pKey=1745890999294502",
+  "swissSURFACE3D 2025 (swisstopo)",
+  "swissTLM3D"
+ ],
+ "photos_vues": 5,
+ "confiance": "moyenne",
+ "notes": "Deux chaussées parallèles séparées par une fente d'environ 1 m (mesurée au nuage), chacune sur ses propres piles (portées d'environ 47-50 m, décalées d'une vingtaine de mètres entre les deux ouvrages). Épaisseur du tablier et sections des piles non visibles d'avion (sous-face non vue) : valeurs types ; piles en prisme chanfreiné sans fruit d'après la photo du dessous. Pas de photo calée : aucune vue d'ensemble de l'ouvrage n'existe.",
+ "photo": {
+  "fichier": "jag1.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:A1-A9-Br%C3%BCcken_%C3%BCber_den_Talent,_Chavornay_VD_20221017-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ }
+}

@@ -1,0 +1,194 @@
+{
+ "nom": "Bretelle en boucle de la jonction autoroutière (A2, Gurtnellen/Göschenen), sans nom",
+ "axe": [
+  [
+   2688302.5,
+   1170001,
+   1054.9
+  ],
+  [
+   2688297,
+   1170011,
+   1054.9
+  ],
+  [
+   2688285,
+   1170021,
+   1054.9
+  ],
+  [
+   2688280,
+   1170031,
+   1054.9
+  ],
+  [
+   2688277,
+   1170041,
+   1055.1
+  ],
+  [
+   2688277.5,
+   1170051,
+   1054.9
+  ],
+  [
+   2688281,
+   1170061,
+   1054.9
+  ],
+  [
+   2688281.6,
+   1170077.0,
+   1054.8
+  ],
+  [
+   2688294.2,
+   1170082.9,
+   1054.8
+  ],
+  [
+   2688311.5,
+   1170085.0,
+   1054.8
+  ],
+  [
+   2688328.8,
+   1170082.9,
+   1054.8
+  ],
+  [
+   2688341.4,
+   1170077.0,
+   1054.8
+  ],
+  [
+   2688345,
+   1170061,
+   1054.4
+  ],
+  [
+   2688347,
+   1170041,
+   1054.2
+  ],
+  [
+   2688348,
+   1170021,
+   1054.2
+  ],
+  [
+   2688349,
+   1170001,
+   1054.2
+  ]
+ ],
+ "largeur": 20,
+ "largeur_dessous": 18,
+ "epaisseur": 2.0,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 52,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12,
+   "larg_colonne": 2.0
+  },
+  {
+   "type": "pile",
+   "s": 76,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12,
+   "larg_colonne": 2.0
+  },
+  {
+   "type": "pile",
+   "s": 100,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12,
+   "larg_colonne": 2.0
+  },
+  {
+   "type": "pile",
+   "s": 124,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12,
+   "larg_colonne": 2.0
+  },
+  {
+   "type": "pile",
+   "s": 148,
+   "forme": "double",
+   "long": 2.2,
+   "larg": 12,
+   "larg_colonne": 2.0
+  },
+  {
+   "type": "culee",
+   "s": 224.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2019-2022 (dalle LAS lue en local, supprimée)",
+  "Mapillary mapcreator (2019), andreymaznyak (2025) / Mapillary, CC BY-SA 4.0"
+ ],
+ "photos_vues": 3,
+ "confiance": "faible",
+ "notes": "Bretelle en U (axe courbe de 224 m, tablier de 20 m jusqu'à 25 m avec 'bords' mesurés au nuage, pas 183 m x 8 m : la boucle et les rampes voisines sont jointives) qui franchit l'A2 ; l'axe est repris du nuage (classe 17) et les piles (5 paires de colonnes carrées, s 52 à 148) sont devinées d'après une photo depuis l'A2 (dalle-caisson de ~2 m, colonnes rectangulaires) car le laser ne voit presque rien sous le tablier. Conflit de terrain restant : s 16-34 (sol jusqu'à 2,7 m au-dessus du dessous du tablier, rampe en déblai/couverte), s 56 et 82-84 (-0,2 m) ; 5 % des points du tablier 4,5 m sous le modèle (fin de la rampe sud, non modélisée en pente).",
+ "bords": [
+  [
+   0,
+   -9,
+   8.6
+  ],
+  [
+   50,
+   -11,
+   9.5
+  ],
+  [
+   100,
+   -9.7,
+   8.1
+  ],
+  [
+   150,
+   -7.6,
+   11
+  ],
+  [
+   185,
+   -7.6,
+   12.5
+  ],
+  [
+   224.5,
+   -3.6,
+   13.2
+  ]
+ ],
+ "remblai": [
+  [
+   0,
+   36
+  ],
+  [
+   165,
+   224.5
+  ]
+ ]
+}

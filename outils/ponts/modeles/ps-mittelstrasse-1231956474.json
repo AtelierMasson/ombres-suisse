@@ -1,0 +1,91 @@
+{
+ "nom": "Passage supérieur de la Mittelstrasse sur l'autoroute, Bienne",
+ "axe": [
+  [
+   2586858.4,
+   1219069.6,
+   437.2
+  ],
+  [
+   2586856.2,
+   1219039.7,
+   439.0
+  ],
+  [
+   2586853.7,
+   1219004.8,
+   439.8
+  ],
+  [
+   2586851.5,
+   1218974.9,
+   439.0
+  ],
+  [
+   2586850.1,
+   1218956.0,
+   437.9
+  ]
+ ],
+ "largeur": 17.5,
+ "epaisseur": 1.8,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.1
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 28,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 12.0,
+   "larg_colonne": 1.4,
+   "z_bas": 431.3
+  },
+  {
+   "type": "pile",
+   "s": 56,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 12.0,
+   "larg_colonne": 1.4,
+   "z_bas": 431.0
+  },
+  {
+   "type": "pile",
+   "s": 84,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 12.0,
+   "larg_colonne": 1.4,
+   "z_bas": 432.2
+  },
+  {
+   "type": "culee",
+   "s": 113.9
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "https://www.openstreetmap.org/way/1231956474",
+  "relevé swissSURFACE3D 2023 (LAS)",
+  "Mapillary (bodo3, rebootnow) CC BY-SA 4.0"
+ ],
+ "photo": {
+  "fichier": "mly_149950377116922.jpg",
+  "page": "https://www.mapillary.com/app/?pKey=149950377116922",
+  "auteur": "rebootnow / Mapillary",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 3,
+ "confiance": "moyenne",
+ "notes": "Tablier calé sur le laser 2023 (LAS, pas de COPC) : médiane ~0 m, 18 m de large, ~71 % des points d'ouvrage expliqués (reste : bretelles en boucle, mur et viaduc de l'autoroute voisins, non modélisés). Piles (paires de colonnes rectangulaires, vues sur photo Mapillary) à positions estimées, le laser ne voit rien sous la dalle ; le schéma ne sait pas faire l'intrados courbe des rampes ni les bretelles sur colonnes rondes."
+}

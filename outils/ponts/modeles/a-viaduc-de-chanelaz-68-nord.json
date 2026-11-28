@@ -1,0 +1,481 @@
+{
+ "nom": "Viaduc de Chanélaz (chaussée nord, Jura)",
+ "axe": [
+  [
+   2555235.8,
+   1200563.0,
+   444.78
+  ],
+  [
+   2555186.7,
+   1200548.2,
+   446.07
+  ],
+  [
+   2555137.9,
+   1200530.9,
+   447.51
+  ],
+  [
+   2555090.9,
+   1200509.8,
+   448.77
+  ],
+  [
+   2555045.6,
+   1200484.7,
+   449.86
+  ],
+  [
+   2555002.9,
+   1200455.7,
+   450.84
+  ],
+  [
+   2554962.3,
+   1200423.9,
+   451.88
+  ],
+  [
+   2554924.1,
+   1200389.0,
+   452.93
+  ],
+  [
+   2554889.2,
+   1200351.3,
+   453.96
+  ],
+  [
+   2554857.4,
+   1200310.6,
+   454.98
+  ],
+  [
+   2554828.6,
+   1200267.9,
+   456.06
+  ],
+  [
+   2554801.9,
+   1200223.7,
+   457.31
+  ],
+  [
+   2554776.0,
+   1200179.3,
+   458.47
+  ]
+ ],
+ "largeur": 13.3,
+ "largeur_dessous": 4.1,
+ "epaisseur": 2.4,
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -6.65,
+     -0.7
+    ],
+    [
+     -2.4,
+     -1.4
+    ],
+    [
+     -2.0,
+     -2.4
+    ],
+    [
+     2.0,
+     -2.4
+    ],
+    [
+     2.4,
+     -1.4
+    ],
+    [
+     6.65,
+     -0.7
+    ]
+   ]
+  },
+  {
+   "s": 616,
+   "points": [
+    [
+     -6.65,
+     -0.7
+    ],
+    [
+     -2.4,
+     -1.4
+    ],
+    [
+     -2.0,
+     -2.4
+    ],
+    [
+     2.0,
+     -2.4
+    ],
+    [
+     2.4,
+     -1.4
+    ],
+    [
+     6.65,
+     -0.7
+    ]
+   ]
+  }
+ ],
+ "garde_corps": {
+  "hauteur": 0.9,
+  "plein": false,
+  "pas": 4.0,
+  "epaisseur": 0.12
+ },
+ "parois": [
+  {
+   "s0": 3,
+   "s1": 613,
+   "o0": -6.55,
+   "o1": -6.55,
+   "h": 2.8,
+   "ep": 0.08,
+   "materiau": "verre"
+  }
+ ],
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 8
+  },
+  {
+   "type": "pile",
+   "s": 51.6,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.6,
+   "chanfrein": 0.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 98.1,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.6,
+   "chanfrein": 0.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 144.7,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.6,
+   "chanfrein": 0.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 191.2,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.6,
+   "chanfrein": 0.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 237.7,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.6,
+   "chanfrein": 0.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 284.2,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.6,
+   "chanfrein": 0.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 330.8,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.6,
+   "chanfrein": 0.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 377.3,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.6,
+   "chanfrein": 0.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 423.8,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.6,
+   "chanfrein": 0.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 470.4,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.6,
+   "chanfrein": 0.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 516.9,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.6,
+   "chanfrein": 0.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 563.4,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 3.6,
+   "chanfrein": 0.2,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 3.6,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "culee",
+   "s": 607
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "remblai": [
+  [
+   0,
+   10
+  ],
+  [
+   606,
+   616
+  ]
+ ],
+ "sources": [
+  "swissSURFACE3D 2024 (nuage)",
+  "swissTLM3D",
+  "Bernasconi SA, Viaduc de Chanélaz à Boudry (portées, caisson, largeurs)",
+  "Mapillary fcignat (2025) et globeur (2019) (CC BY-SA 4.0)"
+ ],
+ "photos_vues": 6,
+ "confiance": "moyenne",
+ "notes": "Deux tabliers séparés (Jura au nord, Lac au sud), joint de ~0,3-1 m non résolu au laser ; caisson béton de 2,4 m, consoles de ~4 m ; piles invisibles au laser (cachées sous le tablier) : positions déduites des portées publiées (13 travées de 46,5 m côté Jura, 12 de 45,6 m côté Lac, travées de rive supposées), forme supposée. Écran antibruit en verre côté extérieur seulement ; glissières et mur central non modélisés. Photo : conflit de terrain résiduel s 4-8 m (remblai de culée NE, sol jusqu'à 1,1 m au-dessus du dessous du tablier), non masqué. Vue d'ensemble calée non faite (seules des vues depuis la chaussée et une vue de dessous au bout NE) ; comparaison qualitative au rendu seulement. Corrigé le 28.11.2026 : le haut des piles est ramené au dessous du tablier (z \"tablier\" = dessous ; l'épaisseur avait été retranchée deux fois)."
+}

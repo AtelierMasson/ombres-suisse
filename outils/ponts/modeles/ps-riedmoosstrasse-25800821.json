@@ -1,0 +1,78 @@
+{
+ "nom": "Riedmoosstrasse (passage supérieur de l'A12 et de la voie ferrée), Niederwangen",
+ "axe": [
+  [
+   2595323.2,
+   1197323.8,
+   580.0
+  ],
+  [
+   2595476.6,
+   1197259.8,
+   578.4
+  ]
+ ],
+ "largeur": 13.0,
+ "epaisseur": 1.7,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 32,
+   "forme": "double",
+   "long": 1.3,
+   "larg": 8.5,
+   "larg_colonne": 1.2,
+   "z_bas": 567.5
+  },
+  {
+   "type": "pile",
+   "s": 70,
+   "forme": "double",
+   "long": 1.3,
+   "larg": 8.5,
+   "larg_colonne": 1.2,
+   "z_bas": 566.5
+  },
+  {
+   "type": "pile",
+   "s": 120,
+   "forme": "double",
+   "long": 1.3,
+   "larg": 8.5,
+   "larg_colonne": 1.2,
+   "z_bas": 567.3
+  },
+  {
+   "type": "pile",
+   "s": 144,
+   "forme": "double",
+   "long": 1.3,
+   "larg": 8.5,
+   "larg_colonne": 1.2,
+   "z_bas": 568.4
+  },
+  {
+   "type": "culee",
+   "s": 166.2
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2023",
+  "swissimage",
+  "Mapillary (chrisbeddow, canadarunner, dipispi, chuck) CC BY-SA 4.0"
+ ],
+ "photos_vues": 3,
+ "confiance": "faible",
+ "notes": "Viaduc d'accès béton (poutre-dalle épaisse ~1,7 m) au-dessus de l'A12 (s 40-62), de la voie CFF (s ~85-118) et de rues ; deux colonnes rondes par appui vues sur Mapillary, positions des piles (s 32, 70, 120, 144) estimées depuis le dessous du nuage et non certaines (le tablier masque le laser) ; tour d'ascenseur/escalier vitrée sur le côté, trottoir latéral et glissières non modélisés ; photos Mapillary vues : depuis l'A12 sous l'ouvrage, depuis le tablier et en bout de pont."
+}

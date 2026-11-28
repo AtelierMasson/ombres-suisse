@@ -1,0 +1,131 @@
+{
+ "nom": "Butzenstrasse (passage sup\u00e9rieur de l'A1), Zurich",
+ "axe": [
+  [
+   2681879.5,
+   1243697.0,
+   456.9
+  ],
+  [
+   2681880.3,
+   1243700.9,
+   457.17
+  ],
+  [
+   2681882.1,
+   1243710.1,
+   457.85
+  ],
+  [
+   2681883.1,
+   1243720.4,
+   458.55
+  ],
+  [
+   2681884.5,
+   1243730.8,
+   459.27
+  ],
+  [
+   2681886.6,
+   1243740.7,
+   459.96
+  ],
+  [
+   2681889.4,
+   1243750.4,
+   460.62
+  ],
+  [
+   2681892.9,
+   1243759.8,
+   461.26
+  ],
+  [
+   2681897.1,
+   1243768.9,
+   461.85
+  ],
+  [
+   2681901.9,
+   1243777.7,
+   462.4
+  ],
+  [
+   2681907.5,
+   1243786.2,
+   462.94
+  ],
+  [
+   2681913.7,
+   1243794.4,
+   463.45
+  ],
+  [
+   2681920.6,
+   1243802.3,
+   463.92
+  ],
+  [
+   2681927.7,
+   1243809.8,
+   464.39
+  ],
+  [
+   2681928.62,
+   1243811.83,
+   464.46
+  ]
+ ],
+ "largeur": 11.8,
+ "largeur_dessous": 9.0,
+ "epaisseur": 1.4,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 26.0,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 11.0,
+   "z_bas": 451.6
+  },
+  {
+   "type": "pile",
+   "s": 54.0,
+   "forme": "rect",
+   "long": 1.5,
+   "larg": 4.5,
+   "z_bas": 453.6
+  },
+  {
+   "type": "pile",
+   "s": 96.0,
+   "forme": "rect",
+   "long": 1.6,
+   "larg": 11.0,
+   "z_bas": 453.4
+  },
+  {
+   "type": "culee",
+   "s": 128.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "Mapillary (fcignat 2025) image 1052822299978087 ; images de la route : sunflower 478787523544829, lumi 3026428890968644",
+  "swissIMAGE (orthophoto)"
+ ],
+ "photos_vues": 3,
+ "confiance": "moyenne",
+ "notes": "Axe courbe, largeur 11,8 m et altitudes tir\u00e9s du nuage 2024 (tablier m\u00e9dian -0,06 m, 90 % des points d'ouvrage \u00e0 moins de 1,5 m, sans conflit de terrain) ; dalle \u00e9paisse (~1,4 m) au-dessus de la tranch\u00e9e de l'A1, vue sur une seule photo depuis le sud (l'autre c\u00f4t\u00e9 est dans le tunnel) et deux vues de la chauss\u00e9e. Les appuis sont des d\u00e9ductions : murs de tranch\u00e9e aux s 26 et 96 (points du nuage jusqu'\u00e0 458 et 460 m) et une pile de terre-plein \u00e0 s 54 sans preuve nette ; le sch\u00e9ma ne rend ni les murs de sout\u00e8nement de la tranch\u00e9e ni le trottoir, et la largeur annonc\u00e9e (10 m) est un peu inf\u00e9rieure \u00e0 celle mesur\u00e9e."
+}

@@ -1,0 +1,66 @@
+{
+ "nom": "Passage supérieur de Franzosenholz (au-dessus de l'A12)",
+ "axe": [
+  [
+   2578407.6,
+   1199220.3,
+   473.02
+  ],
+  [
+   2578480,
+   1199227.5,
+   475.42
+  ],
+  [
+   2578554,
+   1199230,
+   477.02
+  ]
+ ],
+ "largeur": 13,
+ "epaisseur": 1.5,
+ "epaisseur_appuis": 1.8,
+ "gousset": 6,
+ "garde_corps": {
+  "hauteur": 1.2,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 34,
+   "forme": "double",
+   "long": 1.6,
+   "larg": 8,
+   "larg_colonne": 1.6,
+   "z_bas": 466.5
+  },
+  {
+   "type": "pile",
+   "s": 100,
+   "forme": "double",
+   "long": 1.6,
+   "larg": 8,
+   "larg_colonne": 1.6,
+   "z_bas": 466.5
+  },
+  {
+   "type": "culee",
+   "s": 146.7
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "Relevé swissSURFACE3D 2025",
+  "Mapillary fcignat 1354621615842738; gpsmapper 2355085947969518 (CC BY-SA 4.0)"
+ ],
+ "photos_vues": 2,
+ "confiance": "moyenne",
+ "notes": "Dalle courbe sur deux rangées de colonnes situées de part et d'autre de la chaussée (vues depuis l'A12 dans les deux sens), garde-corps ajouré ; place exacte des colonnes et élargissement côté ouest (bretelle, o jusqu'à -9 m) non modélisés. Un seul tablier de 13 m partout."
+}

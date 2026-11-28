@@ -1,0 +1,911 @@
+{
+ "nom": "Seez-Viadukt (A3, Walenstadt), chaussée nord",
+ "axe": [
+  [
+   2741881.0,
+   1219872.2,
+   445.74
+  ],
+  [
+   2741890.0,
+   1219873.2,
+   445.65
+  ],
+  [
+   2741960.0,
+   1219880.8,
+   444.91
+  ],
+  [
+   2742020.0,
+   1219885.2,
+   444.19
+  ],
+  [
+   2742080.0,
+   1219885.9,
+   443.48
+  ],
+  [
+   2742140.0,
+   1219883.8,
+   442.84
+  ],
+  [
+   2742200.0,
+   1219879.6,
+   442.23
+  ],
+  [
+   2742260.0,
+   1219873.7,
+   441.67
+  ],
+  [
+   2742320.0,
+   1219867.6,
+   441.2
+  ],
+  [
+   2742380.0,
+   1219861.9,
+   440.86
+  ],
+  [
+   2742440.0,
+   1219857.4,
+   440.51
+  ],
+  [
+   2742500.0,
+   1219855.2,
+   440.11
+  ],
+  [
+   2742560.0,
+   1219855.4,
+   439.77
+  ],
+  [
+   2742620.0,
+   1219858.4,
+   439.49
+  ],
+  [
+   2742680.0,
+   1219863.8,
+   439.19
+  ],
+  [
+   2742732.0,
+   1219870.2,
+   438.81
+  ]
+ ],
+ "largeur": 13.2,
+ "epaisseur": 2.3,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -6.6,
+     0.1
+    ],
+    [
+     -6.6,
+     -0.6
+    ],
+    [
+     -5.6,
+     -0.8
+    ],
+    [
+     -3.2,
+     -2.3
+    ],
+    [
+     3.2,
+     -2.3
+    ],
+    [
+     5.6,
+     -0.8
+    ],
+    [
+     6.6,
+     -0.6
+    ],
+    [
+     6.6,
+     0.1
+    ]
+   ]
+  },
+  {
+   "s": 853.6,
+   "points": [
+    [
+     -6.6,
+     0.1
+    ],
+    [
+     -6.6,
+     -0.6
+    ],
+    [
+     -5.6,
+     -0.8
+    ],
+    [
+     -3.2,
+     -2.3
+    ],
+    [
+     3.2,
+     -2.3
+    ],
+    [
+     5.6,
+     -0.8
+    ],
+    [
+     6.6,
+     -0.6
+    ],
+    [
+     6.6,
+     0.1
+    ]
+   ]
+  }
+ ],
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 36.1,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 66.7,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 97.3,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 127.9,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 158.5,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 189.1,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 219.7,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 250.3,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 280.9,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 311.5,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 342.1,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 372.7,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 403.3,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 434.0,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 464.6,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 495.3,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 525.9,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 556.5,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 587.1,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 617.7,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 648.3,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 678.9,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 709.5,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 740.0,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 770.6,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 801.1,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 831.6,
+   "forme": "chanfrein",
+   "long": 2.2,
+   "larg": 4.0,
+   "chanfrein": 0.2,
+   "z_bas": 420.5,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "chanfrein",
+     "long": 2.2,
+     "larg": 4.0,
+     "chanfrein": 0.2
+    }
+   ]
+  },
+  {
+   "type": "culee",
+   "s": 853.6
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "remblai": [
+  [
+   0,
+   52
+  ],
+  [
+   803.6,
+   853.6
+  ]
+ ],
+ "sources": [
+  "swissSURFACE3D 2024 (COPC, classes 17 et 27)",
+  "swissTLM3D tlm/46 et tlm/47",
+  "https://de.wikipedia.org/wiki/Liste_der_Br%C3%BCcken_%C3%BCber_die_Seez",
+  "Mapillary 1005525323748388 (u001 / Mapillary, CC BY-SA 4.0)",
+  "Mapillary 1102195954654874 (Yha1 / Mapillary, CC BY-SA 4.0)",
+  "Mapillary 1210535613022527 (chrisbeddow / Mapillary, CC BY-SA 4.0)",
+  "Commons : A3 Autobahnbrücken über die Seez, Walenstadt SG (Jag9889, CC BY-SA 4.0)",
+  "Commons / Flickr : Walenstadt - Raischibe (kecko, CC BY 2.0)"
+ ],
+ "photos_vues": 6,
+ "confiance": "faible",
+ "photo": {
+  "fichier": "commons-A3_Autobahnb.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:A3_Autobahnbr%C3%BCcken_%C3%BCber_die_Seez,_Walenstadt_SG_20180828-jag9889.jpg",
+  "auteur": "Jag9889",
+  "licence": "CC BY-SA 4.0"
+ },
+ "notes": "Chaussée nord du Seez-Viadukt (A3, Walenstadt), calée sur la classe 17 (tablier à 0,0 m, 13,2 m de large, vide de 13 à 2 m avec la chaussée sud, deux fichiers séparés). Piles non vues au laser : pas de 30,6 m reporté de la chaussée sud à la même abscisse E (colonne unique 2,2 x 4,0 m), forme et caisson de 2,3 m d'après les photos, confiance faible. Sol de la maquette au-dessus du tablier à s 4-12 (colline de Raischibe, réel) ; 81,4 % des points d'ouvrage à moins de 1,5 m, le reste étant la chaussée sud voisine (o -31..-17), des portiques et des mâts non modélisés. Corrigé le 28.11.2026 : le haut des piles est ramené au dessous du tablier (z \"tablier\" = dessous ; l'épaisseur avait été retranchée deux fois)."
+}

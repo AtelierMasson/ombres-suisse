@@ -1,0 +1,248 @@
+{
+ "nom": "Viaduc de la Schwarzwaldbrücke (A2/A3), rive nord, Bâle",
+ "axe": [
+  [
+   2612945.1,
+   1267991.6,
+   262.96
+  ],
+  [
+   2612962.9,
+   1267961.4,
+   263.05
+  ],
+  [
+   2612990.3,
+   1267919.4,
+   262.92
+  ],
+  [
+   2613015.2,
+   1267876.0,
+   262.77
+  ],
+  [
+   2613037.7,
+   1267831.3,
+   262.66
+  ],
+  [
+   2613059.0,
+   1267786.0,
+   262.52
+  ],
+  [
+   2613080.7,
+   1267740.9,
+   262.36
+  ],
+  [
+   2613102.0,
+   1267695.6,
+   261.87
+  ],
+  [
+   2613122.8,
+   1267650.0,
+   260.86
+  ],
+  [
+   2613145.4,
+   1267599.8,
+   259.91
+  ]
+ ],
+ "largeur": 27.0,
+ "epaisseur": 1.6,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": true,
+  "epaisseur": 0.35
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 18.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 256.0
+  },
+  {
+   "type": "pile",
+   "s": 40.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 256.0
+  },
+  {
+   "type": "pile",
+   "s": 62.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 256.0
+  },
+  {
+   "type": "pile",
+   "s": 84.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 256.0
+  },
+  {
+   "type": "pile",
+   "s": 106.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 256.0
+  },
+  {
+   "type": "pile",
+   "s": 128.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 256.0
+  },
+  {
+   "type": "pile",
+   "s": 150.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 256.0
+  },
+  {
+   "type": "pile",
+   "s": 172.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 256.0
+  },
+  {
+   "type": "pile",
+   "s": 194.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 256.0
+  },
+  {
+   "type": "pile",
+   "s": 216.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 256.0
+  },
+  {
+   "type": "pile",
+   "s": 238.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 256.0
+  },
+  {
+   "type": "pile",
+   "s": 260.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 256.0
+  },
+  {
+   "type": "pile",
+   "s": 282.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 256.0
+  },
+  {
+   "type": "pile",
+   "s": 304.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 254.8
+  },
+  {
+   "type": "pile",
+   "s": 326.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 254.8
+  },
+  {
+   "type": "pile",
+   "s": 348.0,
+   "forme": "double",
+   "long": 1.5,
+   "larg": 14.0,
+   "larg_colonne": 1.5,
+   "z_bas": 254.8
+  },
+  {
+   "type": "culee",
+   "s": 440.6
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "parois": [
+  {
+   "s0": 0,
+   "s1": 440.6,
+   "o0": 0,
+   "o1": 0,
+   "h": 0.9,
+   "ep": 0.4
+  }
+ ],
+ "remblai": [
+  [
+   355.0,
+   440.6
+  ]
+ ],
+ "sources": [
+  "swissSURFACE3D 2023 (tuiles LAS 2612-1267, 2612-1268, 2613-1267)",
+  "swissTLM3D (tlm/91, tlm/93)",
+  "Mapillary (bct, wegavision, swalther, thetornado76) CC BY-SA 4.0"
+ ],
+ "photo": {
+  "fichier": "mp_1083418324736841.jpg",
+  "page": "https://www.mapillary.com/app/?pKey=1083418324736841",
+  "auteur": "thetornado76 / Mapillary",
+  "licence": "CC BY-SA 4.0"
+ },
+ "photos_vues": 6,
+ "confiance": "moyenne",
+ "notes": "Tablier mesuré au laser (médiane +0,06 m, largeur 27 m, deux chaussées jointives sans vide, donc un seul fichier) ; piles non vues par le laser sous la dalle : 2 rangées de colonnes rondes (~1,5 m) posées d'après 2 vues de dessous Mapillary, pas de 22 m supposé, sous-face en gousset non modélisée ; aucune vue d'ensemble, donc pas de calage photo. Conflit terrain s 416-436 : talus de la culée sud (sol 1 m au-dessus du dessous) laissé tel quel ; le relevé hors sol inclut un bâtiment voisin (toit à 281 m) et portiques/glissières non modélisés (pct réduit)."
+}

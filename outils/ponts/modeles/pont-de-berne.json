@@ -48,7 +48,7 @@
     },
     {
      "z": "tablier",
-     "dz": -1.0,
+     "dz": 0,
      "forme": "rect",
      "long": 3.0,
      "larg": 8.0
@@ -473,7 +473,7 @@
  ],
  "photos_vues": 3,
  "confiance": "moyenne",
- "notes": "Pont couvert en bois de 1653 (Fribourg, Sarine) classé bâtiment (6) dans swissSURFACE3D 2024, pas de classe 17 : toit mesuré au nuage (faîte 545,0 m, égouts 541,5 m, demi-largeur 4,1 m, s -2..44), pile centrale en pierre à s 20,6 (3 x 8 m en tête, socle 5 x 10,6 m, sections_nuage), dessous du tablier 537,5 m, chaussée 538,5 m estimée aux culées (non vue par le laser). Hauteur du bardage (537,5-539,9 m), poteaux et croupes (2,5 et 3 m) estimés sur photos, sans contreventements en croix ni consoles ; nez arrondi de la pile et plinthe en pierre non représentés ; le ras du sol conflit au bout NE évité en arrêtant le tablier à s 42,5 (le toit continue sur les maisons).",
+ "notes": "Pont couvert en bois de 1653 (Fribourg, Sarine) classé bâtiment (6) dans swissSURFACE3D 2024, pas de classe 17 : toit mesuré au nuage (faîte 545,0 m, égouts 541,5 m, demi-largeur 4,1 m, s -2..44), pile centrale en pierre à s 20,6 (3 x 8 m en tête, socle 5 x 10,6 m, sections_nuage), dessous du tablier 537,5 m, chaussée 538,5 m estimée aux culées (non vue par le laser). Hauteur du bardage (537,5-539,9 m), poteaux et croupes (2,5 et 3 m) estimés sur photos, sans contreventements en croix ni consoles ; nez arrondi de la pile et plinthe en pierre non représentés ; le ras du sol conflit au bout NE évité en arrêtant le tablier à s 42,5 (le toit continue sur les maisons). Corrigé le 28.11.2026 : le haut des piles est ramené au dessous du tablier (z \"tablier\" = dessous ; l'épaisseur avait été retranchée deux fois).",
  "photo": {
   "fichier": "c4.jpg",
   "page": "https://commons.wikimedia.org/wiki/File:Bernbr%C3%BCcke_und_Saane-Bogen_in_Freiburg.jpg",

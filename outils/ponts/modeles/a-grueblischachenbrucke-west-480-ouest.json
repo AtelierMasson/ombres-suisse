@@ -1,0 +1,164 @@
+{
+ "nom": "Grüeblischachenbrücke West (chaussée ouest)",
+ "axe": [
+  [
+   2665054.65,
+   1213867.44,
+   437.31
+  ],
+  [
+   2665061.59,
+   1213848.02,
+   437.31
+  ],
+  [
+   2665067.98,
+   1213829.51,
+   437.43
+  ],
+  [
+   2665073.81,
+   1213810.96,
+   437.5
+  ],
+  [
+   2665078.78,
+   1213792.23,
+   437.56
+  ],
+  [
+   2665082.73,
+   1213773.29,
+   437.65
+  ],
+  [
+   2665085.76,
+   1213754.21,
+   437.71
+  ],
+  [
+   2665087.48,
+   1213734.99,
+   437.82
+  ],
+  [
+   2665088.19,
+   1213715.71,
+   437.89
+  ],
+  [
+   2665087.52,
+   1213696.49,
+   437.97
+  ],
+  [
+   2665085.53,
+   1213677.3,
+   438.03
+  ],
+  [
+   2665082.49,
+   1213658.19,
+   438.04
+  ],
+  [
+   2665078.54,
+   1213638.1,
+   437.91
+  ]
+ ],
+ "largeur": 16.0,
+ "epaisseur": 1.8,
+ "garde_corps": {
+  "hauteur": 1.15,
+  "plein": true,
+  "epaisseur": 0.4
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 30.0,
+   "forme": "double",
+   "long": 1.0,
+   "larg": 5.0,
+   "z_bas": 425.4,
+   "larg_colonne": 1.0
+  },
+  {
+   "type": "pile",
+   "s": 63.0,
+   "forme": "double",
+   "long": 1.0,
+   "larg": 5.0,
+   "z_bas": 425.4,
+   "larg_colonne": 1.0
+  },
+  {
+   "type": "pile",
+   "s": 96.0,
+   "forme": "double",
+   "long": 1.0,
+   "larg": 5.0,
+   "z_bas": 425.4,
+   "larg_colonne": 1.0
+  },
+  {
+   "type": "pile",
+   "s": 129.0,
+   "forme": "double",
+   "long": 1.0,
+   "larg": 5.0,
+   "z_bas": 425.4,
+   "larg_colonne": 1.0
+  },
+  {
+   "type": "pile",
+   "s": 162.0,
+   "forme": "double",
+   "long": 1.0,
+   "larg": 5.0,
+   "z_bas": 425.4,
+   "larg_colonne": 1.0
+  },
+  {
+   "type": "pile",
+   "s": 195.0,
+   "forme": "double",
+   "long": 1.0,
+   "larg": 5.0,
+   "z_bas": 425.4,
+   "larg_colonne": 1.0
+  },
+  {
+   "type": "culee",
+   "s": 234.6
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissTLM3D (axes tlm/480, tlm/547)",
+  "swissSURFACE3D 2020 (dalle LAS 2665-1213 lue en local, pas de COPC)",
+  "Mapillary 753071968690948 (kaitu / Mapillary, CC BY-SA 4.0) : vue de dessous, colonnes minces et sous-face arrondie",
+  "Mapillary 656791445796620 (chrisbeddow / Mapillary, CC BY-SA 4.0) : parapet en béton plein",
+  "Mapillary 1310974127024359 (wegavision / Mapillary, CC BY-SA 4.0) : approches et glissières"
+ ],
+ "photos_vues": 3,
+ "confiance": "faible",
+ "notes": "Deux tabliers distincts sur la même emprise (une chaussée plate et une bretelle qui monte et s'en écarte) ; ce fichier est la chaussée ouest, plate (z 437-438), 14 à 18 m (largeur moyenne retenue, la largeur réelle varie). Les piles (colonnes minces par paires sous un caisson à sous-face arrondie, d'après une seule vue de dessous) sont placées là où le laser montre quelques points puis à pas régulier, positions supposées ; un troisième tablier (rampe à l'est, o +35 à +45) et le sol qui perce le tablier côté nord ne sont pas modélisés. Nuage 2020 (dalle LAS lue en local).",
+ "largeur_dessous": 8.0,
+ "remblai": [
+  [
+   0,
+   10
+  ],
+  [
+   226.6,
+   234.6
+  ]
+ ]
+}

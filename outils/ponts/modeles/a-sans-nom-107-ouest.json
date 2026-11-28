@@ -1,0 +1,468 @@
+{
+ "nom": "Viaduc de l'A1 (Zürich-Seebach), chaussée ouest",
+ "axe": [
+  [
+   2685666.45,
+   1251847.84,
+   442.45
+  ],
+  [
+   2685680.32,
+   1251864.91,
+   442.67
+  ],
+  [
+   2685692.77,
+   1251883.02,
+   442.9
+  ],
+  [
+   2685703.58,
+   1251902.18,
+   443.13
+  ],
+  [
+   2685712.57,
+   1251922.25,
+   443.21
+  ],
+  [
+   2685719.93,
+   1251942.97,
+   443.14
+  ],
+  [
+   2685725.46,
+   1251964.25,
+   442.93
+  ],
+  [
+   2685729.19,
+   1251985.92,
+   442.56
+  ],
+  [
+   2685730.87,
+   1252007.84,
+   442.03
+  ],
+  [
+   2685731.15,
+   1252029.83,
+   441.35
+  ],
+  [
+   2685729.91,
+   1252051.79,
+   440.52
+  ],
+  [
+   2685728.0,
+   1252073.71,
+   439.57
+  ],
+  [
+   2685725.94,
+   1252095.61,
+   438.58
+  ],
+  [
+   2685723.99,
+   1252117.53,
+   437.76
+  ],
+  [
+   2685722.46,
+   1252139.47,
+   437.13
+  ],
+  [
+   2685721.65,
+   1252156.6,
+   436.73
+  ]
+ ],
+ "largeur": 10.2,
+ "epaisseur": 1.7,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.35,
+  "materiau": "beton"
+ },
+ "sections_tablier": [
+  {
+   "s": 0,
+   "points": [
+    [
+     -5.1,
+     0.0
+    ],
+    [
+     -5.1,
+     -0.9
+    ],
+    [
+     -4.0,
+     -1.2
+    ],
+    [
+     -2.5,
+     -1.7
+    ],
+    [
+     2.5,
+     -1.7
+    ],
+    [
+     4.0,
+     -1.2
+    ],
+    [
+     5.1,
+     -0.9
+    ],
+    [
+     5.1,
+     0.0
+    ]
+   ]
+  },
+  {
+   "s": 325.1,
+   "points": [
+    [
+     -5.1,
+     0.0
+    ],
+    [
+     -5.1,
+     -0.9
+    ],
+    [
+     -4.0,
+     -1.2
+    ],
+    [
+     -2.5,
+     -1.7
+    ],
+    [
+     2.5,
+     -1.7
+    ],
+    [
+     4.0,
+     -1.2
+    ],
+    [
+     5.1,
+     -0.9
+    ],
+    [
+     5.1,
+     0.0
+    ]
+   ]
+  }
+ ],
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 14,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 425.37,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": -1.5,
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "rond",
+     "long": 3.4,
+     "larg": 3.4
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 40,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 437.37,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": -1.5,
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "rond",
+     "long": 3.4,
+     "larg": 3.4
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 66,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 437.44,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": -1.5,
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "rond",
+     "long": 3.4,
+     "larg": 3.4
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 92,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 426.89,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": -1.5,
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "rond",
+     "long": 3.4,
+     "larg": 3.4
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 166,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 426.23,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": -1.5,
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "rond",
+     "long": 3.4,
+     "larg": 3.4
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 194,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 427.35,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": -1.5,
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "rond",
+     "long": 3.4,
+     "larg": 3.4
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 222,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 426.84,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": -1.5,
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "rond",
+     "long": 3.4,
+     "larg": 3.4
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 250,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 426.97,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": -1.5,
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "rond",
+     "long": 3.4,
+     "larg": 3.4
+    }
+   ]
+  },
+  {
+   "type": "pile",
+   "s": 278,
+   "forme": "rond",
+   "long": 1.8,
+   "larg": 1.8,
+   "z_bas": 423.39,
+   "sections": [
+    {
+     "z": "sol",
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": -1.5,
+     "forme": "rond",
+     "long": 1.8,
+     "larg": 1.8
+    },
+    {
+     "z": "tablier",
+     "dz": 0,
+     "forme": "rond",
+     "long": 3.4,
+     "larg": 3.4
+    }
+   ]
+  },
+  {
+   "type": "culee",
+   "s": 325.1
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "remblai": [
+  [
+   290,
+   326
+  ]
+ ],
+ "sources": [
+  "swissTLM3D (axes tlm/107 et tlm/255, groupe a-sans-nom-107)",
+  "swissSURFACE3D 2024 (tablier classe 17, parapets classe 27, sol classe 2)",
+  "Mapillary 480646089726141 (endszbrxns / Mapillary, CC BY-SA 4.0), vue depuis la chaussée",
+  "Mapillary 1994666391343858 (fcignat / Mapillary, CC BY-SA 4.0), vue latérale depuis la route voisine",
+  "Mapillary 1727257627852561 (OlliZRH / Mapillary, CC BY-SA 4.0), vue du dessous",
+  "Mapillary 910556571753305 (petrol / Mapillary, CC BY-SA 4.0), vue 360 degrés depuis la voie ferrée"
+ ],
+ "photos_vues": 6,
+ "confiance": "faible",
+ "notes": "Deux tabliers de bretelle (chaussée ouest tlm/107, chaussée est tlm/255) calés sur la classe 17 : largeur hors parapets 8,6 m, 10,2 m parapets compris ; la chaussée est porte un écran antibruit d'environ 2,5 m côté est (parois). Piles rondes de 1,8 m à tête évasée au pas d'environ 28 m posées d'après les photos (colonnes blanches vues sur les bretelles voisines) car le laser ne voit aucun appui sous ces tabliers ; épaisseur 1,7 m supposée, sous-face non vue. Le nuage voisin (bretelles superposées, bâtiments, autre viaduc A1 tlm/550) fait chuter le pourcentage de points expliqués : ce n'est pas un défaut du tablier lui-même ; les deux tabliers se touchent vers s 0-30 puis s'écartent ; au sud le tablier se prolonge vers l'ouest au-delà de l'axe TLM (non modélisé, voir a-sans-nom-550) ; le profil en travers incliné (dévers ~4 %) et les glissières ne sont pas représentés. Corrigé le 28.11.2026 : le haut des piles est ramené au dessous du tablier (z \"tablier\" = dessous ; l'épaisseur avait été retranchée deux fois)."
+}

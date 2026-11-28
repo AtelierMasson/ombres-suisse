@@ -1,0 +1,131 @@
+{
+ "nom": "Passage supérieur de la Kantonsstrasse au-dessus de l'A13, sans nom",
+ "axe": [
+  [
+   2638513.9,
+   1127943.0,
+   672.6
+  ],
+  [
+   2638521.6,
+   1127950.2,
+   672.85
+  ],
+  [
+   2638527.3,
+   1127958.4,
+   673.0
+  ],
+  [
+   2638531.9,
+   1127967.3,
+   673.0
+  ],
+  [
+   2638536.2,
+   1127976.4,
+   673.0
+  ],
+  [
+   2638540.0,
+   1127985.7,
+   673.0
+  ],
+  [
+   2638544.3,
+   1127994.8,
+   673.1
+  ],
+  [
+   2638549.1,
+   1128003.6,
+   673.2
+  ],
+  [
+   2638554.3,
+   1128012.1,
+   673.1
+  ],
+  [
+   2638559.8,
+   1128020.5,
+   673.0
+  ],
+  [
+   2638568.2,
+   1128027.2,
+   672.6
+  ],
+  [
+   2638572.0,
+   1128034.0,
+   672.2
+  ]
+ ],
+ "largeur": 14.0,
+ "largeur_dessous": 11.0,
+ "epaisseur": 1.5,
+ "epaisseur_appuis": 2.0,
+ "gousset": 8,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 30,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 8,
+   "larg_colonne": 2.2,
+   "z_bas": 664.7
+  },
+  {
+   "type": "pile",
+   "s": 55,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 8,
+   "larg_colonne": 2.2,
+   "z_bas": 665.1
+  },
+  {
+   "type": "pile",
+   "s": 80,
+   "forme": "double",
+   "long": 1.4,
+   "larg": 8,
+   "larg_colonne": 2.2,
+   "z_bas": 666.1
+  },
+  {
+   "type": "culee",
+   "s": 109.3
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2022 (dalle LAS lue en local, supprimée)",
+  "Mapillary bct (2025), keigan (2019) / Mapillary, CC BY-SA 4.0"
+ ],
+ "photos_vues": 3,
+ "confiance": "moyenne",
+ "notes": "Passage supérieur courbe de 109 m (axe repris du nuage, 14 m de large) au-dessus de l'A13 et de ses bretelles : dalle épaisse (~1,5 m, 2 m aux appuis) à intrados courbe d'après la photo Mapillary prise sur l'A13 vers le nord-est (grosse pile rectangulaire d'accotement, paire de colonnes plus loin) ; la seconde vue (vers le sud-ouest) est prise sur le tablier. Trois piles (s 30, 55, 80) placées d'après l'orthophoto et les points sous le tablier, sections estimées ; élargissement vers le carrefour au sud et courbure en plan simplifiés. Conflit de terrain restant : s 4-14 et 92-104 (sol jusqu'à 1,8 m au-dessus du dessous, rampes d'accès en remblai, remblai déclaré).",
+ "remblai": [
+  [
+   0,
+   14
+  ],
+  [
+   92,
+   109.3
+  ]
+ ]
+}

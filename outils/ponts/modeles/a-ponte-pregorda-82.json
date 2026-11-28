@@ -1,0 +1,230 @@
+{
+ "nom": "Ponte Pregorda, A13 (Soazza / Mesocco, Mesolcina)",
+ "axe": [
+  [
+   2737914.7,
+   1138111.5,
+   690.11
+  ],
+  [
+   2737901.7,
+   1138076.9,
+   687.58
+  ],
+  [
+   2737887.6,
+   1138039.5,
+   684.74
+  ],
+  [
+   2737873.4,
+   1138002.1,
+   681.94
+  ],
+  [
+   2737859.3,
+   1137964.7,
+   679.11
+  ],
+  [
+   2737845.1,
+   1137927.3,
+   676.32
+  ],
+  [
+   2737829.9,
+   1137890.2,
+   673.44
+  ],
+  [
+   2737813.2,
+   1137853.7,
+   670.6
+  ],
+  [
+   2737793.9,
+   1137818.7,
+   667.8
+  ],
+  [
+   2737771.7,
+   1137785.2,
+   664.95
+  ],
+  [
+   2737747.2,
+   1137753.5,
+   662.08
+  ],
+  [
+   2737720.7,
+   1137723.4,
+   659.23
+  ],
+  [
+   2737694.4,
+   1137693.3,
+   656.38
+  ],
+  [
+   2737669.6,
+   1137662.1,
+   653.52
+  ],
+  [
+   2737647.6,
+   1137628.8,
+   650.67
+  ],
+  [
+   2737631.1,
+   1137598.2,
+   648.21
+  ],
+  [
+   2737624.6,
+   1137584.7,
+   647.27
+  ]
+ ],
+ "largeur": 14.9,
+ "epaisseur": 2.4,
+ "epaisseur_appuis": 3.4,
+ "gousset": 10,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.2
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 50.6,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 8.0,
+   "larg_colonne": 2.6,
+   "t": -0.0,
+   "z_bas": 669.5
+  },
+  {
+   "type": "pile",
+   "s": 101.2,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 8.0,
+   "larg_colonne": 2.6,
+   "t": -0.0,
+   "z_bas": 660.3
+  },
+  {
+   "type": "pile",
+   "s": 151.7,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 8.0,
+   "larg_colonne": 2.6,
+   "t": -0.0,
+   "z_bas": 657.1
+  },
+  {
+   "type": "pile",
+   "s": 202.3,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 8.0,
+   "larg_colonne": 2.6,
+   "t": -0.0,
+   "z_bas": 653.8
+  },
+  {
+   "type": "pile",
+   "s": 252.9,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 8.0,
+   "larg_colonne": 2.6,
+   "t": -0.0,
+   "z_bas": 643.9
+  },
+  {
+   "type": "pile",
+   "s": 303.5,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 8.0,
+   "larg_colonne": 2.6,
+   "t": -0.0,
+   "z_bas": 638.6
+  },
+  {
+   "type": "pile",
+   "s": 354.1,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 8.0,
+   "larg_colonne": 2.6,
+   "t": -0.0,
+   "z_bas": 654.0
+  },
+  {
+   "type": "pile",
+   "s": 404.6,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 8.0,
+   "larg_colonne": 2.6,
+   "t": -0.0,
+   "z_bas": 643.4
+  },
+  {
+   "type": "pile",
+   "s": 455.2,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 8.0,
+   "larg_colonne": 2.6,
+   "t": -0.0,
+   "z_bas": 642.3
+  },
+  {
+   "type": "pile",
+   "s": 505.8,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 8.0,
+   "larg_colonne": 2.6,
+   "t": -0.0,
+   "z_bas": 641.3
+  },
+  {
+   "type": "pile",
+   "s": 556.4,
+   "forme": "double",
+   "long": 2.4,
+   "larg": 8.0,
+   "larg_colonne": 2.6,
+   "t": -0.0,
+   "z_bas": 638.6
+  },
+  {
+   "type": "culee",
+   "s": 607.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissTLM3D (axes tlm/82 et tlm/83)",
+  "swissSURFACE3D 2020 (tuiles 2737-1137 et 2737-1138)",
+  "Mapillary 1962129251113561 et 27162954513383897 (bct), 1801718264335491 (thetornado76), 2304918892989134 (maboni) : vues depuis la chaussée, CC BY-SA 4.0"
+ ],
+ "photos_vues": 4,
+ "confiance": "faible",
+ "notes": "Un seul tablier continu de 14,9 m (les deux axes TLM tlm/82 et tlm/83 sont les deux chaussées jointives : classe 17 sans vide de s 0 à 610, glissière centrale vue sur les 4 photos Mapillary prises depuis la chaussée, donc pas de fichier nord/sud) ; nuage 2020 en LAS (pas de COPC), dalle supprimée. Piles INVISIBLES au laser et sur les photos (aucune vue de dessous ni de côté trouvée ; 3 recherches web sans portées) : 11 piles « double » espacées de 50,6 m, épaisseur du tablier 2,4 m (3,4 aux appuis) et formes sont SUPPOSÉES, d'où confiance faible ; seule la géométrie du dessus (axe, altitudes, largeur, courbe) est mesurée. Hors modèle : une bretelle/route distincte ~11 m plus bas (classe 17, s ~330-480, côté o>0) ; sol de la maquette qui touche le dessous du tablier à s 350-352 et 360-368 (jusqu'à 1,6 m) et 594-602 (0,3 m). Pas de photo calée (aucune vue d'ensemble ni de dessous trouvée) ; glissière centrale béton/acier non modélisée."
+}

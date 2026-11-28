@@ -1,0 +1,245 @@
+{
+ "nom": "Viadotto di Nivo, A2 (Giornico / Faido, Leventina)",
+ "axe": [
+  [
+   2707882.0,
+   1143875.7,
+   612.2
+  ],
+  [
+   2707825.3,
+   1143909.8,
+   613.15
+  ],
+  [
+   2707774.0,
+   1143941.0,
+   614.01
+  ],
+  [
+   2707723.2,
+   1143972.8,
+   614.74
+  ],
+  [
+   2707673.1,
+   1144005.9,
+   615.32
+  ],
+  [
+   2707624.0,
+   1144040.4,
+   615.72
+  ],
+  [
+   2707576.3,
+   1144076.7,
+   616.06
+  ],
+  [
+   2707544.5,
+   1144102.0,
+   616.25
+  ]
+ ],
+ "largeur": 25.6,
+ "epaisseur": 2.2,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5,
+  "epaisseur": 0.2
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 28.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 599.5
+  },
+  {
+   "type": "pile",
+   "s": 28.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 599.5
+  },
+  {
+   "type": "pile",
+   "s": 68.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 599.7
+  },
+  {
+   "type": "pile",
+   "s": 68.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 599.7
+  },
+  {
+   "type": "pile",
+   "s": 108.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 599.5
+  },
+  {
+   "type": "pile",
+   "s": 108.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 599.5
+  },
+  {
+   "type": "pile",
+   "s": 148.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 600.0
+  },
+  {
+   "type": "pile",
+   "s": 148.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 600.0
+  },
+  {
+   "type": "pile",
+   "s": 188.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 599.6
+  },
+  {
+   "type": "pile",
+   "s": 188.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 599.6
+  },
+  {
+   "type": "pile",
+   "s": 228.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 600.5
+  },
+  {
+   "type": "pile",
+   "s": 228.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 600.5
+  },
+  {
+   "type": "pile",
+   "s": 268.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 606.3
+  },
+  {
+   "type": "pile",
+   "s": 268.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 606.3
+  },
+  {
+   "type": "pile",
+   "s": 308.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 606.1
+  },
+  {
+   "type": "pile",
+   "s": 308.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 606.1
+  },
+  {
+   "type": "pile",
+   "s": 348.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": -6.2,
+   "z_bas": 606.5
+  },
+  {
+   "type": "pile",
+   "s": 348.5,
+   "forme": "rond",
+   "long": 2.2,
+   "larg": 2.2,
+   "t": 6.2,
+   "z_bas": 606.5
+  },
+  {
+   "type": "culee",
+   "s": 400.5
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissTLM3D (axes tlm/87, tlm/152)",
+  "swissSURFACE3D 2020 (tuiles 2707-1143 et 2707-1144)",
+  "Mapillary 1142937725579439 (bct), 1017718775677187 (till), 1095117278453123 (maxim752), 1287157949610443 (fcignat) : vues depuis la chauss\u00e9e ; 4099410956763972 et 362406098633730 (kaitu) : vues lat\u00e9rales depuis la route de la rive ouest, CC BY-SA 4.0"
+ ],
+ "photos_vues": 6,
+ "confiance": "faible",
+ "notes": "Un seul tablier continu de 25,6 m : les deux axes TLM (tlm/87, tlm/152) sont les deux chauss\u00e9es jointives (classe 17 sans vide, glissi\u00e8re centrale vers o = -1,5) ; tablier de s = 77 \u00e0 478 de l'axe TLM seulement (401 m, pas 602 m). Piles invisibles au laser et sur les photos (aucune vue de dessous trouv\u00e9e, seulement des vues depuis la chauss\u00e9e et de loin) : 9 paires de colonnes rondes tous les 40 m suppos\u00e9es, \u00e9paisseur 2,2 m suppos\u00e9e d'apr\u00e8s les Ronchi (m\u00eame A2), pieds au sol de la maquette ; port\u00e9e sur la rivi\u00e8re et la centrale possiblement plus longue. Conflit de terrain aux cul\u00e9es : s 4..10 (sol jusqu'\u00e0 2,1 m au-dessus du dessous) et s 392..402 (1,7 m), remblais d'acc\u00e8s, d\u00e9clar\u00e9s dans remblai ; pas de photo cal\u00e9e (vues depuis la chauss\u00e9e sans rep\u00e8res au sol, vue lat\u00e9rale en panorama 360\u00b0) ; joints, glissi\u00e8re centrale et \u00e9cran antibruit non mod\u00e9lis\u00e9s.",
+ "remblai": [
+  [
+   0,
+   12
+  ],
+  [
+   388,
+   401
+  ]
+ ]
+}

@@ -1,0 +1,260 @@
+{
+ "nom": "Lindenbrücke (A4, Arth)",
+ "axe": [
+  [
+   2683012.5,
+   1211681.4,
+   487.32
+  ],
+  [
+   2683047.0,
+   1211674.9,
+   488.74
+  ],
+  [
+   2683076.4,
+   1211669.2,
+   489.95
+  ],
+  [
+   2683105.7,
+   1211662.8,
+   491.16
+  ],
+  [
+   2683134.9,
+   1211655.7,
+   492.38
+  ],
+  [
+   2683163.8,
+   1211647.6,
+   493.59
+  ],
+  [
+   2683192.5,
+   1211638.6,
+   494.81
+  ],
+  [
+   2683221.0,
+   1211628.9,
+   496.03
+  ],
+  [
+   2683249.6,
+   1211619.2,
+   497.25
+  ],
+  [
+   2683278.2,
+   1211610.0,
+   498.47
+  ],
+  [
+   2683307.1,
+   1211601.8,
+   499.68
+  ],
+  [
+   2683365.9,
+   1211589.6,
+   502.11
+  ],
+  [
+   2683395.7,
+   1211585.4,
+   503.33
+  ],
+  [
+   2683425.7,
+   1211581.9,
+   504.55
+  ],
+  [
+   2683455.7,
+   1211578.3,
+   505.77
+  ],
+  [
+   2683485.5,
+   1211574.0,
+   506.99
+  ],
+  [
+   2683515.0,
+   1211568.6,
+   508.2
+  ],
+  [
+   2683535.4,
+   1211564.5,
+   509.04
+  ]
+ ],
+ "largeur": 20.6,
+ "epaisseur": 2.5,
+ "epaisseur_appuis": 3.0,
+ "gousset": 6,
+ "garde_corps": {
+  "hauteur": 1.0,
+  "plein": false,
+  "pas": 2.0,
+  "epaisseur": 0.2
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 50.2,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 13.2,
+   "z_bas": 476
+  },
+  {
+   "type": "pile",
+   "s": 92.0,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 13.2,
+   "z_bas": 471.0
+  },
+  {
+   "type": "pile",
+   "s": 134.3,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 13.2,
+   "z_bas": 472.4
+  },
+  {
+   "type": "pile",
+   "s": 176.1,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 13.2,
+   "z_bas": 472.6
+  },
+  {
+   "type": "pile",
+   "s": 218.2,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 13.2,
+   "z_bas": 472.5
+  },
+  {
+   "type": "pile",
+   "s": 259.4,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 13.2,
+   "z_bas": 481
+  },
+  {
+   "type": "pile",
+   "s": 302.0,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 13.2,
+   "z_bas": 474.5
+  },
+  {
+   "type": "pile",
+   "s": 344.1,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 13.2,
+   "z_bas": 468.5
+  },
+  {
+   "type": "pile",
+   "s": 385.3,
+   "forme": "rect",
+   "long": 3.6,
+   "larg": 13.2,
+   "z_bas": 471
+  },
+  {
+   "type": "pile",
+   "s": 424.0,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 13.2,
+   "z_bas": 478
+  },
+  {
+   "type": "pile",
+   "s": 460.5,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 13.2,
+   "z_bas": 480
+  },
+  {
+   "type": "pile",
+   "s": 498.3,
+   "forme": "rect",
+   "long": 2.4,
+   "larg": 13.2,
+   "z_bas": 485.2
+  },
+  {
+   "type": "culee",
+   "s": 537.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "elements": [],
+ "sources": [
+  "swissSURFACE3D 2024 (nuage de points)",
+  "Mapillary (fcignat, Yha1, trachsler, chrisbeddow), CC BY-SA 4.0"
+ ],
+ "photos_vues": 4,
+ "confiance": "moyenne",
+ "notes": "Un seul tablier de 20,6 m : le nuage (classe 17) est continu d'une rive à l'autre, sans vide entre les deux chaussées que swissTLM3D (tlm/115 et tlm/119) décrit ; les photos Mapillary prises depuis la chaussée montrent bien deux chaussées séparées par un séparateur de terre-plein et des glissières, sur la même dalle. Piles voiles de 13,2 x 2,4 m (3,6 m en s 385) tous les ~42 m puis 36-40 m vers l'est, épaisseur du caisson (2,5 m, 3 m aux appuis) déduite de la tête des piles au laser (sous-face jamais vue entre piles) ; aucune vue depuis le dessous ni vue d'ensemble trouvée (calage photo non fait), séparateur central, mur antibruit en bois et rampe d'accès est (s > 537) non modélisés ; garde-corps ajouré au pas de 2 m.",
+ "bords": [
+  [
+   0,
+   -10.4,
+   10.4
+  ],
+  [
+   440,
+   -10.5,
+   10.6
+  ],
+  [
+   480,
+   -11.2,
+   11.7
+  ],
+  [
+   510,
+   -12.2,
+   12.3
+  ],
+  [
+   537,
+   -12.5,
+   12.5
+  ]
+ ],
+ "remblai": [
+  [
+   530,
+   538
+  ]
+ ],
+ "photo": {
+  "fichier": "m_1157059252720695.jpg",
+  "page": "https://www.mapillary.com/app/?pKey=1157059252720695",
+  "auteur": "fcignat / Mapillary",
+  "licence": "CC BY-SA 4.0"
+ }
+}

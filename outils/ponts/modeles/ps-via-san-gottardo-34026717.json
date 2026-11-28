@@ -1,0 +1,60 @@
+{
+ "nom": "Pont de la Via San Gottardo (gorge du Piottino), Tessin",
+ "axe": [
+  [
+   2700541.3,
+   1149493.1,
+   936.1
+  ],
+  [
+   2700555,
+   1149492.6,
+   936.0
+  ],
+  [
+   2700566,
+   1149500,
+   935.3
+  ],
+  [
+   2700580.7,
+   1149503.5,
+   934.2
+  ],
+  [
+   2700597.8,
+   1149500.3,
+   932.0
+  ],
+  [
+   2700603.4,
+   1149497,
+   931.0
+  ]
+ ],
+ "largeur": 22,
+ "epaisseur": 1.2,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": true,
+  "epaisseur": 0.3
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "culee",
+   "s": 66
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "Relevé swissSURFACE3D 2020"
+ ],
+ "photos_vues": 0,
+ "confiance": "faible",
+ "notes": "Aucune photo exploitable de l'ouvrage (Mapillary : tunnel, panneau, vue 360 sans pont) ; modèle tiré du nuage seul (swissSURFACE3D 2020) et de l'orthophoto. Le nuage montre un ouvrage de ~22 m formé de la route et d'un tablier voisin plus bas (voie ferrée parallèle à ~2 m plus bas à s 15-45), fusionnés ici en un seul tablier ; piles et gorge non vues (culées seulement)."
+}

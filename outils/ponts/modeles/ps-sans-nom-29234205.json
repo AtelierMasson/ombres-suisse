@@ -1,0 +1,89 @@
+{
+ "nom": "Pont routier sur le canal et l'A13 (sans nom), Rheineck",
+ "axe": [
+  [
+   2762577.7,
+   1259267.0,
+   403.45
+  ],
+  [
+   2762517.7,
+   1259225.0,
+   405.45
+  ],
+  [
+   2762477.7,
+   1259199.0,
+   407.75
+  ],
+  [
+   2762462.6,
+   1259187.0,
+   408.05
+  ],
+  [
+   2762460.4,
+   1259180.0,
+   407.15
+  ]
+ ],
+ "largeur": 10.2,
+ "epaisseur": 1.6,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.5
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 34,
+   "forme": "rect",
+   "long": 2.0,
+   "larg": 5.5,
+   "z_bas": 396.5
+  },
+  {
+   "type": "pile",
+   "s": 62,
+   "forme": "rect",
+   "long": 2.0,
+   "larg": 5.5,
+   "z_bas": 395.9
+  },
+  {
+   "type": "pile",
+   "s": 80,
+   "forme": "rect",
+   "long": 2.2,
+   "larg": 5.5,
+   "z_bas": 398.7
+  },
+  {
+   "type": "pile",
+   "s": 108,
+   "forme": "rect",
+   "long": 2.2,
+   "larg": 5.5,
+   "z_bas": 399.6
+  },
+  {
+   "type": "culee",
+   "s": 146
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "swissSURFACE3D 2024",
+  "swissimage",
+  "Mapillary (beat, fcignat) CC BY-SA 4.0"
+ ],
+ "photos_vues": 2,
+ "confiance": "faible",
+ "notes": "Pont courbe (rampe de raccordement) sur le canal (s 36-58) puis l'A13 et la voie ferrée (s ~60-115), modélisé sur 146 m depuis l'extrémité nord-est ; la rampe en courbe qui continue au-delà (remblai) n'est pas modélisée. Dalle béton nervurée et épaisse (~1,6 m) sur gros piliers rectangulaires de bord de chaussée (vue de dessous sur Mapillary 2018, avec mur de soutènement blanc) ; positions des piles tirées de points sous le tablier mais largeur 10,2 m, épaisseur et courbure fine supposées ; 80 % seulement des points d'ouvrage expliqués (murs antibruit, caténaires). Nom non trouvé. Deuxième photo (A13 sens nord) sans vue utile du tablier."
+}

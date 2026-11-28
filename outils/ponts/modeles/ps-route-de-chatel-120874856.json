@@ -1,0 +1,91 @@
+{
+ "nom": "Passage sup\u00e9rieur de la Route de Ch\u00e2tel sur l'A12",
+ "axe": [
+  [
+   2559865.1,
+   1156435.3,
+   837.45
+  ],
+  [
+   2559876.6,
+   1156451.6,
+   837.75
+  ],
+  [
+   2559888.1,
+   1156468.0,
+   837.95
+  ],
+  [
+   2559899.7,
+   1156484.3,
+   838.05
+  ],
+  [
+   2559911.2,
+   1156500.7,
+   838.1
+  ],
+  [
+   2559922.7,
+   1156517.0,
+   838.1
+  ],
+  [
+   2559928.5,
+   1156525.2,
+   838.05
+  ]
+ ],
+ "largeur": 11.5,
+ "largeur_dessous": 9.0,
+ "epaisseur": 1.2,
+ "garde_corps": {
+  "hauteur": 1.1,
+  "plein": false,
+  "pas": 2.0
+ },
+ "appuis": [
+  {
+   "type": "culee",
+   "s": 0
+  },
+  {
+   "type": "pile",
+   "s": 30.0,
+   "forme": "rect",
+   "long": 1.4,
+   "larg": 9.5,
+   "z_bas": 831.5
+  },
+  {
+   "type": "pile",
+   "s": 56.0,
+   "forme": "rect",
+   "long": 1.3,
+   "larg": 6.5,
+   "z_bas": 830.4
+  },
+  {
+   "type": "pile",
+   "s": 82.0,
+   "forme": "rect",
+   "long": 1.3,
+   "larg": 6.5,
+   "z_bas": 830.6
+  },
+  {
+   "type": "culee",
+   "s": 110.0
+  }
+ ],
+ "arches": [],
+ "pylones": [],
+ "sources": [
+  "Mapillary : images 1123805952369709 (vinisa, 2024), 1330403968651334 (yellowracer, 2025), 1526613585428568 (bct, 2026)",
+  "swissIMAGE (orthophoto)"
+ ],
+ "photos_vues": 4,
+ "confiance": "moyenne",
+ "notes": "Axe droit, largeur 11,5 m et altitudes tir\u00e9s du nuage 2025 (tablier m\u00e9dian +0,03 m, 95 % des points d'ouvrage \u00e0 moins de 1,5 m) ; dalle mince en b\u00e9ton (~1,2 m) sur deux piles en voile et un mur de cul\u00e9e c\u00f4t\u00e9 ouest, vue sur trois photos Mapillary de l'A12 depuis le sud et le nord. La position des piles (s 56 au terre-plein, s 82 \u00e0 l'est) vient des photos et des glissi\u00e8res du nuage, pas d'un point direct ; les 9 derniers m\u00e8tres, o\u00f9 le terrain rejoint la chauss\u00e9e, sont laiss\u00e9s \u00e0 la rampe."
+}
