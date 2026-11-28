@@ -71,6 +71,8 @@ de la machine est presque plein.
 | Couvert en bois | `toits`, `parois` (façades, ouvertures), `volumes` (pavillons), `bois` / `tuile` / `pierre` |
 | Passerelle | tablier mince, garde-corps ajouré, appuis fins |
 
+**Haut des piles** : dans `sections`, `z: "tablier"` est le **dessous** du tablier (épaisseur déjà retranchée). Le haut d'une pile prend `dz: 0` ; un `dz` négatif la laisse flotter sous le tablier (`ajouter.py` le refuse).
+
 **Piles et pylônes : un seul volume sculpté** par appui (fût, tête, pied, jambes qui se rejoignent), jamais des boîtes
 empilées qui se touchent. Utilise la forme sculptée du schéma telle que dans `poya.json`. Niveau B : piles simples
 (`rect`, `rond`, `double`) mais aux bonnes proportions.

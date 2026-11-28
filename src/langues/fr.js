@@ -394,7 +394,6 @@ export default {
   /* coupe */
   "zone.rayon": "Rayon de la maquette",
   "zone.ronde": "Maquette ronde",
-  "zone.note": "Au-delà de {r} m, le terrain utilise un maillage de 2 m et les bâtiments et les arbres proviennent de swisstopo. Ces données sont plus légères que le relevé.",
   "coupe.titre": "Coupe",
   "coupe.activer": "Couper le terrain et les bâtiments",
   "coupe.couperModele": "Couper la maquette <span class=\"text-secondary\">(sinon, ligne de coupe seule)</span>",

@@ -393,7 +393,6 @@ export default {
   /* coupe */
   "zone.rayon": "Raggio del modello",
   "zone.ronde": "Modello rotondo",
-  "zone.note": "Oltre {r} m il terreno è rappresentato su una griglia di 2 m. Gli edifici e gli alberi provengono da swisstopo. Questi dati sono più leggeri del rilievo.",
   "coupe.titre": "Sezione",
   "coupe.activer": "Sezionare terreno ed edifici",
   "coupe.couperModele": "Sezionare il modello <span class=\"text-secondary\">(altrimenti solo la linea di sezione)</span>",

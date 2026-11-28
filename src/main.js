@@ -292,7 +292,6 @@ function rayonChoisi() { try { return +localStorage.getItem("ombres.rayonZone") 
 function afficherRayon(Rz) {
   $("#rayonZone").value = Rz;
   $("#rayonZoneVal").textContent = `${Rz} m`;
-  $("#noteZone").textContent = Rz > RAYON_FIN_MAX ? t("zone.note", { r: RAYON_FIN_MAX }) : "";
 }
 /** Nouveau rayon : seul l'anneau change si le relevé fin reste le même, sinon le lieu est rechargé. */
 function reglerRayon(Rz, recharger = true) {

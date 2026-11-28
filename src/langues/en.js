@@ -393,7 +393,6 @@ export default {
   /* coupe */
   "zone.rayon": "Model radius",
   "zone.ronde": "Round model",
-  "zone.note": "Beyond {r} m, the terrain uses a 2 m grid and the buildings and trees come from swisstopo. These data need less memory than the laser survey.",
   "coupe.titre": "Section",
   "coupe.activer": "Cut through terrain and buildings",
   "coupe.couperModele": "Cut the model <span class=\"text-secondary\">(otherwise section line only)</span>",

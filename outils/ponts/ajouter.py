@@ -32,6 +32,12 @@ m = d.get("largeur", 10) / 2 + 2 + max((p.get("larg", 0) for p in d.get("appuis"
 for y in d.get("pylones", []):
     m = max(m, y.get("ecart", 0) / 2 + y.get("epaisseur", 3))
 boite = [round(min(xs) - m, 1), round(min(ys) - m, 1), round(max(xs) + m, 1), round(max(ys) + m, 1)]
+# pile flottante : z "tablier" est le DESSOUS du tablier ; un haut de pile plus bas que lui laisse un vide visible
+for a in d.get("appuis", []) or []:
+    hauts = [S.get("dz", 0) or 0 for S in a.get("sections", []) or [] if S.get("z") == "tablier"]
+    if hauts and max(hauts) < -0.3:
+        sys.exit(f"Refusé : la pile s={a.get('s')} s'arrête {-max(hauts):.2f} m sous le tablier. z \"tablier\" désigne déjà le "
+                 "dessous du tablier : le haut de la pile prend dz = 0 (ne pas retrancher l'épaisseur).")
 idx_f = os.path.join(racine, "index.json")
 if not forcer:
     for e in json.load(open(idx_f)):

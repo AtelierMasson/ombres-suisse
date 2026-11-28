@@ -393,7 +393,6 @@ export default {
   /* coupe */
   "zone.rayon": "Radius des Modells",
   "zone.ronde": "Rundes Modell",
-  "zone.note": "Jenseits von {r} m wird das Gelände mit einem 2-m-Raster dargestellt. Gebäude und Bäume stammen von swisstopo. Diese Daten benötigen weniger Speicher als der Laserscan.",
   "coupe.titre": "Schnitt",
   "coupe.activer": "Gelände und Gebäude schneiden",
   "coupe.couperModele": "Modell schneiden <span class=\"text-secondary\">(sonst nur Schnittlinie)</span>",
