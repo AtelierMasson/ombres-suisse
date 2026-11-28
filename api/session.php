@@ -8,6 +8,7 @@ require __DIR__ . '/_commun.php';
 $m = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $jeton = (string) ($m === 'POST' ? ($_POST['jeton'] ?? '') : ($_GET['jeton'] ?? ''));
 $l = langue($m === 'POST' ? ($_POST['langue'] ?? null) : ($_GET['langue'] ?? null));
+$nl = ($m === 'POST' ? ($_POST['nl'] ?? '') : ($_GET['nl'] ?? '')) === '1';
 $retour = fn(string $etat) => SITE_URL . '/?' . http_build_query(['compte' => $etat, 'lang' => $l]);
 
 if (!preg_match('/^[0-9a-f]{64}$/', $jeton)) {
@@ -30,14 +31,16 @@ if ($m !== 'POST') {
         . '<meta name="robots" content="noindex"><title>Topograph</title>'
         . '<body style="font:16px system-ui,sans-serif;display:grid;place-items:center;min-height:90vh;color:#1f2933">'
         . '<form method="post" action="session.php"><p>' . $h($textes[0]) . '</p>'
-        . '<input type="hidden" name="jeton" value="' . $h($jeton) . '"><input type="hidden" name="langue" value="' . $l . '">'
+        . '<input type="hidden" name="jeton" value="' . $h($jeton) . '"><input type="hidden" name="langue" value="' . $l . '">' . ($nl ? '<input type="hidden" name="nl" value="1">' : '')
         . '<button type="submit" style="font:inherit;padding:.5em 1.2em">' . $h($textes[1]) . '</button></form>'
         . '<script>document.forms[0].submit()</script></body></html>';
     exit;
 }
 
+// la page ci-dessus s'envoie depuis l'origine de l'API : une autre origine, ou « null » (iframe sandbox d'un site tiers
+// qui voudrait connecter le visiteur sur un autre compte), est refusée
 $o = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($o !== '' && $o !== 'null' && !origine_admise($o)) { http_response_code(403); exit; }
+if ($o !== '' && !origine_admise($o)) { http_response_code(403); exit; }
 
 $pdo = bd();
 $pdo->beginTransaction();
@@ -60,9 +63,11 @@ $compteId = (int) $q->fetchColumn();
 $valeur = bin2hex(random_bytes(32));
 // une seule connexion à la fois par compte : la nouvelle remplace les autres (l'appareil précédent est déconnecté)
 $pdo->prepare('DELETE FROM sessions WHERE compte_id = ?')->execute([$compteId]);
-$pdo->prepare('INSERT INTO sessions (id, compte_id, expire) VALUES (?, ?, UTC_TIMESTAMP() + INTERVAL 180 DAY)')
+$pdo->prepare('INSERT INTO sessions (id, compte_id, expire) VALUES (?, ?, UTC_TIMESTAMP() + INTERVAL ' . JOURS_SESSION . ' DAY)')
     ->execute([hache($valeur), $compteId]);
 $pdo->commit();
+// accord newsletter donné à la demande du lien : il compte maintenant que l'adresse est vérifiée
+if ($nl) newsletter_noter($email, true, 'inscription', $l);
 
 poser_cookie($valeur, time() + DUREE_SESSION);
 header('Cache-Control: no-store');

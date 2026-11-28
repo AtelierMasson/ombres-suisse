@@ -43,6 +43,18 @@ export function t(cle, p = {}) {
   return v.replace(/\{(\w+)\}/g, (m, k) => p[k] ?? m);
 }
 
+const ECHAP = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+const echapper = v => typeof v === "string" ? v.replace(/[&<>"']/g, c => ECHAP[c]) : v;
+/**
+ * Comme t(), pour un texte inséré en HTML (innerHTML) : les paramètres sont échappés, le gabarit traduit (qui peut
+ * contenir du balisage) ne l'est pas. Un nom de lieu, de fichier ou un message d'erreur ne peut ainsi rien injecter.
+ */
+export function th(cle, p = {}) {
+  const q = {};
+  for (const k in p) q[k] = echapper(p[k]);
+  return t(cle, q);
+}
+
 /** Nombre à `d` décimales, sans séparateur de milliers (virgule en français, point en de/it/en). */
 export const nombre = (v, d = 1) => new Intl.NumberFormat(locale, { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: false }).format(v);
 /** Nombre entier avec séparateur de milliers de la locale. */

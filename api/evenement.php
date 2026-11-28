@@ -9,6 +9,8 @@ const EVENEMENTS = ['lieu', 'heures', 'coupe', 'export', 'import', 'volume', 'pr
 entree('POST');
 $type = (string) (corps()['type'] ?? ($_GET['type'] ?? ''));
 if (!in_array($type, EVENEMENTS, true)) json(400, ['erreur' => 'type']);
+// au plus 120 événements par heure et par adresse IP : un script ne peut pas gonfler les statistiques
+if (trop_de_demandes('evenement', 120)) { http_response_code(204); exit; }
 bd()->prepare('INSERT INTO compteurs (jour, evenement, n) VALUES (UTC_DATE(), ?, 1) ON DUPLICATE KEY UPDATE n = n + 1')
     ->execute([$type]);
 http_response_code(204);

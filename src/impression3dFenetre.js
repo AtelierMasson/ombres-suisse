@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { zipSync } from "three/addons/libs/fflate.module.js";
 import { calculerImpression, stlBinaire, contenuZip } from "./impression3d.js";
-import { t, nombre, entier } from "./i18n.js";
+import { t, th, nombre, entier } from "./i18n.js";
 import "./impression3d.css";
 
 let ouvert = null, dlg = null, rendu = null, scene3 = null, cam = null, ctl = null, groupe = null, dernier = null, minuteur = 0, fil = null, tour = 0;
@@ -192,7 +192,7 @@ async function lireToits(ctx, type, zone) {
   else if (type === "swiss") zone.textContent = t("impr.swissAttente");
   let lots;
   try { lots = await ctx.toits(type); } catch (e) {
-    invite.innerHTML = `<p>${t("impr.advancedEchec", { m: e.message })}</p>`; invite.hidden = false;
+    invite.innerHTML = `<p>${th("impr.advancedEchec", { m: e.message })}</p>`; invite.hidden = false;
     return null;
   }
   if (!lots) {

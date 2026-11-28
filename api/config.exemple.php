@@ -23,7 +23,7 @@ const SITE_URL = 'https://topograph.ch';
 // Adresse de l'API (dossier api/), sans barre finale
 const API_URL = 'https://topograph.ch/api';
 // Origine de développement autorisée en CORS avec cookies ('' pour aucune)
-const ORIGINE_DEV = 'http://localhost:5199';
+const ORIGINE_DEV = ''; // en production : vide. En local seulement : 'http://localhost:5199'
 // Cookie Secure : true en production ; false seulement pour un test local en http hors Chrome/Firefox
 const COOKIE_SECURE = true;
 

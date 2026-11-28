@@ -11,7 +11,8 @@ require __DIR__ . '/config.php';
 
 const COOKIE_NOM = 'ombres_session';
 const DUREE_JETON = 900;              // 15 min
-const DUREE_SESSION = 180 * 86400;    // 180 jours
+const JOURS_SESSION = 30;              // session glissante : expire après 30 jours sans visite
+const DUREE_SESSION = JOURS_SESSION * 86400;
 
 date_default_timezone_set('UTC');
 ini_set('display_errors', '0');
@@ -91,6 +92,17 @@ function corps(): array
         return is_array($d) ? $d : [];
     }
     return $_POST;
+}
+
+/** true si l'adresse IP a déjà fait `$max` demandes de ce genre dans l'heure ; sinon note celle-ci (table demandes). */
+function trop_de_demandes(string $genre, int $max): bool
+{
+    $cle = hache($genre . ':' . ($_SERVER['REMOTE_ADDR'] ?? ''));
+    $q = bd()->prepare('SELECT COUNT(*) FROM demandes WHERE cle = ? AND cree_le > UTC_TIMESTAMP() - INTERVAL 1 HOUR');
+    $q->execute([$cle]);
+    if ((int) $q->fetchColumn() >= $max) return true;
+    bd()->prepare('INSERT INTO demandes (cle) VALUES (?)')->execute([$cle]);
+    return false;
 }
 
 function hache(string $valeur): string
@@ -288,6 +300,13 @@ function compte_courant(): ?array
     }
     $r = $q->fetch();
     if (!$r) return null;
+    // session glissante : prolongée de JOURS_SESSION jours à l'usage (au plus une fois par jour) ; une session plus longue
+    // (ouverte avant ce réglage) est ramenée à JOURS_SESSION jours
+    $prolonger = bd()->prepare('UPDATE sessions SET expire = UTC_TIMESTAMP() + INTERVAL ' . JOURS_SESSION . ' DAY
+                                WHERE id = ? AND (expire < UTC_TIMESTAMP() + INTERVAL ' . (JOURS_SESSION - 1) . ' DAY
+                                       OR expire > UTC_TIMESTAMP() + INTERVAL ' . JOURS_SESSION . ' DAY)'); // anciennes sessions de 180 j ramenées
+    $prolonger->execute([hache($c)]);
+    if ($prolonger->rowCount() === 1 && !headers_sent()) poser_cookie($c, time() + DUREE_SESSION);
     $r['pro'] = (int) $r['pro_offert'] === 1 || (int) $r['pro_abonnement'] === 1 ? 1 : 0;
     return $r;
 }

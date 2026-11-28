@@ -47,7 +47,7 @@ export function brancherZones(o) {
   scene.scene.add(groupeToit);
   scene.horsAO.push(groupeToit);
 
-  const autorise = () => !forcerGratuit && (!o.compte?.disponible() || o.compte.etat().pro);
+  const autorise = () => !forcerGratuit && (o.compte ? o.compte.proActif() : !!import.meta.env?.DEV);
   const rel = a => a.map(([e, n]) => [e - S.E0, n - S.N0]);
   const visibles = () => S.G ? zones.filter(z => z.anneaux[0].every(([e, n]) => Math.max(Math.abs(e - S.E0), Math.abs(n - S.N0)) < S.G.R - 2)) : [];
   const zoneChoisie = () => visibles().find(z => z.id === choisie) || null;

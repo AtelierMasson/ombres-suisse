@@ -141,7 +141,7 @@ export function brancherInterface({ scene, compte }) {
 
   /* ---------------------------------------------------------------- offre Pro (compte gratuit) */
   function majOffre() {
-    const libre = !compte?.disponible?.() || !!compte.etat().pro; // sans API des comptes, tout est ouvert
+    const libre = compte ? compte.proActif() : !!import.meta.env?.DEV; // Pro confirmé par l'API (ou développement)
     // plus d'onglet « Pro » : l'offre s'affiche en tête des onglets Projet et Export, dont les outils sont grisés
     $("#offrePro").hidden = libre;
     for (const c of document.querySelectorAll("[data-offre-copie]")) c.hidden = libre;

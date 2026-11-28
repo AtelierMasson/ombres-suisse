@@ -1,5 +1,5 @@
 # Seuls les points d'entrée publics sont servis ; config et fichiers internes restent inaccessibles.
 Options -Indexes
-<FilesMatch "^(config|config\.exemple|_commun)\.php$|\.(sql|md)$|^\.">
+<FilesMatch "^config\.|^_commun\.php$|\.(sql|md|bak|orig|jsonl)$|^\.">
   Require all denied
 </FilesMatch>

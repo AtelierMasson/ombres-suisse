@@ -394,8 +394,12 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
    * À appeler avant une fonction pro. Renvoie true si le compte est pro ; sinon ouvre la boîte sur l'achat
    * (ou sur la connexion) avec la raison donnée, et renvoie false. Sans API joignable, renvoie false sans rien ouvrir.
    */
+  /** Pro actif : seulement sur un compte que l'API confirme Pro. Une API absente ou bloquée laisse le visiteur en gratuit,
+   *  sauf en développement (serveur Vite sans PHP), où tout reste ouvert pour travailler. */
+  const proActif = () => !!e.pro || (!disponible && !!import.meta.env?.DEV);
+
   function exigerPro(texte = "") {
-    if (e.pro) return true;
+    if (proActif()) return true;
     if (!disponible) return false;
     raison = texte;
     message = "";
@@ -452,7 +456,7 @@ export function brancherCompte({ api = "/api", t = c => c } = {}) {
   const pret = demarrer();
 
   return {
-    monter, ouvrir, exigerPro, exigerConnexion, relire, etat, pret, appel,
+    monter, ouvrir, exigerPro, exigerConnexion, relire, etat, pret, appel, proActif,
     /** Ajoute une partie à la boîte d'un compte connecté : `f()` renvoie un élément (ou null). Redessine si ouverte. */
     ajouterSection: f => { sections.push(f); if (dlg?.open) dessiner(); },
     redessiner: () => { if (dlg?.open) dessiner(); },

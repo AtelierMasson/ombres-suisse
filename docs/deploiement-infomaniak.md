@@ -45,8 +45,9 @@ l'onglet *Actions* du dépôt ; le site affiche la version publiée dans `https:
 
 **Revenir à une version précédente :** Actions → « Déployer sur Infomaniak » → *Run workflow* → indiquer le tag.
 
-**Aperçu :** chaque envoi sur `main` reste publié sur GitHub Pages (`ateliermasson.github.io/ombres-suisse`), sans
-compte ni paiement ; la production (topograph.ch) ne change qu'à la création d'une version.
+**Aperçu :** plus de copie sur GitHub Pages (retirée le 28.11.2026, audit de sécurité : sans API des comptes, elle ouvrait le Pro à tous). Pour essayer une version, `npm run build && npx vite preview`.
+
+**Clés du serveur :** le secret `INFOMANIAK_KNOWN_HOSTS` contient les clés publiques du serveur SSH (lignes `known_hosts`) ; le déploiement refuse un serveur dont la clé diffère.
 
 Vérifier ensuite : `https://topograph.ch/api/moi.php` doit répondre `{"erreur":"non_connecte"}` (401) ;
 `https://topograph.ch/api/config.php` doit répondre 403.

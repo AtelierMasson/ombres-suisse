@@ -12,7 +12,9 @@ $c = file_get_contents($f);
 if ($sk !== '') { $c = preg_replace("/const STRIPE_CLE_SECRETE = '[^']*';/", "const STRIPE_CLE_SECRETE = '" . $sk . "';", $c, 1, $a); if (!$a) { echo "Ligne STRIPE_CLE_SECRETE introuvable : rien n'a été changé.\n"; exit(1); } }
 if ($wh !== '') { $c = preg_replace("/const STRIPE_SECRET_WEBHOOK = '[^']*';/", "const STRIPE_SECRET_WEBHOOK = '" . $wh . "';", $c, 1, $b); if (!$b) { echo "Ligne STRIPE_SECRET_WEBHOOK introuvable : rien n'a été changé.\n"; exit(1); } }
 if ($sk === '' && preg_match("/const STRIPE_CLE_SECRETE = '([^']*)';/", $c, $m)) $sk = $m[1]; // pour la vérification
-copy($f, $f . '.avant-stripe');
+// copie de secours hors du dossier du site (jamais servie), effacée à la fin
+$copie = __DIR__ . '/config-avant-stripe.php.txt';
+copy($f, $copie); chmod($copie, 0600);
 file_put_contents($f, $c);
 // vérification : la clé répond-elle ? (solde du compte, sans rien afficher de la clé)
 $ch = curl_init('https://api.stripe.com/v1/balance');
@@ -20,4 +22,4 @@ curl_setopt_array($ch, [CURLOPT_USERPWD => $sk . ':', CURLOPT_RETURNTRANSFER => 
 curl_exec($ch);
 $code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
 echo ($skSaisie ? "Clé secrète enregistrée. " : "") . ($wh !== '' ? "Secret du webhook enregistré. " : "Secret du webhook : inchangé. ") . ($sk === '' ? "\n" : ($code === 200 ? " La clé Stripe est valide (" . (str_contains($sk, '_test_') ? 'mode test' : 'mode réel') . ").\n" : "Stripe refuse la clé (HTTP $code) : vérifiez-la.\n"));
-@unlink($f . '.avant-stripe');
+@unlink($copie);

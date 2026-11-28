@@ -59,6 +59,35 @@ function premiere_fois(string $id, string $colonne, string $condition = '1'): bo
     return $q->rowCount() === 1;
 }
 
+/**
+ * Un essai gratuit par carte (et non par compte : une nouvelle adresse suffisait pour en obtenir un autre). Si la carte
+ * de ce nouvel essai a déjà servi à l'essai d'un autre abonnement, l'essai prend fin tout de suite et Stripe facture la
+ * période. Registre hors du site : empreinte de carte Stripe (card.fingerprint) → abonnement, rien d'autre.
+ * true si l'essai a été arrêté.
+ */
+function essai_par_carte(string $sub): bool
+{
+    if (!str_starts_with($sub, 'sub_')) return false;
+    [$code, $s] = stripe('GET', 'subscriptions/' . rawurlencode($sub), ['expand' => ['default_payment_method']]);
+    if ($code !== 200 || ($s['status'] ?? '') !== 'trialing') return false;
+    $empreinte = (string) ($s['default_payment_method']['card']['fingerprint'] ?? '');
+    if ($empreinte === '') return false;
+    $dossier = dirname(__DIR__, 2) . '/donnees-topograph';
+    if (!is_dir($dossier)) @mkdir($dossier, 0700, true);
+    $h = fopen("$dossier/essais-cartes.json", 'c+');
+    if (!$h) return false;
+    flock($h, LOCK_EX);
+    $registre = json_decode((string) stream_get_contents($h), true) ?: [];
+    $deja = isset($registre[$empreinte]) && $registre[$empreinte] !== $sub;
+    if (!$deja) {
+        $registre[$empreinte] = $sub;
+        ftruncate($h, 0); rewind($h); fwrite($h, json_encode($registre));
+    }
+    flock($h, LOCK_UN); fclose($h);
+    if ($deja) stripe_post('subscriptions/' . rawurlencode($sub), ['trial_end' => 'now']);
+    return $deja;
+}
+
 /** E-mail de bienvenue (essai commencé, ou abonnement actif sans essai), une fois par abonnement. */
 function bienvenue(?array $a): void
 {
@@ -78,7 +107,9 @@ switch ($type) {
     case 'checkout.session.completed':
         if (($o['mode'] ?? '') !== 'subscription') json(200, ['ignore' => 'mode']);
         $sub = is_array($o['subscription'] ?? null) ? (string) ($o['subscription']['id'] ?? '') : (string) ($o['subscription'] ?? '');
-        bienvenue(relire_abonnement($sub));
+        $a = relire_abonnement($sub);
+        if (essai_par_carte($sub)) $a = relire_abonnement($sub); // essai déjà pris avec cette carte : payant dès maintenant
+        bienvenue($a);
         break;
 
     case 'customer.subscription.created':

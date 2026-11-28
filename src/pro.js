@@ -6,7 +6,7 @@ import { FORMATS, exporterSite, estimer, sansAccent, nomFichier } from "./export
 import { dessinCoupe, coupeDxf, coupeSvg, coupePdf } from "./exportCoupe.js";
 import { ouvrirImpression3D } from "./impression3dFenetre.js";
 import { toitsReleve, toitsObjets, toitsSwiss } from "./impression3dToits.js";
-import { t, nombre, entier, date, locale } from "./i18n.js";
+import { t, th, nombre, entier, date, locale } from "./i18n.js";
 import { rectangle, dimensions, reglerCorniche, listerProjets, enregistrerProjet, supprimerProjet, normaliserVolume, empriseValide, sensDirect, seRecoupe, orientationDominante, aire, pansPossibles, lireProjet, nouvelId, renommerProjet, dupliquerProjet, projetOuvert, aireEmprise, surfacePlancher, corniche, hauteurToit } from "./projet.js";
 import { directions, accrocherPoint } from "./accrochage.js";
 import { traceSol } from "./traceVolume.js";
@@ -782,7 +782,7 @@ export function brancherPro(o) {
     $("#exportCoupe").classList.toggle("d-none", !S.coupe);
     if (!pret() || $("#choixExport").hidden) return;
     const e = estimer(scene, choix(), format(), jeuExport());
-    $("#noteExport").innerHTML = t("pro.estimation", { triangles: entier(e.triangles), taille: mo(e.octets) })
+    $("#noteExport").innerHTML = th("pro.estimation", { triangles: entier(e.triangles), taille: mo(e.octets) })
       + (e.octets > 50e6 ? ` <b>${t("pro.lourd")}${+$("#xMaille").value < 2 ? t("pro.lourdMaille") : ""}.</b>` : "")
       + (!F.absolu ? "<br>" + t("pro.simplePrecision") : "")
       + (!F.lignes ? "<br>" + t("pro.stlSurfaces") : "");
@@ -802,7 +802,7 @@ export function brancherPro(o) {
       });
       telecharger(r.blob, r.nom);
       o.compter?.("export");
-      $("#resultatExport").innerHTML = t("pro.telecharge", { nom: r.nom, zip: mo(r.octetsZip), fichier: r.fichier, taille: mo(r.octets), triangles: entier(r.triangles), s: fr(r.ms / 1000) });
+      $("#resultatExport").innerHTML = th("pro.telecharge", { nom: r.nom, zip: mo(r.octetsZip), fichier: r.fichier, taille: mo(r.octets), triangles: entier(r.triangles), s: fr(r.ms / 1000) });
       if (import.meta.env.DEV) S.dernierExport = r; // pour la relecture pendant le développement
     } catch (e) {
       console.error(e);
@@ -826,7 +826,7 @@ export function brancherPro(o) {
       ancre.after(b);
       b.onclick = () => {
         if (!pret()) return;
-        if (o.compte?.disponible() && !o.compte.etat().pro && !o.compte.exigerPro(t("impr.raison"))) return;
+        if (!autorise() && !o.compte?.exigerPro(t("impr.raison"))) return;
         const lieu = $("#lieu").textContent || "site";
         const demi = (S.G.rayonZone || S.G.R) + 30;
         ouvrirImpression3D({
@@ -854,7 +854,7 @@ export function brancherPro(o) {
   $$("[data-coupe]").forEach(b => b.onclick = async () => {
     if (!S.coupe) return;
     // export des coupes : réservé au Pro (sans API des comptes, en développement, il reste ouvert)
-    if (o.compte?.disponible() && !o.compte.etat().pro && !o.compte.exigerPro(t("compte.raisonCoupe"))) return;
+    if (!autorise() && !o.compte?.exigerPro(t("compte.raisonCoupe"))) return;
     const C = S.coupe, lieu = $("#lieu").textContent || "site";
     const D = dessinCoupe(C.P, { E0: S.E0, N0: S.N0, lieu, soleil: o.soleilActuel(), jour: date(new Date(S.jour + "T12:00:00")) });
     const infos = [t("export.infoCoupe", { lieu }), `A = E ${fr(S.E0 + C.A[0])} N ${fr(S.N0 + C.A[1])} ; B = E ${fr(S.E0 + C.B[0])} N ${fr(S.N0 + C.B[1])} (MN95, EPSG:2056)`,
@@ -864,13 +864,13 @@ export function brancherPro(o) {
       try {
         const blob = await coupePdf(coupeSvg(D, infos), infos.slice(1), t("export.infoCoupe", { lieu }) + " — 1:200");
         telecharger(blob, nom);
-        $("#resultatExport").innerHTML = t("pro.telechargeCoupe", { nom, taille: mo(blob.size) });
+        $("#resultatExport").innerHTML = th("pro.telechargeCoupe", { nom, taille: mo(blob.size) });
       } catch (e) { console.error(e); o.message(t("pro.exportImpossible", { m: e.message })); }
       return;
     }
     const texte = b.dataset.coupe === "dxf" ? coupeDxf(D, infos) : coupeSvg(D, infos);
     telecharger(new Blob([texte], { type: b.dataset.coupe === "dxf" ? "application/dxf" : "image/svg+xml" }), nom);
-    $("#resultatExport").innerHTML = t("pro.telechargeCoupe", { nom, taille: mo(texte.length) });
+    $("#resultatExport").innerHTML = th("pro.telechargeCoupe", { nom, taille: mo(texte.length) });
     if (import.meta.env.DEV) S.dernierExport = { nom, texte };
   });
   $("#vCoupe").addEventListener("change", majExport);
@@ -878,7 +878,8 @@ export function brancherPro(o) {
   /* ---------------------------------------------------------------- statut Pro (plus d'interrupteur) */
   // Le mode pro suit le compte : Pro (ou sans service de comptes, en développement) → outils actifs ; sinon les outils
   // restent visibles mais grisés, et un clic dessus ouvre l'offre Pro.
-  const autorise = () => !o.compte?.disponible() || o.compte.etat().pro;
+  // Pro confirmé par l'API des comptes ; sans module de comptes, ouvert en développement seulement
+  function autorise() { return o.compte ? o.compte.proActif() : !!import.meta.env?.DEV; }
   const basculer = () => {
     const ok = autorise(), avant = $("#vPro").checked;
     $("#vPro").checked = ok;

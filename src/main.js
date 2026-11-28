@@ -7,7 +7,7 @@ import { routesAutour } from "./routesTLM.js";
 import { brancherLieux } from "./lieux.js";
 import { brancherCalendrier } from "./calendrier.js";
 import { brancherFiche } from "./fiche.js";
-import { t, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
+import { t, th, nombre, entier, date, traduirePage, brancherSelecteur } from "./i18n.js";
 import { communeEn, chercher, parcelleEn, parcellesAutour, tuilesNuage, tuilesGrille, tuilesAlti2m, tuilesAlti05, versWgs, lireCoordonnees, preparerTuiles } from "./geo.js";
 import { chargerNuage, chaufferFils } from "./nuage.js";
 import { LodAnneau } from "./lodAnneau.js";
@@ -1166,11 +1166,11 @@ function ongletsCoupe() {
     const plus = document.createElement("button");
     plus.type = "button"; plus.className = "ajouter"; plus.textContent = t("coupe.ajouter");
     // plusieurs coupes : réservé au Pro (bouton grisé pour un compte gratuit ; un clic ouvre l'offre)
-    const libre = !compte.disponible() || compte.etat().pro;
+    const libre = compte.proActif();
     plus.classList.toggle("pro-grise", !libre);
     if (!libre) plus.title = t("coupe.ajouterPro");
     plus.onclick = () => {
-      if (!(!compte.disponible() || compte.etat().pro) && !compte.exigerPro(t("coupe.ajouterPro"))) return;
+      if (!compte.exigerPro(t("coupe.ajouterPro"))) return;
       S.coupe = null; majCoupe(...coupeParDefaut(S.coupes.length % 2 === 1));
     };
     return plus;
@@ -1221,7 +1221,7 @@ $("#vCoupe").addEventListener("change", e => {
 // « Nouvelle coupe » : la première coupe s'ouvre ; ensuite, une coupe de plus (réservé au Pro, comme « Ajouter une coupe »)
 $("#btnNouvelleCoupe").onclick = () => {
   if (!$("#vCoupe").checked) { $("#vCoupe").checked = true; $("#vCoupe").dispatchEvent(new Event("change")); return; }
-  if (!(!compte.disponible() || compte.etat().pro) && !compte.exigerPro(t("coupe.ajouterPro"))) return;
+  if (!compte.exigerPro(t("coupe.ajouterPro"))) return;
   S.coupe = null; majCoupe(...coupeParDefaut(S.coupes.length % 2 === 1));
 };
 $("#btnTracer").onclick = () => {
@@ -1350,7 +1350,7 @@ function afficherResultat() {
   $("#heures").hidden = false;
   $("#heuresMax").textContent = duree(max) + parJour;
   // moyenne, minimum et maximum en trois mesures côte à côte, puis le résumé du calcul
-  $("#heuresStats").innerHTML = (k ? `<div class="mesures-lieu">${t("heures.statsLieu", { lieu: t(sans ? "heures.autourPoint" : "heures.parcelle"), titre: P.titre })}</div>`
+  $("#heuresStats").innerHTML = (k ? `<div class="mesures-lieu">${th("heures.statsLieu", { lieu: t(sans ? "heures.autourPoint" : "heures.parcelle"), titre: P.titre })}</div>`
       + `<dl class="mesures"><div><dt>${t("heures.moyenne")}</dt><dd class="principale">${duree(s / k) + parJour}</dd></div>`
       + `<div><dt>${t("heures.min")}</dt><dd>${duree(mn)}</dd></div><div><dt>${t("heures.max")}</dt><dd>${duree(mx)}</dd></div></dl>` : "")
     + `<span class="text-secondary resume">${t("heures.resume", { titre: P.titre, max: duree(P.max) + parJour, carreaux: entier(S.facades.carreaux.length), s: nombre(ms / 1000, 1) })}</span>`;

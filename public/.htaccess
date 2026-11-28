@@ -31,15 +31,16 @@ AddOutputFilterByType DEFLATE application/javascript application/json text/css t
   </FilesMatch>
 </IfModule>
 
-# en-têtes de sécurité (audit du 27.11.2026) : appliqués ; la politique de contenu (CSP) est d'abord en mode « rapport
-# seulement » pour vérifier qu'elle ne bloque rien (services swisstopo, cantons, AWS), avant de l'imposer
+# en-têtes de sécurité (audits des 27 et 28.11.2026) : appliqués. La politique de contenu (CSP) est imposée depuis le
+# 28.11.2026, après un essai local (vite preview avec le même en-tête) : maquette, relevé, géocodeur, fiches, admin.
+# connect-src admet data:/blob: pour le décodeur zstd (WebAssembly en data:) des nuages de points.
 <IfModule mod_headers.c>
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "DENY"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
-  Header always set Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://fundingchoicesmessages.google.com https://*.gstatic.com https://*.adtrafficquality.google; worker-src 'self' blob:; connect-src 'self' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://fundingchoicesmessages.google.com https://*.gstatic.com https://*.adtrafficquality.google https://*.geo.admin.ch https://geodienste.ch https://www.ogc.vd.ch https://elevation-tiles-prod.s3.amazonaws.com; img-src 'self' data: blob: https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://fundingchoicesmessages.google.com https://*.gstatic.com https://*.adtrafficquality.google https://*.geo.admin.ch https://geodienste.ch https://www.ogc.vd.ch https://elevation-tiles-prod.s3.amazonaws.com; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-src https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://fundingchoicesmessages.google.com https://*.gstatic.com https://*.adtrafficquality.google; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://fundingchoicesmessages.google.com https://*.gstatic.com https://*.adtrafficquality.google; worker-src 'self' blob:; connect-src 'self' data: blob: https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://fundingchoicesmessages.google.com https://*.gstatic.com https://*.adtrafficquality.google https://*.geo.admin.ch https://geodienste.ch https://www.ogc.vd.ch https://elevation-tiles-prod.s3.amazonaws.com; img-src 'self' data: blob: https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://fundingchoicesmessages.google.com https://*.gstatic.com https://*.adtrafficquality.google https://*.geo.admin.ch https://geodienste.ch https://www.ogc.vd.ch https://elevation-tiles-prod.s3.amazonaws.com; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-src https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://fundingchoicesmessages.google.com https://*.gstatic.com https://*.adtrafficquality.google; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com"
 </IfModule>
 
 # protection git

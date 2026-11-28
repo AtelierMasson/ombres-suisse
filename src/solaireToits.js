@@ -36,7 +36,7 @@ export function brancherSolaire(o) {
   const groupe = new THREE.Group();
   scene.scene.add(groupe);
   (scene.horsAO ||= []).push(groupe);
-  const autorise = () => !forcerGratuit && (!o.compte?.disponible() || o.compte.etat().pro);
+  const autorise = () => !forcerGratuit && (o.compte ? o.compte.proActif() : !!import.meta.env?.DEV);
 
   /* ---------------------------------------------------------------- choix du toit */
   function activer(oui = !outil) {

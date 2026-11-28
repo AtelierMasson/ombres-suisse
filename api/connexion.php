@@ -12,8 +12,10 @@ if (strlen($email) > 254 || !filter_var($email, FILTER_VALIDATE_EMAIL)) json(400
 
 $pdo = bd();
 
-// case « newsletter » cochée : accord noté (il ne compte qu'une fois l'adresse vérifiée par la connexion)
-if (!empty($d['newsletter'])) newsletter_noter($email, true, 'inscription', $l);
+// case « newsletter » cochée : l'intention voyage dans le lien ; l'accord n'est noté que par session.php, quand le
+// propriétaire de l'adresse clique (adresse vérifiée). Rien n'est écrit ici : une demande pour l'adresse d'un tiers ne
+// laisse aucune trace d'accord, et la limite de débit ci-dessous s'applique avant tout envoi.
+$newsletter = !empty($d['newsletter']);
 
 // nettoyage occasionnel des lignes expirées
 if (random_int(1, 50) === 1) {
@@ -40,7 +42,7 @@ $jeton = bin2hex(random_bytes(32));
 $pdo->prepare('INSERT INTO jetons (jeton, email, expire) VALUES (?, ?, UTC_TIMESTAMP() + INTERVAL 15 MINUTE)')
     ->execute([hache($jeton), $email]);
 
-$lien = API_URL . '/session.php?' . http_build_query(['jeton' => $jeton, 'langue' => $l]);
+$lien = API_URL . '/session.php?' . http_build_query(['jeton' => $jeton, 'langue' => $l] + ($newsletter ? ['nl' => 1] : []));
 // e-mail sobre : texte et HTML (bouton « Se connecter »), sans nom d'éditeur, juste topograph.ch
 $textes = [
     'fr' => ['Votre lien de connexion à Topograph', 'Bonjour,', 'Utilisez ce lien pour vous connecter à Topograph.', 'Se connecter',
